@@ -1,97 +1,590 @@
-# Cấu trúc chính trong dự án:
+# Architecture
 
-![](assets/architecture.drawio.png)
+![Architecture](assets/architecture.drawio.png)
 
-# Nghiệp vụ
+## 1. Tổng quan
 
-## Thực thể
+Kiến trúc được chia thành ba phần chính:
 
-- User: Có thể đăng bài, chỉnh sửa, xóa bài viết của bản thân, follow user khác
-- Post: Chèn emoji, lấy link, bình luận
-- Tag (Giới hạn số lượng)
-- Comment: Link, Trang trí chữ, hình ảnh (dưới dạng link), gg live view
-- Report (Giới hạn số lần report trong 1 đơn vị thời gian)
-- Role
-  - Ban / Mute
-  - Custom
-  - Admin / Moderator: Cho phép nhìn từ dashboard
+```mermaid
+flowchart TD
+    FE["Frontend"]
+    BE["Backend"]
+    INFRA["Infrastructure"]
 
-## Tính năng
+    FE --> BE
+    BE --> INFRA
 
-### FE
-
-- Tự động dịch bình luận, bài viết
-- Thêm live view của google map
-- Tự động lấy role / gán role
-- Báo cáo bình luận
-- Chặn thành viên khác
-
-### BE
-
-- Lấy thông tin người dùng
-- Lấy thông tin bài viết
-- Lấy thông tin bình luận
-
-### INFRA
-
-- Tự động xếp user vào nhóm 'mute' khi chưa hết timeout
-- Áp dụng xóa mềm, sau một khoảng thời gian thì sẽ có cơ chế dọn rác
-
-## Nghiệp vụ
-
-- Admin ủy quyền moderator
-- Ban / Mute
-
-# API route (FE - BE)
-
-```text
-/user/:id #Danh sách người dùng
-/post/:id #Danh sách post
-/post/tag? #Truy vấn theo tag
-/post/comment/:comment_id #Danh sách các comment trong 1 post
-post/:post_id/report/:report_id #Cho admin với moderator xem
+    FE --> EXT["External Services"]
+    BE --> EXT
 ```
 
-# Chức năng chính trong page
+### Frontend
 
-## Home
+Phụ trách giao diện, trải nghiệm người dùng và các chức năng tương tác trực tiếp.
 
-- Thanh tìm kiếm -> truy cập vào trang post/ sau đó thì thực hiện truy vấn theo api route
+### Backend
 
-- Thông báo quan trọng (admin)
+Phụ trách API, nghiệp vụ, dữ liệu và kiểm tra quyền truy cập.
 
-- Bài đăng nổi bật
+### Infrastructure
 
-- Bạn đang quan tâm
+Phụ trách các tác vụ nền và cơ chế vận hành như scheduler, timeout và dọn dữ liệu.
 
-- Bài đăng mới
+---
 
-- Danh sách các bài đăng
+# 2. Luồng xử lý
 
-## About
+```mermaid
+flowchart TD
+    User["User"] --> UI["Frontend"]
 
-- Giới thiệu thành viên, mục đích xây dựng
+    UI --> API["API"]
+    API --> Auth["Authentication"]
+    Auth --> Permission["Authorization"]
 
-- Yêu thầy Shin, cô Linh, cô Hoa Đăng sensei ga oishii desu.
+    Permission --> UseCase["Use Case"]
+    UseCase --> Domain["Domain"]
 
-## Profile
+    Domain --> Repository["Repository"]
+    Repository --> Database["Database"]
 
-- Yêu thích
+    UseCase --> External["External Services"]
 
-- Đã lưu
+    Scheduler["Scheduler"] --> Infrastructure["Infrastructure Tasks"]
+    Infrastructure --> Database
+```
 
-- Thông tin cá nhân
+---
+
+# 3. Thực thể
+
+Các thực thể chính được giữ ở mức trừu tượng để có thể mở rộng sau này.
+
+```text
+User
+Post
+Comment
+Tag
+Report
+Role
+```
+
+## User
+
+Người dùng có thể:
+
+- Quản lý thông tin cá nhân
+- Tạo, sửa và xóa bài viết của bản thân
+- Theo dõi người dùng khác
+- Chặn người dùng khác
+- Lưu và yêu thích nội dung
 
 ## Post
 
-- Chức năng live-view google map khi bình luận
+Bài viết có thể:
+
+- Chứa nội dung văn bản
+- Gắn tag
+- Chèn emoji
+- Chứa liên kết
+- Có bình luận
+- Được lưu hoặc yêu thích
+
+## Comment
+
+Bình luận có thể:
+
+- Chứa văn bản
+- Chứa liên kết
+- Trang trí nội dung
+- Tham chiếu hình ảnh bằng URL
+- Chứa thông tin vị trí để hiển thị bản đồ / Live View
+- Được báo cáo
+
+## Tag
+
+Dùng để phân loại nội dung.
+
+Có giới hạn số lượng tag tùy theo nghiệp vụ.
+
+## Report
+
+Dùng để báo cáo nội dung hoặc hành vi không phù hợp.
+
+Có giới hạn số lần report trong một khoảng thời gian.
+
+## Role
+
+Xác định quyền của người dùng trong hệ thống.
+
+Các nhóm quyền ban đầu:
+
+```text
+User
+Moderator
+Admin
+Custom
+```
+
+Role có thể được mở rộng trong tương lai.
+
+---
+
+# 4. Quyền và phân quyền
+
+Role được xử lý ở Backend.
+
+```mermaid
+flowchart TD
+    Request["Request"] --> Auth["Authentication"]
+    Auth --> Role["Role / Permission"]
+    Role -->|Allowed| API["API / Use Case"]
+    Role -->|Denied| Error["Forbidden"]
+```
+
+Frontend chỉ sử dụng role để quyết định giao diện được hiển thị.
+
+```mermaid
+flowchart TD
+    User["User"] --> Me["GET /api/v1/me"]
+
+    Me --> Role{"Role"}
+
+    Role -->|User| UserPage["User Interface"]
+    Role -->|Moderator| Moderator["Moderator Dashboard"]
+    Role -->|Admin| Admin["Admin Dashboard"]
+```
+
+Backend vẫn phải kiểm tra quyền đối với mọi API yêu cầu đặc quyền.
+
+---
+
+# 5. API
+
+API sử dụng version:
+
+```text
+/api/v1
+```
+
+API được chia theo resource thay vì theo page.
+
+---
+
+## 5.1 Me
+
+Thông tin và thao tác của người dùng hiện tại.
+
+```text
+GET    /api/v1/me
+PATCH  /api/v1/me
+
+GET    /api/v1/me/following
+GET    /api/v1/me/followers
+
+GET    /api/v1/me/favorites
+POST   /api/v1/me/favorites/:post_id
+DELETE /api/v1/me/favorites/:post_id
+
+GET    /api/v1/me/saved
+POST   /api/v1/me/saved/:post_id
+DELETE /api/v1/me/saved/:post_id
+```
+
+---
+
+## 5.2 User
+
+Thông tin công khai và các quan hệ giữa người dùng.
+
+```text
+GET    /api/v1/users/:user_id
+GET    /api/v1/users/:user_id/posts
+
+POST   /api/v1/users/:user_id/follow
+DELETE /api/v1/users/:user_id/follow
+
+POST   /api/v1/users/:user_id/block
+DELETE /api/v1/users/:user_id/block
+```
+
+---
+
+## 5.3 Post
+
+Resource chính của diễn đàn.
+
+```text
+GET    /api/v1/posts
+POST   /api/v1/posts
+
+GET    /api/v1/posts/:post_id
+PATCH  /api/v1/posts/:post_id
+DELETE /api/v1/posts/:post_id
+```
+
+Truy vấn sử dụng query parameter:
+
+```text
+GET /api/v1/posts?tag=travel
+GET /api/v1/posts?sort=newest
+GET /api/v1/posts?sort=popular
+GET /api/v1/posts?search=tokyo
+GET /api/v1/posts?user_id=42
+```
+
+---
+
+## 5.4 Comment
+
+Comment thuộc về Post khi tạo hoặc lấy danh sách.
+
+```text
+GET    /api/v1/posts/:post_id/comments
+POST   /api/v1/posts/:post_id/comments
+```
+
+Thao tác trên một comment:
+
+```text
+GET    /api/v1/comments/:comment_id
+PATCH  /api/v1/comments/:comment_id
+DELETE /api/v1/comments/:comment_id
+```
+
+---
+
+## 5.5 Tag
+
+```text
+GET    /api/v1/tags
+GET    /api/v1/tags/:tag_id
+
+POST   /api/v1/tags
+DELETE /api/v1/tags/:tag_id
+```
+
+Việc tạo hoặc xóa tag có thể yêu cầu permission riêng.
+
+---
+
+## 5.6 Reaction
+
+Dùng cho emoji hoặc các dạng reaction khác.
+
+```text
+POST   /api/v1/posts/:post_id/reactions
+DELETE /api/v1/posts/:post_id/reactions
+
+POST   /api/v1/comments/:comment_id/reactions
+DELETE /api/v1/comments/:comment_id/reactions
+```
+
+Có thể mở rộng loại reaction sau này mà không thay đổi cấu trúc chính.
+
+---
+
+## 5.7 Report
+
+Người dùng tạo report thông qua resource mà họ muốn báo cáo.
+
+```text
+POST /api/v1/posts/:post_id/reports
+POST /api/v1/comments/:comment_id/reports
+```
+
+Report được xử lý bởi hệ thống moderation.
+
+---
+
+# 6. Moderation
+
+Moderator xử lý các nghiệp vụ kiểm duyệt.
+
+```text
+/api/v1/moderation
+```
+
+## Dashboard
+
+```text
+GET /api/v1/moderation/dashboard
+```
+
+## Report
+
+```text
+GET   /api/v1/moderation/reports
+GET   /api/v1/moderation/reports/:report_id
+PATCH /api/v1/moderation/reports/:report_id
+```
+
+## User moderation
+
+```text
+POST   /api/v1/moderation/users/:user_id/mute
+DELETE /api/v1/moderation/users/:user_id/mute
+
+POST   /api/v1/moderation/users/:user_id/ban
+DELETE /api/v1/moderation/users/:user_id/ban
+```
+
+Các thao tác này yêu cầu quyền moderation.
+
+---
+
+# 7. Admin
+
+Admin quản lý hệ thống và các quyền cao hơn.
+
+```text
+/api/v1/admin
+```
+
+## Dashboard
+
+```text
+GET /api/v1/admin/dashboard
+```
+
+## User / Role
+
+```text
+GET    /api/v1/admin/users/:user_id/roles
+POST   /api/v1/admin/users/:user_id/roles
+DELETE /api/v1/admin/users/:user_id/roles/:role_id
+```
+
+## Moderator
+
+```text
+POST   /api/v1/admin/users/:user_id/moderator
+DELETE /api/v1/admin/users/:user_id/moderator
+```
+
+Các API admin chỉ dành cho Admin.
+
+---
+
+# 8. Dashboard
+
+Frontend có thể tách dashboard theo role:
+
+```text
+/dashboard
+├── moderator
+└── admin
+```
+
+Trong đó:
+
+```text
+/dashboard/moderator
+```
+
+phục vụ:
+
+- Xem report
+- Xem nội dung cần xử lý
+- Mute user
+- Ban user
+- Theo dõi trạng thái moderation
+
+```text
+/dashboard/admin
+```
+
+phục vụ:
+
+- Các chức năng moderation
+- Quản lý moderator
+- Quản lý role
+- Quản lý permission
+- Quản lý cấu hình hệ thống
+
+Không cần tạo API riêng cho từng page dashboard.
+
+Dashboard chỉ là giao diện sử dụng các API tương ứng.
+
+---
+
+# 9. Frontend
+
+## Home
+
+Hiển thị nội dung tổng quan của hệ thống.
+
+Chức năng:
+
+- Tìm kiếm
+- Bài đăng nổi bật
+- Bài đăng mới
+- Nội dung liên quan
+- Danh sách bài viết
+- Thông báo hệ thống
+
+Ví dụ API:
+
+```text
+GET /api/v1/posts
+GET /api/v1/posts?sort=popular
+GET /api/v1/posts?sort=newest
+GET /api/v1/posts?search=...
+```
+
+---
+
+## About
+
+Giới thiệu:
+
+- Thành viên
+- Mục đích xây dựng
+- Định hướng của diễn đàn
+
+Không yêu cầu nghiệp vụ Backend phức tạp.
+
+---
+
+## Profile
+
+Hiển thị:
+
+- Thông tin cá nhân
+- Bài viết
+- Người theo dõi
+- Đang theo dõi
+- Bài viết yêu thích
+- Bài viết đã lưu
+
+API chủ yếu sử dụng:
+
+```text
+/api/v1/me
+/api/v1/users/:user_id
+/api/v1/me/favorites
+/api/v1/me/saved
+```
+
+---
+
+## Post
+
+Trang bài viết cung cấp:
+
+- Nội dung bài viết
+- Tag
+- Reaction
+- Comment
+- Report
+- Lưu bài viết
+- Thông tin vị trí
+- Gợi ý ngôn ngữ
+
+Các chức năng bên ngoài có thể được tích hợp khi cần.
+
+---
+
+# 10. External Services
+
+Một số chức năng không nhất thiết phải thuộc Domain chính.
+
+```mermaid
+flowchart LR
+    FE["Frontend"] --> Translation["Translation"]
+    FE --> Maps["Google Maps / Live View"]
+
+    BE["Backend"] --> TranslationAPI["Translation Service"]
+    BE --> Other["Other Services"]
+```
+
+Ví dụ:
+
+### Translation
+
+- Dịch bài viết
+- Dịch bình luận
+
+### Google Maps
+
+- Hiển thị vị trí
+- Hiển thị bản đồ
+- Live View nếu dịch vụ hỗ trợ
+
+### Grammar
 
 - Gợi ý ngữ pháp
+- Kiểm tra nội dung
 
-- Thả emoji, lưu link bài viết
+Các dịch vụ này có thể được thay thế hoặc bổ sung sau này.
 
-# Hạ tầng cơ sở
+---
 
-- Sử dụng hạ tầng của Nhân (Trong giai đoạn phát triển)
+# 11. Infrastructure
 
-- Sử dụng scheduler khi áp dụng xóa mềm, tự động cập nhật trạng thái khi mute
+Infrastructure xử lý các tác vụ chạy nền.
+
+```mermaid
+flowchart TD
+    Scheduler["Scheduler"] --> Timeout["Timeout"]
+    Scheduler --> Cleanup["Cleanup"]
+
+    Timeout --> UserState["User State"]
+    Cleanup --> Database["Database"]
+```
+
+## Timeout
+
+Dùng để tự động cập nhật trạng thái khi mute hoặc các trạng thái có thời hạn kết thúc.
+
+## Cleanup
+
+Hỗ trợ xóa dữ liệu đã được soft delete sau một khoảng thời gian.
+
+## Soft Delete
+
+Dữ liệu cần xóa có thể được đánh dấu thay vì xóa ngay.
+
+```text
+Active
+  ↓
+Deleted
+  ↓
+Cleanup
+  ↓
+Permanent Delete
+```
+
+---
+
+# 12. Nghiệp vụ chính
+
+Các nghiệp vụ ban đầu:
+
+```text
+User
+ ├── Create Post
+ ├── Edit Own Post
+ ├── Delete Own Post
+ ├── Follow User
+ ├── Block User
+ └── Save / Favorite Post
+
+Post
+ ├── Tag
+ ├── Reaction
+ ├── Comment
+ └── Report
+
+Moderation
+ ├── Review Report
+ ├── Mute User
+ └── Ban User
+
+Administration
+ ├── Manage Moderator
+ └── Manage Role / Permission
+```
+
+---
