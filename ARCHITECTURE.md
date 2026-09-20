@@ -59,8 +59,6 @@ flowchart TD
 
 # 3. Thực thể
 
-Các thực thể chính được giữ ở mức trừu tượng để có thể mở rộng sau này.
-
 ```text
 User
 Post
@@ -127,13 +125,9 @@ Admin
 Custom
 ```
 
-Role có thể được mở rộng trong tương lai.
-
 ---
 
 # 4. Quyền và phân quyền
-
-Role được xử lý ở Backend.
 
 ```mermaid
 flowchart TD
@@ -142,8 +136,6 @@ flowchart TD
     Role -->|Allowed| API["API / Use Case"]
     Role -->|Denied| Error["Forbidden"]
 ```
-
-Frontend chỉ sử dụng role để quyết định giao diện được hiển thị.
 
 ```mermaid
 flowchart TD
@@ -155,8 +147,6 @@ flowchart TD
     Role -->|Moderator| Moderator["Moderator Dashboard"]
     Role -->|Admin| Admin["Admin Dashboard"]
 ```
-
-Backend vẫn phải kiểm tra quyền đối với mọi API yêu cầu đặc quyền.
 
 ---
 
@@ -265,13 +255,9 @@ POST   /api/v1/tags
 DELETE /api/v1/tags/:tag_id
 ```
 
-Việc tạo hoặc xóa tag có thể yêu cầu permission riêng.
-
 ---
 
 ## 5.6 Reaction
-
-Dùng cho emoji hoặc các dạng reaction khác.
 
 ```text
 POST   /api/v1/posts/:post_id/reactions
@@ -280,8 +266,6 @@ DELETE /api/v1/posts/:post_id/reactions
 POST   /api/v1/comments/:comment_id/reactions
 DELETE /api/v1/comments/:comment_id/reactions
 ```
-
-Có thể mở rộng loại reaction sau này mà không thay đổi cấu trúc chính.
 
 ---
 
@@ -329,8 +313,6 @@ DELETE /api/v1/moderation/users/:user_id/mute
 POST   /api/v1/moderation/users/:user_id/ban
 DELETE /api/v1/moderation/users/:user_id/ban
 ```
-
-Các thao tác này yêu cầu quyền moderation.
 
 ---
 
@@ -443,8 +425,6 @@ Giới thiệu:
 - Mục đích xây dựng
 - Định hướng của diễn đàn
 
-Không yêu cầu nghiệp vụ Backend phức tạp.
-
 ---
 
 ## Profile
@@ -479,16 +459,12 @@ Trang bài viết cung cấp:
 - Comment
 - Report
 - Lưu bài viết
-- Thông tin vị trí
-- Gợi ý ngôn ngữ
-
-Các chức năng bên ngoài có thể được tích hợp khi cần.
+- Thông tin vị trí (thông qua backend)
+- Gợi ý ngôn ngữ (thông qua backend)
 
 ---
 
 # 10. External Services
-
-Một số chức năng không nhất thiết phải thuộc Domain chính.
 
 ```mermaid
 flowchart LR
@@ -539,10 +515,6 @@ flowchart TD
 Dùng để tự động cập nhật trạng thái khi mute hoặc các trạng thái có thời hạn kết thúc.
 
 ## Cleanup
-
-Hỗ trợ xóa dữ liệu đã được soft delete sau một khoảng thời gian.
-
-## Soft Delete
 
 Dữ liệu cần xóa có thể được đánh dấu thay vì xóa ngay.
 
