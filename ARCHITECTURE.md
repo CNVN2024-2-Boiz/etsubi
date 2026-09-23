@@ -11,17 +11,17 @@ flowchart TD
     FE["Frontend"]
     BE["Backend"]
     INFRA["Infrastructure"]
+    EXT["External Services"]
 
     FE --> BE
     BE --> INFRA
-
-    FE --> EXT["External Services"]
+    FE --> EXT
     BE --> EXT
 ```
 
 ### Frontend
 
-Phụ trách giao diện, trải nghiệm người dùng và các chức năng tương tác trực tiếp.
+Phụ trách giao diện, trải nghiệm người dùng và tương tác với hệ thống.
 
 ### Backend
 
@@ -29,9 +29,13 @@ Phụ trách API, nghiệp vụ, dữ liệu và kiểm tra quyền truy cập.
 
 ### Infrastructure
 
-Phụ trách các tác vụ nền và cơ chế vận hành như scheduler, timeout và dọn dữ liệu.
+Phụ trách các tác vụ nền và cơ chế vận hành như scheduler, timeout và dọn dẹp dữ liệu.
 
----
+### External Services
+
+Cung cấp các chức năng bên ngoài hệ thống như dịch thuật, kiểm tra ngữ pháp và bản đồ.
+
+______________________________________________________________________
 
 # 2. Luồng xử lý
 
@@ -41,6 +45,8 @@ flowchart TD
 
     UI --> API["API"]
     API --> Auth["Authentication"]
+
+    Auth --> CurrentUser["Current User"]
     Auth --> Permission["Authorization"]
 
     Permission --> UseCase["Use Case"]
@@ -55,17 +61,21 @@ flowchart TD
     Infrastructure --> Database
 ```
 
----
+______________________________________________________________________
 
 # 3. Thực thể
+
+Các thực thể chính:
 
 ```text
 User
 Post
 Comment
 Tag
+Reaction
 Report
 Role
+Permission
 ```
 
 ## User
@@ -97,7 +107,7 @@ Bình luận có thể:
 - Chứa liên kết
 - Trang trí nội dung
 - Tham chiếu hình ảnh bằng URL
-- Chứa thông tin vị trí để hiển thị bản đồ / Live View
+- Chứa thông tin vị trí
 - Được báo cáo
 
 ## Tag
@@ -105,6 +115,10 @@ Bình luận có thể:
 Dùng để phân loại nội dung.
 
 Có giới hạn số lượng tag tùy theo nghiệp vụ.
+
+## Reaction
+
+Biểu thị tương tác của người dùng đối với Post hoặc Comment.
 
 ## Report
 
@@ -114,7 +128,7 @@ Có giới hạn số lần report trong một khoảng thời gian.
 
 ## Role
 
-Xác định quyền của người dùng trong hệ thống.
+Xác định nhóm quyền của người dùng.
 
 Các nhóm quyền ban đầu:
 
@@ -125,32 +139,26 @@ Admin
 Custom
 ```
 
----
+## Permission
+
+Xác định một hành động cụ thể mà một Role được phép thực hiện.
+
+______________________________________________________________________
 
 # 4. Quyền và phân quyền
 
 ```mermaid
 flowchart TD
-    Request["Request"] --> Auth["Authentication"]
-    Auth --> Role["Role / Permission"]
-    Role -->|Allowed| API["API / Use Case"]
-    Role -->|Denied| Error["Forbidden"]
+    Auth["Authenticated User"] --> Role{"Role"}
+
+    Role -->|User| UserUI["User Interface"]
+    Role -->|Moderator| ModeratorUI["Moderator Dashboard"]
+    Role -->|Admin| AdminUI["Admin Dashboard"]
 ```
 
-```mermaid
-flowchart TD
-    User["User"] --> Me["GET /api/v1/me"]
+______________________________________________________________________
 
-    Me --> Role{"Role"}
-
-    Role -->|User| UserPage["User Interface"]
-    Role -->|Moderator| Moderator["Moderator Dashboard"]
-    Role -->|Admin| Admin["Admin Dashboard"]
-```
-
----
-
-# 5. API
+# 5. API Route
 
 API sử dụng version:
 
@@ -158,63 +166,68 @@ API sử dụng version:
 /api/v1
 ```
 
-API được chia theo resource thay vì theo page.
+API được tổ chức theo entity.
 
----
-
-## 5.1 Me
-
-Thông tin và thao tác của người dùng hiện tại.
+## HTTP Method
 
 ```text
-GET    /api/v1/me
-PATCH  /api/v1/me
+GET
+    Lấy dữ liệu
 
-GET    /api/v1/me/following
-GET    /api/v1/me/followers
+POST
+    Tạo resource mới
 
-GET    /api/v1/me/favorites
-POST   /api/v1/me/favorites/:post_id
-DELETE /api/v1/me/favorites/:post_id
+PATCH
+    Cập nhật một phần resource
 
-GET    /api/v1/me/saved
-POST   /api/v1/me/saved/:post_id
-DELETE /api/v1/me/saved/:post_id
+PUT
+    Thiết lập hoặc thay thế một trạng thái / quan hệ
+
+DELETE
+    Xóa resource hoặc hủy trạng thái / quan hệ
 ```
 
----
+______________________________________________________________________
 
-## 5.2 User
+## User
 
-Thông tin công khai và các quan hệ giữa người dùng.
+### User
 
 ```text
-GET    /api/v1/users/:user_id
-GET    /api/v1/users/:user_id/posts
+GET /api/v1/users/:user_id
+GET /api/v1/users/:user_id/posts
 
-POST   /api/v1/users/:user_id/follow
+PUT    /api/v1/users/:user_id/follow
 DELETE /api/v1/users/:user_id/follow
 
-POST   /api/v1/users/:user_id/block
+PUT    /api/v1/users/:user_id/block
 DELETE /api/v1/users/:user_id/block
 ```
 
----
+### Moderation
 
-## 5.3 Post
-
-Resource chính của diễn đàn.
+Các route dưới đây yêu cầu quyền moderation.
 
 ```text
-GET    /api/v1/posts
-POST   /api/v1/posts
+PUT    /api/v1/users/:user_id/mute
+DELETE /api/v1/users/:user_id/mute
 
-GET    /api/v1/posts/:post_id
-PATCH  /api/v1/posts/:post_id
-DELETE /api/v1/posts/:post_id
+PUT    /api/v1/users/:user_id/ban
+DELETE /api/v1/users/:user_id/ban
 ```
 
-Truy vấn sử dụng query parameter:
+______________________________________________________________________
+
+## Post
+
+### Collection
+
+```text
+GET  /api/v1/posts
+POST /api/v1/posts
+```
+
+Query parameter:
 
 ```text
 GET /api/v1/posts?tag=travel
@@ -224,18 +237,39 @@ GET /api/v1/posts?search=tokyo
 GET /api/v1/posts?user_id=42
 ```
 
----
-
-## 5.4 Comment
-
-Comment thuộc về Post khi tạo hoặc lấy danh sách.
+### Resource
 
 ```text
-GET    /api/v1/posts/:post_id/comments
-POST   /api/v1/posts/:post_id/comments
+GET    /api/v1/posts/:post_id
+PATCH  /api/v1/posts/:post_id
+DELETE /api/v1/posts/:post_id
 ```
 
-Thao tác trên một comment:
+### Bookmark
+
+```text
+PUT    /api/v1/posts/:post_id/bookmark
+DELETE /api/v1/posts/:post_id/bookmark
+```
+
+### Lock comment
+
+```text
+PUT    /api/v1/posts/:post_id/lock-comments
+DELETE /api/v1/posts/:post_id/lock-comments
+```
+
+### Report
+
+```text
+POST /api/v1/posts/:post_id/reports
+```
+
+______________________________________________________________________
+
+## Comment
+
+### Resource
 
 ```text
 GET    /api/v1/comments/:comment_id
@@ -243,115 +277,105 @@ PATCH  /api/v1/comments/:comment_id
 DELETE /api/v1/comments/:comment_id
 ```
 
----
+### Reply
 
-## 5.5 Tag
+```text
+GET  /api/v1/comments/:comment_id/replies
+POST /api/v1/comments/:comment_id/replies
+```
+
+### Reaction
+
+```text
+PUT    /api/v1/comments/:comment_id/reaction
+DELETE /api/v1/comments/:comment_id/reaction
+```
+
+### Report
+
+```text
+POST /api/v1/comments/:comment_id/reports
+```
+
+______________________________________________________________________
+
+## Tag
 
 ```text
 GET    /api/v1/tags
-GET    /api/v1/tags/:tag_id
-
 POST   /api/v1/tags
+
+GET    /api/v1/tags/:tag_id
+PATCH  /api/v1/tags/:tag_id
 DELETE /api/v1/tags/:tag_id
 ```
 
----
+______________________________________________________________________
 
-## 5.6 Reaction
+## Reaction
+
+### Post
 
 ```text
-POST   /api/v1/posts/:post_id/reactions
-DELETE /api/v1/posts/:post_id/reactions
-
-POST   /api/v1/comments/:comment_id/reactions
-DELETE /api/v1/comments/:comment_id/reactions
+PUT    /api/v1/posts/:post_id/reaction
+DELETE /api/v1/posts/:post_id/reaction
 ```
 
----
+### Comment
 
-## 5.7 Report
+```text
+PUT    /api/v1/comments/:comment_id/reaction
+DELETE /api/v1/comments/:comment_id/reaction
+```
 
-Người dùng tạo report thông qua resource mà họ muốn báo cáo.
+______________________________________________________________________
+
+## Report
+
+### Create
 
 ```text
 POST /api/v1/posts/:post_id/reports
 POST /api/v1/comments/:comment_id/reports
 ```
 
-Report được xử lý bởi hệ thống moderation.
+### Management
 
----
-
-# 6. Moderation
-
-Moderator xử lý các nghiệp vụ kiểm duyệt.
+Các route dưới đây yêu cầu quyền moderation.
 
 ```text
-/api/v1/moderation
+GET    /api/v1/reports
+GET    /api/v1/reports/:report_id
+PATCH  /api/v1/reports/:report_id
 ```
 
-## Dashboard
+`PATCH` được sử dụng để thay đổi trạng thái xử lý của Report.
+
+______________________________________________________________________
+
+## Role
+
+### User Role
+
+Các thao tác quản lý Role của User yêu cầu quyền Admin.
 
 ```text
-GET /api/v1/moderation/dashboard
+GET    /api/v1/users/:user_id/roles
+PUT    /api/v1/users/:user_id/roles/:role_id
+DELETE /api/v1/users/:user_id/roles/:role_id
 ```
 
-## Report
+### Role Management
 
 ```text
-GET   /api/v1/moderation/reports
-GET   /api/v1/moderation/reports/:report_id
-PATCH /api/v1/moderation/reports/:report_id
+GET    /api/v1/roles
 ```
 
-## User moderation
+______________________________________________________________________
 
-```text
-POST   /api/v1/moderation/users/:user_id/mute
-DELETE /api/v1/moderation/users/:user_id/mute
+# 6. Dashboard
 
-POST   /api/v1/moderation/users/:user_id/ban
-DELETE /api/v1/moderation/users/:user_id/ban
-```
-
----
-
-# 7. Admin
-
-Admin quản lý hệ thống và các quyền cao hơn.
-
-```text
-/api/v1/admin
-```
-
-## Dashboard
-
-```text
-GET /api/v1/admin/dashboard
-```
-
-## User / Role
-
-```text
-GET    /api/v1/admin/users/:user_id/roles
-POST   /api/v1/admin/users/:user_id/roles
-DELETE /api/v1/admin/users/:user_id/roles/:role_id
-```
-
-## Moderator
-
-```text
-POST   /api/v1/admin/users/:user_id/moderator
-DELETE /api/v1/admin/users/:user_id/moderator
-```
-
-Các API admin chỉ dành cho Admin.
-
----
-
-# 8. Dashboard
-
-Frontend có thể tách dashboard theo role:
+Dashboard là giao diện phục vụ các Role đặc biệt.
 
 ```text
 /dashboard
@@ -359,45 +383,43 @@ Frontend có thể tách dashboard theo role:
 └── admin
 ```
 
-Trong đó:
+## Moderator Dashboard
 
 ```text
 /dashboard/moderator
 ```
 
-phục vụ:
+Chức năng:
 
-- Xem report
-- Xem nội dung cần xử lý
-- Mute user
-- Ban user
+- Xem và xử lý Report
+- Mute User
+- Ban User
 - Theo dõi trạng thái moderation
 
+API sử dụng các route của:
+
 ```text
-/dashboard/admin
+/api/v1/reports/*
+/api/v1/users/:user_id/mute
+/api/v1/users/:user_id/ban
 ```
 
-phục vụ:
+## Admin Dashboard
 
-- Các chức năng moderation
+Chức năng:
+
+- Quản lý moderation
 - Quản lý moderator
-- Quản lý role
-- Quản lý permission
+- Quản lý Role
 - Quản lý cấu hình hệ thống
 
-Không cần tạo API riêng cho từng page dashboard.
+______________________________________________________________________
 
-Dashboard chỉ là giao diện sử dụng các API tương ứng.
-
----
-
-# 9. Frontend
+# 7. Frontend
 
 ## Home
 
-Hiển thị nội dung tổng quan của hệ thống.
-
-Chức năng:
+Hiển thị:
 
 - Tìm kiếm
 - Bài đăng nổi bật
@@ -405,17 +427,6 @@ Chức năng:
 - Nội dung liên quan
 - Danh sách bài viết
 - Thông báo hệ thống
-
-Ví dụ API:
-
-```text
-GET /api/v1/posts
-GET /api/v1/posts?sort=popular
-GET /api/v1/posts?sort=newest
-GET /api/v1/posts?search=...
-```
-
----
 
 ## About
 
@@ -425,33 +436,21 @@ Giới thiệu:
 - Mục đích xây dựng
 - Định hướng của diễn đàn
 
----
-
 ## Profile
 
 Hiển thị:
 
 - Thông tin cá nhân
 - Bài viết
+- Trang cài đặt cá nhân của tài khoản đang sử dụng
 - Người theo dõi
 - Đang theo dõi
 - Bài viết yêu thích
 - Bài viết đã lưu
 
-API chủ yếu sử dụng:
-
-```text
-/api/v1/me
-/api/v1/users/:user_id
-/api/v1/me/favorites
-/api/v1/me/saved
-```
-
----
-
 ## Post
 
-Trang bài viết cung cấp:
+Trang Post cung cấp:
 
 - Nội dung bài viết
 - Tag
@@ -459,12 +458,26 @@ Trang bài viết cung cấp:
 - Comment
 - Report
 - Lưu bài viết
-- Thông tin vị trí (thông qua backend)
-- Gợi ý ngôn ngữ (thông qua backend)
+- Thông tin vị trí
+- Gợi ý ngôn ngữ
 
----
+## Moderator Dashboard
 
-# 10. External Services
+- Danh sách Report
+- Chi tiết Report
+- Moderation User
+- Trạng thái xử lý
+
+## Admin Dashboard
+
+- Quản lý Moderator
+- Quản lý Role
+- Quản lý Permission
+- Quản lý hệ thống
+
+______________________________________________________________________
+
+# 8. External Services
 
 ```mermaid
 flowchart LR
@@ -472,32 +485,31 @@ flowchart LR
     FE --> Maps["Google Maps / Live View"]
 
     BE["Backend"] --> TranslationAPI["Translation Service"]
+    BE --> Grammar["Grammar Service"]
     BE --> Other["Other Services"]
 ```
 
-Ví dụ:
-
-### Translation
+## Translation
 
 - Dịch bài viết
 - Dịch bình luận
 
-### Google Maps
+## Google Maps
 
 - Hiển thị vị trí
 - Hiển thị bản đồ
 - Live View nếu dịch vụ hỗ trợ
 
-### Grammar
+## Grammar
 
 - Gợi ý ngữ pháp
 - Kiểm tra nội dung
 
-Các dịch vụ này có thể được thay thế hoặc bổ sung sau này.
+Các dịch vụ có thể được thay thế hoặc mở rộng sau này.
 
----
+______________________________________________________________________
 
-# 11. Infrastructure
+# 9. Infrastructure
 
 Infrastructure xử lý các tác vụ chạy nền.
 
@@ -512,11 +524,11 @@ flowchart TD
 
 ## Timeout
 
-Dùng để tự động cập nhật trạng thái khi mute hoặc các trạng thái có thời hạn kết thúc.
+Tự động cập nhật trạng thái khi Mute hoặc Ban hết thời hạn.
 
 ## Cleanup
 
-Dữ liệu cần xóa có thể được đánh dấu thay vì xóa ngay.
+Dọn dẹp dữ liệu đã được Soft Delete sau một khoảng thời gian.
 
 ```text
 Active
@@ -528,9 +540,163 @@ Cleanup
 Permanent Delete
 ```
 
----
+```mermaid
+erDiagram
+    users {
+        bigint id PK
+        text username UK
+        text email UK
+        text password_hash
+        text avatar_url
+        text bio
+        text status
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz muted_until
+    }
 
-# 12. Nghiệp vụ chính
+    roles {
+        bigint id PK
+        text name UK
+        text description
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    users_roles {
+        bigint user_id PK,FK
+        bigint role_id PK,FK
+        timestamptz assigned_at
+    }
+
+    users_follows {
+        bigint follower_id PK,FK
+        bigint following_id PK,FK
+        timestamptz followed_at
+    }
+
+    users_blocks {
+        bigint blocker_id PK,FK
+        bigint blocked_id PK,FK
+        timestamptz blocked_at
+    }
+
+    posts {
+        bigint id PK
+        bigint author_id FK
+        text title
+        text content
+        int view_count
+        text status
+        bool comments_locked
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    tags {
+        bigint id PK
+        text name UK
+        text description
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    posts_tags {
+        bigint post_id PK,FK
+        bigint tag_id PK,FK
+    }
+
+    comments {
+        bigint id PK
+        bigint parent_id FK
+        bigint post_id FK
+        bigint user_id FK
+        text content
+        text status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+
+    reactions {
+        bigint user_id PK,FK
+        bigint post_id PK,FK
+        text emoji
+        timestamptz reacted_at
+    }
+
+    bookmarks {
+        bigint user_id PK,FK
+        bigint post_id PK,FK
+        timestamptz bookmarked_at
+    }
+
+    reports {
+        bigint id PK
+        bigint reporter_id FK
+        bigint post_id FK
+        bigint comment_id FK
+        text reason
+        text detail
+        text status
+        timestamptz created_at
+        timestamptz resolved_at
+    }
+
+    users ||--o{ posts         : "author_id"
+    users ||--o{ comments      : "user_id"
+    users ||--o{ users_follows : "follower_id"
+    users ||--o{ users_follows : "following_id"
+    users ||--o{ users_blocks  : "blocker_id"
+    users ||--o{ users_blocks  : "blocked_id"
+    users ||--o{ users_roles   : "user_id"
+    users ||--o{ reactions     : "user_id"
+    users ||--o{ bookmarks     : "user_id"
+    users ||--o{ reports       : "reporter_id"
+
+    roles ||--o{ users_roles   : "role_id"
+
+    posts ||--o{ comments      : "post_id"
+    posts ||--o{ posts_tags    : "post_id"
+    posts ||--o{ reactions     : "post_id"
+    posts ||--o{ bookmarks     : "post_id"
+    posts ||--o{ reports       : "post_id"
+
+    comments ||--o{ comments   : "parent_id"
+    comments ||--o{ reports    : "comment_id"
+
+    tags ||--o{ posts_tags     : "tag_id"
+```
+
+______________________________________________________________________
+
+# 10. Nghiệp vụ chính
+
+```mermaid
+flowchart TD
+    User["User"]
+
+    User --> Post["Post"]
+    User --> Follow["Follow"]
+    User --> Block["Block"]
+    User --> Save["Save / Favorite"]
+
+    Post --> Comment["Comment"]
+    Post --> Tag["Tag"]
+    Post --> Reaction["Reaction"]
+    Post --> Report["Report"]
+
+    Comment --> Reaction
+    Comment --> Report
+
+    Report --> Moderation["Moderation"]
+
+    Moderation --> Mute["Mute"]
+    Moderation --> Ban["Ban"]
+
+    Admin["Admin"] --> Role["Role"]
+    Admin --> Permission["Permission"]
+```
 
 Các nghiệp vụ ban đầu:
 
@@ -549,14 +715,17 @@ Post
  ├── Comment
  └── Report
 
+Comment
+ ├── Reaction
+ └── Report
+
 Moderation
  ├── Review Report
  ├── Mute User
  └── Ban User
 
 Administration
- ├── Manage Moderator
- └── Manage Role / Permission
+ ├── Manage Role
+ ├── Manage Permission
+ └── Manage Moderator
 ```
-
----
