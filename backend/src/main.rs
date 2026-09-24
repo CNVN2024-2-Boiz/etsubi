@@ -19,7 +19,7 @@ async fn greet(path: web::Path<String>) -> Result<String> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let pool = establish_connection();
+    let _pool = establish_connection();
     HttpServer::new(|| {
         App::new()
             .service(greet)
