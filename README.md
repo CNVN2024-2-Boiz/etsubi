@@ -28,11 +28,14 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 
 ## Các thành viên tham gia bao gồm
 
-+ **Đỗ Mạnh Phú** (24521350)
-+ **Vũ Thiện Nhân** (24521246)
-+ **Võ Khắc Anh Tài** (24521561)
-+ **Nguyễn Nam Phong** (24521340)
-+ **Nguyễn Lê Hoàng Quân** (24521441)
+
+| MSSV | Họ và tên |
+|---|---|
+| 24521350 | Đỗ Mạnh Phú |
+| 24521246 | Vũ Thiện Nhân |
+| 24521561 | Võ Khắc Anh Tài |
+| 24521340 | Nguyễn Nam Phong |
+| 24521441 | Nguyễn Lê Hoàng Quân |
 
 ## Các thông tin liên quan
 
