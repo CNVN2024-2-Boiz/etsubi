@@ -22,7 +22,7 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 - **Trải nghiệm người dùng:** tự động dịch bài viết / bình luận song ngữ Việt - Nhật,
   tích hợp Google Maps để xem địa điểm văn hóa.
 - **Kiến trúc phân tầng:** tách bạch Presentation - Business Logic - Infrastructure.
-- Tính ổn định của frontend: Sử dụng vanilla js, html, css để định nghĩa logic, đảm bảo website vẫn hoạt động khi chuyển sang framework khác.
+- **Tính ổn định của frontend:** Sử dụng vanilla js, html, css để định nghĩa logic, đảm bảo website vẫn hoạt động khi chuyển sang framework khác.
 - **Backend viết bằng Rust:** tận dụng hệ thống kiểu và cơ chế ownership
   để xử lý phân quyền và dữ liệu an toàn.
 
