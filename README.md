@@ -1,13 +1,4 @@
-<div align="center">
-
-<img src="assets/banner.png" alt="Etsubi Banner" width="100%" />
-
-# Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật
-
-*Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.*
-
-</div>
-
+![](frontend/assets/banner.png)
 ______________________________________________________________________
 
 ## Giới thiệu
