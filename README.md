@@ -28,13 +28,11 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 
 ## Các thành viên tham gia bao gồm
 
-```text
--- Nguyễn Lê Hoàng Quân (24521441)
--- Nguyễn Nam Phong (24521340)
--- Võ Khắc Anh Tài (24521561)
--- Đỗ Mạnh Phú (24521350)
--- Vũ Thiện Nhân (24521246)
-```
++ Đỗ Mạnh Phú (24521350)
++ Vũ Thiện Nhân (24521246)
++ Võ Khắc Anh Tài (24521561)
++ Nguyễn Nam Phong (24521340)
++ Nguyễn Lê Hoàng Quân (24521441)
 
 ## Các thông tin liên quan
 
