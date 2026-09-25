@@ -1,5 +1,5 @@
-use diesel::Queryable;
 use chrono::{DateTime, Utc};
+use diesel::Queryable;
 
 #[derive(Queryable)]
 #[diesel(table_name = crate::db::schema::reports)]

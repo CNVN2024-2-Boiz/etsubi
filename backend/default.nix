@@ -2,8 +2,10 @@
 
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
-    # rustup
     pkg-config
+    rustfmt
+    rustc
+    rust-analyzer
     clang
     llvmPackages.bintools
     cmake

@@ -9,4 +9,3 @@ pub struct UserRole {
     pub role_id: i64,
     pub assigned_at: DateTime<Utc>,
 }
-
