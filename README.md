@@ -1,4 +1,8 @@
 ![](frontend/assets/banner.png)
+# Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật
+
+*Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.*
+
 ______________________________________________________________________
 
 ## Giới thiệu
