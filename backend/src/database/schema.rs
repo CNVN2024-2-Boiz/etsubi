@@ -91,7 +91,7 @@ diesel::table! {
         id -> Int8,
         username -> Text,
         email -> Text,
-        password_hash -> Text,
+        password -> Text,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
         status -> Text,

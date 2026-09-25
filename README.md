@@ -1,14 +1,9 @@
-<div align="center">
+![](frontend/assets/banner.png)
+# Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật
 
-  <img src="frontend/assets/banner.png" alt="Etsubi Banner" width="100%" />
+*Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.*
 
-  # Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật
-
-  *Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.*
-
-</div>
-
----
+______________________________________________________________________
 
 ## Giới thiệu
 
@@ -19,9 +14,9 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 Đây là đồ án kết thúc môn **Internet và Công nghệ web**. Frontend là trọng tâm của môn học,
 đồng thời nhóm đầu tư thêm vào toàn bộ hệ thống:
 
-* **Trải nghiệm người dùng:** tự động dịch bài viết / bình luận song ngữ Việt - Nhật,
+- **Trải nghiệm người dùng:** tự động dịch bài viết / bình luận song ngữ Việt - Nhật,
   tích hợp Google Maps để xem địa điểm văn hóa.
-* **Kiến trúc phân tầng:** tách bạch Presentation - Business Logic - Infrastructure,
-  chi tiết ở mục [Kiến trúc hệ thống](#kiến-trúc-hệ-thống).
-* **Backend viết bằng Rust:** tận dụng hệ thống kiểu và cơ chế ownership
+- **Kiến trúc phân tầng:** tách bạch Presentation - Business Logic - Infrastructure,
+  chi tiết ở mục [Kiến trúc hệ thống](#ki%E1%BA%BFn-tr%C3%BAc-h%E1%BB%87-th%E1%BB%91ng).
+- **Backend viết bằng Rust:** tận dụng hệ thống kiểu và cơ chế ownership
   để xử lý phân quyền và dữ liệu an toàn.
