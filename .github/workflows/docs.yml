@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'  
-  workflow_dispatch: 
+      - 'docs/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,6 +28,12 @@ jobs:
         with:
           mdbook-version: 'latest'
 
+      - name: Setup Rust (cho cargo install)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install mdbook-mermaid
+        run: cargo install mdbook-mermaid --locked
+
       - name: Build docs
         run: mdbook build
         working-directory: docs
@@ -35,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/book  
+          path: docs/book
 
   deploy:
     needs: build
