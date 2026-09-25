@@ -729,3 +729,5 @@ Administration
  ├── Manage Permission
  └── Manage Moderator
 ```
+
+Sử dụng SHA-256 cho jwt
