@@ -1,8 +1,12 @@
-![](frontend/assets/banner.png)
+<p align="center">
+  <img src="frontend/assets/banner.png" alt="Etsubi banner" />
+</p>
 
-# Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật
+<h1 align="center">Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật</h1>
 
-*Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.*
+<p align="center">
+  <em>Nền tảng diễn đàn kết nối, chia sẻ kiến thức và giao lưu văn hóa Việt – Nhật.</em>
+</p>
 
 ______________________________________________________________________
 
