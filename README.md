@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/assets/banner.png" alt="Etsubi banner" />
+  <img src="docs/assets/banner.png" alt="Etsubi banner" />
 </p>
 
 <h1 align="center">Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật</h1>
@@ -26,7 +26,7 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 - **Backend viết bằng Rust:** tận dụng hệ thống kiểu và cơ chế ownership
   để xử lý phân quyền và dữ liệu an toàn.
 
-## Các thành viên tham gia bao gồm
+## Các thành viên tham gia 
 
 
 | MSSV | Họ và tên |

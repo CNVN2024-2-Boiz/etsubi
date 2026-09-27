@@ -1,3 +1,7 @@
-# Summary
-
-- [Chapter 1](./chapter_1.md)
+- [Kiến trúc](./architecture/architecture.md)
+  - [Thực thể](./architecture/entities/entities.md)
+  - [Mô hình](./architecture/patterns/patterns.md)
+- [Nghiệp vụ](./domain/domain.md)
+- [Công nghệ](./technology/technology.md)
+- [API](./api/api.md)
+- [ADR](./adr/adr.md)
