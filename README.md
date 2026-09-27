@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.png" alt="Etsubi banner" />
+  <img src="frontend/assets/banner.png" alt="Etsubi banner" />
 </p>
 
 <h1 align="center">Etsubi (越日) — Diễn đàn Giao lưu Văn hóa Việt - Nhật</h1>
