@@ -1,10 +1,6 @@
-use actix_web::{HttpResponse, Responder, get, web};
-
-#[get("/health")]
-async fn health() -> impl Responder {
-    HttpResponse::Ok().body("OK")
-}
+use crate::modules::health;
+use actix_web::web;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(health);
+    cfg.service(health::handler::health);
 }

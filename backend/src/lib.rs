@@ -1,10 +1,5 @@
+pub mod bootstrap;
 pub mod config;
-pub mod database;
-pub mod dto;
-pub mod error;
-pub mod handlers;
-pub mod middleware;
-pub mod repository;
+pub mod modules;
 pub mod routes;
-pub mod services;
-pub mod state;
+pub mod shared;
