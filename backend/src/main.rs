@@ -1,5 +1,5 @@
 use actix_web::{App, HttpServer, middleware::Logger};
-use backend::routes;
+use backend::{bootstrap, routes};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -7,8 +7,17 @@ async fn main() -> std::io::Result<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    HttpServer::new(|| App::new().wrap(Logger::default()).configure(routes::init))
-        .bind(("127.0.0.1", 11432))?
-        .run()
-        .await
+    let state = bootstrap::setup::run().expect("Bootstrap failed");
+    let host = state.config.server.host.clone();
+    let port = state.config.server.port;
+
+    HttpServer::new(move || {
+        App::new()
+            .app_data(state.clone())
+            .wrap(Logger::default())
+            .configure(routes::init)
+    })
+    .bind((host.as_str(), port))?
+    .run()
+    .await
 }
