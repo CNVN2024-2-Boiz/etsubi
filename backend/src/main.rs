@@ -1,8 +1,9 @@
-use actix_web::{App, HttpServer, middleware::Logger};
+use actix_web::{middleware::Logger, App, HttpServer};
 use backend::{bootstrap, routes};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    openssl::init();
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();
