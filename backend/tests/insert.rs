@@ -1,6 +1,6 @@
-use backend::shared::database::{
+use backend::bootstrap::pool;
+use backend::infrastructure::database::{
     models::entities::{NewUser, User},
-    pool,
     schema::users,
 };
 use diesel::prelude::*;

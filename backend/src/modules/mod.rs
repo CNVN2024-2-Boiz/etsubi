@@ -1,9 +1,0 @@
-pub mod auth;
-pub mod bookmark;
-pub mod comment;
-pub mod health;
-pub mod post;
-pub mod reaction;
-pub mod report;
-pub mod tag;
-pub mod user;

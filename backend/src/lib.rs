@@ -1,5 +1,7 @@
+pub mod application;
 pub mod bootstrap;
 pub mod config;
-pub mod modules;
+pub mod domain;
+pub mod infrastructure;
+pub mod presentation;
 pub mod routes;
-pub mod shared;

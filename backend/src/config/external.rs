@@ -13,7 +13,8 @@ impl ExternalConfig {
                 .expect("Please setup TRANSLATE_API_KEY properly"),
             live_view_api_key: env::var("LIVE_VIEW_API_KEY")
                 .expect("Please setup LIVE_VIEW_API_KEY properly"),
-            grammar_api_key: env::var("JWT_KEY").expect("Please setup GRAMMAR_API_KEY properly"),
+            grammar_api_key: env::var("GRAMMAR_API_KEY")
+                .expect("Please setup GRAMMAR_API_KEY properly"),
         }
     }
 }
