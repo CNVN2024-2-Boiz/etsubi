@@ -9,8 +9,8 @@ async fn main() -> std::io::Result<()> {
         .init();
 
     let state = AppState::run().expect("Bootstrap failed");
-    let host = state.config.server.host.clone();
-    let port = state.config.server.port;
+    let host = state.config.server_host.clone();
+    let port = state.config.server_port;
 
     HttpServer::new(move || {
         App::new()
