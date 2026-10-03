@@ -5,19 +5,6 @@ use crate::{
     presentation::dto::user_dto::UserResponse,
 };
 
-#[get("/users/me")]
-pub async fn get_me(state: web::Data<AppState>, user: AuthUser) -> Result<HttpResponse, Error> {
-    let service = state.user_service.clone();
-    let user_id = user.id;
-
-    let me = web::block(move || service.get(user_id))
-        .await
-        .map_err(ErrorInternalServerError)?
-        .map_err(ErrorInternalServerError)?;
-
-    Ok(HttpResponse::Ok().json(UserResponse::from(me)))
-}
-
 #[get("/users/{id}")]
 pub async fn get_user(
     state: web::Data<AppState>,
