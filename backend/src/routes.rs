@@ -1,10 +1,13 @@
-use actix_web::{HttpResponse, Responder, get, web};
+use crate::presentation;
+use actix_web::web;
 
-#[get("/health")]
-async fn health() -> impl Responder {
-    HttpResponse::Ok().body("OK")
+pub fn public(cfg: &mut web::ServiceConfig) {
+    cfg.service(presentation::support::health::health);
+    cfg.service(presentation::handlers::auth_handler::register);
+    cfg.service(presentation::handlers::auth_handler::login);
 }
 
-pub fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(health);
+pub fn protected(cfg: &mut web::ServiceConfig) {
+    cfg.service(presentation::handlers::user_handler::get_me);
+    cfg.service(presentation::handlers::user_handler::get_user);
 }

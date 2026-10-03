@@ -1,15 +1,34 @@
-use actix_web::{App, HttpServer, web};
-use backend::{config::AppConfig, database::pool, routes, state::AppState};
+use actix_web::{
+    App, HttpServer,
+    middleware::{self, Logger},
+    web,
+};
+use backend::{bootstrap, infrastructure::security::middleware::auth_middleware, routes};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let config = AppConfig::from_env();
-    let db = pool::init(&config.db.url);
-    let port = config.port;
-    let state = web::Data::new(AppState { db, config });
+    openssl::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
-    HttpServer::new(move || App::new().app_data(state.clone()).configure(routes::init))
-        .bind(("0.0.0.0", port))?
-        .run()
-        .await
+    let state = bootstrap::run().expect("Bootstrap failed");
+    let host = state.config.server_host.clone();
+    let port = state.config.server_port;
+
+    HttpServer::new(move || {
+        App::new()
+            .app_data(state.clone())
+            .wrap(Logger::default())
+            .service(
+                web::scope("/api/v1").configure(routes::public).service(
+                    web::scope("")
+                        .wrap(middleware::from_fn(auth_middleware))
+                        .configure(routes::protected),
+                ),
+            )
+    })
+    .bind((host.as_str(), port))?
+    .run()
+    .await
 }

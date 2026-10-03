@@ -1,5 +1,5 @@
 - [Kiến trúc](./architecture/architecture.md)
-  - [Thực thể](./architecture/entities/entities.md)
+  - [Dữ liệu](./architecture/data.md)
   - [Mô hình](./architecture/patterns/patterns.md)
 - [Nghiệp vụ](./domain/domain.md)
 - [Công nghệ](./technology/technology.md)
