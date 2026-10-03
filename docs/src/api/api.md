@@ -83,27 +83,6 @@ Lỗi:
 
 ## User
 
-### GET /users/me
-
-Lấy thông tin user đang đăng nhập.
-
-Response 200:
-
-```json
-{
-  "id": 1,
-  "username": "alice",
-  "email": "alice@test.com",
-  "avatar_url": null,
-  "bio": null,
-  "status": "active"
-}
-```
-
-Lỗi:
-
-- 401 — không có token hoặc token không hợp lệ
-
 ### GET /users/{id}
 
 Lấy thông tin user theo id.

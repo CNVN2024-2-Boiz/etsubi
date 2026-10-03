@@ -8,6 +8,5 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 }
 
 pub fn protected(cfg: &mut web::ServiceConfig) {
-    cfg.service(presentation::handlers::user_handler::get_me);
     cfg.service(presentation::handlers::user_handler::get_user);
 }
