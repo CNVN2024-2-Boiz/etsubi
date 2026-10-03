@@ -16,7 +16,6 @@ RESPONSE=$(curl -s -X POST "$BASE/auth/register" \
 
 echo "$RESPONSE"
 
-# In đẹp nếu là JSON
 if echo "$RESPONSE" | jq -e . > /dev/null 2>&1; then
     echo ""
     echo "$RESPONSE" | jq
