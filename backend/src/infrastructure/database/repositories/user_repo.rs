@@ -32,17 +32,15 @@ impl UserRepository for PostgresUserRepo {
             status: &user.status,
         };
 
-        let user = diesel::insert_into(users::table)
+        Ok(diesel::insert_into(users::table)
             .values(&new_user)
-            .get_result::<User>(&mut conn)?;
-
-        Ok(user)
+            .get_result::<User>(&mut conn)?)
     }
 
     fn update(&self, user: &User) -> Result<User> {
         let mut conn = self.pool.get()?;
 
-        let updated = diesel::update(users::table.find(user.id))
+        Ok(diesel::update(users::table.find(user.id))
             .set((
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
@@ -53,9 +51,7 @@ impl UserRepository for PostgresUserRepo {
                 users::muted_until.eq(&user.muted_until),
                 users::updated_at.eq(Utc::now()),
             ))
-            .get_result::<User>(&mut conn)?;
-
-        Ok(updated)
+            .get_result::<User>(&mut conn)?)
     }
 
     fn delete(&self, id: i64) -> Result<()> {
@@ -73,6 +69,14 @@ impl UserRepository for PostgresUserRepo {
         let mut conn = self.pool.get()?;
         Ok(users::table
             .filter(users::email.eq(email))
+            .first::<User>(&mut conn)
+            .optional()?)
+    }
+
+    fn find_by_username(&self, username: &str) -> Result<Option<User>> {
+        let mut conn = self.pool.get()?;
+        Ok(users::table
+            .filter(users::username.eq(username))
             .first::<User>(&mut conn)
             .optional()?)
     }
