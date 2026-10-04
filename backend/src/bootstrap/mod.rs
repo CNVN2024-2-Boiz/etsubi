@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use crate::{
     bootstrap::{config::AppConfig, state::AppState},
+    domains::user::service::UserService,
     infrastructure::database::repositories::user_repo::PostgresUserRepo,
-    modules::user::service::UserService,
 };
 
 pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {

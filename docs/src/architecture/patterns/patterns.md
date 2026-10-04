@@ -22,7 +22,7 @@ Repository theo aggregate, không theo bảng.
 
 | Thành phần | Vị trí |
 |---|---|
-| Trait | `modules/*/repository.rs` |
+| Trait | `domains/*/repository.rs` |
 | Impl | `infrastructure/database/repositories/*_repo.rs` |
 
 Trait định nghĩa method. Impl viết Diesel query.
@@ -30,7 +30,7 @@ Trait định nghĩa method. Impl viết Diesel query.
 ### Ví dụ
 
 ```
-modules/user/repository.rs
+domains/user/repository.rs
   → trait UserRepository
 
 infrastructure/database/repositories/user_repo.rs
@@ -46,12 +46,12 @@ Chứa business logic. Không biết HTTP, không biết SQL.
 
 ### Vị trí
 
-`modules/*/service.rs`.
+`domains/*/service.rs`.
 
 ### Ví dụ
 
 ```
-modules/user/service.rs
+domains/user/service.rs
   → struct UserService
   → fn create()
   → fn login()
@@ -164,8 +164,8 @@ Kết nối dịch vụ bên ngoài (dịch thuật, ngữ pháp, bản đồ).
 
 ### Vị trí
 
-Trong module sử dụng.
+Trong domain sử dụng.
 
-- `modules/post/adapter.rs`
-- `modules/comment/adapter.rs`
+- `domains/post/adapter.rs`
+- `domains/comment/adapter.rs`
 
