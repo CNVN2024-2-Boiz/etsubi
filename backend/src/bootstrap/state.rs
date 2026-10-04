@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    bootstrap::config::AppConfig, bootstrap::pool::DbPool, modules::user::service::UserService,
+    bootstrap::config::AppConfig, bootstrap::pool::DbPool, domains::user::service::UserService,
 };
 
 pub struct AppState {

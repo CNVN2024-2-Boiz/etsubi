@@ -4,11 +4,11 @@ use diesel::prelude::*;
 
 use crate::{
     bootstrap::pool::DbPool,
+    domains::user::repository::UserRepository,
     infrastructure::database::{
         models::entities::{NewUser, User},
         schema::users,
     },
-    modules::user::repository::UserRepository,
 };
 
 pub struct PostgresUserRepo {

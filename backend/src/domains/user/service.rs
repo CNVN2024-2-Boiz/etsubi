@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::{Result, anyhow};
 
 use crate::{
-    infrastructure::database::models::entities::User, modules::user::repository::UserRepository,
+    domains::user::repository::UserRepository, infrastructure::database::models::entities::User,
     presentation::dto::user_dto::UpdateProfileRequest,
 };
 

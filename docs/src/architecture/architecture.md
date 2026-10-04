@@ -10,7 +10,7 @@ Modular Monolith. Một binary duy nhất, chia theo module nghiệp vụ.
 ┌─────────────────────────────────────┐
 │  Presentation                       │  HTTP entry
 ├─────────────────────────────────────┤
-│  Modules                            │  Nghiệp vụ
+│  Domains                            │  Nghiệp vụ
 ├─────────────────────────────────────┤
 │  Infrastructure                     │  Database, security
 ├─────────────────────────────────────┤
@@ -21,7 +21,7 @@ Modular Monolith. Một binary duy nhất, chia theo module nghiệp vụ.
 | Tầng | Chứa | Không chứa |
 |---|---|---|
 | Presentation | Handler, DTO | SQL, nghiệp vụ |
-| Modules | Service, repository trait, entity | HTTP, Diesel |
+| Domains | Service, repository trait, entity | HTTP, Diesel |
 | Infrastructure | Database, security | Nghiệp vụ, HTTP |
 | Bootstrap | Config, pool, state | Business logic |
 
@@ -45,7 +45,7 @@ src/
 │   ├── support/
 │   └── mod.rs
 │
-├── modules/
+├── domains/
 │   ├── user/
 │   │   ├── mod.rs
 │   │   ├── repository.rs

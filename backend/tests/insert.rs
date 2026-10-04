@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use backend::{
-    bootstrap::pool, infrastructure::database::repositories::user_repo::PostgresUserRepo,
-    modules::user::service::UserService,
+    bootstrap::pool, domains::user::service::UserService,
+    infrastructure::database::repositories::user_repo::PostgresUserRepo,
 };
 
 #[test]
