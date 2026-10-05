@@ -56,3 +56,8 @@ impl From<User> for UserResponse {
         }
     }
 }
+
+#[derive(Deserialize)]
+pub struct AssignRoleRequest {
+    pub role_name: String,
+}

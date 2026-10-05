@@ -67,16 +67,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    roles (id) {
-        id -> Int8,
-        name -> Text,
-        description -> Nullable<Text>,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
     tags (id) {
         id -> Int8,
         name -> Text,
@@ -94,6 +84,7 @@ diesel::table! {
         password -> Text,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
+        role -> Text,
         status -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
@@ -117,14 +108,6 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    users_roles (user_id, role_id) {
-        user_id -> Int8,
-        role_id -> Int8,
-        assigned_at -> Timestamptz,
-    }
-}
-
 diesel::joinable!(bookmarks -> posts (post_id));
 diesel::joinable!(bookmarks -> users (user_id));
 diesel::joinable!(comments -> posts (post_id));
@@ -137,8 +120,6 @@ diesel::joinable!(reactions -> users (user_id));
 diesel::joinable!(reports -> comments (comment_id));
 diesel::joinable!(reports -> posts (post_id));
 diesel::joinable!(reports -> users (reporter_id));
-diesel::joinable!(users_roles -> roles (role_id));
-diesel::joinable!(users_roles -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
@@ -147,10 +128,8 @@ diesel::allow_tables_to_appear_in_same_query!(
     posts_tags,
     reactions,
     reports,
-    roles,
     tags,
     users,
     users_blocks,
     users_follows,
-    users_roles,
 );

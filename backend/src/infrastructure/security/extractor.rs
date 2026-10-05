@@ -10,16 +10,20 @@ pub struct AuthUser {
 }
 
 impl AuthUser {
-    pub fn is_admin(&self) -> bool {
-        self.roles.iter().any(|r| r == "admin")
+    pub fn has_role(&self, role: &str) -> bool {
+        self.roles.iter().any(|r| r == role)
+    }
+
+    pub fn is_user(&self) -> bool {
+        self.has_role("user")
     }
 
     pub fn is_moderator(&self) -> bool {
-        self.is_admin() || self.roles.iter().any(|r| r == "moderator")
+        self.is_admin() || self.has_role("moderator")
     }
 
-    pub fn has_role(&self, role: &str) -> bool {
-        self.roles.iter().any(|r| r == role)
+    pub fn is_admin(&self) -> bool {
+        self.has_role("admin")
     }
 }
 

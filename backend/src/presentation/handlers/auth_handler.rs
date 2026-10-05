@@ -1,3 +1,4 @@
+// presentation/handlers/auth_handler.rs
 use actix_web::{
     Error, HttpResponse,
     error::{ErrorBadRequest, ErrorInternalServerError, ErrorUnauthorized},

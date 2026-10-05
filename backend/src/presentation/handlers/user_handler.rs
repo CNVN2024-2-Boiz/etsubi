@@ -1,14 +1,15 @@
 use actix_web::{
-    Error, HttpResponse,
+    Error, HttpResponse, delete,
     error::{ErrorBadRequest, ErrorForbidden, ErrorInternalServerError},
-    get, patch, web,
+    get, patch, put, web,
 };
 
 use crate::{
     bootstrap::state::AppState,
     infrastructure::security::extractor::AuthUser,
     presentation::dto::user_dto::{
-        PublicUserResponse, UpdateProfileRequest, UpdateStatusRequest, UserResponse,
+        AssignRoleRequest, PublicUserResponse, UpdateProfileRequest, UpdateStatusRequest,
+        UserResponse,
     },
 };
 
@@ -59,7 +60,7 @@ pub async fn update_status(
     path: web::Path<i64>,
     body: web::Json<UpdateStatusRequest>,
 ) -> Result<HttpResponse, Error> {
-    if !user.is_admin() && !user.is_moderator() {
+    if !user.is_moderator() {
         return Err(ErrorForbidden("Requires moderator or admin"));
     }
 
@@ -73,4 +74,76 @@ pub async fn update_status(
         .map_err(|e| ErrorBadRequest(e.to_string()))?;
 
     Ok(HttpResponse::Ok().json(UserResponse::from(updated)))
+}
+
+#[get("/users/{id}/roles")]
+pub async fn get_roles(
+    state: web::Data<AppState>,
+    path: web::Path<i64>,
+) -> Result<HttpResponse, Error> {
+    let service = state.user_service.clone();
+    let target_id = path.into_inner();
+
+    let roles = web::block(move || service.get_roles(target_id))
+        .await
+        .map_err(ErrorInternalServerError)?
+        .map_err(|e| ErrorBadRequest(e.to_string()))?;
+
+    Ok(HttpResponse::Ok().json(roles))
+}
+
+#[put("/users/{id}/roles")]
+pub async fn assign_role(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    path: web::Path<i64>,
+    body: web::Json<AssignRoleRequest>,
+) -> Result<HttpResponse, Error> {
+    if !user.is_admin() {
+        return Err(ErrorForbidden("Requires admin"));
+    }
+
+    let target_id = path.into_inner();
+    let role_name = body.into_inner().role_name;
+
+    if role_name == "admin" {
+        return Err(ErrorForbidden("Cannot assign admin role"));
+    }
+
+    if !matches!(role_name.as_str(), "user" | "moderator") {
+        return Err(ErrorBadRequest("Invalid role"));
+    }
+
+    let service = state.user_service.clone();
+    web::block(move || service.assign_role(target_id, &role_name))
+        .await
+        .map_err(ErrorInternalServerError)?
+        .map_err(|e| ErrorBadRequest(e.to_string()))?;
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[delete("/users/{id}/roles/{role_name}")]
+pub async fn remove_role(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    path: web::Path<(i64, String)>,
+) -> Result<HttpResponse, Error> {
+    if !user.is_admin() {
+        return Err(ErrorForbidden("Requires admin"));
+    }
+
+    let (target_id, role_name) = path.into_inner();
+
+    if matches!(role_name.as_str(), "admin" | "user") {
+        return Err(ErrorForbidden("Cannot remove this role"));
+    }
+
+    let service = state.user_service.clone();
+    web::block(move || service.remove_role(target_id, &role_name))
+        .await
+        .map_err(ErrorInternalServerError)?
+        .map_err(|e| ErrorBadRequest(e.to_string()))?;
+
+    Ok(HttpResponse::NoContent().finish())
 }

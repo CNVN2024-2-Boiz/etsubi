@@ -39,6 +39,7 @@ impl UserService {
             password: hashed,
             avatar_url: None,
             bio: None,
+            role: "user".into(),
             status: "active".into(),
             created_at: now,
             updated_at: now,
@@ -65,6 +66,10 @@ impl UserService {
         self.repo
             .find_by_id(id)?
             .ok_or_else(|| anyhow!("User not found"))
+    }
+
+    pub fn find_by_email(&self, email: &str) -> Result<Option<User>> {
+        self.repo.find_by_email(email)
     }
 
     pub fn update_profile(&self, user_id: i64, req: UpdateProfileRequest) -> Result<User> {
@@ -99,7 +104,7 @@ impl UserService {
             user.avatar_url = Some(avatar_url);
         }
 
-        self.repo.update(&user)
+        self.repo.update_profile(&user)
     }
 
     pub fn update_status(&self, target_id: i64, status: &str) -> Result<User> {
@@ -108,12 +113,18 @@ impl UserService {
             return Err(anyhow!("Invalid status"));
         }
 
-        let mut user = self
-            .repo
-            .find_by_id(target_id)?
-            .ok_or_else(|| anyhow!("User not found"))?;
+        self.repo.update_status(target_id, status)
+    }
 
-        user.status = status.to_string();
-        self.repo.update(&user)
+    pub fn update_role(&self, target_id: i64, role: &str) -> Result<User> {
+        if role == "admin" {
+            return Err(anyhow!("Cannot assign admin role"));
+        }
+
+        if !matches!(role, "user" | "moderator") {
+            return Err(anyhow!("Invalid role"));
+        }
+
+        self.repo.update_role(target_id, role)
     }
 }

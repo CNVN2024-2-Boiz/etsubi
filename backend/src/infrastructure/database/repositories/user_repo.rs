@@ -29,6 +29,7 @@ impl UserRepository for PostgresUserRepo {
             username: &user.username,
             email: &user.email,
             password: &user.password,
+            role: &user.role,
             status: &user.status,
         };
 
@@ -37,21 +38,34 @@ impl UserRepository for PostgresUserRepo {
             .get_result::<User>(&mut conn)?)
     }
 
-    fn update(&self, user: &User) -> Result<User> {
+    fn update_profile(&self, user: &User) -> Result<User> {
         let mut conn = self.pool.get()?;
 
         Ok(diesel::update(users::table.find(user.id))
             .set((
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
-                users::password.eq(&user.password),
                 users::avatar_url.eq(&user.avatar_url),
                 users::bio.eq(&user.bio),
-                users::status.eq(&user.status),
-                users::muted_until.eq(&user.muted_until),
                 users::updated_at.eq(Utc::now()),
             ))
-            .get_result::<User>(&mut conn)?)
+            .get_result(&mut conn)?)
+    }
+
+    fn update_status(&self, id: i64, status: &str) -> Result<User> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(users::table.find(id))
+            .set((users::status.eq(status), users::updated_at.eq(Utc::now())))
+            .get_result(&mut conn)?)
+    }
+
+    fn update_role(&self, id: i64, role: &str) -> Result<User> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(users::table.find(id))
+            .set((users::role.eq(role), users::updated_at.eq(Utc::now())))
+            .get_result(&mut conn)?)
     }
 
     fn delete(&self, id: i64) -> Result<()> {
