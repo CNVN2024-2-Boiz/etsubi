@@ -3,7 +3,9 @@ use std::sync::Arc;
 use anyhow::{Result, anyhow};
 
 use crate::{
-    domains::user::repository::UserRepository, infrastructure::database::models::entities::User,
+    domains::user::repository::UserRepository,
+    infrastructure::database::models::entities::User,
+    infrastructure::security::password::{hash_password, verify_password},
     presentation::dto::user_dto::UpdateProfileRequest,
 };
 
@@ -29,7 +31,7 @@ impl UserService {
             return Err(anyhow!("Username already taken"));
         }
 
-        let hashed = format!("hashed_{}", password);
+        let hashed = hash_password(password).expect("Hash password failed");
         let now = chrono::Utc::now();
 
         let user = User {
@@ -39,6 +41,7 @@ impl UserService {
             password: hashed,
             avatar_url: None,
             bio: None,
+            role: "user".into(),
             status: "active".into(),
             created_at: now,
             updated_at: now,
@@ -54,7 +57,7 @@ impl UserService {
             .find_by_email(email)?
             .ok_or_else(|| anyhow!("Invalid credentials"))?;
 
-        if user.password != format!("hashed_{}", password) {
+        if !verify_password(password, &user.password) {
             return Err(anyhow!("Invalid credentials"));
         }
 
@@ -67,10 +70,24 @@ impl UserService {
             .ok_or_else(|| anyhow!("User not found"))
     }
 
-    pub fn update_profile(&self, user_id: i64, req: UpdateProfileRequest) -> Result<User> {
+    pub fn find_by_email(&self, email: &str) -> Result<Option<User>> {
+        self.repo.find_by_email(email)
+    }
+
+    pub fn update_profile(
+        &self,
+        target_id: i64,
+        requester_id: i64,
+        requester_is_admin: bool,
+        req: UpdateProfileRequest,
+    ) -> Result<User> {
+        if target_id != requester_id && !requester_is_admin {
+            return Err(anyhow!("You can only edit your own profile"));
+        }
+
         let mut user = self
             .repo
-            .find_by_id(user_id)?
+            .find_by_id(target_id)?
             .ok_or_else(|| anyhow!("User not found"))?;
 
         if let Some(new_username) = req.username
@@ -99,21 +116,59 @@ impl UserService {
             user.avatar_url = Some(avatar_url);
         }
 
-        self.repo.update(&user)
+        self.repo.update_profile(&user)
     }
 
-    pub fn update_status(&self, target_id: i64, status: &str) -> Result<User> {
-        let valid = ["active", "inactive", "banned", "pending"];
+    pub fn update_status(
+        &self,
+        target_id: i64,
+        requester_id: i64,
+        requester_is_admin: bool,
+        status: &str,
+    ) -> Result<User> {
+        let valid = ["active", "inactive", "banned"];
         if !valid.contains(&status) {
             return Err(anyhow!("Invalid status"));
         }
 
-        let mut user = self
+        let target = self
             .repo
             .find_by_id(target_id)?
             .ok_or_else(|| anyhow!("User not found"))?;
 
-        user.status = status.to_string();
-        self.repo.update(&user)
+        if target.role == "admin" && !requester_is_admin {
+            return Err(anyhow!("Cannot modify admin"));
+        }
+
+        if target_id == requester_id && status == "banned" {
+            return Err(anyhow!("Cannot ban yourself"));
+        }
+
+        self.repo.update_status(target_id, status)
+    }
+
+    pub fn update_role(&self, target_id: i64, requester_id: i64, role: &str) -> Result<User> {
+        if role == "admin" {
+            return Err(anyhow!("Cannot assign admin role"));
+        }
+
+        if !matches!(role, "user" | "moderator") {
+            return Err(anyhow!("Invalid role"));
+        }
+
+        if target_id == requester_id {
+            return Err(anyhow!("Cannot change your own role"));
+        }
+
+        let target = self
+            .repo
+            .find_by_id(target_id)?
+            .ok_or_else(|| anyhow!("User not found"))?;
+
+        if target.role == "admin" {
+            return Err(anyhow!("Cannot change admin role"));
+        }
+
+        self.repo.update_role(target_id, role)
     }
 }

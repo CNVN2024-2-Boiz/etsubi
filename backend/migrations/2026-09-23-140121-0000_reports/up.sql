@@ -5,7 +5,7 @@ CREATE TABLE reports (
     comment_id  BIGINT REFERENCES comments(id) ON DELETE CASCADE,
     reason TEXT NOT NULL,
     detail TEXT,
-    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'resolved', 'rejected')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'rejected')),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     resolved_at TIMESTAMPTZ,
 

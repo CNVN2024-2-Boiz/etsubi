@@ -41,7 +41,7 @@ pub async fn login(
 
     let token = create_token(
         user.id,
-        vec!["user".to_string()],
+        user.role.clone(),
         &state.config.jwt_key,
         state.config.jwt_expiry_hours,
     )

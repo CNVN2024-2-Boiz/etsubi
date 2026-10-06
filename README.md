@@ -29,13 +29,13 @@ ghép từ **Etsu** (越 - Việt) và **bi** (lấy từ 日 - Nhật).
 ## Các thành viên tham gia 
 
 
-| MSSV | Họ và tên |
-|---|---|
-| 24521350 | Đỗ Mạnh Phú |
-| 24521246 | Vũ Thiện Nhân |
-| 24521561 | Võ Khắc Anh Tài |
-| 24521340 | Nguyễn Nam Phong |
-| 24521441 | Nguyễn Lê Hoàng Quân |
+| MSSV | Họ và tên | Vai trò |
+|---|---|---|
+| 24521350 | Đỗ Mạnh Phú | Thiết kế giao diện |
+| 24521246 | Vũ Thiện Nhân | Xây dựng giao diện |
+| 24521561 | Võ Khắc Anh Tài | Thiết kế chức năng cho FE | 
+| 24521340 | Nguyễn Nam Phong | Xây dựng backend + kiến trúc tổng thể |
+| 24521441 | Nguyễn Lê Hoàng Quân | Xây dựng yêu cầu người dùng |
 
 ## Các thông tin liên quan
 

@@ -1,38 +1,13 @@
-BASE="http://localhost:11432/api/v1"
-TOKEN_FILE="token.json"
+echo "Enter email:"
+read email
 
-EMAIL="${1:-}"
-PASSWORD="${2:-12345678}"
+echo "Enter password:"
+read -s password
+echo
 
-if [ -z "$EMAIL" ]; then
-    TS=$(date +%s)
-    USERNAME="user_$TS"
-    EMAIL="test_${TS}@test.com"
-
-    echo "→ Auto register: $EMAIL"
-    curl -s -X POST "$BASE/auth/register" \
-      -H "Content-Type: application/json" \
-      -d "{\"username\":\"$USERNAME\",\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}"
-    echo ""
-fi
-
-echo "→ POST /auth/login"
-echo "  email: $EMAIL"
-echo ""
-
-RESPONSE=$(curl -s -X POST "$BASE/auth/login" \
+curl -s -X POST http://localhost:11432/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d "{\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}")
+  -d "{\"email\":\"$email\",\"password\":\"$password\"}" \
+  > token.json
 
-echo "Raw: $RESPONSE"
-echo ""
-
-if echo "$RESPONSE" | jq -e . > /dev/null 2>&1; then
-    echo "$RESPONSE" > "$TOKEN_FILE"
-    echo "$RESPONSE" | jq
-    echo ""
-    echo "✓ Saved to $TOKEN_FILE"
-else
-    echo "❌ Login failed: $RESPONSE"
-    exit 1
-fi
+cat token.json | jq

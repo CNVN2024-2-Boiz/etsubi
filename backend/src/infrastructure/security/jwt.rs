@@ -6,16 +6,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: i64,
-    pub roles: Vec<String>,
+    pub role: String,
     pub exp: usize,
     pub iat: usize,
 }
 
-pub fn create_token(user_id: i64, roles: Vec<String>, secret: &str, hours: i64) -> Result<String> {
+pub fn create_token(user_id: i64, role: String, secret: &str, hours: i64) -> Result<String> {
     let now = Utc::now();
     let claims = Claims {
         sub: user_id,
-        roles,
+        role,
         exp: (now + Duration::hours(hours)).timestamp() as usize,
         iat: now.timestamp() as usize,
     };
