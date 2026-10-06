@@ -9,6 +9,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 }
 
 pub fn protected(cfg: &mut web::ServiceConfig) {
-    cfg.service(presentation::handlers::user_handler::update_status);
     cfg.service(presentation::handlers::user_handler::update_user);
+    cfg.service(presentation::handlers::user_handler::update_status);
+    cfg.service(presentation::handlers::user_handler::update_role);
 }

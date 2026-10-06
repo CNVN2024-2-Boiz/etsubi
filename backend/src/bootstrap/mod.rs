@@ -1,5 +1,6 @@
 pub mod config;
 pub mod pool;
+pub mod seed;
 pub mod state;
 
 use actix_web::web;

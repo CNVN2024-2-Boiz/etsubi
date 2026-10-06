@@ -15,11 +15,15 @@ pub struct UpdateStatusRequest {
     pub status: String,
 }
 
+#[derive(Deserialize)]
+pub struct UpdateRoleRequest {
+    pub role: String,
+}
+
 #[derive(Serialize)]
 pub struct PublicUserResponse {
     pub id: i64,
     pub username: String,
-    pub bio: Option<String>,
     pub status: String,
 }
 
@@ -28,7 +32,6 @@ impl From<User> for PublicUserResponse {
         Self {
             id: u.id,
             username: u.username,
-            bio: u.bio,
             status: u.status,
         }
     }
@@ -41,6 +44,7 @@ pub struct UserResponse {
     pub email: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
+    pub role: String,
     pub status: String,
 }
 
@@ -52,12 +56,8 @@ impl From<User> for UserResponse {
             email: u.email,
             avatar_url: u.avatar_url,
             bio: u.bio,
+            role: u.role,
             status: u.status,
         }
     }
-}
-
-#[derive(Deserialize)]
-pub struct AssignRoleRequest {
-    pub role_name: String,
 }

@@ -3,7 +3,9 @@ use std::sync::Arc;
 use anyhow::{Result, anyhow};
 
 use crate::{
-    domains::user::repository::UserRepository, infrastructure::database::models::entities::User,
+    domains::user::repository::UserRepository,
+    infrastructure::database::models::entities::User,
+    infrastructure::security::password::{hash_password, verify_password},
     presentation::dto::user_dto::UpdateProfileRequest,
 };
 
@@ -29,7 +31,7 @@ impl UserService {
             return Err(anyhow!("Username already taken"));
         }
 
-        let hashed = format!("hashed_{}", password);
+        let hashed = hash_password(password).expect("Hash password failed");
         let now = chrono::Utc::now();
 
         let user = User {
@@ -55,7 +57,7 @@ impl UserService {
             .find_by_email(email)?
             .ok_or_else(|| anyhow!("Invalid credentials"))?;
 
-        if user.password != format!("hashed_{}", password) {
+        if !verify_password(password, &user.password) {
             return Err(anyhow!("Invalid credentials"));
         }
 
