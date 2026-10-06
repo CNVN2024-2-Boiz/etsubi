@@ -1,4 +1,3 @@
-// presentation/handlers/auth_handler.rs
 use actix_web::{
     Error, HttpResponse,
     error::{ErrorBadRequest, ErrorInternalServerError, ErrorUnauthorized},
@@ -42,7 +41,7 @@ pub async fn login(
 
     let token = create_token(
         user.id,
-        vec!["user".to_string()],
+        user.role.clone(),
         &state.config.jwt_key,
         state.config.jwt_expiry_hours,
     )

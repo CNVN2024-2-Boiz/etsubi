@@ -8,8 +8,10 @@ use std::sync::Arc;
 
 use crate::{
     bootstrap::{config::AppConfig, state::AppState},
-    domains::user::service::UserService,
-    infrastructure::database::repositories::user_repo::PostgresUserRepo,
+    domains::{post::service::PostService, user::service::UserService},
+    infrastructure::database::repositories::{
+        post_repo::PostgresPostRepo, user_repo::PostgresUserRepo,
+    },
 };
 
 pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
@@ -19,11 +21,16 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
 
     let user_repo = Arc::new(PostgresUserRepo::new(db_pool.clone()));
 
+    let post_repo = Arc::new(PostgresPostRepo::new(db_pool.clone()));
+
     let user_service = Arc::new(UserService::new(user_repo));
+
+    let post_service = Arc::new(PostService::new(post_repo));
 
     Ok(web::Data::new(AppState {
         config,
         pool: db_pool,
         user_service,
+        post_service,
     }))
 }

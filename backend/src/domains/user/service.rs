@@ -74,10 +74,20 @@ impl UserService {
         self.repo.find_by_email(email)
     }
 
-    pub fn update_profile(&self, user_id: i64, req: UpdateProfileRequest) -> Result<User> {
+    pub fn update_profile(
+        &self,
+        target_id: i64,
+        requester_id: i64,
+        requester_is_admin: bool,
+        req: UpdateProfileRequest,
+    ) -> Result<User> {
+        if target_id != requester_id && !requester_is_admin {
+            return Err(anyhow!("You can only edit your own profile"));
+        }
+
         let mut user = self
             .repo
-            .find_by_id(user_id)?
+            .find_by_id(target_id)?
             .ok_or_else(|| anyhow!("User not found"))?;
 
         if let Some(new_username) = req.username
@@ -109,22 +119,54 @@ impl UserService {
         self.repo.update_profile(&user)
     }
 
-    pub fn update_status(&self, target_id: i64, status: &str) -> Result<User> {
-        let valid = ["active", "inactive", "banned", "pending"];
+    pub fn update_status(
+        &self,
+        target_id: i64,
+        requester_id: i64,
+        requester_is_admin: bool,
+        status: &str,
+    ) -> Result<User> {
+        let valid = ["active", "inactive", "banned"];
         if !valid.contains(&status) {
             return Err(anyhow!("Invalid status"));
+        }
+
+        let target = self
+            .repo
+            .find_by_id(target_id)?
+            .ok_or_else(|| anyhow!("User not found"))?;
+
+        if target.role == "admin" && !requester_is_admin {
+            return Err(anyhow!("Cannot modify admin"));
+        }
+
+        if target_id == requester_id && status == "banned" {
+            return Err(anyhow!("Cannot ban yourself"));
         }
 
         self.repo.update_status(target_id, status)
     }
 
-    pub fn update_role(&self, target_id: i64, role: &str) -> Result<User> {
+    pub fn update_role(&self, target_id: i64, requester_id: i64, role: &str) -> Result<User> {
         if role == "admin" {
             return Err(anyhow!("Cannot assign admin role"));
         }
 
         if !matches!(role, "user" | "moderator") {
             return Err(anyhow!("Invalid role"));
+        }
+
+        if target_id == requester_id {
+            return Err(anyhow!("Cannot change your own role"));
+        }
+
+        let target = self
+            .repo
+            .find_by_id(target_id)?
+            .ok_or_else(|| anyhow!("User not found"))?;
+
+        if target.role == "admin" {
+            return Err(anyhow!("Cannot change admin role"));
         }
 
         self.repo.update_role(target_id, role)

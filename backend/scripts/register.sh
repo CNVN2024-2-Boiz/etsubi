@@ -1,22 +1,13 @@
-BASE="http://localhost:11432/api/v1"
+echo "Enter username:"
+read username
 
-TS=$(date +%s)
-USERNAME="${1:-test_$TS}"
-EMAIL="${2:-test_${TS}@test.com}"
-PASSWORD="${3:-12345678}"
+echo "Enter email:"
+read email
 
-echo "→ POST /auth/register"
-echo "  username: $USERNAME"
-echo "  email:    $EMAIL"
-echo ""
+echo "Enter password:"
+read -s password
+echo
 
-RESPONSE=$(curl -s -X POST "$BASE/auth/register" \
+curl -i -X POST http://localhost:11432/api/v1/auth/register \
   -H "Content-Type: application/json" \
-  -d "{\"username\":\"$USERNAME\",\"email\":\"$EMAIL\",\"password\":\"$PASSWORD\"}")
-
-echo "$RESPONSE"
-
-if echo "$RESPONSE" | jq -e . > /dev/null 2>&1; then
-    echo ""
-    echo "$RESPONSE" | jq
-fi
+  -d "{\"username\":\"$username\",\"email\":\"$email\",\"password\":\"$password\"}"
