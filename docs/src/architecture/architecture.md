@@ -54,7 +54,6 @@ src/
 │   ├── comment/
 │   ├── tag/
 │   ├── report/
-│   ├── role/
 │   └── mod.rs
 │
 └── infrastructure/
@@ -94,40 +93,4 @@ Chi tiết:
 | 4 | Service | Business logic, gọi repository |
 | 5 | Repository | Query DB, map entity |
 | 6 | Database | Thực thi SQL |
-
-## Luồng khởi động
-
-```mermaid
-sequenceDiagram
-    participant M as main
-    participant B as bootstrap
-    participant C as config
-    participant P as pool
-    participant R as repository
-    participant S as service
-    participant H as HttpServer
-
-    M->>B: run()
-    B->>C: from_env()
-    C-->>B: AppConfig
-    B->>P: init(db_url)
-    P-->>B: DbPool
-    B->>R: new(pool)
-    R-->>B: UserRepo
-    B->>S: new(repo)
-    S-->>B: UserService
-    B-->>M: AppState
-    M->>H: new(state).run()
-```
-
-## Phân chia module
-
-| Module | Aggregate | Repository |
-|---|---|---|
-| user | User | UserRepository |
-| post | Post | PostRepository |
-| comment | Comment | CommentRepository |
-| tag | Tag | TagRepository |
-| report | Report | ReportRepository |
-| role | Role | Không có — dùng UserRepository |
 
