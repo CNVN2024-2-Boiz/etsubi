@@ -49,6 +49,7 @@ src/
 │   ├── user/
 │   │   ├── mod.rs
 │   │   ├── repository.rs
+│   │   ├── error.rs
 │   │   └── service.rs
 │   ├── post/
 │   ├── comment/
