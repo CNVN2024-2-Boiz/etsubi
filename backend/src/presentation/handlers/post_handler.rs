@@ -4,6 +4,7 @@ use actix_web::{
 
 use crate::{
     bootstrap::state::AppState,
+    domains::post::error::PostError,
     infrastructure::security::extractor::CurrentUser,
     presentation::dto::post_dto::{
         CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest,
@@ -16,9 +17,9 @@ use crate::{
     tag = "post",
     request_body = CreatePostRequest,
     responses(
-        (status = 201, description = "Tạo bài viết thành công", body = PostResponse),
-        (status = 400, description = "Dữ liệu không hợp lệ"),
-        (status = 401, description = "Chưa đăng nhập"),
+        (status = 201, description = "Post created", body = PostResponse),
+        (status = 400, description = "Invalid payload"),
+        (status = 401, description = "Not authenticated"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -46,11 +47,11 @@ pub async fn create_post(
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID bài viết")
+        ("id" = i64, Path, description = "Post ID")
     ),
     responses(
-        (status = 200, description = "Thông tin bài viết", body = PostResponse),
-        (status = 404, description = "Không tìm thấy bài viết"),
+        (status = 200, description = "Post details", body = PostResponse),
+        (status = 404, description = "Post not found"),
     ),
 )]
 #[get("/posts/{id}")]
@@ -73,12 +74,12 @@ pub async fn get_post(
     path = "/api/v1/my/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID bài viết")
+        ("id" = i64, Path, description = "Post ID")
     ),
     responses(
-        (status = 200, description = "Bài viết của tôi", body = PostResponse),
-        (status = 401, description = "Chưa đăng nhập"),
-        (status = 404, description = "Không tìm thấy bài viết"),
+        (status = 200, description = "Owned post details", body = PostResponse),
+        (status = 401, description = "Not authenticated"),
+        (status = 404, description = "Post not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -104,8 +105,8 @@ pub async fn get_my_post(
     path = "/api/v1/my/posts",
     tag = "post",
     responses(
-        (status = 200, description = "Danh sách bài viết của tôi", body = [PostResponse]),
-        (status = 401, description = "Chưa đăng nhập"),
+        (status = 200, description = "List of own posts", body = [PostResponse]),
+        (status = 401, description = "Not authenticated"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -130,10 +131,10 @@ pub async fn list_my_posts(
     path = "/api/v1/users/{id}/posts",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID tác giả")
+        ("id" = i64, Path, description = "Author ID")
     ),
     responses(
-        (status = 200, description = "Bài viết đã publish của user", body = [PostResponse]),
+        (status = 200, description = "Published posts by the author", body = [PostResponse]),
     ),
 )]
 #[get("/users/{id}/posts")]
@@ -157,14 +158,14 @@ pub async fn list_user_posts(
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID bài viết cần cập nhật")
+        ("id" = i64, Path, description = "ID of the post to update")
     ),
     request_body = UpdatePostRequest,
     responses(
-        (status = 200, description = "Cập nhật thành công", body = PostResponse),
-        (status = 400, description = "Dữ liệu không hợp lệ"),
-        (status = 403, description = "Không có quyền sửa"),
-        (status = 404, description = "Không tìm thấy bài viết"),
+        (status = 200, description = "Post updated", body = PostResponse),
+        (status = 400, description = "Invalid payload"),
+        (status = 403, description = "Not allowed to edit this post"),
+        (status = 404, description = "Post not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -194,14 +195,14 @@ pub async fn update_post(
     path = "/api/v1/posts/{id}/status",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID bài viết cần đổi status")
+        ("id" = i64, Path, description = "ID of the post whose status will change")
     ),
     request_body = UpdatePostStatusRequest,
     responses(
-        (status = 200, description = "Đổi status thành công", body = PostResponse),
-        (status = 400, description = "Status không hợp lệ"),
-        (status = 403, description = "Không có quyền"),
-        (status = 404, description = "Không tìm thấy bài viết"),
+        (status = 200, description = "Post status updated", body = PostResponse),
+        (status = 400, description = "Invalid status"),
+        (status = 403, description = "Not allowed to change this post's status"),
+        (status = 404, description = "Post not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -231,12 +232,12 @@ pub async fn update_post_status(
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID bài viết cần xóa")
+        ("id" = i64, Path, description = "ID of the post to delete")
     ),
     responses(
-        (status = 204, description = "Xóa thành công"),
-        (status = 403, description = "Không có quyền"),
-        (status = 404, description = "Không tìm thấy bài viết"),
+        (status = 204, description = "Post deleted"),
+        (status = 403, description = "Not allowed to delete this post"),
+        (status = 404, description = "Post not found"),
     ),
     security(("bearer_auth" = [])),
 )]

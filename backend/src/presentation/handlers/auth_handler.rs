@@ -13,9 +13,9 @@ use crate::{
     tag = "auth",
     request_body = RegisterRequest,
     responses(
-        (status = 201, description = "Đăng ký thành công", body = RegisterResponse),
-        (status = 400, description = "Dữ liệu không hợp lệ"),
-        (status = 409, description = "Email hoặc username đã tồn tại"),
+        (status = 201, description = "Registration successful", body = RegisterResponse),
+        (status = 400, description = "Invalid payload"),
+        (status = 409, description = "Email or username already taken"),
     ),
 )]
 #[post("/auth/register")]
@@ -39,8 +39,8 @@ pub async fn register(
     tag = "auth",
     request_body = LoginRequest,
     responses(
-        (status = 200, description = "Đăng nhập thành công", body = LoginResponse),
-        (status = 401, description = "Sai email hoặc mật khẩu"),
+        (status = 200, description = "Login successful", body = LoginResponse),
+        (status = 401, description = "Invalid email or password"),
     ),
 )]
 #[post("/auth/login")]

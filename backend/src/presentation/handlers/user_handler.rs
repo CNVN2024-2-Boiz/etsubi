@@ -14,9 +14,9 @@ use crate::{
     path = "/api/v1/my",
     tag = "user",
     responses(
-        (status = 200, description = "Thông tin cá nhân", body = UserResponse),
-        (status = 401, description = "Chưa đăng nhập"),
-        (status = 404, description = "Không tìm thấy user"),
+        (status = 200, description = "Current user profile", body = UserResponse),
+        (status = 401, description = "Not authenticated"),
+        (status = 404, description = "User not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -40,11 +40,11 @@ pub async fn get_personal_info(
     path = "/api/v1/users/{id}",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID người dùng")
+        ("id" = i64, Path, description = "User ID")
     ),
     responses(
-        (status = 200, description = "Thông tin người dùng", body = UserResponse),
-        (status = 404, description = "Không tìm thấy user"),
+        (status = 200, description = "User profile", body = UserResponse),
+        (status = 404, description = "User not found"),
     ),
 )]
 #[get("/users/{id}")]
@@ -67,14 +67,14 @@ pub async fn get_user(
     path = "/api/v1/users/{id}",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID người dùng cần cập nhật")
+        ("id" = i64, Path, description = "ID of the user to update")
     ),
     request_body = UpdateProfileRequest,
     responses(
-        (status = 200, description = "Cập nhật thành công", body = UserResponse),
-        (status = 400, description = "Dữ liệu không hợp lệ"),
-        (status = 403, description = "Không có quyền sửa profile này"),
-        (status = 404, description = "Không tìm thấy user"),
+        (status = 200, description = "Profile updated", body = UserResponse),
+        (status = 400, description = "Invalid payload"),
+        (status = 403, description = "Not allowed to edit this profile"),
+        (status = 404, description = "User not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -106,14 +106,14 @@ pub async fn update_user(
     path = "/api/v1/users/{id}/status",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID người dùng cần đổi status")
+        ("id" = i64, Path, description = "ID of the user whose status will change")
     ),
     request_body = UpdateStatusRequest,
     responses(
-        (status = 200, description = "Đổi status thành công", body = UserResponse),
-        (status = 400, description = "Status không hợp lệ"),
-        (status = 403, description = "Yêu cầu moderator hoặc admin"),
-        (status = 404, description = "Không tìm thấy user"),
+        (status = 200, description = "Status updated", body = UserResponse),
+        (status = 400, description = "Invalid status"),
+        (status = 403, description = "Requires moderator or admin role"),
+        (status = 404, description = "User not found"),
     ),
     security(("bearer_auth" = [])),
 )]
@@ -148,14 +148,14 @@ pub async fn update_status(
     path = "/api/v1/users/{id}/role",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID người dùng cần đổi role")
+        ("id" = i64, Path, description = "ID of the user whose role will change")
     ),
     request_body = UpdateRoleRequest,
     responses(
-        (status = 200, description = "Đổi role thành công", body = UserResponse),
-        (status = 400, description = "Role không hợp lệ"),
-        (status = 403, description = "Yêu cầu admin"),
-        (status = 404, description = "Không tìm thấy user"),
+        (status = 200, description = "Role updated", body = UserResponse),
+        (status = 400, description = "Invalid role"),
+        (status = 403, description = "Requires admin role"),
+        (status = 404, description = "User not found"),
     ),
     security(("bearer_auth" = [])),
 )]

@@ -18,7 +18,7 @@ use crate::presentation::{
     info(
         title = "Etsubi API",
         version = "1.0.0",
-        description = "API backend cho hệ thống Etsubi"
+        description = "Backend API for the Etsubi platform"
     ),
     paths(
         health::health,
@@ -47,10 +47,10 @@ use crate::presentation::{
         CreatePostRequest, UpdatePostRequest, UpdatePostStatusRequest,
     )),
     tags(
-        (name = "system", description = "Hệ thống"),
-        (name = "auth", description = "Xác thực"),
-        (name = "user", description = "Người dùng"),
-        (name = "post", description = "Bài viết"),
+        (name = "system", description = "System endpoints"),
+        (name = "auth", description = "Authentication"),
+        (name = "user", description = "User management"),
+        (name = "post", description = "Post management"),
     ),
     modifiers(&SecurityAddon),
 )]
