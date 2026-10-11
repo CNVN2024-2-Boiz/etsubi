@@ -11,7 +11,7 @@ use chrono::Utc;
 
 use crate::{
     bootstrap::state::AppState,
-    infrastructure::security::{extractor::AuthUser, jwt::verify_token},
+    infrastructure::security::{extractor::CurrentUser, jwt::verify_token},
 };
 
 pub async fn auth_middleware(
@@ -64,7 +64,7 @@ pub async fn auth_middleware(
         );
         return Err(ErrorForbidden(msg));
     }
-    req.extensions_mut().insert(AuthUser {
+    req.extensions_mut().insert(CurrentUser {
         id: user.id,
         role: user.role,
         status: user.status,
