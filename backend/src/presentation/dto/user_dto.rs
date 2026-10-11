@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::infrastructure::database::models::entities::User;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct UpdateProfileRequest {
     pub username: Option<String>,
     pub email: Option<String>,
@@ -10,17 +11,17 @@ pub struct UpdateProfileRequest {
     pub avatar_url: Option<String>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct UpdateStatusRequest {
     pub status: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct UpdateRoleRequest {
     pub role: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct UserResponse {
     pub username: String,
     pub avatar_url: Option<String>,
