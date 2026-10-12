@@ -88,12 +88,25 @@ pub async fn update_user(
     let target_id = path.into_inner();
     let requester_id = user.id;
     let requester_is_admin = user.is_admin();
+
     let req = body.into_inner();
+    let username = req.username;
+    let email = req.email;
+    let bio = req.bio;
+    let avatar_url = req.avatar_url;
 
     let service = state.user_service.clone();
 
     let updated = web::block(move || {
-        service.update_profile(target_id, requester_id, requester_is_admin, req)
+        service.update_profile(
+            target_id,
+            requester_id,
+            requester_is_admin,
+            username,
+            email,
+            bio,
+            avatar_url,
+        )
     })
     .await
     .map_err(ErrorInternalServerError)??;

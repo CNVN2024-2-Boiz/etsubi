@@ -10,7 +10,6 @@ use crate::presentation::{
         user_dto::{UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest, UserResponse},
     },
     handlers::{auth_handler, post_handler, user_handler},
-    support::health,
 };
 
 #[derive(OpenApi)]
@@ -21,7 +20,6 @@ use crate::presentation::{
         description = "Backend API for the Etsubi platform"
     ),
     paths(
-        health::health,
         auth_handler::register,
         auth_handler::login,
         user_handler::get_personal_info,

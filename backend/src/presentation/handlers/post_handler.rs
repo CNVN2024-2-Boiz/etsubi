@@ -4,7 +4,6 @@ use actix_web::{
 
 use crate::{
     bootstrap::state::AppState,
-    domains::post::error::PostError,
     infrastructure::security::extractor::CurrentUser,
     presentation::dto::post_dto::{
         CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest,
@@ -32,7 +31,7 @@ pub async fn create_post(
     let service = state.post_service.clone();
     let req = body.into_inner();
     let author_id = user.id;
-    let status = req.status.unwrap_or_else(|| "draft".to_string());
+    let status = req.status.unwrap();
 
     let created =
         web::block(move || service.create(author_id, &req.title, req.content.as_deref(), &status))
