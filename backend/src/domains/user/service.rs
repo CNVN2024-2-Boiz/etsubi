@@ -1,9 +1,7 @@
 use std::sync::Arc;
 
-use anyhow::{Result, anyhow};
-
 use crate::{
-    domains::user::repository::UserRepository,
+    domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
     infrastructure::security::password::{hash_password, verify_password},
     presentation::dto::user_dto::UpdateProfileRequest,
@@ -18,22 +16,22 @@ impl UserService {
         Self { repo }
     }
 
-    pub fn create(&self, username: &str, email: &str, password: &str) -> Result<User> {
+    pub fn create(&self, username: &str, email: &str, password: &str) -> Result<User, UserError> {
         if username.len() < 3 {
-            return Err(anyhow!("Username too short"));
+            return Err(UserError::UsernameTooShort);
         }
 
         if self.repo.find_by_email(email)?.is_some() {
-            return Err(anyhow!("Email already exists"));
+            return Err(UserError::EmailAlreadyExists);
         }
 
         if self.repo.find_by_username(username)?.is_some() {
-            return Err(anyhow!("Username already taken"));
+            return Err(UserError::UsernameAlreadyTaken);
         }
 
-        let hashed = hash_password(password).expect("Hash password failed");
-        let now = chrono::Utc::now();
+        let hashed = hash_password(password)?;
 
+        let now = chrono::Utc::now();
         let user = User {
             id: 0,
             username: username.into(),
@@ -48,30 +46,28 @@ impl UserService {
             muted_until: None,
         };
 
-        self.repo.create(&user)
+        Ok(self.repo.create(&user)?)
     }
 
-    pub fn verify_credentials(&self, email: &str, password: &str) -> Result<User> {
+    pub fn verify_credentials(&self, email: &str, password: &str) -> Result<User, UserError> {
         let user = self
             .repo
             .find_by_email(email)?
-            .ok_or_else(|| anyhow!("Invalid credentials"))?;
+            .ok_or(UserError::InvalidCredentials)?;
 
         if !verify_password(password, &user.password) {
-            return Err(anyhow!("Invalid credentials"));
+            return Err(UserError::InvalidCredentials);
         }
 
         Ok(user)
     }
 
-    pub fn get(&self, id: i64) -> Result<User> {
-        self.repo
-            .find_by_id(id)?
-            .ok_or_else(|| anyhow!("User not found"))
+    pub fn get(&self, id: i64) -> Result<User, UserError> {
+        self.repo.find_by_id(id)?.ok_or(UserError::NotFound)
     }
 
-    pub fn find_by_email(&self, email: &str) -> Result<Option<User>> {
-        self.repo.find_by_email(email)
+    pub fn find_by_email(&self, email: &str) -> Result<Option<User>, UserError> {
+        Ok(self.repo.find_by_email(email)?)
     }
 
     pub fn update_profile(
@@ -80,21 +76,21 @@ impl UserService {
         requester_id: i64,
         requester_is_admin: bool,
         req: UpdateProfileRequest,
-    ) -> Result<User> {
+    ) -> Result<User, UserError> {
         if target_id != requester_id && !requester_is_admin {
-            return Err(anyhow!("You can only edit your own profile"));
+            return Err(UserError::ForbiddenProfileEdit);
         }
 
         let mut user = self
             .repo
             .find_by_id(target_id)?
-            .ok_or_else(|| anyhow!("User not found"))?;
+            .ok_or(UserError::NotFound)?;
 
         if let Some(new_username) = req.username
             && new_username != user.username
         {
             if self.repo.find_by_username(&new_username)?.is_some() {
-                return Err(anyhow!("Username already taken"));
+                return Err(UserError::UsernameAlreadyTaken);
             }
             user.username = new_username;
         }
@@ -103,7 +99,7 @@ impl UserService {
             && new_email != user.email
         {
             if self.repo.find_by_email(&new_email)?.is_some() {
-                return Err(anyhow!("Email already taken"));
+                return Err(UserError::EmailAlreadyTaken);
             }
             user.email = new_email;
         }
@@ -116,7 +112,7 @@ impl UserService {
             user.avatar_url = Some(avatar_url);
         }
 
-        self.repo.update_profile(&user)
+        Ok(self.repo.update_profile(&user)?)
     }
 
     pub fn update_status(
@@ -125,50 +121,55 @@ impl UserService {
         requester_id: i64,
         requester_is_admin: bool,
         status: &str,
-    ) -> Result<User> {
+    ) -> Result<User, UserError> {
         let valid = ["active", "inactive", "banned"];
         if !valid.contains(&status) {
-            return Err(anyhow!("Invalid status"));
+            return Err(UserError::InvalidStatus);
         }
 
         let target = self
             .repo
             .find_by_id(target_id)?
-            .ok_or_else(|| anyhow!("User not found"))?;
+            .ok_or(UserError::NotFound)?;
 
         if target.role == "admin" && !requester_is_admin {
-            return Err(anyhow!("Cannot modify admin"));
+            return Err(UserError::CannotModifyAdmin);
         }
 
         if target_id == requester_id && status == "banned" {
-            return Err(anyhow!("Cannot ban yourself"));
+            return Err(UserError::CannotBanSelf);
         }
 
-        self.repo.update_status(target_id, status)
+        Ok(self.repo.update_status(target_id, status)?)
     }
 
-    pub fn update_role(&self, target_id: i64, requester_id: i64, role: &str) -> Result<User> {
+    pub fn update_role(
+        &self,
+        target_id: i64,
+        requester_id: i64,
+        role: &str,
+    ) -> Result<User, UserError> {
         if role == "admin" {
-            return Err(anyhow!("Cannot assign admin role"));
+            return Err(UserError::CannotAssignAdminRole);
         }
 
         if !matches!(role, "user" | "moderator") {
-            return Err(anyhow!("Invalid role"));
+            return Err(UserError::InvalidRole);
         }
 
         if target_id == requester_id {
-            return Err(anyhow!("Cannot change your own role"));
+            return Err(UserError::CannotChangeOwnRole);
         }
 
         let target = self
             .repo
             .find_by_id(target_id)?
-            .ok_or_else(|| anyhow!("User not found"))?;
+            .ok_or(UserError::NotFound)?;
 
         if target.role == "admin" {
-            return Err(anyhow!("Cannot change admin role"));
+            return Err(UserError::CannotChangeAdminRole);
         }
 
-        self.repo.update_role(target_id, role)
+        Ok(self.repo.update_role(target_id, role)?)
     }
 }

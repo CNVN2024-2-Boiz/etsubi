@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
-use anyhow::{Result, anyhow};
 use chrono::Utc;
 
 use crate::{
-    domains::post::repository::PostRepository, infrastructure::database::models::entities::Post,
+    domains::post::{error::PostError, repository::PostRepository},
+    infrastructure::database::models::entities::Post,
 };
 
 pub struct PostService {
@@ -22,21 +22,21 @@ impl PostService {
         title: &str,
         content: Option<&str>,
         status: &str,
-    ) -> Result<Post> {
+    ) -> Result<Post, PostError> {
         let title = title.trim();
         if title.is_empty() {
-            return Err(anyhow!("Title cannot be empty"));
+            return Err(PostError::EmptyTitle);
         }
         if title.len() > 255 {
-            return Err(anyhow!("Title too long"));
+            return Err(PostError::TitleTooLong);
         }
         if content.is_some_and(|c| c.len() > 100_000) {
-            return Err(anyhow!("Content too long"));
+            return Err(PostError::ContentTooLong);
         }
 
         let valid_status = ["draft", "published", "hidden"];
         if !valid_status.contains(&status) {
-            return Err(anyhow!("Invalid status"));
+            return Err(PostError::InvalidStatus);
         }
 
         let now = Utc::now();
@@ -52,25 +52,23 @@ impl PostService {
             updated_at: now,
         };
 
-        self.repo.create(&post)
+        Ok(self.repo.create(&post)?)
     }
 
-    pub fn get(&self, id: i64) -> Result<Post> {
-        self.repo
-            .find_by_id(id)?
-            .ok_or_else(|| anyhow!("Post not found"))
+    pub fn get(&self, id: i64) -> Result<Post, PostError> {
+        self.repo.find_by_id(id)?.ok_or(PostError::NotFound)
     }
 
-    pub fn get_published(&self, id: i64) -> Result<Post> {
+    pub fn get_published(&self, id: i64) -> Result<Post, PostError> {
         self.repo
             .find_published_by_id(id)?
-            .ok_or_else(|| anyhow!("Post not found"))
+            .ok_or(PostError::NotFound)
     }
 
-    pub fn get_owned(&self, id: i64, author_id: i64) -> Result<Post> {
+    pub fn get_owned(&self, id: i64, author_id: i64) -> Result<Post, PostError> {
         let post = self.get(id)?;
         if post.author_id != author_id {
-            return Err(anyhow!("Post not found"));
+            return Err(PostError::NotFound);
         }
         Ok(post)
     }
@@ -81,33 +79,33 @@ impl PostService {
         requester_id: i64,
         title: &str,
         content: Option<&str>,
-    ) -> Result<Post> {
+    ) -> Result<Post, PostError> {
         let mut post = self.get(id)?;
 
         if post.author_id != requester_id {
-            return Err(anyhow!("Not allowed"));
+            return Err(PostError::Forbidden);
         }
 
         if post.status == "hidden" {
-            return Err(anyhow!("Post is hidden, cannot edit"));
+            return Err(PostError::HiddenCannotEdit);
         }
 
         let title = title.trim();
         if title.is_empty() {
-            return Err(anyhow!("Title cannot be empty"));
+            return Err(PostError::EmptyTitle);
         }
         if title.len() > 255 {
-            return Err(anyhow!("Title too long"));
+            return Err(PostError::TitleTooLong);
         }
         if content.is_some_and(|c| c.len() > 100_000) {
-            return Err(anyhow!("Content too long"));
+            return Err(PostError::ContentTooLong);
         }
 
         post.title = title.to_string();
         post.content = content.map(|s| s.to_string());
         post.updated_at = Utc::now();
 
-        self.repo.update_content(&post)
+        Ok(self.repo.update_content(&post)?)
     }
 
     pub fn update_status(
@@ -116,51 +114,51 @@ impl PostService {
         requester_id: i64,
         is_staff: bool,
         status: &str,
-    ) -> Result<Post> {
+    ) -> Result<Post, PostError> {
         let post = self.get(id)?;
         let is_owner = post.author_id == requester_id;
 
         if !is_owner && !is_staff {
-            return Err(anyhow!("Not allowed"));
+            return Err(PostError::Forbidden);
         }
 
         if post.status == "hidden" && !is_staff {
-            return Err(anyhow!("Post is hidden, only staff can change status"));
+            return Err(PostError::HiddenOnlyStaffCanChangeStatus);
         }
 
         match status {
             "hidden" => {
                 if !is_staff {
-                    return Err(anyhow!("Only staff can hide posts"));
+                    return Err(PostError::OnlyStaffCanHide);
                 }
             }
             "draft" => {
                 if !is_owner {
-                    return Err(anyhow!("Not allowed"));
+                    return Err(PostError::Forbidden);
                 }
             }
             "published" => {}
-            _ => return Err(anyhow!("Invalid status")),
+            _ => return Err(PostError::InvalidStatus),
         }
 
-        self.repo.update_status(id, status)
+        Ok(self.repo.update_status(id, status)?)
     }
 
-    pub fn delete(&self, id: i64, requester_id: i64, is_staff: bool) -> Result<()> {
+    pub fn delete(&self, id: i64, requester_id: i64, is_staff: bool) -> Result<(), PostError> {
         let post = self.get(id)?;
 
         if post.author_id != requester_id && !is_staff {
-            return Err(anyhow!("Not allowed"));
+            return Err(PostError::Forbidden);
         }
 
-        self.repo.delete(id)
+        Ok(self.repo.delete(id)?)
     }
 
-    pub fn list_my_posts(&self, author_id: i64) -> Result<Vec<Post>> {
-        self.repo.find_by_author(author_id)
+    pub fn list_my_posts(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+        Ok(self.repo.find_by_author(author_id)?)
     }
 
-    pub fn list_published_by_author(&self, author_id: i64) -> Result<Vec<Post>> {
-        self.repo.find_published_by_author(author_id)
+    pub fn list_published_by_author(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+        Ok(self.repo.find_published_by_author(author_id)?)
     }
 }

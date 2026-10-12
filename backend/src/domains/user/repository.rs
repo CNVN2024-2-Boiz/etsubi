@@ -6,7 +6,7 @@ pub trait UserRepository: Send + Sync {
     fn create(&self, user: &User) -> Result<User>;
     fn update_profile(&self, user: &User) -> Result<User>;
     fn update_status(&self, id: i64, status: &str) -> Result<User>;
-    fn update_role(&self, id: i64, role: &str) -> Result<User>; // ← đổi từ get_roles...
+    fn update_role(&self, id: i64, role: &str) -> Result<User>;
     fn delete(&self, id: i64) -> Result<()>;
 
     fn find_by_id(&self, id: i64) -> Result<Option<User>>;

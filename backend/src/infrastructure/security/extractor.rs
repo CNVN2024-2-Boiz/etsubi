@@ -5,14 +5,14 @@ use chrono::{DateTime, Utc};
 use std::future::{Ready, ready};
 
 #[derive(Debug, Clone)]
-pub struct AuthUser {
+pub struct CurrentUser {
     pub id: i64,
     pub role: String,
     pub status: String,
     pub muted_until: Option<DateTime<Utc>>,
 }
 
-impl AuthUser {
+impl CurrentUser {
     pub fn has_role(&self, role: &str) -> bool {
         self.role == role
     }
@@ -30,14 +30,14 @@ impl AuthUser {
     }
 }
 
-impl FromRequest for AuthUser {
+impl FromRequest for CurrentUser {
     type Error = Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         ready(
             req.extensions()
-                .get::<AuthUser>()
+                .get::<CurrentUser>()
                 .cloned()
                 .ok_or_else(|| ErrorUnauthorized("Not authenticated")),
         )
