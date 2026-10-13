@@ -4,7 +4,6 @@ use crate::{
     domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
     infrastructure::security::password::{hash_password, verify_password},
-    presentation::dto::user_dto::UpdateProfileRequest,
 };
 
 pub struct UserService {
@@ -70,12 +69,16 @@ impl UserService {
         Ok(self.repo.find_by_email(email)?)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn update_profile(
         &self,
         target_id: i64,
         requester_id: i64,
         requester_is_admin: bool,
-        req: UpdateProfileRequest,
+        username: Option<String>,
+        email: Option<String>,
+        bio: Option<String>,
+        avatar_url: Option<String>,
     ) -> Result<User, UserError> {
         if target_id != requester_id && !requester_is_admin {
             return Err(UserError::ForbiddenProfileEdit);
@@ -86,7 +89,7 @@ impl UserService {
             .find_by_id(target_id)?
             .ok_or(UserError::NotFound)?;
 
-        if let Some(new_username) = req.username
+        if let Some(new_username) = username
             && new_username != user.username
         {
             if self.repo.find_by_username(&new_username)?.is_some() {
@@ -95,7 +98,7 @@ impl UserService {
             user.username = new_username;
         }
 
-        if let Some(new_email) = req.email
+        if let Some(new_email) = email
             && new_email != user.email
         {
             if self.repo.find_by_email(&new_email)?.is_some() {
@@ -104,11 +107,11 @@ impl UserService {
             user.email = new_email;
         }
 
-        if let Some(bio) = req.bio {
+        if let Some(bio) = bio {
             user.bio = Some(bio);
         }
 
-        if let Some(avatar_url) = req.avatar_url {
+        if let Some(avatar_url) = avatar_url {
             user.avatar_url = Some(avatar_url);
         }
 

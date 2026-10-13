@@ -1,3 +1,5 @@
 pub mod dto;
 pub mod handlers;
-pub mod support;
+pub mod openapi;
+
+pub use openapi::ApiDoc;

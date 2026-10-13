@@ -5,7 +5,7 @@ use actix_web::{
 };
 use backend::{
     bootstrap, infrastructure::security::middleware::auth_middleware,
-    presentation::support::openapi::ApiDoc, routes,
+    presentation::openapi::ApiDoc, routes,
 };
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
