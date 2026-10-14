@@ -1,5 +1,7 @@
 use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, get, patch, web};
 
+use uuid::Uuid;
+
 use crate::{
     bootstrap::state::AppState,
     domains::user::error::UserError,
@@ -40,7 +42,7 @@ pub async fn get_personal_info(
     path = "/api/v1/users/{id}",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "User ID")
+        ("id" = Uuid, Path, description = "User ID")
     ),
     responses(
         (status = 200, description = "User profile", body = UserResponse),
@@ -50,7 +52,7 @@ pub async fn get_personal_info(
 #[get("/users/{id}")]
 pub async fn get_user(
     state: web::Data<AppState>,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.user_service.clone();
     let user_id = path.into_inner();
@@ -67,7 +69,7 @@ pub async fn get_user(
     path = "/api/v1/users/{id}",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID of the user to update")
+        ("id" = Uuid, Path, description = "ID of the user to update")
     ),
     request_body = UpdateProfileRequest,
     responses(
@@ -82,7 +84,7 @@ pub async fn get_user(
 pub async fn update_user(
     state: web::Data<AppState>,
     user: CurrentUser,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
     body: web::Json<UpdateProfileRequest>,
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
@@ -119,7 +121,7 @@ pub async fn update_user(
     path = "/api/v1/users/{id}/status",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID of the user whose status will change")
+        ("id" = Uuid, Path, description = "ID of the user whose status will change")
     ),
     request_body = UpdateStatusRequest,
     responses(
@@ -134,7 +136,7 @@ pub async fn update_user(
 pub async fn update_status(
     state: web::Data<AppState>,
     user: CurrentUser,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
     body: web::Json<UpdateStatusRequest>,
 ) -> Result<HttpResponse, Error> {
     if !user.is_staff() {
@@ -161,7 +163,7 @@ pub async fn update_status(
     path = "/api/v1/users/{id}/role",
     tag = "user",
     params(
-        ("id" = i64, Path, description = "ID of the user whose role will change")
+        ("id" = Uuid, Path, description = "ID of the user whose role will change")
     ),
     request_body = UpdateRoleRequest,
     responses(
@@ -176,7 +178,7 @@ pub async fn update_status(
 pub async fn update_role(
     state: web::Data<AppState>,
     user: CurrentUser,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
     body: web::Json<UpdateRoleRequest>,
 ) -> Result<HttpResponse, Error> {
     if !user.is_admin() {

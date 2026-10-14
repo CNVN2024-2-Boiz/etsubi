@@ -2,6 +2,8 @@ use std::sync::Arc;
 
 use chrono::Utc;
 
+use uuid::Uuid;
+
 use crate::{
     domains::post::{error::PostError, repository::PostRepository},
     infrastructure::database::models::entities::Post,
@@ -18,7 +20,7 @@ impl PostService {
 
     pub fn create(
         &self,
-        author_id: i64,
+        author_id: Uuid,
         title: &str,
         content: Option<&str>,
         status: &str,
@@ -41,7 +43,7 @@ impl PostService {
 
         let now = Utc::now();
         let post = Post {
-            id: 0,
+            id: Uuid::nil(),
             author_id,
             title: title.to_string(),
             content: content.map(|s| s.to_string()),
@@ -55,17 +57,17 @@ impl PostService {
         Ok(self.repo.create(&post)?)
     }
 
-    pub fn get(&self, id: i64) -> Result<Post, PostError> {
+    pub fn get(&self, id: Uuid) -> Result<Post, PostError> {
         self.repo.find_by_id(id)?.ok_or(PostError::NotFound)
     }
 
-    pub fn get_published(&self, id: i64) -> Result<Post, PostError> {
+    pub fn get_published(&self, id: Uuid) -> Result<Post, PostError> {
         self.repo
             .find_published_by_id(id)?
             .ok_or(PostError::NotFound)
     }
 
-    pub fn get_owned(&self, id: i64, author_id: i64) -> Result<Post, PostError> {
+    pub fn get_owned(&self, id: Uuid, author_id: Uuid) -> Result<Post, PostError> {
         let post = self.get(id)?;
         if post.author_id != author_id {
             return Err(PostError::NotFound);
@@ -75,8 +77,8 @@ impl PostService {
 
     pub fn update_content(
         &self,
-        id: i64,
-        requester_id: i64,
+        id: Uuid,
+        requester_id: Uuid,
         title: &str,
         content: Option<&str>,
     ) -> Result<Post, PostError> {
@@ -110,8 +112,8 @@ impl PostService {
 
     pub fn update_status(
         &self,
-        id: i64,
-        requester_id: i64,
+        id: Uuid,
+        requester_id: Uuid,
         is_staff: bool,
         status: &str,
     ) -> Result<Post, PostError> {
@@ -144,7 +146,7 @@ impl PostService {
         Ok(self.repo.update_status(id, status)?)
     }
 
-    pub fn delete(&self, id: i64, requester_id: i64, is_staff: bool) -> Result<(), PostError> {
+    pub fn delete(&self, id: Uuid, requester_id: Uuid, is_staff: bool) -> Result<(), PostError> {
         let post = self.get(id)?;
 
         if post.author_id != requester_id && !is_staff {
@@ -154,11 +156,11 @@ impl PostService {
         Ok(self.repo.delete(id)?)
     }
 
-    pub fn list_my_posts(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+    pub fn list_my_posts(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.repo.find_by_author(author_id)?)
     }
 
-    pub fn list_published_by_author(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+    pub fn list_published_by_author(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.repo.find_published_by_author(author_id)?)
     }
 }

@@ -6,6 +6,8 @@ use crate::{
     infrastructure::security::password::{hash_password, verify_password},
 };
 
+use uuid::Uuid;
+
 pub struct UserService {
     repo: Arc<dyn UserRepository>,
 }
@@ -32,7 +34,7 @@ impl UserService {
 
         let now = chrono::Utc::now();
         let user = User {
-            id: 0,
+            id: Uuid::nil(),
             username: username.into(),
             email: email.into(),
             password: hashed,
@@ -61,7 +63,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn get(&self, id: i64) -> Result<User, UserError> {
+    pub fn get(&self, id: Uuid) -> Result<User, UserError> {
         self.repo.find_by_id(id)?.ok_or(UserError::NotFound)
     }
 
@@ -72,8 +74,8 @@ impl UserService {
     #[allow(clippy::too_many_arguments)]
     pub fn update_profile(
         &self,
-        target_id: i64,
-        requester_id: i64,
+        target_id: Uuid,
+        requester_id: Uuid,
         requester_is_admin: bool,
         username: Option<String>,
         email: Option<String>,
@@ -120,8 +122,8 @@ impl UserService {
 
     pub fn update_status(
         &self,
-        target_id: i64,
-        requester_id: i64,
+        target_id: Uuid,
+        requester_id: Uuid,
         requester_is_admin: bool,
         status: &str,
     ) -> Result<User, UserError> {
@@ -148,8 +150,8 @@ impl UserService {
 
     pub fn update_role(
         &self,
-        target_id: i64,
-        requester_id: i64,
+        target_id: Uuid,
+        requester_id: Uuid,
         role: &str,
     ) -> Result<User, UserError> {
         if role == "admin" {

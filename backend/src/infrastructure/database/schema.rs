@@ -2,18 +2,18 @@
 
 diesel::table! {
     bookmarks (user_id, post_id) {
-        user_id -> Int8,
-        post_id -> Int8,
+        user_id -> Uuid,
+        post_id -> Uuid,
         bookmarked_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     comments (id) {
-        id -> Int8,
-        parent_id -> Nullable<Int8>,
-        post_id -> Int8,
-        user_id -> Int8,
+        id -> Uuid,
+        parent_id -> Nullable<Uuid>,
+        post_id -> Uuid,
+        user_id -> Uuid,
         content -> Text,
         status -> Text,
         created_at -> Timestamptz,
@@ -23,8 +23,8 @@ diesel::table! {
 
 diesel::table! {
     posts (id) {
-        id -> Int8,
-        author_id -> Int8,
+        id -> Uuid,
+        author_id -> Uuid,
         title -> Text,
         content -> Nullable<Text>,
         view_count -> Int4,
@@ -37,15 +37,15 @@ diesel::table! {
 
 diesel::table! {
     posts_tags (post_id, tag_id) {
-        post_id -> Int8,
-        tag_id -> Int8,
+        post_id -> Uuid,
+        tag_id -> Uuid,
     }
 }
 
 diesel::table! {
     reactions (user_id, post_id) {
-        user_id -> Int8,
-        post_id -> Int8,
+        user_id -> Uuid,
+        post_id -> Uuid,
         emoji -> Text,
         reacted_at -> Timestamptz,
     }
@@ -53,10 +53,10 @@ diesel::table! {
 
 diesel::table! {
     reports (id) {
-        id -> Int8,
-        reporter_id -> Int8,
-        post_id -> Nullable<Int8>,
-        comment_id -> Nullable<Int8>,
+        id -> Uuid,
+        reporter_id -> Uuid,
+        post_id -> Nullable<Uuid>,
+        comment_id -> Nullable<Uuid>,
         reason -> Text,
         detail -> Nullable<Text>,
         status -> Text,
@@ -67,7 +67,7 @@ diesel::table! {
 
 diesel::table! {
     tags (id) {
-        id -> Int8,
+        id -> Uuid,
         name -> Text,
         description -> Nullable<Text>,
         created_at -> Timestamptz,
@@ -77,7 +77,7 @@ diesel::table! {
 
 diesel::table! {
     users (id) {
-        id -> Int8,
+        id -> Uuid,
         username -> Text,
         email -> Text,
         password -> Text,
@@ -93,16 +93,16 @@ diesel::table! {
 
 diesel::table! {
     users_blocks (blocker_id, blocked_id) {
-        blocker_id -> Int8,
-        blocked_id -> Int8,
+        blocker_id -> Uuid,
+        blocked_id -> Uuid,
         blocked_at -> Timestamptz,
     }
 }
 
 diesel::table! {
     users_follows (follower_id, following_id) {
-        follower_id -> Int8,
-        following_id -> Int8,
+        follower_id -> Uuid,
+        following_id -> Uuid,
         followed_at -> Timestamptz,
     }
 }

@@ -1,8 +1,8 @@
 CREATE TABLE reports (
-    id BIGSERIAL PRIMARY KEY,
-    reporter_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
-    comment_id  BIGINT REFERENCES comments(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY,
+    reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+    comment_id  UUID REFERENCES comments(id) ON DELETE CASCADE,
     reason TEXT NOT NULL,
     detail TEXT,
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'rejected')),

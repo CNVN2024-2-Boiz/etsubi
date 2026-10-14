@@ -2,16 +2,17 @@ use anyhow::{Result, anyhow};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: i64,
+    pub sub: Uuid,
     pub role: String,
     pub exp: usize,
     pub iat: usize,
 }
 
-pub fn create_token(user_id: i64, role: String, secret: &str, hours: i64) -> Result<String> {
+pub fn create_token(user_id: Uuid, role: String, secret: &str, hours: i64) -> Result<String> {
     let now = Utc::now();
     let claims = Claims {
         sub: user_id,

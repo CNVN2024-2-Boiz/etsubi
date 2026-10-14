@@ -23,7 +23,6 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::post_handler::create_post);
 
     cfg.service(presentation::handlers::post_handler::list_my_posts);
-    cfg.service(presentation::handlers::post_handler::get_my_post);
 
     cfg.service(presentation::handlers::post_handler::update_post);
     cfg.service(presentation::handlers::post_handler::update_post_status);

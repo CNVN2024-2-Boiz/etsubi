@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::Utc;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 use crate::{
     bootstrap::pool::DbPool,
@@ -55,7 +56,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(updated)
     }
 
-    fn update_status(&self, id: i64, status: &str) -> Result<Post> {
+    fn update_status(&self, id: Uuid, status: &str) -> Result<Post> {
         let mut conn = self.pool.get()?;
 
         let updated = diesel::update(posts::table.find(id))
@@ -66,7 +67,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(updated)
     }
 
-    fn delete(&self, id: i64) -> Result<()> {
+    fn delete(&self, id: Uuid) -> Result<()> {
         let mut conn = self.pool.get()?;
 
         diesel::delete(posts::table.find(id)).execute(&mut conn)?;
@@ -74,7 +75,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(())
     }
 
-    fn find_by_id(&self, id: i64) -> Result<Option<Post>> {
+    fn find_by_id(&self, id: Uuid) -> Result<Option<Post>> {
         let mut conn = self.pool.get()?;
 
         let post = posts::table
@@ -86,7 +87,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(post)
     }
 
-    fn find_by_author(&self, author_id: i64) -> Result<Vec<Post>> {
+    fn find_by_author(&self, author_id: Uuid) -> Result<Vec<Post>> {
         let mut conn = self.pool.get()?;
 
         let posts = posts::table
@@ -98,7 +99,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(posts)
     }
 
-    fn find_published_by_id(&self, id: i64) -> Result<Option<Post>> {
+    fn find_published_by_id(&self, id: Uuid) -> Result<Option<Post>> {
         let mut conn = self.pool.get()?;
 
         let post = posts::table
@@ -111,7 +112,7 @@ impl PostRepository for PostgresPostRepo {
         Ok(post)
     }
 
-    fn find_published_by_author(&self, author_id: i64) -> Result<Vec<Post>> {
+    fn find_published_by_author(&self, author_id: Uuid) -> Result<Vec<Post>> {
         let mut conn = self.pool.get()?;
 
         let posts = posts::table

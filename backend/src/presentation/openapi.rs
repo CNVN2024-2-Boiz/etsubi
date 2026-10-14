@@ -29,7 +29,6 @@ use crate::presentation::{
         user_handler::update_role,
         post_handler::create_post,
         post_handler::get_post,
-        post_handler::get_my_post,
         post_handler::list_my_posts,
         post_handler::list_user_posts,
         post_handler::update_post,
