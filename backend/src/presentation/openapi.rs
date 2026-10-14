@@ -9,7 +9,7 @@ use crate::presentation::{
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
         user_dto::{UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest, UserResponse},
     },
-    handlers::{auth_handler, post_handler, user_handler},
+    handlers::{auth_handler, manage_handler, post_handler, user_handler},
 };
 
 #[derive(OpenApi)]
@@ -25,14 +25,15 @@ use crate::presentation::{
         user_handler::get_personal_info,
         user_handler::get_user,
         user_handler::update_user,
-        user_handler::update_status,
-        user_handler::update_role,
+        manage_handler::update_post_status,
+        manage_handler::update_user_status,
+        manage_handler::update_user_role,
+        manage_handler::restore_post,
         post_handler::create_post,
         post_handler::get_post,
         post_handler::list_my_posts,
         post_handler::list_user_posts,
         post_handler::update_post,
-        post_handler::update_post_status,
         post_handler::delete_post,
     ),
     components(schemas(

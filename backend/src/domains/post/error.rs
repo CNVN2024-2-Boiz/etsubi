@@ -22,14 +22,11 @@ pub enum PostError {
     #[error("Not allowed")]
     Forbidden,
 
-    #[error("Only staff can hide posts")]
-    OnlyStaffCanHide,
-
     #[error("Post is hidden, cannot edit")]
     HiddenCannotEdit,
 
-    #[error("Post is hidden, only staff can change status")]
-    HiddenOnlyStaffCanChangeStatus,
+    #[error("Only staff can change status")]
+    OnlyStaffCanChangeStatus,
 
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
@@ -46,9 +43,8 @@ impl ResponseError for PostError {
             | PostError::InvalidStatus => StatusCode::BAD_REQUEST,
 
             PostError::Forbidden
-            | PostError::OnlyStaffCanHide
             | PostError::HiddenCannotEdit
-            | PostError::HiddenOnlyStaffCanChangeStatus => StatusCode::FORBIDDEN,
+            | PostError::OnlyStaffCanChangeStatus => StatusCode::FORBIDDEN,
 
             PostError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }

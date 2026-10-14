@@ -31,8 +31,8 @@ pub enum UserError {
     #[error("You can only edit your own profile")]
     ForbiddenProfileEdit,
 
-    #[error("Cannot modify admin")]
-    CannotModifyAdmin,
+    #[error("Cannot modify a user with equal or higher role")]
+    CannotModifyHigherRole,
 
     #[error("Cannot ban yourself")]
     CannotBanSelf,
@@ -40,16 +40,13 @@ pub enum UserError {
     #[error("Cannot change your own role")]
     CannotChangeOwnRole,
 
-    #[error("Cannot change admin role")]
-    CannotChangeAdminRole,
-
     #[error("Cannot assign admin role")]
     CannotAssignAdminRole,
 
-    #[error("Requires admin")]
+    #[error("Requires admin role")]
     RequiresAdmin,
 
-    #[error("Requires moderator or admin")]
+    #[error("Requires moderator or admin role")]
     RequiresStaff,
 
     #[error(transparent)]
@@ -71,13 +68,12 @@ impl ResponseError for UserError {
             | UserError::EmailAlreadyTaken => StatusCode::CONFLICT,
 
             UserError::ForbiddenProfileEdit
-            | UserError::CannotModifyAdmin
+            | UserError::CannotModifyHigherRole
             | UserError::CannotBanSelf
             | UserError::CannotChangeOwnRole
-            | UserError::CannotChangeAdminRole
+            | UserError::CannotAssignAdminRole
             | UserError::RequiresAdmin
-            | UserError::RequiresStaff
-            | UserError::CannotAssignAdminRole => StatusCode::FORBIDDEN,
+            | UserError::RequiresStaff => StatusCode::FORBIDDEN,
 
             UserError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }

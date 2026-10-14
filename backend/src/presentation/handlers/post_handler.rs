@@ -7,9 +7,7 @@ use uuid::Uuid;
 use crate::{
     bootstrap::state::AppState,
     infrastructure::security::extractor::CurrentUser,
-    presentation::dto::post_dto::{
-        CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest,
-    },
+    presentation::dto::post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
 };
 
 #[utoipa::path(
@@ -33,12 +31,10 @@ pub async fn create_post(
     let service = state.post_service.clone();
     let req = body.into_inner();
     let author_id = user.id;
-    let status = req.status.unwrap();
 
-    let created =
-        web::block(move || service.create(author_id, &req.title, req.content.as_deref(), &status))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let created = web::block(move || service.create(author_id, &req.title, req.content.as_deref()))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Created().json(PostResponse::from(created)))
 }
@@ -156,43 +152,6 @@ pub async fn update_post(
     })
     .await
     .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
-}
-
-#[utoipa::path(
-    patch,
-    path = "/api/v1/posts/{id}/status",
-    tag = "post",
-    params(
-        ("id" = Uuid, Path, description = "ID of the post whose status will change")
-    ),
-    request_body = UpdatePostStatusRequest,
-    responses(
-        (status = 200, description = "Post status updated", body = PostResponse),
-        (status = 400, description = "Invalid status"),
-        (status = 403, description = "Not allowed to change this post's status"),
-        (status = 404, description = "Post not found"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[patch("/posts/{id}/status")]
-pub async fn update_post_status(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-    path: web::Path<Uuid>,
-    body: web::Json<UpdatePostStatusRequest>,
-) -> Result<HttpResponse, Error> {
-    let service = state.post_service.clone();
-    let post_id = path.into_inner();
-    let status = body.into_inner().status;
-    let requester_id = user.id;
-    let is_staff = user.is_staff();
-
-    let updated =
-        web::block(move || service.update_status(post_id, requester_id, is_staff, &status))
-            .await
-            .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
 }

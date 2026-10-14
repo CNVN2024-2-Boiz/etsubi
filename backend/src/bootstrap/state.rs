@@ -6,6 +6,7 @@ use crate::{
     domains::{post::service::PostService, user::service::UserService},
 };
 
+#[derive(Clone)]
 pub struct AppState {
     pub config: Arc<AppConfig>,
     pub pool: DbPool,

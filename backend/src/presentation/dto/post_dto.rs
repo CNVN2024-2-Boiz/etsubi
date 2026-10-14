@@ -9,7 +9,6 @@ use crate::infrastructure::database::models::entities::Post;
 pub struct CreatePostRequest {
     pub title: String,
     pub content: Option<String>,
-    pub status: Option<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

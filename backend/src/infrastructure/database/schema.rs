@@ -18,6 +18,7 @@ diesel::table! {
         status -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -32,6 +33,7 @@ diesel::table! {
         comments_locked -> Bool,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
