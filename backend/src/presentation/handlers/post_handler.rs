@@ -179,9 +179,9 @@ pub async fn delete_post(
     let service = state.post_service.clone();
     let post_id = path.into_inner();
     let requester_id = user.id;
-    let is_staff = user.is_staff();
+    let requester_role = user.role.clone();
 
-    web::block(move || service.delete(post_id, requester_id, is_staff))
+    web::block(move || service.delete(post_id, requester_id, &requester_role))
         .await
         .map_err(ErrorInternalServerError)??;
 

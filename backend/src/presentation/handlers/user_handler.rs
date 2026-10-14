@@ -86,7 +86,7 @@ pub async fn update_user(
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
     let requester_id = user.id;
-    let requester_is_admin = user.is_admin();
+    let requester_role = user.role.clone();
 
     let req = body.into_inner();
     let username = req.username;
@@ -100,7 +100,7 @@ pub async fn update_user(
         service.update_profile(
             target_id,
             requester_id,
-            requester_is_admin,
+            &requester_role,
             username,
             email,
             bio,

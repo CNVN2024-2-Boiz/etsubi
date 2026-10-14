@@ -111,12 +111,12 @@ pub async fn update_post_status(
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let post_id = path.into_inner();
+    let requester_role = user.role.clone();
     let status = body.into_inner().status;
 
-    let updated =
-        web::block(move || service.update_status(post_id, user.id, user.is_staff(), &status))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let updated = web::block(move || service.update_status(post_id, &requester_role, &status))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
 }
@@ -142,9 +142,10 @@ pub async fn restore_post(
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let post_id = path.into_inner();
+    let requester_role = user.role.clone();
     let service = state.post_service.clone();
 
-    let post = web::block(move || service.restore(post_id, user.id, user.is_staff()))
+    let post = web::block(move || service.restore(post_id, &requester_role))
         .await
         .map_err(ErrorInternalServerError)??;
 

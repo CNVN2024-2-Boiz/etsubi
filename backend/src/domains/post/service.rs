@@ -115,51 +115,51 @@ impl PostService {
     pub fn update_status(
         &self,
         id: Uuid,
-        requester_id: Uuid,
-        is_staff: bool,
+        requester_role: &str,
         status: &str,
     ) -> Result<Post, PostError> {
-        let post = self.get_active(id)?;
-        let is_owner = post.author_id == requester_id;
-
-        if !is_owner && !is_staff {
+        if !matches!(requester_role, "moderator" | "admin") {
             return Err(PostError::Forbidden);
         }
 
         match status {
-            "hidden" => {
-                if !is_staff {
-                    return Err(PostError::OnlyStaffCanChangeStatus);
-                }
-            }
-            "published" => {}
+            "hidden" | "published" => {}
             _ => return Err(PostError::InvalidStatus),
+        }
+
+        let post = self.repo.find_by_id(id)?.ok_or(PostError::NotFound)?;
+        if post.deleted_at.is_some() {
+            return Err(PostError::NotFound);
         }
 
         Ok(self.repo.update_status(id, status)?)
     }
 
-    pub fn delete(&self, id: Uuid, requester_id: Uuid, is_staff: bool) -> Result<(), PostError> {
+    pub fn delete(
+        &self,
+        id: Uuid,
+        requester_id: Uuid,
+        requester_role: &str,
+    ) -> Result<(), PostError> {
         let post = self.get_active(id)?;
 
-        if post.author_id != requester_id && !is_staff {
+        let is_owner = post.author_id == requester_id;
+        let is_staff = matches!(requester_role, "moderator" | "admin");
+
+        if !is_owner && !is_staff {
             return Err(PostError::Forbidden);
         }
 
         Ok(self.repo.delete(id)?)
     }
 
-    pub fn restore(&self, id: Uuid, requester_id: Uuid, is_staff: bool) -> Result<Post, PostError> {
-        if !is_staff {
+    pub fn restore(&self, id: Uuid, requester_role: &str) -> Result<Post, PostError> {
+        if !matches!(requester_role, "moderator" | "admin") {
             return Err(PostError::Forbidden);
         }
 
         let post = self.repo.find_by_id(id)?.ok_or(PostError::NotFound)?;
-
         if post.deleted_at.is_none() {
-            return Err(PostError::NotFound);
-        }
-        if post.author_id != requester_id {
             return Err(PostError::NotFound);
         }
 

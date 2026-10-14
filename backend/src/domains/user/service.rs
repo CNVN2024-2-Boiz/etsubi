@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
+use uuid::Uuid;
+
 use crate::{
-    domains::user::{error::UserError, repository::UserRepository, role::Role},
+    domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
     infrastructure::security::password::{hash_password, verify_password},
 };
-
-use uuid::Uuid;
 
 pub struct UserService {
     repo: Arc<dyn UserRepository>,
@@ -76,13 +76,16 @@ impl UserService {
         &self,
         target_id: Uuid,
         requester_id: Uuid,
-        requester_is_admin: bool,
+        requester_role: &str,
         username: Option<String>,
         email: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
     ) -> Result<User, UserError> {
-        if target_id != requester_id && !requester_is_admin {
+        let is_self = target_id == requester_id;
+        let is_admin = requester_role == "admin";
+
+        if !is_self && !is_admin {
             return Err(UserError::ForbiddenProfileEdit);
         }
 
@@ -132,8 +135,7 @@ impl UserService {
             return Err(UserError::InvalidStatus);
         }
 
-        let requester_role = Role::parse(requester_role)?;
-        if requester_role < Role::Moderator {
+        if !matches!(requester_role, "moderator" | "admin") {
             return Err(UserError::RequiresStaff);
         }
 
@@ -141,14 +143,19 @@ impl UserService {
             .repo
             .find_by_id(target_id)?
             .ok_or(UserError::NotFound)?;
-        let target_role = Role::parse(&target.role)?;
+
+        let can_modify = match requester_role {
+            "admin" => target.role != "admin",
+            "moderator" => target.role == "user",
+            _ => false,
+        };
+
+        if !can_modify {
+            return Err(UserError::CannotModifyHigherRole);
+        }
 
         if target_id == requester_id && status == "banned" {
             return Err(UserError::CannotBanSelf);
-        }
-
-        if target_role >= requester_role {
-            return Err(UserError::CannotModifyHigherRole);
         }
 
         Ok(self.repo.update_status(target_id, status)?)
@@ -168,8 +175,7 @@ impl UserService {
             return Err(UserError::InvalidRole);
         }
 
-        let requester_role = Role::parse(requester_role)?;
-        if requester_role < Role::Admin {
+        if requester_role != "admin" {
             return Err(UserError::RequiresAdmin);
         }
 
@@ -181,9 +187,8 @@ impl UserService {
             .repo
             .find_by_id(target_id)?
             .ok_or(UserError::NotFound)?;
-        let target_role = Role::parse(&target.role)?;
 
-        if target_role >= requester_role {
+        if target.role == "admin" {
             return Err(UserError::CannotModifyHigherRole);
         }
 
