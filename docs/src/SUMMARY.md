@@ -2,3 +2,4 @@
 - [Features](./content/Features.md)
 - [RBAC](./content/RBAC.md)
 - [API](./content/API.md)
+- [Guide](./content/Guide.md)
