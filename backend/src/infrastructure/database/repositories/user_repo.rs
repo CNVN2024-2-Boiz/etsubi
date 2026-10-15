@@ -1,6 +1,7 @@
 use anyhow::Result;
 use chrono::Utc;
 use diesel::prelude::*;
+use uuid::Uuid;
 
 use crate::{
     bootstrap::pool::DbPool,
@@ -52,7 +53,7 @@ impl UserRepository for PostgresUserRepo {
             .get_result(&mut conn)?)
     }
 
-    fn update_status(&self, id: i64, status: &str) -> Result<User> {
+    fn update_status(&self, id: Uuid, status: &str) -> Result<User> {
         let mut conn = self.pool.get()?;
 
         Ok(diesel::update(users::table.find(id))
@@ -60,7 +61,7 @@ impl UserRepository for PostgresUserRepo {
             .get_result(&mut conn)?)
     }
 
-    fn update_role(&self, id: i64, role: &str) -> Result<User> {
+    fn update_role(&self, id: Uuid, role: &str) -> Result<User> {
         let mut conn = self.pool.get()?;
 
         Ok(diesel::update(users::table.find(id))
@@ -68,13 +69,13 @@ impl UserRepository for PostgresUserRepo {
             .get_result(&mut conn)?)
     }
 
-    fn delete(&self, id: i64) -> Result<()> {
+    fn delete(&self, id: Uuid) -> Result<()> {
         let mut conn = self.pool.get()?;
         diesel::delete(users::table.find(id)).execute(&mut conn)?;
         Ok(())
     }
 
-    fn find_by_id(&self, id: i64) -> Result<Option<User>> {
+    fn find_by_id(&self, id: Uuid) -> Result<Option<User>> {
         let mut conn = self.pool.get()?;
         Ok(users::table.find(id).first::<User>(&mut conn).optional()?)
     }

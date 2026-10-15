@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use uuid::Uuid;
+
 use crate::{
     domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
@@ -32,7 +34,7 @@ impl UserService {
 
         let now = chrono::Utc::now();
         let user = User {
-            id: 0,
+            id: Uuid::nil(),
             username: username.into(),
             email: email.into(),
             password: hashed,
@@ -61,7 +63,7 @@ impl UserService {
         Ok(user)
     }
 
-    pub fn get(&self, id: i64) -> Result<User, UserError> {
+    pub fn get(&self, id: Uuid) -> Result<User, UserError> {
         self.repo.find_by_id(id)?.ok_or(UserError::NotFound)
     }
 
@@ -72,15 +74,18 @@ impl UserService {
     #[allow(clippy::too_many_arguments)]
     pub fn update_profile(
         &self,
-        target_id: i64,
-        requester_id: i64,
-        requester_is_admin: bool,
+        target_id: Uuid,
+        requester_id: Uuid,
+        requester_role: &str,
         username: Option<String>,
         email: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
     ) -> Result<User, UserError> {
-        if target_id != requester_id && !requester_is_admin {
+        let is_self = target_id == requester_id;
+        let is_admin = requester_role == "admin";
+
+        if !is_self && !is_admin {
             return Err(UserError::ForbiddenProfileEdit);
         }
 
@@ -120,9 +125,9 @@ impl UserService {
 
     pub fn update_status(
         &self,
-        target_id: i64,
-        requester_id: i64,
-        requester_is_admin: bool,
+        target_id: Uuid,
+        requester_id: Uuid,
+        requester_role: &str,
         status: &str,
     ) -> Result<User, UserError> {
         let valid = ["active", "inactive", "banned"];
@@ -130,13 +135,23 @@ impl UserService {
             return Err(UserError::InvalidStatus);
         }
 
+        if !matches!(requester_role, "moderator" | "admin") {
+            return Err(UserError::RequiresStaff);
+        }
+
         let target = self
             .repo
             .find_by_id(target_id)?
             .ok_or(UserError::NotFound)?;
 
-        if target.role == "admin" && !requester_is_admin {
-            return Err(UserError::CannotModifyAdmin);
+        let can_modify = match requester_role {
+            "admin" => target.role != "admin",
+            "moderator" => target.role == "user",
+            _ => false,
+        };
+
+        if !can_modify {
+            return Err(UserError::CannotModifyHigherRole);
         }
 
         if target_id == requester_id && status == "banned" {
@@ -148,16 +163,20 @@ impl UserService {
 
     pub fn update_role(
         &self,
-        target_id: i64,
-        requester_id: i64,
-        role: &str,
+        target_id: Uuid,
+        requester_id: Uuid,
+        requester_role: &str,
+        new_role: &str,
     ) -> Result<User, UserError> {
-        if role == "admin" {
+        if new_role == "admin" {
             return Err(UserError::CannotAssignAdminRole);
         }
-
-        if !matches!(role, "user" | "moderator") {
+        if !matches!(new_role, "user" | "moderator") {
             return Err(UserError::InvalidRole);
+        }
+
+        if requester_role != "admin" {
+            return Err(UserError::RequiresAdmin);
         }
 
         if target_id == requester_id {
@@ -170,9 +189,9 @@ impl UserService {
             .ok_or(UserError::NotFound)?;
 
         if target.role == "admin" {
-            return Err(UserError::CannotChangeAdminRole);
+            return Err(UserError::CannotModifyHigherRole);
         }
 
-        Ok(self.repo.update_role(target_id, role)?)
+        Ok(self.repo.update_role(target_id, new_role)?)
     }
 }

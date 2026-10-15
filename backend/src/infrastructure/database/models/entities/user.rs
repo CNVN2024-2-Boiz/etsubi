@@ -1,5 +1,6 @@
 use chrono::{DateTime, Utc};
 use diesel::{Identifiable, Insertable, Queryable, Selectable};
+use uuid::Uuid;
 
 use crate::infrastructure::database::schema::users;
 
@@ -7,7 +8,7 @@ use crate::infrastructure::database::schema::users;
 #[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
-    pub id: i64,
+    pub id: Uuid,
     pub username: String,
     pub email: String,
     pub password: String,

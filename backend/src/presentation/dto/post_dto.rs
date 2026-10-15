@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 use crate::infrastructure::database::models::entities::Post;
 
@@ -8,7 +9,6 @@ use crate::infrastructure::database::models::entities::Post;
 pub struct CreatePostRequest {
     pub title: String,
     pub content: Option<String>,
-    pub status: Option<String>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -24,8 +24,8 @@ pub struct UpdatePostStatusRequest {
 
 #[derive(Debug, Serialize, ToSchema)]
 pub struct PostResponse {
-    pub id: i64,
-    pub author_id: i64,
+    pub id: Uuid,
+    pub author_id: Uuid,
     pub title: String,
     pub content: Option<String>,
     pub view_count: i32,

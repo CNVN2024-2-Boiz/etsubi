@@ -1,12 +1,5 @@
-use actix_web::{
-    App, HttpServer,
-    middleware::{self, Logger},
-    web,
-};
-use backend::{
-    bootstrap, infrastructure::security::middleware::auth_middleware,
-    presentation::openapi::ApiDoc, routes,
-};
+use actix_web::{App, HttpServer, middleware::Logger};
+use backend::{bootstrap, presentation::openapi::ApiDoc, routes};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -29,13 +22,7 @@ async fn main() -> std::io::Result<()> {
                 SwaggerUi::new("/swagger-ui/{_:.*}")
                     .url("/api-docs/openapi.json", ApiDoc::openapi()),
             )
-            .service(
-                web::scope("/api/v1").configure(routes::public).service(
-                    web::scope("")
-                        .wrap(middleware::from_fn(auth_middleware))
-                        .configure(routes::protected),
-                ),
-            )
+            .configure(routes::configure)
     })
     .bind((host.as_str(), port))?
     .run()

@@ -2,12 +2,12 @@ use actix_web::{
     Error, HttpResponse, delete, error::ErrorInternalServerError, get, patch, post, web,
 };
 
+use uuid::Uuid;
+
 use crate::{
     bootstrap::state::AppState,
     infrastructure::security::extractor::CurrentUser,
-    presentation::dto::post_dto::{
-        CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest,
-    },
+    presentation::dto::post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
 };
 
 #[utoipa::path(
@@ -31,12 +31,10 @@ pub async fn create_post(
     let service = state.post_service.clone();
     let req = body.into_inner();
     let author_id = user.id;
-    let status = req.status.unwrap();
 
-    let created =
-        web::block(move || service.create(author_id, &req.title, req.content.as_deref(), &status))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let created = web::block(move || service.create(author_id, &req.title, req.content.as_deref()))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Created().json(PostResponse::from(created)))
 }
@@ -46,7 +44,7 @@ pub async fn create_post(
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "Post ID")
+        ("id" = Uuid, Path, description = "Post ID")
     ),
     responses(
         (status = 200, description = "Post details", body = PostResponse),
@@ -56,43 +54,12 @@ pub async fn create_post(
 #[get("/posts/{id}")]
 pub async fn get_post(
     state: web::Data<AppState>,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let post_id = path.into_inner();
 
     let post = web::block(move || service.get_published(post_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::Ok().json(PostResponse::from(post)))
-}
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/my/posts/{id}",
-    tag = "post",
-    params(
-        ("id" = i64, Path, description = "Post ID")
-    ),
-    responses(
-        (status = 200, description = "Owned post details", body = PostResponse),
-        (status = 401, description = "Not authenticated"),
-        (status = 404, description = "Post not found"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[get("/my/posts/{id}")]
-pub async fn get_my_post(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-    path: web::Path<i64>,
-) -> Result<HttpResponse, Error> {
-    let service = state.post_service.clone();
-    let post_id = path.into_inner();
-    let author_id = user.id;
-
-    let post = web::block(move || service.get_owned(post_id, author_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -130,7 +97,7 @@ pub async fn list_my_posts(
     path = "/api/v1/users/{id}/posts",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "Author ID")
+        ("id" = Uuid, Path, description = "Author ID")
     ),
     responses(
         (status = 200, description = "Published posts by the author", body = [PostResponse]),
@@ -139,7 +106,7 @@ pub async fn list_my_posts(
 #[get("/users/{id}/posts")]
 pub async fn list_user_posts(
     state: web::Data<AppState>,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let author_id = path.into_inner();
@@ -157,7 +124,7 @@ pub async fn list_user_posts(
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID of the post to update")
+        ("id" = Uuid, Path, description = "ID of the post to update")
     ),
     request_body = UpdatePostRequest,
     responses(
@@ -172,7 +139,7 @@ pub async fn list_user_posts(
 pub async fn update_post(
     state: web::Data<AppState>,
     user: CurrentUser,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
     body: web::Json<UpdatePostRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
@@ -190,48 +157,11 @@ pub async fn update_post(
 }
 
 #[utoipa::path(
-    patch,
-    path = "/api/v1/posts/{id}/status",
-    tag = "post",
-    params(
-        ("id" = i64, Path, description = "ID of the post whose status will change")
-    ),
-    request_body = UpdatePostStatusRequest,
-    responses(
-        (status = 200, description = "Post status updated", body = PostResponse),
-        (status = 400, description = "Invalid status"),
-        (status = 403, description = "Not allowed to change this post's status"),
-        (status = 404, description = "Post not found"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[patch("/posts/{id}/status")]
-pub async fn update_post_status(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-    path: web::Path<i64>,
-    body: web::Json<UpdatePostStatusRequest>,
-) -> Result<HttpResponse, Error> {
-    let service = state.post_service.clone();
-    let post_id = path.into_inner();
-    let status = body.into_inner().status;
-    let requester_id = user.id;
-    let is_staff = user.is_staff();
-
-    let updated =
-        web::block(move || service.update_status(post_id, requester_id, is_staff, &status))
-            .await
-            .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
-}
-
-#[utoipa::path(
     delete,
     path = "/api/v1/posts/{id}",
     tag = "post",
     params(
-        ("id" = i64, Path, description = "ID of the post to delete")
+        ("id" = Uuid, Path, description = "ID of the post to delete")
     ),
     responses(
         (status = 204, description = "Post deleted"),
@@ -244,14 +174,14 @@ pub async fn update_post_status(
 pub async fn delete_post(
     state: web::Data<AppState>,
     user: CurrentUser,
-    path: web::Path<i64>,
+    path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let post_id = path.into_inner();
     let requester_id = user.id;
-    let is_staff = user.is_staff();
+    let requester_role = user.role.clone();
 
-    web::block(move || service.delete(post_id, requester_id, is_staff))
+    web::block(move || service.delete(post_id, requester_id, &requester_role))
         .await
         .map_err(ErrorInternalServerError)??;
 

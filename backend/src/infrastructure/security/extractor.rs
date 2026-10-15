@@ -3,10 +3,11 @@ use actix_web::{
 };
 use chrono::{DateTime, Utc};
 use std::future::{Ready, ready};
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct CurrentUser {
-    pub id: i64,
+    pub id: Uuid,
     pub role: String,
     pub status: String,
     pub muted_until: Option<DateTime<Utc>>,

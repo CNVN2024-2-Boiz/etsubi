@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use chrono::Utc;
+use uuid::Uuid;
 
 use crate::{
     domains::post::{error::PostError, repository::PostRepository},
@@ -18,10 +19,9 @@ impl PostService {
 
     pub fn create(
         &self,
-        author_id: i64,
+        author_id: Uuid,
         title: &str,
         content: Option<&str>,
-        status: &str,
     ) -> Result<Post, PostError> {
         let title = title.trim();
         if title.is_empty() {
@@ -34,53 +34,57 @@ impl PostService {
             return Err(PostError::ContentTooLong);
         }
 
-        let valid_status = ["draft", "published", "hidden"];
-        if !valid_status.contains(&status) {
-            return Err(PostError::InvalidStatus);
-        }
-
         let now = Utc::now();
         let post = Post {
-            id: 0,
+            id: Uuid::nil(),
             author_id,
             title: title.to_string(),
             content: content.map(|s| s.to_string()),
             view_count: 0,
-            status: status.to_string(),
+            status: "published".into(),
             comments_locked: false,
             created_at: now,
             updated_at: now,
+            deleted_at: None,
         };
 
         Ok(self.repo.create(&post)?)
     }
 
-    pub fn get(&self, id: i64) -> Result<Post, PostError> {
-        self.repo.find_by_id(id)?.ok_or(PostError::NotFound)
-    }
-
-    pub fn get_published(&self, id: i64) -> Result<Post, PostError> {
-        self.repo
-            .find_published_by_id(id)?
-            .ok_or(PostError::NotFound)
-    }
-
-    pub fn get_owned(&self, id: i64, author_id: i64) -> Result<Post, PostError> {
-        let post = self.get(id)?;
-        if post.author_id != author_id {
+    fn get_active(&self, id: Uuid) -> Result<Post, PostError> {
+        let post = self.repo.find_by_id(id)?.ok_or(PostError::NotFound)?;
+        if post.deleted_at.is_some() {
             return Err(PostError::NotFound);
         }
         Ok(post)
     }
 
+    pub fn get_published(&self, id: Uuid) -> Result<Post, PostError> {
+        self.repo
+            .find_published_by_id(id)?
+            .ok_or(PostError::NotFound)
+    }
+
+    pub fn get_owned(&self, id: Uuid, owner_id: Uuid) -> Result<Post, PostError> {
+        let post = self.get_active(id)?;
+        if post.author_id != owner_id {
+            return Err(PostError::NotFound);
+        }
+        Ok(post)
+    }
+
+    pub fn get_any(&self, id: Uuid) -> Result<Post, PostError> {
+        self.repo.find_by_id(id)?.ok_or(PostError::NotFound)
+    }
+
     pub fn update_content(
         &self,
-        id: i64,
-        requester_id: i64,
+        id: Uuid,
+        requester_id: Uuid,
         title: &str,
         content: Option<&str>,
     ) -> Result<Post, PostError> {
-        let mut post = self.get(id)?;
+        let mut post = self.get_active(id)?;
 
         if post.author_id != requester_id {
             return Err(PostError::Forbidden);
@@ -110,55 +114,67 @@ impl PostService {
 
     pub fn update_status(
         &self,
-        id: i64,
-        requester_id: i64,
-        is_staff: bool,
+        id: Uuid,
+        requester_role: &str,
         status: &str,
     ) -> Result<Post, PostError> {
-        let post = self.get(id)?;
-        let is_owner = post.author_id == requester_id;
-
-        if !is_owner && !is_staff {
+        if !matches!(requester_role, "moderator" | "admin") {
             return Err(PostError::Forbidden);
         }
 
-        if post.status == "hidden" && !is_staff {
-            return Err(PostError::HiddenOnlyStaffCanChangeStatus);
+        match status {
+            "hidden" | "published" => {}
+            _ => return Err(PostError::InvalidStatus),
         }
 
-        match status {
-            "hidden" => {
-                if !is_staff {
-                    return Err(PostError::OnlyStaffCanHide);
-                }
-            }
-            "draft" => {
-                if !is_owner {
-                    return Err(PostError::Forbidden);
-                }
-            }
-            "published" => {}
-            _ => return Err(PostError::InvalidStatus),
+        let post = self.repo.find_by_id(id)?.ok_or(PostError::NotFound)?;
+        if post.deleted_at.is_some() {
+            return Err(PostError::NotFound);
         }
 
         Ok(self.repo.update_status(id, status)?)
     }
 
-    pub fn delete(&self, id: i64, requester_id: i64, is_staff: bool) -> Result<(), PostError> {
-        let post = self.get(id)?;
+    pub fn delete(
+        &self,
+        id: Uuid,
+        requester_id: Uuid,
+        requester_role: &str,
+    ) -> Result<(), PostError> {
+        let post = self.get_active(id)?;
 
-        if post.author_id != requester_id && !is_staff {
+        let is_owner = post.author_id == requester_id;
+        let is_staff = matches!(requester_role, "moderator" | "admin");
+
+        if !is_owner && !is_staff {
             return Err(PostError::Forbidden);
         }
 
         Ok(self.repo.delete(id)?)
     }
 
-    pub fn list_my_posts(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+    pub fn restore(&self, id: Uuid, requester_role: &str) -> Result<Post, PostError> {
+        if !matches!(requester_role, "moderator" | "admin") {
+            return Err(PostError::Forbidden);
+        }
+
+        let post = self.repo.find_by_id(id)?.ok_or(PostError::NotFound)?;
+        if post.deleted_at.is_none() {
+            return Err(PostError::NotFound);
+        }
+
+        Ok(self.repo.restore(id)?)
+    }
+
+    pub fn list_my_posts(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.repo.find_by_author(author_id)?)
     }
 
-    pub fn list_published_by_author(&self, author_id: i64) -> Result<Vec<Post>, PostError> {
+    pub fn list_published_by_author(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.repo.find_published_by_author(author_id)?)
+    }
+
+    pub fn list_deleted(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
+        Ok(self.repo.find_deleted_by_author(author_id)?)
     }
 }
