@@ -6,8 +6,10 @@ use uuid::Uuid;
 
 use crate::{
     bootstrap::state::AppState,
-    infrastructure::security::extractor::CurrentUser,
-    presentation::dto::post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
+    presentation::dto::{
+        auth_dto::CurrentUser,
+        post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
+    },
 };
 
 #[utoipa::path(
@@ -64,32 +66,6 @@ pub async fn get_post(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(PostResponse::from(post)))
-}
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/my/posts",
-    tag = "post",
-    responses(
-        (status = 200, description = "List of own posts", body = [PostResponse]),
-        (status = 401, description = "Not authenticated"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[get("/my/posts")]
-pub async fn list_my_posts(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-) -> Result<HttpResponse, Error> {
-    let service = state.post_service.clone();
-    let author_id = user.id;
-
-    let posts = web::block(move || service.list_my_posts(author_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
-    Ok(HttpResponse::Ok().json(resp))
 }
 
 #[utoipa::path(

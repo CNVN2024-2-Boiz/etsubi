@@ -4,35 +4,11 @@ use uuid::Uuid;
 
 use crate::{
     bootstrap::state::AppState,
-    infrastructure::security::extractor::CurrentUser,
-    presentation::dto::user_dto::{UpdateProfileRequest, UserResponse},
+    presentation::dto::{
+        auth_dto::CurrentUser,
+        user_dto::{UpdateProfileRequest, UserResponse},
+    },
 };
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/my",
-    tag = "user",
-    responses(
-        (status = 200, description = "Current user profile", body = UserResponse),
-        (status = 401, description = "Not authenticated"),
-        (status = 404, description = "User not found"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[get("/my")]
-pub async fn get_personal_info(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-) -> Result<HttpResponse, Error> {
-    let service = state.user_service.clone();
-    let user_id = user.id;
-
-    let me = web::block(move || service.get(user_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::Ok().json(UserResponse::from(me)))
-}
 
 #[utoipa::path(
     get,
@@ -86,25 +62,18 @@ pub async fn update_user(
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
     let requester_id = user.id;
-    let requester_role = user.role.clone();
 
     let req = body.into_inner();
-    let username = req.username;
-    let email = req.email;
-    let bio = req.bio;
-    let avatar_url = req.avatar_url;
-
     let service = state.user_service.clone();
 
     let updated = web::block(move || {
         service.update_profile(
             target_id,
             requester_id,
-            &requester_role,
-            username,
-            email,
-            bio,
-            avatar_url,
+            req.username,
+            req.email,
+            req.bio,
+            req.avatar_url,
         )
     })
     .await

@@ -12,5 +12,7 @@ pub fn init(url: &str) -> DbPool {
         .min_idle(Some(2))
         .connection_timeout(Duration::from_secs(5))
         .build(manager)
-        .expect("Failed to create pool")
+        .unwrap_or_else(|e| {
+            panic!("Failed to create DB pool (check DATABASE_URL): {e}");
+        })
 }

@@ -11,7 +11,8 @@ use chrono::Utc;
 
 use crate::{
     bootstrap::state::AppState,
-    infrastructure::security::{extractor::CurrentUser, jwt::verify_token},
+    infrastructure::security::jwt::{PURPOSE_ACCESS, verify_token},
+    presentation::dto::auth_dto::CurrentUser,
 };
 
 pub async fn auth_middleware(
@@ -33,7 +34,7 @@ pub async fn auth_middleware(
         .strip_prefix("Bearer ")
         .ok_or_else(|| ErrorUnauthorized("Invalid format"))?;
 
-    let claims = verify_token(token, &state.config.jwt_key)
+    let claims = verify_token(token, &state.config.jwt_key, PURPOSE_ACCESS)
         .map_err(|_| ErrorUnauthorized("Invalid token"))?;
 
     let service = state.user_service.clone();
@@ -44,8 +45,17 @@ pub async fn auth_middleware(
         .map_err(ErrorInternalServerError)?
         .map_err(|_| ErrorUnauthorized("User not found"))?;
 
-    if user.status == "banned" {
-        return Err(ErrorForbidden("Your account has been banned"));
+    match user.status.as_str() {
+        "active" => {}
+        "pending" => {
+            return Err(ErrorForbidden("Account is not verified"));
+        }
+        "banned" => {
+            return Err(ErrorForbidden("Your account has been banned"));
+        }
+        _ => {
+            return Err(ErrorForbidden("Account is not active"));
+        }
     }
 
     let method = req.method().clone();

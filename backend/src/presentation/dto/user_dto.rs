@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
+use uuid::Uuid;
 
 use crate::infrastructure::database::models::entities::User;
 
@@ -23,6 +24,7 @@ pub struct UpdateRoleRequest {
 
 #[derive(Serialize, ToSchema)]
 pub struct UserResponse {
+    pub id: Uuid,
     pub username: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
@@ -33,6 +35,7 @@ pub struct UserResponse {
 impl From<User> for UserResponse {
     fn from(u: User) -> Self {
         Self {
+            id: u.id,
             username: u.username,
             avatar_url: u.avatar_url,
             bio: u.bio,

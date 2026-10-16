@@ -6,22 +6,35 @@ pub struct AppConfig {
     pub server_port: u16,
 
     pub database_url: String,
-    pub database_name: String,
-    pub database_user: String,
-    pub database_password: String,
-    pub database_port: u16,
 
     pub jwt_key: String,
     pub jwt_expiry_hours: i64,
 
-    pub translate_api_key: String,
-    pub live_view_api_key: String,
-    pub grammar_api_key: String,
+    pub email_provider: String,
+    pub resend_api_key: String,
+    pub email_from: String,
+    pub frontend_url: String,
+    pub email_timeout_secs: u64,
 }
 
 impl AppConfig {
     pub fn from_env() -> Self {
         dotenvy::dotenv().ok();
+
+        let email_provider = env::var("EMAIL_PROVIDER").unwrap_or_else(|_| "console".into());
+        if !matches!(email_provider.as_str(), "console" | "resend") {
+            panic!(
+                "EMAIL_PROVIDER must be 'console' or 'resend', got: {}",
+                email_provider
+            );
+        }
+
+        let resend_api_key = if email_provider == "resend" {
+            env::var("RESEND_API_KEY")
+                .expect("RESEND_API_KEY must be set when EMAIL_PROVIDER=resend")
+        } else {
+            env::var("RESEND_API_KEY").unwrap_or_default()
+        };
 
         Self {
             server_host: env::var("SERVER_HOST").unwrap_or_else(|_| "0.0.0.0".into()),
@@ -31,14 +44,6 @@ impl AppConfig {
                 .unwrap_or(8080),
 
             database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
-            database_name: env::var("DATABASE_NAME").expect("DATABASE_NAME must be set"),
-            database_user: env::var("DATABASE_USER").expect("DATABASE_USER must be set"),
-            database_password: env::var("DATABASE_PASSWORD")
-                .expect("DATABASE_PASSWORD must be set"),
-            database_port: env::var("DATABASE_PORT")
-                .ok()
-                .and_then(|s| s.parse().ok())
-                .unwrap_or(5432),
 
             jwt_key: env::var("JWT_KEY").expect("JWT_KEY must be set"),
             jwt_expiry_hours: env::var("JWT_EXPIRY_HOURS")
@@ -46,9 +51,16 @@ impl AppConfig {
                 .and_then(|s| s.parse().ok())
                 .unwrap_or(24),
 
-            translate_api_key: env::var("TRANSLATE_API_KEY").unwrap_or_default(),
-            live_view_api_key: env::var("LIVE_VIEW_API_KEY").unwrap_or_default(),
-            grammar_api_key: env::var("GRAMMAR_API_KEY").unwrap_or_default(),
+            email_provider,
+            resend_api_key,
+            email_from: env::var("EMAIL_FROM")
+                .unwrap_or_else(|_| "Etsubi <onboarding@resend.dev>".into()),
+            frontend_url: env::var("FRONTEND_URL")
+                .unwrap_or_else(|_| "http://localhost:3000".into()),
+            email_timeout_secs: env::var("EMAIL_TIMEOUT_SECS")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(10),
         }
     }
 }

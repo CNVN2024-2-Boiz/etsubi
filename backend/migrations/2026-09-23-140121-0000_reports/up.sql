@@ -1,5 +1,5 @@
 CREATE TABLE reports (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
     comment_id  UUID REFERENCES comments(id) ON DELETE CASCADE,
