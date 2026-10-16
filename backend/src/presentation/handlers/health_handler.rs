@@ -1,4 +1,5 @@
-use actix_web::{Responder, get};
+use crate::bootstrap::state::AppState;
+use actix_web::{HttpResponse, Responder, get, web};
 
 #[utoipa::path(
     get,
@@ -9,6 +10,10 @@ use actix_web::{Responder, get};
     ),
 )]
 #[get("/health")]
-pub async fn health() -> impl Responder {
-    "OK"
+pub async fn health(state: web::Data<AppState>) -> impl Responder {
+    let pool = state.pool.clone();
+    match web::block(move || pool.get()).await {
+        Ok(Ok(_)) => HttpResponse::Ok().body("OK"),
+        _ => HttpResponse::ServiceUnavailable().body("DB unavailable"),
+    }
 }

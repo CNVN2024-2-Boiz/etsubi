@@ -3,13 +3,10 @@ use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, post, web}
 use crate::{
     bootstrap::state::AppState,
     domains::user::error::UserError,
-    infrastructure::security::{extractor::CurrentUser, jwt::create_token},
+    infrastructure::security::jwt::{PURPOSE_ACCESS, PURPOSE_VERIFY, create_token},
     presentation::dto::auth_dto::{
-        ChangeEmailRequest, ChangeEmailResponse, ConfirmEmailChangeRequest,
-        ConfirmEmailChangeResponse, ForgotPasswordRequest, ForgotPasswordResponse, LoginRequest,
-        LoginResponse, MagicLinkRequest, MagicLinkResponse, MagicLoginRequest, RegisterRequest,
-        RegisterResponse, ResendVerificationResponse, ResetPasswordRequest, ResetPasswordResponse,
-        VerifyEmailRequest, VerifyEmailResponse,
+        LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, ResendVerificationRequest,
+        ResendVerificationResponse, VerifyEmailRequest, VerifyEmailResponse,
     },
 };
 
@@ -36,6 +33,35 @@ pub async fn register(
         .await
         .map_err(ErrorInternalServerError)??;
 
+    match create_token(
+        user.id,
+        String::new(),
+        PURPOSE_VERIFY,
+        &state.config.jwt_key,
+        24,
+    ) {
+        Ok(token) => {
+            if let Err(e) = state
+                .email_service
+                .send_verification(&user.email, &token)
+                .await
+            {
+                tracing::error!(
+                    user_id = %user.id,
+                    error = %e,
+                    "Failed to send verification email — user can resend later"
+                );
+            }
+        }
+        Err(e) => {
+            tracing::error!(
+                user_id = %user.id,
+                error = %e,
+                "Failed to create verify token"
+            );
+        }
+    }
+
     Ok(HttpResponse::Created().json(RegisterResponse { user_id: user.id }))
 }
 
@@ -47,6 +73,7 @@ pub async fn register(
     responses(
         (status = 200, description = "Login successful", body = LoginResponse),
         (status = 401, description = "Invalid email or password"),
+        (status = 403, description = "Account not verified or banned"),
     ),
 )]
 #[post("/auth/login")]
@@ -64,7 +91,7 @@ pub async fn login(
     let token = create_token(
         user.id,
         user.role.clone(),
-        String::new(),
+        PURPOSE_ACCESS,
         &state.config.jwt_key,
         state.config.jwt_expiry_hours,
     )
@@ -84,138 +111,55 @@ pub async fn login(
     responses(
         (status = 200, description = "Email verified", body = VerifyEmailResponse),
         (status = 400, description = "Invalid or expired token"),
+        (status = 409, description = "Email already verified"),
     ),
 )]
 #[post("/auth/verify-email")]
 pub async fn verify_email(
-    _state: web::Data<AppState>,
-    _body: web::Json<VerifyEmailRequest>,
+    state: web::Data<AppState>,
+    body: web::Json<VerifyEmailRequest>,
 ) -> Result<HttpResponse, Error> {
-    todo!()
+    let service = state.user_service.clone();
+    let token = body.into_inner().token;
+    let jwt_key = state.config.jwt_key.clone();
+
+    let user_id = web::block(move || service.verify_email(&token, &jwt_key))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(VerifyEmailResponse { user_id }))
 }
 
 #[utoipa::path(
     post,
     path = "/api/v1/auth/resend-verification",
     tag = "auth",
+    request_body = ResendVerificationRequest,
     responses(
-        (status = 200, description = "Verification email sent", body = ResendVerificationResponse),
-        (status = 401, description = "Not authenticated"),
+        (status = 200, description = "Verification email sent if applicable", body = ResendVerificationResponse),
         (status = 429, description = "Too many requests"),
     ),
 )]
 #[post("/auth/resend-verification")]
 pub async fn resend_verification(
-    _state: web::Data<AppState>,
-    _user: CurrentUser,
+    state: web::Data<AppState>,
+    body: web::Json<ResendVerificationRequest>,
 ) -> Result<HttpResponse, Error> {
-    todo!()
-}
+    let service = state.user_service.clone();
+    let email = body.into_inner().email;
+    let jwt_key = state.config.jwt_key.clone();
 
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/forgot-password",
-    tag = "auth",
-    request_body = ForgotPasswordRequest,
-    responses(
-        (status = 200, description = "Reset email sent if account exists", body = ForgotPasswordResponse),
-    ),
-)]
-#[post("/auth/forgot-password")]
-pub async fn forgot_password(
-    _state: web::Data<AppState>,
-    _body: web::Json<ForgotPasswordRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
-}
+    let result = web::block(move || service.resend_verification(&email, &jwt_key))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/reset-password",
-    tag = "auth",
-    request_body = ResetPasswordRequest,
-    responses(
-        (status = 200, description = "Password reset successful", body = ResetPasswordResponse),
-        (status = 400, description = "Invalid or expired token"),
-    ),
-)]
-#[post("/auth/reset-password")]
-pub async fn reset_password(
-    _state: web::Data<AppState>,
-    _body: web::Json<ResetPasswordRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
-}
+    if let Some((to, token)) = result
+        && let Err(e) = state.email_service.send_verification(&to, &token).await
+    {
+        tracing::error!(error = %e, "Failed to resend verification email");
+    }
 
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/magic-link",
-    tag = "auth",
-    request_body = MagicLinkRequest,
-    responses(
-        (status = 200, description = "Magic link sent if account exists", body = MagicLinkResponse),
-    ),
-)]
-#[post("/auth/magic-link")]
-pub async fn request_magic_link(
-    _state: web::Data<AppState>,
-    _body: web::Json<MagicLinkRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
-}
-
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/magic-login",
-    tag = "auth",
-    request_body = MagicLoginRequest,
-    responses(
-        (status = 200, description = "Magic login successful", body = LoginResponse),
-        (status = 400, description = "Invalid or expired token"),
-    ),
-)]
-#[post("/auth/magic-login")]
-pub async fn magic_login(
-    _state: web::Data<AppState>,
-    _body: web::Json<MagicLoginRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
-}
-
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/change-email",
-    tag = "auth",
-    request_body = ChangeEmailRequest,
-    responses(
-        (status = 200, description = "Confirmation email sent to new address", body = ChangeEmailResponse),
-        (status = 401, description = "Not authenticated"),
-        (status = 409, description = "Email already taken"),
-    ),
-)]
-#[post("/auth/change-email")]
-pub async fn request_change_email(
-    _state: web::Data<AppState>,
-    _user: CurrentUser,
-    _body: web::Json<ChangeEmailRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
-}
-
-#[utoipa::path(
-    post,
-    path = "/api/v1/auth/confirm-email-change",
-    tag = "auth",
-    request_body = ConfirmEmailChangeRequest,
-    responses(
-        (status = 200, description = "Email changed", body = ConfirmEmailChangeResponse),
-        (status = 400, description = "Invalid or expired token"),
-    ),
-)]
-#[post("/auth/confirm-email-change")]
-pub async fn confirm_email_change(
-    _state: web::Data<AppState>,
-    _body: web::Json<ConfirmEmailChangeRequest>,
-) -> Result<HttpResponse, Error> {
-    todo!()
+    Ok(HttpResponse::Ok().json(ResendVerificationResponse {
+        message: "If the account exists and is pending, a verification email has been sent".into(),
+    }))
 }

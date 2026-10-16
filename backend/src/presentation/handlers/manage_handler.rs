@@ -1,11 +1,12 @@
-use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, patch, post, web};
+use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, get, patch, post, web};
 
 use uuid::Uuid;
 
 use crate::{
     bootstrap::state::AppState,
-    infrastructure::security::extractor::CurrentUser,
     presentation::dto::{
+        auth_dto::CurrentUser,
+        comment_dto::{CommentResponse, UpdateCommentStatusRequest},
         post_dto::{PostResponse, UpdatePostStatusRequest},
         user_dto::{UpdateRoleRequest, UpdateStatusRequest, UserResponse},
     },
@@ -150,4 +151,132 @@ pub async fn restore_post(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(PostResponse::from(post)))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/manage/posts/{post_id}/comments",
+    tag = "manage",
+    params(
+        ("post_id" = Uuid, Path, description = "Post ID")
+    ),
+    responses(
+        (status = 200, description = "All comments of the post (including hidden/deleted)", body = [CommentResponse]),
+        (status = 403, description = "Requires moderator or admin role"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[get("/manage/posts/{post_id}/comments")]
+pub async fn list_post_comments_manage(
+    state: web::Data<AppState>,
+    user: CurrentUser,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, Error> {
+    let service = state.comment_service.clone();
+    let post_id = path.into_inner();
+    let requester_role = user.role.clone();
+
+    let comments = web::block(move || service.list_all_by_post(post_id, &requester_role))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    let resp: Vec<CommentResponse> = comments.into_iter().map(CommentResponse::from).collect();
+    Ok(HttpResponse::Ok().json(resp))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/manage/comments/{id}",
+    tag = "manage",
+    params(
+        ("id" = Uuid, Path, description = "Comment ID")
+    ),
+    responses(
+        (status = 200, description = "Comment details (including deleted)", body = CommentResponse),
+        (status = 403, description = "Requires moderator or admin role"),
+        (status = 404, description = "Comment not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[get("/manage/comments/{id}")]
+pub async fn get_comment_manage(
+    state: web::Data<AppState>,
+    user: CurrentUser,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, Error> {
+    let service = state.comment_service.clone();
+    let comment_id = path.into_inner();
+    let requester_role = user.role.clone();
+
+    let comment = web::block(move || service.get_any(comment_id, &requester_role))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(CommentResponse::from(comment)))
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/v1/manage/comments/{id}/status",
+    tag = "manage",
+    params(
+        ("id" = Uuid, Path, description = "Comment ID")
+    ),
+    request_body = UpdateCommentStatusRequest,
+    responses(
+        (status = 200, description = "Comment status updated", body = CommentResponse),
+        (status = 400, description = "Invalid status"),
+        (status = 403, description = "Requires moderator or admin role"),
+        (status = 404, description = "Comment not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[patch("/manage/comments/{id}/status")]
+pub async fn update_comment_status(
+    state: web::Data<AppState>,
+    user: CurrentUser,
+    path: web::Path<Uuid>,
+    body: web::Json<UpdateCommentStatusRequest>,
+) -> Result<HttpResponse, Error> {
+    let service = state.comment_service.clone();
+    let comment_id = path.into_inner();
+    let requester_role = user.role.clone();
+    let status = body.into_inner().status;
+
+    let updated = web::block(move || service.update_status(comment_id, &requester_role, &status))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(CommentResponse::from(updated)))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/manage/comments/{id}/restore",
+    tag = "manage",
+    params(
+        ("id" = Uuid, Path, description = "Comment ID")
+    ),
+    responses(
+        (status = 200, description = "Comment restored", body = CommentResponse),
+        (status = 403, description = "Requires moderator or admin role"),
+        (status = 404, description = "Comment not found or not deleted"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[post("/manage/comments/{id}/restore")]
+pub async fn restore_comment(
+    state: web::Data<AppState>,
+    user: CurrentUser,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, Error> {
+    let service = state.comment_service.clone();
+    let comment_id = path.into_inner();
+    let requester_role = user.role.clone();
+
+    let comment = web::block(move || service.restore(comment_id, &requester_role))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(CommentResponse::from(comment)))
 }
