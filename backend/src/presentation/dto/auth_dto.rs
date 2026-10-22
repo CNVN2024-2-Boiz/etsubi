@@ -31,26 +31,6 @@ pub struct LoginResponse {
     pub token: String,
 }
 
-#[derive(Deserialize, ToSchema)]
-pub struct VerifyEmailRequest {
-    pub token: String,
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct VerifyEmailResponse {
-    pub user_id: Uuid,
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct ResendVerificationRequest {
-    pub email: String,
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct ResendVerificationResponse {
-    pub message: String,
-}
-
 #[derive(Debug, Clone)]
 pub struct CurrentUser {
     pub id: Uuid,

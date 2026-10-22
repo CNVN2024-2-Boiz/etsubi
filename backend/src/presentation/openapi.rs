@@ -5,11 +5,7 @@ use utoipa::{
 
 use crate::presentation::{
     dto::{
-        auth_dto::{
-            LoginRequest, LoginResponse, RegisterRequest, RegisterResponse,
-            ResendVerificationRequest, ResendVerificationResponse, VerifyEmailRequest,
-            VerifyEmailResponse,
-        },
+        auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
         comment_dto::{
             CommentResponse, CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
         },
@@ -31,8 +27,6 @@ use crate::presentation::{
     paths(
         auth_handler::register,
         auth_handler::login,
-        auth_handler::verify_email,
-        auth_handler::resend_verification,
 
         personal_handler::get_my_profile,
         personal_handler::list_my_posts,
@@ -67,8 +61,6 @@ use crate::presentation::{
     components(schemas(
         RegisterRequest, RegisterResponse,
         LoginRequest, LoginResponse,
-        VerifyEmailRequest, VerifyEmailResponse,
-        ResendVerificationRequest, ResendVerificationResponse,
 
         UserResponse,
         UpdateProfileRequest, UpdateStatusRequest, UpdateRoleRequest,

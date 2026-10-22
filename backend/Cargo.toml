@@ -4,11 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-actix-cors = "0.7.2"
 actix-web = "4.15.0"
 anyhow = "1.0.104"
 argon2 = "0.5.0"
-async-trait = "0.1.92"
 chrono = { version = "0.4.45", features = ["serde"] }
 diesel = { version = "2.3.13", features = ["chrono", "postgres", "r2d2", "uuid"] }
 dotenvy = "0.15.7"

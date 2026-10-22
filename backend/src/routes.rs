@@ -7,8 +7,6 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::auth_handler::register);
     cfg.service(presentation::handlers::auth_handler::login);
-    cfg.service(presentation::handlers::auth_handler::verify_email);
-    cfg.service(presentation::handlers::auth_handler::resend_verification);
 
     cfg.service(presentation::handlers::user_handler::get_user);
     cfg.service(presentation::handlers::post_handler::get_post);

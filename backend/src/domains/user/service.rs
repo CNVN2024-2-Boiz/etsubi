@@ -5,10 +5,7 @@ use uuid::Uuid;
 use crate::{
     domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
-    infrastructure::security::{
-        jwt::{PURPOSE_VERIFY, create_token, verify_token},
-        password::{hash_password, verify_password},
-    },
+    infrastructure::security::password::{hash_password, verify_password},
 };
 
 pub struct UserService {
@@ -199,41 +196,5 @@ impl UserService {
         }
 
         Ok(self.repo.update_role(target_id, new_role)?)
-    }
-
-    pub fn verify_email(&self, token: &str, jwt_key: &str) -> Result<Uuid, UserError> {
-        let claims =
-            verify_token(token, jwt_key, PURPOSE_VERIFY).map_err(|_| UserError::InvalidToken)?;
-
-        let user = self
-            .repo
-            .find_by_id(claims.sub)?
-            .ok_or(UserError::InvalidToken)?;
-
-        match user.status.as_str() {
-            "pending" => {}
-            "active" => return Err(UserError::AlreadyVerified),
-            _ => return Err(UserError::InvalidToken),
-        }
-
-        self.repo.update_status(user.id, "active")?;
-        Ok(user.id)
-    }
-
-    pub fn resend_verification(
-        &self,
-        email: &str,
-        jwt_key: &str,
-    ) -> Result<Option<(String, String)>, UserError> {
-        let Some(user) = self.repo.find_by_email(email)? else {
-            return Ok(None);
-        };
-
-        if user.status != "pending" {
-            return Ok(None);
-        }
-
-        let token = create_token(user.id, String::new(), PURPOSE_VERIFY, jwt_key, 24)?;
-        Ok(Some((user.email, token)))
     }
 }

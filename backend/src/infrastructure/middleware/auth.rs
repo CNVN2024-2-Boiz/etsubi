@@ -10,8 +10,7 @@ use actix_web::{
 use chrono::Utc;
 
 use crate::{
-    bootstrap::state::AppState,
-    infrastructure::security::jwt::{PURPOSE_ACCESS, verify_token},
+    bootstrap::state::AppState, infrastructure::security::jwt::verify_token,
     presentation::dto::auth_dto::CurrentUser,
 };
 
@@ -34,7 +33,7 @@ pub async fn auth_middleware(
         .strip_prefix("Bearer ")
         .ok_or_else(|| ErrorUnauthorized("Invalid format"))?;
 
-    let claims = verify_token(token, &state.config.jwt_key, PURPOSE_ACCESS)
+    let claims = verify_token(token, &state.config.jwt_key)
         .map_err(|_| ErrorUnauthorized("Invalid token"))?;
 
     let service = state.user_service.clone();

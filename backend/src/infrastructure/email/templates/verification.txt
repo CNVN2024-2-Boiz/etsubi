@@ -1,8 +1,0 @@
-Chào mừng bạn đến với Etsubi!
-
-Nhấn vào liên kết sau để xác thực địa chỉ email của bạn:
-
-{{link}}
-
-Liên kết sẽ hết hạn sau 24 giờ. Nếu bạn không đăng ký tài khoản,
-vui lòng bỏ qua email này.
