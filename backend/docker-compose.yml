@@ -18,38 +18,5 @@ services:
       timeout: 5s
       retries: 5
 
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: etsubi_backend
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 11432
-      DATABASE_URL: postgres://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_USER: ${DATABASE_USER}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      DATABASE_PORT: 5432
-      JWT_KEY: ${JWT_KEY}
-      JWT_EXPIRY_HOURS: ${JWT_EXPIRY_HOURS}
-      EMAIL_PROVIDER: ${EMAIL_PROVIDER}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      EMAIL_FROM: ${EMAIL_FROM}
-      FRONTEND_URL: ${FRONTEND_URL}
-      EMAIL_TIMEOUT_SECS: ${EMAIL_TIMEOUT_SECS}
-    ports:
-      - "11432:11432"
-    healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:11432/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-
 volumes:
   postgres_data:
