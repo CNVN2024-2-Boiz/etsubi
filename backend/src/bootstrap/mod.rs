@@ -8,10 +8,12 @@ use std::sync::Arc;
 use crate::{
     bootstrap::{config::AppConfig, state::AppState},
     domains::{
-        comment::service::CommentService, post::service::PostService, user::service::UserService,
+        comment::service::CommentService, post::service::PostService, tag::service::TagService,
+        user::service::UserService,
     },
     infrastructure::database::repositories::{
-        comment_repo::PostgresCommentRepo, post_repo::PostgresPostRepo, user_repo::PostgresUserRepo,
+        comment_repo::PostgresCommentRepo, post_repo::PostgresPostRepo, tag_repo::PostgresTagRepo,
+        user_repo::PostgresUserRepo,
     },
 };
 
@@ -27,7 +29,10 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let post_service = Arc::new(PostService::new(post_repo.clone()));
 
     let comment_repo = Arc::new(PostgresCommentRepo::new(db_pool.clone()));
-    let comment_service = Arc::new(CommentService::new(comment_repo, post_repo));
+    let comment_service = Arc::new(CommentService::new(comment_repo, post_repo.clone()));
+
+    let tag_repo = Arc::new(PostgresTagRepo::new(db_pool.clone()));
+    let tag_service = Arc::new(TagService::new(tag_repo, post_repo));
 
     Ok(web::Data::new(AppState {
         config,
@@ -35,5 +40,6 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
         user_service,
         post_service,
         comment_service,
+        tag_service,
     }))
 }

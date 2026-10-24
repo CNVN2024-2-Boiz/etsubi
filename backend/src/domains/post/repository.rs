@@ -15,4 +15,5 @@ pub trait PostRepository: Send + Sync {
     fn find_by_author(&self, author_id: Uuid) -> Result<Vec<Post>>;
     fn find_published_by_author(&self, author_id: Uuid) -> Result<Vec<Post>>;
     fn find_deleted_by_author(&self, author_id: Uuid) -> Result<Vec<Post>>;
+    fn find_published_by_ids(&self, ids: &[Uuid]) -> Result<Vec<Post>>;
 }

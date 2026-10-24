@@ -141,4 +141,18 @@ impl PostRepository for PostgresPostRepo {
             .select(Post::as_select())
             .load(&mut conn)?)
     }
+
+    fn find_published_by_ids(&self, ids: &[Uuid]) -> Result<Vec<Post>> {
+        if ids.is_empty() {
+            return Ok(vec![]);
+        }
+        let mut conn = self.pool.get()?;
+        Ok(posts::table
+            .filter(posts::id.eq_any(ids))
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .order(posts::created_at.desc())
+            .select(Post::as_select())
+            .load(&mut conn)?)
+    }
 }

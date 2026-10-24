@@ -41,7 +41,7 @@ impl UserService {
             avatar_url: None,
             bio: None,
             role: "user".into(),
-            status: "pending".into(),
+            status: "active".into(),
             created_at: now,
             updated_at: now,
             muted_until: None,
@@ -62,7 +62,6 @@ impl UserService {
 
         match user.status.as_str() {
             "active" => Ok(user),
-            "pending" => Err(UserError::AccountNotVerified),
             "banned" => Err(UserError::AccountBanned),
             _ => Err(UserError::InvalidCredentials),
         }
@@ -133,7 +132,7 @@ impl UserService {
         requester_role: &str,
         status: &str,
     ) -> Result<User, UserError> {
-        let valid = ["active", "banned", "pending"];
+        let valid = ["active", "banned"];
         if !valid.contains(&status) {
             return Err(UserError::InvalidStatus);
         }
