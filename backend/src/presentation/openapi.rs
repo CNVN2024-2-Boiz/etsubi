@@ -5,19 +5,17 @@ use utoipa::{
 
 use crate::presentation::{
     dto::{
-        auth_dto::{
-            LoginRequest, LoginResponse, RegisterRequest, RegisterResponse,
-            ResendVerificationRequest, ResendVerificationResponse, VerifyEmailRequest,
-            VerifyEmailResponse,
-        },
+        auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
         comment_dto::{
             CommentResponse, CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
         },
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
+        tag_dto::TagResponse,
         user_dto::{UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest, UserResponse},
     },
     handlers::{
-        auth_handler, comment_handler, manage_handler, personal_handler, post_handler, user_handler,
+        auth_handler, comment_handler, manage_handler, personal_handler, post_handler, tag_handler,
+        user_handler,
     },
 };
 
@@ -31,8 +29,6 @@ use crate::presentation::{
     paths(
         auth_handler::register,
         auth_handler::login,
-        auth_handler::verify_email,
-        auth_handler::resend_verification,
 
         personal_handler::get_my_profile,
         personal_handler::list_my_posts,
@@ -63,12 +59,17 @@ use crate::presentation::{
         manage_handler::get_comment_manage,
         manage_handler::update_comment_status,
         manage_handler::restore_comment,
+
+        tag_handler::list_tags,
+        tag_handler::get_tag,
+        tag_handler::list_tag_posts,
+        tag_handler::list_post_tags,
+        tag_handler::attach_tag,
+        tag_handler::detach_tag,
     ),
     components(schemas(
         RegisterRequest, RegisterResponse,
         LoginRequest, LoginResponse,
-        VerifyEmailRequest, VerifyEmailResponse,
-        ResendVerificationRequest, ResendVerificationResponse,
 
         UserResponse,
         UpdateProfileRequest, UpdateStatusRequest, UpdateRoleRequest,
@@ -78,6 +79,8 @@ use crate::presentation::{
 
         CommentResponse,
         CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
+
+        TagResponse
     )),
     tags(
         (name = "system", description = "System endpoints"),

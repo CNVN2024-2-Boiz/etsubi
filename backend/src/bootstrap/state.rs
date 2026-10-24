@@ -4,9 +4,9 @@ use crate::{
     bootstrap::config::AppConfig,
     bootstrap::pool::DbPool,
     domains::{
-        comment::service::CommentService, post::service::PostService, user::service::UserService,
+        comment::service::CommentService, post::service::PostService, tag::service::TagService,
+        user::service::UserService,
     },
-    infrastructure::email::EmailService,
 };
 
 #[derive(Clone)]
@@ -16,5 +16,5 @@ pub struct AppState {
     pub user_service: Arc<UserService>,
     pub post_service: Arc<PostService>,
     pub comment_service: Arc<CommentService>,
-    pub email_service: Arc<dyn EmailService>,
+    pub tag_service: Arc<TagService>,
 }

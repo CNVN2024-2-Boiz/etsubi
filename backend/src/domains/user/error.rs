@@ -49,17 +49,11 @@ pub enum UserError {
     #[error("Requires moderator or admin role")]
     RequiresStaff,
 
-    #[error("Account not verified")]
-    AccountNotVerified,
-
     #[error("Account is banned")]
     AccountBanned,
 
     #[error("Invalid or expired token")]
     InvalidToken,
-
-    #[error("Email already verified")]
-    AlreadyVerified,
 
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
@@ -78,8 +72,7 @@ impl ResponseError for UserError {
 
             UserError::EmailAlreadyExists
             | UserError::UsernameAlreadyTaken
-            | UserError::EmailAlreadyTaken
-            | UserError::AlreadyVerified => StatusCode::CONFLICT,
+            | UserError::EmailAlreadyTaken => StatusCode::CONFLICT,
 
             UserError::ForbiddenProfileEdit
             | UserError::CannotModifyHigherRole
@@ -88,7 +81,6 @@ impl ResponseError for UserError {
             | UserError::CannotAssignAdminRole
             | UserError::RequiresAdmin
             | UserError::RequiresStaff
-            | UserError::AccountNotVerified
             | UserError::AccountBanned => StatusCode::FORBIDDEN,
 
             UserError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
