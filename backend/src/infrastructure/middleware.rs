@@ -14,7 +14,7 @@ use crate::{
     presentation::dto::auth_dto::CurrentUser,
 };
 
-pub async fn auth_middleware(
+pub async fn auth(
     req: ServiceRequest,
     next: Next<impl MessageBody>,
 ) -> Result<ServiceResponse<impl MessageBody>, Error> {
@@ -46,14 +46,11 @@ pub async fn auth_middleware(
 
     match user.status.as_str() {
         "active" => {}
-        "pending" => {
-            return Err(ErrorForbidden("Account is not verified"));
-        }
         "banned" => {
             return Err(ErrorForbidden("Your account has been banned"));
         }
         _ => {
-            return Err(ErrorForbidden("Account is not active"));
+            return Err(ErrorForbidden("Account is not exists"));
         }
     }
 
