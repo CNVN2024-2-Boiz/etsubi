@@ -6,3 +6,5 @@ CREATE TABLE reactions (
     PRIMARY KEY (user_id, post_id)
 );
 
+CREATE INDEX idx_reactions_post ON reactions (post_id);
+CREATE INDEX idx_reactions_post_emoji ON reactions (post_id, emoji);

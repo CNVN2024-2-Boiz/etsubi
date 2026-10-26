@@ -5,3 +5,4 @@ CREATE TABLE bookmarks (
     PRIMARY KEY (user_id, post_id)
 );
 
+CREATE INDEX idx_bookmarks_post ON bookmarks (post_id);
