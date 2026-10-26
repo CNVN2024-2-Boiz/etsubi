@@ -28,7 +28,6 @@ impl TagService {
         self.repo.find_by_id(id)?.ok_or(TagError::NotFound)
     }
 
-    /// Public: xem tag của một post đã published.
     pub fn list_by_post(&self, post_id: Uuid) -> Result<Vec<Tag>, TagError> {
         self.post_repo
             .find_published_by_id(post_id)?
@@ -36,7 +35,6 @@ impl TagService {
         Ok(self.repo.list_tags_by_post(post_id)?)
     }
 
-    /// Public: liệt kê các post published có tag.
     pub fn list_published_posts(&self, tag_id: Uuid) -> Result<Vec<Post>, TagError> {
         self.get(tag_id)?;
         let post_ids = self.repo.list_post_ids_by_tag(tag_id)?;
@@ -46,7 +44,6 @@ impl TagService {
         Ok(self.post_repo.find_published_by_ids(&post_ids)?)
     }
 
-    /// Owner-only: gắn tag vào post mình.
     pub fn attach(&self, post_id: Uuid, tag_id: Uuid, requester_id: Uuid) -> Result<(), TagError> {
         self.ensure_owner(post_id, requester_id)?;
 
@@ -60,7 +57,6 @@ impl TagService {
         Ok(self.repo.attach(post_id, tag_id)?)
     }
 
-    /// Owner-only: bỏ tag khỏi post mình.
     pub fn detach(&self, post_id: Uuid, tag_id: Uuid, requester_id: Uuid) -> Result<(), TagError> {
         self.ensure_owner(post_id, requester_id)?;
 
