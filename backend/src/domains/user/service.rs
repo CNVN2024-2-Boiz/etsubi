@@ -8,6 +8,8 @@ use crate::{
     infrastructure::security::password::{hash_password, verify_password},
 };
 
+const VALID_LANGUAGES: &[&str] = &["en", "ja", "vi"];
+
 pub struct UserService {
     repo: Arc<dyn UserRepository>,
 }
@@ -17,7 +19,13 @@ impl UserService {
         Self { repo }
     }
 
-    pub fn create(&self, username: &str, email: &str, password: &str) -> Result<User, UserError> {
+    pub fn create(
+        &self,
+        username: &str,
+        email: &str,
+        password: &str,
+        languages: &[String],
+    ) -> Result<User, UserError> {
         if username.len() < 3 {
             return Err(UserError::UsernameTooShort);
         }
@@ -30,6 +38,7 @@ impl UserService {
             return Err(UserError::UsernameAlreadyTaken);
         }
 
+        self.validate_languages(languages)?;
         let hashed = hash_password(password)?;
 
         let now = chrono::Utc::now();
@@ -37,6 +46,7 @@ impl UserService {
             id: Uuid::nil(),
             username: username.into(),
             email: email.into(),
+            languages: languages.to_vec(),
             password: hashed,
             avatar_url: None,
             bio: None,
@@ -82,12 +92,11 @@ impl UserService {
         requester_id: Uuid,
         username: Option<String>,
         email: Option<String>,
+        languages: Option<Vec<String>>,
         bio: Option<String>,
         avatar_url: Option<String>,
     ) -> Result<User, UserError> {
-        let is_self = target_id == requester_id;
-
-        if !is_self {
+        if target_id != requester_id {
             return Err(UserError::ForbiddenProfileEdit);
         }
 
@@ -112,6 +121,11 @@ impl UserService {
                 return Err(UserError::EmailAlreadyTaken);
             }
             user.email = new_email;
+        }
+
+        if let Some(new_languages) = languages {
+            self.validate_languages(&new_languages)?;
+            user.languages = new_languages;
         }
 
         if let Some(bio) = bio {
@@ -195,5 +209,14 @@ impl UserService {
         }
 
         Ok(self.repo.update_role(target_id, new_role)?)
+    }
+
+    fn validate_languages(&self, languages: &[String]) -> Result<(), UserError> {
+        for lang in languages {
+            if !VALID_LANGUAGES.contains(&lang.as_str()) {
+                return Err(UserError::InvalidLanguage(lang.clone()));
+            }
+        }
+        Ok(())
     }
 }
