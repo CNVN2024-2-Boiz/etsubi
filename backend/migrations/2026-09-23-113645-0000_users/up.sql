@@ -2,10 +2,8 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
-    languages TEXT[] NOT NULL DEFAULT '{}'
-        CHECK (languages <@ ARRAY[
-            'en','ja','vi'
-        ]::TEXT[]),
+    school TEXT,
+    address TEXT,
     password TEXT NOT NULL,
     avatar_url TEXT,
     bio TEXT,
