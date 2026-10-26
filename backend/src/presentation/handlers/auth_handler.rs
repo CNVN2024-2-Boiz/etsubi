@@ -26,9 +26,11 @@ pub async fn register(
     let service = state.user_service.clone();
     let body = body.into_inner();
 
-    let user = web::block(move || service.create(&body.username, &body.email, &body.password))
-        .await
-        .map_err(ErrorInternalServerError)??;
+    let user = web::block(move || {
+        service.create(&body.username, &body.email, &body.password, &body.languages)
+    })
+    .await
+    .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Created().json(RegisterResponse { user_id: user.id }))
 }

@@ -4,7 +4,7 @@ use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
         auth_dto::CurrentUser, comment_dto::CommentResponse, post_dto::PostResponse,
-        user_dto::UserResponse,
+        user_dto::GetUserResponse,
     },
 };
 
@@ -13,7 +13,7 @@ use crate::{
     path = "/api/v1/my",
     tag = "personal",
     responses(
-        (status = 200, description = "Current user profile", body = UserResponse),
+        (status = 200, description = "Current user profile", body = GetUserResponse),
         (status = 401, description = "Not authenticated"),
         (status = 404, description = "User not found"),
     ),
@@ -31,7 +31,7 @@ pub async fn get_my_profile(
         .await
         .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(me)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(me)))
 }
 
 #[utoipa::path(
@@ -85,3 +85,6 @@ pub async fn list_my_comments(
     let resp: Vec<CommentResponse> = comments.into_iter().map(CommentResponse::from).collect();
     Ok(HttpResponse::Ok().json(resp))
 }
+
+// pub async fn my_follower();
+// pub async fn my_following_list();
