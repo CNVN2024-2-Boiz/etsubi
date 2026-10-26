@@ -1,8 +1,10 @@
 pub mod auth_handler;
 pub mod comment_handler;
 pub mod health_handler;
+pub mod language_handler;
 pub mod manage_handler;
 pub mod personal_handler;
 pub mod post_handler;
 pub mod tag_handler;
+pub mod translate_handler;
 pub mod user_handler;

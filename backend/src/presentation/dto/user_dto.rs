@@ -8,7 +8,6 @@ use crate::infrastructure::database::models::entities::User;
 pub struct UpdateProfileRequest {
     pub username: Option<String>,
     pub email: Option<String>,
-    pub languages: Option<Vec<String>>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
 }
@@ -27,7 +26,6 @@ pub struct UpdateRoleRequest {
 pub struct GetUserResponse {
     pub id: Uuid,
     pub username: String,
-    pub languages: Vec<String>,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
     pub role: String,
@@ -39,7 +37,6 @@ impl From<User> for GetUserResponse {
         Self {
             id: u.id,
             username: u.username,
-            languages: u.languages,
             avatar_url: u.avatar_url,
             bio: u.bio,
             role: u.role,

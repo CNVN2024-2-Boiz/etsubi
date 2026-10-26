@@ -71,7 +71,6 @@ pub async fn update_user(
             requester_id,
             req.username,
             req.email,
-            req.languages,
             req.bio,
             req.avatar_url,
         )
@@ -79,7 +78,7 @@ pub async fn update_user(
     .await
     .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(updated)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
 
 // pub async fn user_follow();
