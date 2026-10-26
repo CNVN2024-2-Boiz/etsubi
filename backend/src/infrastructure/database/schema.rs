@@ -79,6 +79,14 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    users_follows (follower_id, following_id) {
+        follower_id -> Uuid,
+        following_id -> Uuid,
+        followed_at -> Timestamptz,
+    }
+}
+
 diesel::joinable!(bookmarks -> posts (post_id));
 diesel::joinable!(bookmarks -> users (user_id));
 diesel::joinable!(comments -> posts (post_id));
@@ -90,5 +98,12 @@ diesel::joinable!(reactions -> posts (post_id));
 diesel::joinable!(reactions -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    bookmarks, comments, posts, posts_tags, reactions, tags, users,
+    bookmarks,
+    comments,
+    posts,
+    posts_tags,
+    reactions,
+    tags,
+    users,
+    users_follows,
 );

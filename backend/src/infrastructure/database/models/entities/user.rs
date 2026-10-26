@@ -11,6 +11,7 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub email: String,
+    pub languages: Vec<String>,
     pub password: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
@@ -26,6 +27,7 @@ pub struct User {
 pub struct NewUser<'a> {
     pub username: &'a str,
     pub email: &'a str,
+    pub languages: &'a [String],
     pub password: &'a str,
     pub role: &'a str,
     pub status: &'a str,
