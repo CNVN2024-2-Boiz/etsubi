@@ -11,7 +11,7 @@ use crate::presentation::{
         },
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
         tag_dto::TagResponse,
-        user_dto::{UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest, UserResponse},
+        user_dto::{GetUserResponse, UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest},
     },
     handlers::{
         auth_handler, comment_handler, manage_handler, personal_handler, post_handler, tag_handler,
@@ -71,7 +71,7 @@ use crate::presentation::{
         RegisterRequest, RegisterResponse,
         LoginRequest, LoginResponse,
 
-        UserResponse,
+        GetUserResponse,
         UpdateProfileRequest, UpdateStatusRequest, UpdateRoleRequest,
 
         PostResponse,
