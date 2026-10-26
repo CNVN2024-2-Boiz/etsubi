@@ -23,6 +23,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    languages (id) {
+        id -> Uuid,
+        code -> Text,
+        name -> Text,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     posts (id) {
         id -> Uuid,
         author_id -> Uuid,
@@ -50,6 +60,14 @@ diesel::table! {
         post_id -> Uuid,
         emoji -> Text,
         reacted_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
+    speaks (user_id, language_id) {
+        user_id -> Uuid,
+        language_id -> Uuid,
+        assigned_at -> Timestamptz,
     }
 }
 
@@ -96,13 +114,17 @@ diesel::joinable!(posts_tags -> posts (post_id));
 diesel::joinable!(posts_tags -> tags (tag_id));
 diesel::joinable!(reactions -> posts (post_id));
 diesel::joinable!(reactions -> users (user_id));
+diesel::joinable!(speaks -> languages (language_id));
+diesel::joinable!(speaks -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
     comments,
+    languages,
     posts,
     posts_tags,
     reactions,
+    speaks,
     tags,
     users,
     users_follows,

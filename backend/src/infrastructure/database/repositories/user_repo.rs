@@ -29,7 +29,6 @@ impl UserRepository for PostgresUserRepo {
         let new_user = NewUser {
             username: &user.username,
             email: &user.email,
-            languages: &user.languages,
             password: &user.password,
             role: &user.role,
             status: &user.status,
@@ -47,7 +46,6 @@ impl UserRepository for PostgresUserRepo {
             .set((
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
-                users::languages.eq(&user.languages),
                 users::avatar_url.eq(&user.avatar_url),
                 users::bio.eq(&user.bio),
                 users::updated_at.eq(Utc::now()),
