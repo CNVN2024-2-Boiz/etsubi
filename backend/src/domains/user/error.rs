@@ -49,9 +49,6 @@ pub enum UserError {
     #[error("Requires moderator or admin role")]
     RequiresStaff,
 
-    #[error("Invalid language code: {0}")]
-    InvalidLanguage(String),
-
     #[error("Account is banned")]
     AccountBanned,
 
@@ -71,8 +68,7 @@ impl ResponseError for UserError {
             UserError::UsernameTooShort
             | UserError::InvalidStatus
             | UserError::InvalidRole
-            | UserError::InvalidToken
-            | UserError::InvalidLanguage(_) => StatusCode::BAD_REQUEST,
+            | UserError::InvalidToken => StatusCode::BAD_REQUEST,
 
             UserError::EmailAlreadyExists
             | UserError::UsernameAlreadyTaken
