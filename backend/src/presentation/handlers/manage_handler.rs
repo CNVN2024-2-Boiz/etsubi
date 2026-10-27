@@ -8,7 +8,7 @@ use crate::{
         auth_dto::CurrentUser,
         comment_dto::{CommentResponse, UpdateCommentStatusRequest},
         post_dto::{PostResponse, UpdatePostStatusRequest},
-        user_dto::{UpdateRoleRequest, UpdateStatusRequest, UserResponse},
+        user_dto::{GetUserResponse, UpdateRoleRequest, UpdateStatusRequest},
     },
 };
 
@@ -21,7 +21,7 @@ use crate::{
     ),
     request_body = UpdateStatusRequest,
     responses(
-        (status = 200, description = "Status updated", body = UserResponse),
+        (status = 200, description = "Status updated", body = GetUserResponse),
         (status = 400, description = "Invalid status"),
         (status = 403, description = "Requires moderator or admin role"),
         (status = 404, description = "User not found"),
@@ -47,7 +47,7 @@ pub async fn update_user_status(
     .await
     .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(updated)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
 
 #[utoipa::path(
@@ -59,7 +59,7 @@ pub async fn update_user_status(
     ),
     request_body = UpdateRoleRequest,
     responses(
-        (status = 200, description = "Role updated", body = UserResponse),
+        (status = 200, description = "Role updated", body = GetUserResponse),
         (status = 400, description = "Invalid role"),
         (status = 403, description = "Requires admin role"),
         (status = 404, description = "User not found"),
@@ -84,7 +84,7 @@ pub async fn update_user_role(
             .await
             .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(updated)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
 
 #[utoipa::path(

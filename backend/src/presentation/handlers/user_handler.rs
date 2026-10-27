@@ -6,7 +6,7 @@ use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
         auth_dto::CurrentUser,
-        user_dto::{UpdateProfileRequest, UserResponse},
+        user_dto::{GetUserResponse, UpdateProfileRequest},
     },
 };
 
@@ -18,7 +18,7 @@ use crate::{
         ("id" = Uuid, Path, description = "User ID")
     ),
     responses(
-        (status = 200, description = "User profile", body = UserResponse),
+        (status = 200, description = "User profile", body = GetUserResponse),
         (status = 404, description = "User not found"),
     ),
 )]
@@ -34,7 +34,7 @@ pub async fn get_user(
         .await
         .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(user)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(user)))
 }
 
 #[utoipa::path(
@@ -46,7 +46,7 @@ pub async fn get_user(
     ),
     request_body = UpdateProfileRequest,
     responses(
-        (status = 200, description = "Profile updated", body = UserResponse),
+        (status = 200, description = "Profile updated", body = GetUserResponse),
         (status = 400, description = "Invalid payload"),
         (status = 403, description = "Not allowed to edit this profile"),
         (status = 404, description = "User not found"),
@@ -62,7 +62,6 @@ pub async fn update_user(
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
     let requester_id = user.id;
-
     let req = body.into_inner();
     let service = state.user_service.clone();
 
@@ -72,6 +71,8 @@ pub async fn update_user(
             requester_id,
             req.username,
             req.email,
+            req.school,
+            req.address,
             req.bio,
             req.avatar_url,
         )
@@ -79,5 +80,7 @@ pub async fn update_user(
     .await
     .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(UserResponse::from(updated)))
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
+
+// pub async fn user_follow();

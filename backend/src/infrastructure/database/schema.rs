@@ -23,6 +23,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    languages (id) {
+        id -> Uuid,
+        code -> Text,
+        name -> Text,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     posts (id) {
         id -> Uuid,
         author_id -> Uuid,
@@ -54,6 +64,14 @@ diesel::table! {
 }
 
 diesel::table! {
+    speaks (user_id, language_id) {
+        user_id -> Uuid,
+        language_id -> Uuid,
+        assigned_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     tags (id) {
         id -> Uuid,
         name -> Text,
@@ -68,6 +86,8 @@ diesel::table! {
         id -> Uuid,
         username -> Text,
         email -> Text,
+        school -> Nullable<Text>,
+        address -> Nullable<Text>,
         password -> Text,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
@@ -76,6 +96,14 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         muted_until -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
+    users_follows (follower_id, following_id) {
+        follower_id -> Uuid,
+        following_id -> Uuid,
+        followed_at -> Timestamptz,
     }
 }
 
@@ -88,7 +116,18 @@ diesel::joinable!(posts_tags -> posts (post_id));
 diesel::joinable!(posts_tags -> tags (tag_id));
 diesel::joinable!(reactions -> posts (post_id));
 diesel::joinable!(reactions -> users (user_id));
+diesel::joinable!(speaks -> languages (language_id));
+diesel::joinable!(speaks -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    bookmarks, comments, posts, posts_tags, reactions, tags, users,
+    bookmarks,
+    comments,
+    languages,
+    posts,
+    posts_tags,
+    reactions,
+    speaks,
+    tags,
+    users,
+    users_follows,
 );

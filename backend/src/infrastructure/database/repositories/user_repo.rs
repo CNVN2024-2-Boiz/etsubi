@@ -46,6 +46,8 @@ impl UserRepository for PostgresUserRepo {
             .set((
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
+                users::school.eq(&user.school),
+                users::address.eq(&user.address),
                 users::avatar_url.eq(&user.avatar_url),
                 users::bio.eq(&user.bio),
                 users::updated_at.eq(Utc::now()),
@@ -94,5 +96,16 @@ impl UserRepository for PostgresUserRepo {
             .filter(users::username.eq(username))
             .first::<User>(&mut conn)
             .optional()?)
+    }
+
+    fn update_password(&self, id: Uuid, hashed_password: &str) -> Result<User> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(users::table.find(id))
+            .set((
+                users::password.eq(hashed_password),
+                users::updated_at.eq(Utc::now()),
+            ))
+            .get_result(&mut conn)?)
     }
 }

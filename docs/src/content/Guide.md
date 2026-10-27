@@ -11,7 +11,7 @@ docker-compose up -d
 
 Lập tức docker sẽ tải các gói phụ thuộc về để chạy. (Lưu ý cẩn thận bị chiếm port)
 
-Sau khi thành công thì ta mở [link](http://localhost:11432/swagger-ui/#/) để truy cập openapi để có thể kiểm tra các API route có thể dùng được.
+Sau khi thành công thì ta mở [link](http://localhost:11437/swagger-ui/#/) để truy cập openapi để có thể kiểm tra các API route có thể dùng được.
 
 ![](../assets/2026-10-16-13-59-02.png)
 

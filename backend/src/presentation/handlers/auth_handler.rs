@@ -2,8 +2,6 @@ use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, post, web}
 
 use crate::{
     bootstrap::state::AppState,
-    domains::user::error::UserError,
-    infrastructure::security::jwt::create_token,
     presentation::dto::auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
 };
 
@@ -23,10 +21,10 @@ pub async fn register(
     state: web::Data<AppState>,
     body: web::Json<RegisterRequest>,
 ) -> Result<HttpResponse, Error> {
-    let service = state.user_service.clone();
+    let service = state.auth_service.clone();
     let body = body.into_inner();
 
-    let user = web::block(move || service.create(&body.username, &body.email, &body.password))
+    let user = web::block(move || service.register(&body.username, &body.email, &body.password))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -48,20 +46,12 @@ pub async fn login(
     state: web::Data<AppState>,
     body: web::Json<LoginRequest>,
 ) -> Result<HttpResponse, Error> {
-    let service = state.user_service.clone();
+    let service = state.auth_service.clone();
     let body = body.into_inner();
 
-    let user = web::block(move || service.verify_credentials(&body.email, &body.password))
+    let (user, token) = web::block(move || service.login(&body.email, &body.password))
         .await
         .map_err(ErrorInternalServerError)??;
-
-    let token = create_token(
-        user.id,
-        user.role.clone(),
-        &state.config.jwt_key,
-        state.config.jwt_expiry_hours,
-    )
-    .map_err(|_| UserError::Internal(anyhow::anyhow!("jwt creation failed")))?;
 
     Ok(HttpResponse::Ok().json(LoginResponse {
         user_id: user.id,

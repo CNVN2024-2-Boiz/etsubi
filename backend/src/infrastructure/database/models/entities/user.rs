@@ -11,6 +11,8 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub email: String,
+    pub school: Option<String>,
+    pub address: Option<String>,
     pub password: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
