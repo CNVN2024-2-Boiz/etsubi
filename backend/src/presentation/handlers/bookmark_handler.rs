@@ -1,7 +1,7 @@
 use actix_web::{Error, HttpResponse, delete, error::ErrorInternalServerError, post, web};
 use uuid::Uuid;
 
-use crate::{bootstrap::state::AppState, presentation::dto::auth_dto::CurrentUser};
+use crate::{bootstrap::state::AppState, presentation::dto::auth_dto::AuthUser};
 
 #[utoipa::path(
     post,
@@ -18,7 +18,7 @@ use crate::{bootstrap::state::AppState, presentation::dto::auth_dto::CurrentUser
 #[post("/posts/{post_id}/bookmark")]
 pub async fn add_bookmark(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.bookmark_service.clone();
@@ -46,7 +46,7 @@ pub async fn add_bookmark(
 #[delete("/posts/{post_id}/bookmark")]
 pub async fn remove_bookmark(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.bookmark_service.clone();

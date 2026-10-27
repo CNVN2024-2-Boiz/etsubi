@@ -11,7 +11,7 @@ use chrono::Utc;
 
 use crate::{
     bootstrap::state::AppState, domains::auth::error::AuthError,
-    presentation::dto::auth_dto::CurrentUser,
+    presentation::dto::auth_dto::AuthUser,
 };
 
 pub async fn auth(
@@ -62,7 +62,7 @@ pub async fn auth(
         return Err(ErrorForbidden(msg));
     }
 
-    req.extensions_mut().insert(CurrentUser {
+    req.extensions_mut().insert(AuthUser {
         id: user.id,
         role: user.role,
         status: user.status,

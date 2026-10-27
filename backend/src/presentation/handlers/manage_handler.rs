@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
-        auth_dto::CurrentUser,
+        auth_dto::AuthUser,
         comment_dto::{CommentResponse, UpdateCommentStatusRequest},
         post_dto::{PostResponse, UpdatePostStatusRequest},
         user_dto::{GetUserResponse, UpdateRoleRequest, UpdateStatusRequest},
@@ -31,7 +31,7 @@ use crate::{
 #[patch("/manage/users/{id}/status")]
 pub async fn update_user_status(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdateStatusRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -69,7 +69,7 @@ pub async fn update_user_status(
 #[patch("/manage/users/{id}/role")]
 pub async fn update_user_role(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdateRoleRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -106,7 +106,7 @@ pub async fn update_user_role(
 #[patch("/manage/posts/{id}/status")]
 pub async fn update_post_status(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdatePostStatusRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -139,7 +139,7 @@ pub async fn update_post_status(
 #[post("/manage/posts/{id}/restore")]
 pub async fn restore_post(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let post_id = path.into_inner();
@@ -169,7 +169,7 @@ pub async fn restore_post(
 #[get("/manage/posts/{post_id}/comments")]
 pub async fn list_post_comments_manage(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
@@ -201,7 +201,7 @@ pub async fn list_post_comments_manage(
 #[get("/manage/comments/{id}")]
 pub async fn get_comment_manage(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
@@ -234,7 +234,7 @@ pub async fn get_comment_manage(
 #[patch("/manage/comments/{id}/status")]
 pub async fn update_comment_status(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdateCommentStatusRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -267,7 +267,7 @@ pub async fn update_comment_status(
 #[post("/manage/comments/{id}/restore")]
 pub async fn restore_comment(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();

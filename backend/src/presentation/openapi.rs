@@ -10,7 +10,7 @@ use crate::presentation::{
         comment_dto::{
             CommentResponse, CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
         },
-        follow_dto::{FollowStatsResponse, FollowStatusResponse, FollowUserResponse},
+        follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
         language_dto::LanguageResponse,
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
         tag_dto::TagResponse,
@@ -43,7 +43,6 @@ use crate::presentation::{
 
         personal_handler::list_my_posts,
         personal_handler::get_my_post,
-        personal_handler::list_my_deleted_posts,
         personal_handler::list_my_comments,
         personal_handler::get_my_comment,
 
@@ -52,8 +51,6 @@ use crate::presentation::{
 
         personal_handler::list_my_followers,
         personal_handler::list_my_following,
-        personal_handler::check_my_following,
-        personal_handler::get_my_follow_stats,
 
         personal_handler::list_my_languages,
         personal_handler::add_my_language,
@@ -81,7 +78,6 @@ use crate::presentation::{
         follow_handler::unfollow_user,
         follow_handler::list_user_followers,
         follow_handler::list_user_following,
-        follow_handler::get_follow_stats,
 
         language_handler::list_languages,
         language_handler::list_user_languages,
@@ -120,7 +116,7 @@ use crate::presentation::{
 
         BookmarkResponse, BookmarkStatusResponse,
 
-        FollowUserResponse, FollowStatsResponse, FollowStatusResponse,
+        FollowUserResponse, FollowStatusResponse, FollowerStatusResponse,
 
         LanguageResponse,
     )),
