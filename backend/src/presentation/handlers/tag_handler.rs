@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     bootstrap::state::AppState,
-    presentation::dto::{auth_dto::CurrentUser, post_dto::PostResponse, tag_dto::TagResponse},
+    presentation::dto::{auth_dto::AuthUser, post_dto::PostResponse, tag_dto::TagResponse},
 };
 
 #[utoipa::path(
@@ -114,7 +114,7 @@ pub async fn list_post_tags(
 #[post("/posts/{post_id}/tags/{tag_id}")]
 pub async fn attach_tag(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
 ) -> Result<HttpResponse, Error> {
     let (post_id, tag_id) = path.into_inner();
@@ -147,7 +147,7 @@ pub async fn attach_tag(
 #[delete("/posts/{post_id}/tags/{tag_id}")]
 pub async fn detach_tag(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
 ) -> Result<HttpResponse, Error> {
     let (post_id, tag_id) = path.into_inner();

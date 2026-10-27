@@ -67,4 +67,8 @@ impl FollowService {
     pub fn is_following(&self, follower_id: Uuid, following_id: Uuid) -> Result<bool, FollowError> {
         Ok(self.repo.is_following(follower_id, following_id)?)
     }
+
+    pub fn is_followed_by(&self, user_id: Uuid, follower_id: Uuid) -> Result<bool, FollowError> {
+        Ok(self.repo.is_following(follower_id, user_id)?)
+    }
 }

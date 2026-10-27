@@ -5,7 +5,7 @@ use uuid::Uuid;
 use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
-        auth_dto::CurrentUser,
+        auth_dto::AuthUser,
         user_dto::{GetUserResponse, UpdateProfileRequest},
     },
 };
@@ -56,7 +56,7 @@ pub async fn get_user(
 #[patch("/users/{id}")]
 pub async fn update_user(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdateProfileRequest>,
 ) -> Result<HttpResponse, Error> {

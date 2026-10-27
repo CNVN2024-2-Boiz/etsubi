@@ -3,10 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     bootstrap::state::AppState,
-    presentation::dto::{
-        auth_dto::CurrentUser,
-        follow_dto::{FollowStatsResponse, FollowUserResponse},
-    },
+    presentation::dto::{auth_dto::AuthUser, follow_dto::FollowUserResponse},
 };
 
 #[utoipa::path(
@@ -25,7 +22,7 @@ use crate::{
 #[post("/users/{id}/follow")]
 pub async fn follow_user(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
@@ -53,7 +50,7 @@ pub async fn follow_user(
 #[delete("/users/{id}/follow")]
 pub async fn unfollow_user(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
@@ -117,32 +114,4 @@ pub async fn list_user_following(
 
     let resp: Vec<FollowUserResponse> = users.into_iter().map(FollowUserResponse::from).collect();
     Ok(HttpResponse::Ok().json(resp))
-}
-
-#[utoipa::path(
-    get,
-    path = "/api/v1/users/{id}/follow-stats",
-    tag = "follow",
-    params(("id" = Uuid, Path, description = "User ID")),
-    responses(
-        (status = 200, description = "Follower/following counts", body = FollowStatsResponse),
-        (status = 404, description = "User not found"),
-    ),
-)]
-#[get("/users/{id}/follow-stats")]
-pub async fn get_follow_stats(
-    state: web::Data<AppState>,
-    path: web::Path<Uuid>,
-) -> Result<HttpResponse, Error> {
-    let target_id = path.into_inner();
-    let service = state.follow_service.clone();
-
-    let (followers, following) = web::block(move || service.stats(target_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::Ok().json(FollowStatsResponse {
-        followers,
-        following,
-    }))
 }

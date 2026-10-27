@@ -24,12 +24,11 @@ impl From<User> for FollowUserResponse {
 }
 
 #[derive(Serialize, ToSchema)]
-pub struct FollowStatsResponse {
-    pub followers: i64,
-    pub following: i64,
+pub struct FollowStatusResponse {
+    pub following: bool,
 }
 
 #[derive(Serialize, ToSchema)]
-pub struct FollowStatusResponse {
-    pub following: bool,
+pub struct FollowerStatusResponse {
+    pub followed_by: bool,
 }

@@ -6,10 +6,10 @@ use uuid::Uuid;
 
 use crate::bootstrap::state::AppState;
 use crate::presentation::dto::{
-    auth_dto::CurrentUser,
+    auth_dto::AuthUser,
     bookmark_dto::BookmarkStatusResponse,
     comment_dto::CommentResponse,
-    follow_dto::{FollowStatsResponse, FollowStatusResponse, FollowUserResponse},
+    follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
     language_dto::LanguageResponse,
     post_dto::PostResponse,
     user_dto::{
@@ -28,7 +28,7 @@ use crate::presentation::dto::{
 #[get("/my")]
 pub async fn get_my_profile(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.user_service.clone();
     let me = web::block(move || service.get(user.id))
@@ -51,7 +51,7 @@ pub async fn get_my_profile(
 #[patch("/my")]
 pub async fn update_my_profile(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     body: web::Json<UpdateProfileRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.user_service.clone();
@@ -89,7 +89,7 @@ pub async fn update_my_profile(
 #[patch("/my/password")]
 pub async fn change_my_password(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     body: web::Json<ChangePasswordRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.auth_service.clone();
@@ -116,7 +116,7 @@ pub async fn change_my_password(
 #[delete("/my")]
 pub async fn delete_my_account(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     body: web::Json<DeleteAccountRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.auth_service.clone();
@@ -141,7 +141,7 @@ pub async fn delete_my_account(
 #[get("/my/posts")]
 pub async fn list_my_posts(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let author_id = user.id;
@@ -166,7 +166,7 @@ pub async fn list_my_posts(
 #[get("/my/posts/{id}")]
 pub async fn get_my_post(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
@@ -181,30 +181,6 @@ pub async fn get_my_post(
 }
 
 #[utoipa::path(
-    get, path = "/api/v1/my/deleted-posts", tag = "personal",
-    responses(
-        (status = 200, description = "My soft-deleted posts", body = [PostResponse]),
-        (status = 401, description = "Not authenticated"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[get("/my/deleted-posts")]
-pub async fn list_my_deleted_posts(
-    state: web::Data<AppState>,
-    user: CurrentUser,
-) -> Result<HttpResponse, Error> {
-    let service = state.post_service.clone();
-    let author_id = user.id;
-
-    let posts = web::block(move || service.list_deleted(author_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
-    Ok(HttpResponse::Ok().json(resp))
-}
-
-#[utoipa::path(
     get, path = "/api/v1/my/comments", tag = "personal",
     responses(
         (status = 200, description = "List of own comments", body = [CommentResponse]),
@@ -215,7 +191,7 @@ pub async fn list_my_deleted_posts(
 #[get("/my/comments")]
 pub async fn list_my_comments(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
     let author_id = user.id;
@@ -240,7 +216,7 @@ pub async fn list_my_comments(
 #[get("/my/comments/{id}")]
 pub async fn get_my_comment(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
@@ -265,7 +241,7 @@ pub async fn get_my_comment(
 #[get("/my/bookmarks")]
 pub async fn list_my_bookmarks(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.bookmark_service.clone();
     let user_id = user.id;
@@ -290,7 +266,7 @@ pub async fn list_my_bookmarks(
 #[get("/my/bookmarks/{post_id}")]
 pub async fn check_my_bookmark(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.bookmark_service.clone();
@@ -315,7 +291,7 @@ pub async fn check_my_bookmark(
 #[get("/my/followers")]
 pub async fn list_my_followers(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.follow_service.clone();
     let user_id = user.id;
@@ -339,7 +315,7 @@ pub async fn list_my_followers(
 #[get("/my/following")]
 pub async fn list_my_following(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.follow_service.clone();
     let user_id = user.id;
@@ -364,7 +340,7 @@ pub async fn list_my_following(
 #[get("/my/following/{user_id}")]
 pub async fn check_my_following(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.follow_service.clone();
@@ -379,29 +355,29 @@ pub async fn check_my_following(
 }
 
 #[utoipa::path(
-    get, path = "/api/v1/my/follow-stats", tag = "personal",
+    get, path = "/api/v1/my/followers/{user_id}", tag = "personal",
+    params(("user_id" = Uuid, Path, description = "User ID to check")),
     responses(
-        (status = 200, description = "My follower/following counts", body = FollowStatsResponse),
+        (status = 200, description = "Whether this user follows me", body = FollowerStatusResponse),
         (status = 401, description = "Not authenticated"),
     ),
     security(("bearer_auth" = [])),
 )]
-#[get("/my/follow-stats")]
-pub async fn get_my_follow_stats(
+#[get("/my/followers/{user_id}")]
+pub async fn check_my_follower(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
+    path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.follow_service.clone();
     let user_id = user.id;
+    let follower_id = path.into_inner();
 
-    let (followers, following) = web::block(move || service.stats(user_id))
+    let followed_by = web::block(move || service.is_followed_by(user_id, follower_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(FollowStatsResponse {
-        followers,
-        following,
-    }))
+    Ok(HttpResponse::Ok().json(FollowerStatusResponse { followed_by }))
 }
 
 #[utoipa::path(
@@ -415,7 +391,7 @@ pub async fn get_my_follow_stats(
 #[get("/my/languages")]
 pub async fn list_my_languages(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
 ) -> Result<HttpResponse, Error> {
     let service = state.language_service.clone();
     let user_id = user.id;
@@ -441,7 +417,7 @@ pub async fn list_my_languages(
 #[post("/my/languages/{language_id}")]
 pub async fn add_my_language(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.language_service.clone();
@@ -467,7 +443,7 @@ pub async fn add_my_language(
 #[delete("/my/languages/{language_id}")]
 pub async fn remove_my_language(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.language_service.clone();

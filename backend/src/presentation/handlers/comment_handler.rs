@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
-        auth_dto::CurrentUser,
+        auth_dto::AuthUser,
         comment_dto::{CommentResponse, CreateCommentRequest, UpdateCommentRequest},
     },
 };
@@ -87,7 +87,7 @@ pub async fn get_comment(
 #[post("/posts/{post_id}/comments")]
 pub async fn create_comment(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<CreateCommentRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -123,7 +123,7 @@ pub async fn create_comment(
 #[patch("/comments/{id}")]
 pub async fn update_comment(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdateCommentRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -157,7 +157,7 @@ pub async fn update_comment(
 #[delete("/comments/{id}")]
 pub async fn delete_comment(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
