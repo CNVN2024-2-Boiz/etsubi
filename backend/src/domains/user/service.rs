@@ -5,7 +5,6 @@ use uuid::Uuid;
 use crate::{
     domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
-    infrastructure::security::password::{hash_password, verify_password},
 };
 
 pub struct UserService {
@@ -15,56 +14,6 @@ pub struct UserService {
 impl UserService {
     pub fn new(repo: Arc<dyn UserRepository>) -> Self {
         Self { repo }
-    }
-
-    pub fn create(&self, username: &str, email: &str, password: &str) -> Result<User, UserError> {
-        if username.len() < 3 {
-            return Err(UserError::UsernameTooShort);
-        }
-
-        if self.repo.find_by_email(email)?.is_some() {
-            return Err(UserError::EmailAlreadyExists);
-        }
-
-        if self.repo.find_by_username(username)?.is_some() {
-            return Err(UserError::UsernameAlreadyTaken);
-        }
-
-        let hashed = hash_password(password)?;
-
-        let now = chrono::Utc::now();
-        let user = User {
-            id: Uuid::nil(),
-            username: username.into(),
-            email: email.into(),
-            password: hashed,
-            avatar_url: None,
-            bio: None,
-            role: "user".into(),
-            status: "active".into(),
-            created_at: now,
-            updated_at: now,
-            muted_until: None,
-        };
-
-        Ok(self.repo.create(&user)?)
-    }
-
-    pub fn verify_credentials(&self, email: &str, password: &str) -> Result<User, UserError> {
-        let user = self
-            .repo
-            .find_by_email(email)?
-            .ok_or(UserError::InvalidCredentials)?;
-
-        if !verify_password(password, &user.password) {
-            return Err(UserError::InvalidCredentials);
-        }
-
-        match user.status.as_str() {
-            "active" => Ok(user),
-            "banned" => Err(UserError::AccountBanned),
-            _ => Err(UserError::InvalidCredentials),
-        }
     }
 
     pub fn get(&self, id: Uuid) -> Result<User, UserError> {
@@ -82,12 +31,12 @@ impl UserService {
         requester_id: Uuid,
         username: Option<String>,
         email: Option<String>,
+        school: Option<String>,
+        address: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
     ) -> Result<User, UserError> {
-        let is_self = target_id == requester_id;
-
-        if !is_self {
+        if target_id != requester_id {
             return Err(UserError::ForbiddenProfileEdit);
         }
 
@@ -114,10 +63,15 @@ impl UserService {
             user.email = new_email;
         }
 
+        if let Some(school) = school {
+            user.school = Some(school);
+        }
+        if let Some(address) = address {
+            user.address = Some(address);
+        }
         if let Some(bio) = bio {
             user.bio = Some(bio);
         }
-
         if let Some(avatar_url) = avatar_url {
             user.avatar_url = Some(avatar_url);
         }

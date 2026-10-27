@@ -6,16 +6,22 @@ use utoipa::{
 use crate::presentation::{
     dto::{
         auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
+        bookmark_dto::{BookmarkResponse, BookmarkStatusResponse},
         comment_dto::{
             CommentResponse, CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
         },
+        follow_dto::{FollowStatsResponse, FollowStatusResponse, FollowUserResponse},
+        language_dto::LanguageResponse,
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
         tag_dto::TagResponse,
-        user_dto::{GetUserResponse, UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest},
+        user_dto::{
+            ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, UpdateProfileRequest,
+            UpdateRoleRequest, UpdateStatusRequest,
+        },
     },
     handlers::{
-        auth_handler, comment_handler, manage_handler, personal_handler, post_handler, tag_handler,
-        user_handler,
+        auth_handler, bookmark_handler, comment_handler, follow_handler, language_handler,
+        manage_handler, personal_handler, post_handler, tag_handler, user_handler,
     },
 };
 
@@ -31,8 +37,27 @@ use crate::presentation::{
         auth_handler::login,
 
         personal_handler::get_my_profile,
+        personal_handler::update_my_profile,
+        personal_handler::change_my_password,
+        personal_handler::delete_my_account,
+
         personal_handler::list_my_posts,
+        personal_handler::get_my_post,
+        personal_handler::list_my_deleted_posts,
         personal_handler::list_my_comments,
+        personal_handler::get_my_comment,
+
+        personal_handler::list_my_bookmarks,
+        personal_handler::check_my_bookmark,
+
+        personal_handler::list_my_followers,
+        personal_handler::list_my_following,
+        personal_handler::check_my_following,
+        personal_handler::get_my_follow_stats,
+
+        personal_handler::list_my_languages,
+        personal_handler::add_my_language,
+        personal_handler::remove_my_language,
 
         user_handler::get_user,
         user_handler::update_user,
@@ -49,12 +74,22 @@ use crate::presentation::{
         comment_handler::update_comment,
         comment_handler::delete_comment,
 
+        bookmark_handler::add_bookmark,
+        bookmark_handler::remove_bookmark,
+
+        follow_handler::follow_user,
+        follow_handler::unfollow_user,
+        follow_handler::list_user_followers,
+        follow_handler::list_user_following,
+        follow_handler::get_follow_stats,
+
+        language_handler::list_languages,
+        language_handler::list_user_languages,
+
         manage_handler::update_user_status,
         manage_handler::update_user_role,
-
         manage_handler::update_post_status,
         manage_handler::restore_post,
-
         manage_handler::list_post_comments_manage,
         manage_handler::get_comment_manage,
         manage_handler::update_comment_status,
@@ -73,6 +108,7 @@ use crate::presentation::{
 
         GetUserResponse,
         UpdateProfileRequest, UpdateStatusRequest, UpdateRoleRequest,
+        ChangePasswordRequest, DeleteAccountRequest,
 
         PostResponse,
         CreatePostRequest, UpdatePostRequest, UpdatePostStatusRequest,
@@ -80,16 +116,25 @@ use crate::presentation::{
         CommentResponse,
         CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
 
-        TagResponse
+        TagResponse,
+
+        BookmarkResponse, BookmarkStatusResponse,
+
+        FollowUserResponse, FollowStatsResponse, FollowStatusResponse,
+
+        LanguageResponse,
     )),
     tags(
-        (name = "system", description = "System endpoints"),
-        (name = "auth", description = "Authentication"),
-        (name = "personal", description = "Self-service endpoints"),
-        (name = "user", description = "User management"),
-        (name = "post", description = "Post management"),
-        (name = "comment", description = "Comment management"),
-        (name = "manage", description = "Moderation endpoints"),
+        (name = "system",    description = "System endpoints"),
+        (name = "auth",      description = "Authentication"),
+        (name = "personal",  description = "Self-service endpoints (/my/*)"),
+        (name = "user",      description = "User management"),
+        (name = "post",      description = "Post management"),
+        (name = "comment",   description = "Comment management"),
+        (name = "bookmark",  description = "Bookmarks"),
+        (name = "follow",    description = "Follow relationships"),
+        (name = "language",  description = "Languages"),
+        (name = "manage",    description = "Moderation endpoints"),
     ),
     modifiers(&SecurityAddon),
 )]

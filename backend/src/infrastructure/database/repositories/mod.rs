@@ -1,4 +1,9 @@
+pub mod auth_repo;
+pub mod bookmark_repo;
 pub mod comment_repo;
+pub mod follow_repo;
+pub mod language_repo;
 pub mod post_repo;
+pub mod reaction_repo;
 pub mod tag_repo;
 pub mod user_repo;

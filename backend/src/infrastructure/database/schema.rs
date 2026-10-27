@@ -86,6 +86,8 @@ diesel::table! {
         id -> Uuid,
         username -> Text,
         email -> Text,
+        school -> Nullable<Text>,
+        address -> Nullable<Text>,
         password -> Text,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,

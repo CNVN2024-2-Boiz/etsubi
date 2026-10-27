@@ -224,4 +224,12 @@ impl CommentService {
 
         Ok(comment)
     }
+
+    pub fn get_owned(&self, id: Uuid, owner_id: Uuid) -> Result<Comment, CommentError> {
+        let comment = self.repo.find_by_id(id)?.ok_or(CommentError::NotFound)?;
+        if comment.user_id != owner_id {
+            return Err(CommentError::NotFound);
+        }
+        Ok(comment)
+    }
 }
