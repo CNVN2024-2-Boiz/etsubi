@@ -1,15 +1,12 @@
 use anyhow::Result;
-
 use uuid::Uuid;
 
 use crate::infrastructure::database::models::entities::User;
 
 pub trait UserRepository: Send + Sync {
-    fn create(&self, user: &User) -> Result<User>;
     fn update_profile(&self, user: &User) -> Result<User>;
     fn update_status(&self, id: Uuid, status: &str) -> Result<User>;
     fn update_role(&self, id: Uuid, role: &str) -> Result<User>;
-    fn delete(&self, id: Uuid) -> Result<()>;
 
     fn find_by_id(&self, id: Uuid) -> Result<Option<User>>;
     fn find_by_email(&self, email: &str) -> Result<Option<User>>;

@@ -4,3 +4,4 @@ CREATE TABLE posts_tags (
     PRIMARY KEY (post_id, tag_id)
 );
 
+CREATE INDEX idx_posts_tags_tag ON posts_tags (tag_id);

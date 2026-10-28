@@ -10,8 +10,8 @@ use actix_web::{
 use chrono::Utc;
 
 use crate::{
-    bootstrap::state::AppState, infrastructure::security::jwt::verify_token,
-    presentation::dto::auth_dto::CurrentUser,
+    bootstrap::state::AppState, domains::auth::error::AuthError,
+    presentation::dto::auth_dto::AuthUser,
 };
 
 pub async fn auth(
@@ -31,28 +31,19 @@ pub async fn auth(
 
     let token = auth_header
         .strip_prefix("Bearer ")
-        .ok_or_else(|| ErrorUnauthorized("Invalid format"))?;
+        .ok_or_else(|| ErrorUnauthorized("Invalid format"))?
+        .to_string();
 
-    let claims = verify_token(token, &state.config.jwt_key)
-        .map_err(|_| ErrorUnauthorized("Invalid token"))?;
-
-    let service = state.user_service.clone();
-    let user_id = claims.sub;
-
-    let user = web::block(move || service.get(user_id))
+    let service = state.auth_service.clone();
+    let user = web::block(move || service.authenticate(&token))
         .await
         .map_err(ErrorInternalServerError)?
-        .map_err(|_| ErrorUnauthorized("User not found"))?;
-
-    match user.status.as_str() {
-        "active" => {}
-        "banned" => {
-            return Err(ErrorForbidden("Your account has been banned"));
-        }
-        _ => {
-            return Err(ErrorForbidden("Account is not exists"));
-        }
-    }
+        .map_err(|e| match e {
+            AuthError::InvalidToken => ErrorUnauthorized("Invalid token"),
+            AuthError::UserNotFound => ErrorUnauthorized("User not found"),
+            AuthError::AccountBanned => ErrorForbidden("Your account has been banned"),
+            _ => ErrorInternalServerError("Authentication failure"),
+        })?;
 
     let method = req.method().clone();
     let is_write = matches!(
@@ -70,7 +61,8 @@ pub async fn auth(
         );
         return Err(ErrorForbidden(msg));
     }
-    req.extensions_mut().insert(CurrentUser {
+
+    req.extensions_mut().insert(AuthUser {
         id: user.id,
         role: user.role,
         status: user.status,

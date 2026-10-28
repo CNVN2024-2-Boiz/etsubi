@@ -32,14 +32,14 @@ pub struct LoginResponse {
 }
 
 #[derive(Debug, Clone)]
-pub struct CurrentUser {
+pub struct AuthUser {
     pub id: Uuid,
     pub role: String,
     pub status: String,
     pub muted_until: Option<DateTime<Utc>>,
 }
 
-impl CurrentUser {
+impl AuthUser {
     pub fn has_role(&self, role: &str) -> bool {
         self.role == role
     }
@@ -57,14 +57,14 @@ impl CurrentUser {
     }
 }
 
-impl FromRequest for CurrentUser {
+impl FromRequest for AuthUser {
     type Error = Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         ready(
             req.extensions()
-                .get::<CurrentUser>()
+                .get::<AuthUser>()
                 .cloned()
                 .ok_or_else(|| ErrorUnauthorized("Not authenticated")),
         )

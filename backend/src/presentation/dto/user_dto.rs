@@ -8,6 +8,8 @@ use crate::infrastructure::database::models::entities::User;
 pub struct UpdateProfileRequest {
     pub username: Option<String>,
     pub email: Option<String>,
+    pub school: Option<String>,
+    pub address: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
 }
@@ -23,20 +25,37 @@ pub struct UpdateRoleRequest {
 }
 
 #[derive(Serialize, ToSchema)]
-pub struct UserResponse {
+pub struct GetUserResponse {
     pub id: Uuid,
     pub username: String,
+    pub email: String,
+    pub school: Option<String>,
+    pub address: Option<String>,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
     pub role: String,
     pub status: String,
 }
 
-impl From<User> for UserResponse {
+#[derive(Deserialize, ToSchema)]
+pub struct ChangePasswordRequest {
+    pub current_password: String,
+    pub new_password: String,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct DeleteAccountRequest {
+    pub password: String,
+}
+
+impl From<User> for GetUserResponse {
     fn from(u: User) -> Self {
         Self {
             id: u.id,
             username: u.username,
+            email: u.email,
+            school: u.school,
+            address: u.address,
             avatar_url: u.avatar_url,
             bio: u.bio,
             role: u.role,

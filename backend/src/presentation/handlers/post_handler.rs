@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
-        auth_dto::CurrentUser,
+        auth_dto::AuthUser,
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
     },
 };
@@ -27,7 +27,7 @@ use crate::{
 #[post("/posts")]
 pub async fn create_post(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     body: web::Json<CreatePostRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
@@ -114,7 +114,7 @@ pub async fn list_user_posts(
 #[patch("/posts/{id}")]
 pub async fn update_post(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
     body: web::Json<UpdatePostRequest>,
 ) -> Result<HttpResponse, Error> {
@@ -149,7 +149,7 @@ pub async fn update_post(
 #[delete("/posts/{id}")]
 pub async fn delete_post(
     state: web::Data<AppState>,
-    user: CurrentUser,
+    user: AuthUser,
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
