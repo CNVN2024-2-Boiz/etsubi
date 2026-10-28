@@ -21,7 +21,7 @@ services:
     networks: [etsubi]
 
   backend:
-    profiles: ["app"]           
+    profiles: ["full"]
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -32,31 +32,36 @@ services:
       DATABASE_URL: postgres://${DATABASE_USER:-etsubi}:${DATABASE_PASSWORD:-secret}@postgres:5432/${DATABASE_NAME:-etsubi}
       JWT_KEY: ${JWT_KEY:-change-me-in-production}
       JWT_EXPIRY_HOURS: ${JWT_EXPIRY_HOURS:-24}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:12321}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:12321,http://127.0.0.1:12321,http://localhost:22321,http://127.0.0.1:22321}
     ports:
-      - "11432:11432"
+      - "21432:11432"
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:11432/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 40s
+      retries: 6
     networks: [etsubi]
 
   frontend:
-    profiles: ["app"]          
+    profiles: ["full"]
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        API_BASE: ${API_BASE:-http://localhost:11432/api/v1}
+        API_BASE: http://localhost:21432/api/v1
     restart: unless-stopped
     ports:
-      - "12321:12321"         
+      - "22321:12321"
     depends_on:
       backend:
-        condition: service_healthy
+        condition: service_healthy            
     networks: [etsubi]
 
 volumes:
   postgres_data:
-
 networks:
   etsubi:
