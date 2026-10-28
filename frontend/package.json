@@ -1,0 +1,13 @@
+{
+  "name": "etsubi-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "live-server --port=12321 --host=127.0.0.1 --no-browser --wait=200 .",
+    "start": "live-server --port=12321 --host=0.0.0.0 --no-browser --wait=200 ."
+  },
+  "devDependencies": {
+    "live-server": "1.2.2"
+  }
+}
