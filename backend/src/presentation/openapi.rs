@@ -13,6 +13,7 @@ use crate::presentation::{
         follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
         language_dto::LanguageResponse,
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
+        reaction_dto::{ReactionResponse, ReactionSummaryItem, UpsertReactionRequest},
         tag_dto::TagResponse,
         user_dto::{
             ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, UpdateProfileRequest,
@@ -21,7 +22,8 @@ use crate::presentation::{
     },
     handlers::{
         auth_handler, bookmark_handler, comment_handler, follow_handler, language_handler,
-        manage_handler, personal_handler, post_handler, tag_handler, user_handler,
+        manage_handler, personal_handler, post_handler, reaction_handler, tag_handler,
+        user_handler,
     },
 };
 
@@ -82,6 +84,12 @@ use crate::presentation::{
         language_handler::list_languages,
         language_handler::list_user_languages,
 
+        reaction_handler::list_post_reactions,
+        reaction_handler::summary_post_reactions,
+        reaction_handler::get_my_reaction,
+        reaction_handler::upsert_reaction,
+        reaction_handler::remove_reaction,
+
         manage_handler::update_user_status,
         manage_handler::update_user_role,
         manage_handler::update_post_status,
@@ -119,6 +127,8 @@ use crate::presentation::{
         FollowUserResponse, FollowStatusResponse, FollowerStatusResponse,
 
         LanguageResponse,
+
+        ReactionResponse, ReactionSummaryItem, UpsertReactionRequest,
     )),
     tags(
         (name = "system",    description = "System endpoints"),
@@ -130,6 +140,7 @@ use crate::presentation::{
         (name = "bookmark",  description = "Bookmarks"),
         (name = "follow",    description = "Follow relationships"),
         (name = "language",  description = "Languages"),
+        (name = "reaction",  description = "Post reactions (emoji)"),
         (name = "manage",    description = "Moderation endpoints"),
     ),
     modifiers(&SecurityAddon),

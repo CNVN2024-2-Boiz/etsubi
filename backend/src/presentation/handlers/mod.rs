@@ -7,5 +7,6 @@ pub mod language_handler;
 pub mod manage_handler;
 pub mod personal_handler;
 pub mod post_handler;
+pub mod reaction_handler;
 pub mod tag_handler;
 pub mod user_handler;
