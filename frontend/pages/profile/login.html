@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+    <title>Đăng nhập - Etsubi</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+  </head>
+
+  <body>
+
+    <header id="header">
+      <img src="/public/logo.svg" alt="Etsubi_logo" >
+      <span>Etsubi</span>
+      <a href="#">Trang chủ</a>
+      <a href="#">Diễn đàn</a>
+      <a href="#">Về chúng tôi</a>
+      <a href="#">Liên hệ</a>
+      <button type="button" class="lang-btn">VI</button>
+    </header>
+
+    <form id="login_form">
+      <h1>Đăng nhập</h1>
+      <h2>Chào mừng trở lại</h2>
+      <div>
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="you@example.com" required />
+      </div>
+      <div>
+        <label for="password">Mật khẩu</label>
+        <input type="password" id="password" required />
+      </div>
+      <div>
+        <input type="checkbox" id="remember_me" />
+        <label for="remember_me">Ghi nhớ đăng nhập</label>
+        <a href="#">Quên mật khẩu?</a> 
+      </div>
+      <div>
+        <button type="submit">Đăng nhập</button>
+        </div>
+        <p id="msg"></p>
+      <div>
+        <span>hoặc</span>
+        </div>
+      <div>
+        <button type="button" class="btn-google">
+          <span>G</span>
+          Đăng nhập với Google
+        </button>
+      </div>
+      <div class="register_redirect">
+        <p>Chưa có tài khoản? <a id="register" href="/pages/profile/register.html">Đăng ký</a></p>
+      </div>
+    </form>
+
+    <footer id="footer">© 2025 Etsubi • 越日 | IE104 — UIT | Cầu nối văn hoá Việt — Nhật</footer>
+
+    <script type="module">
+        import { auth, safeRedirect } from '/utils/auth.js';
+
+        const params = new URLSearchParams(location.search);
+        const redirect = params.get('redirect');
+
+        // Giữ tham số redirect khi người dùng chuyển sang trang đăng ký
+        if (redirect) {
+            document.getElementById('register').href =
+                '/pages/profile/register.html?redirect=' + encodeURIComponent(redirect);
+        }
+
+        const msg = document.getElementById('msg');
+
+        document.getElementById('login_form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            msg.textContent = '';
+            try {
+                await auth.login(
+                    document.getElementById('email').value.trim(),
+                    document.getElementById('password').value
+                );
+                window.location.href = safeRedirect(redirect);
+            } catch (err) {
+                msg.textContent = err.status === 401
+                    ? 'Email hoặc mật khẩu không chính xác.'
+                    : err.message;
+            }
+        });
+    </script>
+
+  </body>
+</html>
