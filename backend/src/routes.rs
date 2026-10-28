@@ -23,6 +23,9 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::language_handler::list_languages);
     cfg.service(presentation::handlers::language_handler::list_user_languages);
+
+    cfg.service(presentation::handlers::reaction_handler::list_post_reactions);
+    cfg.service(presentation::handlers::reaction_handler::summary_post_reactions);
 }
 
 pub fn protected(cfg: &mut web::ServiceConfig) {
@@ -53,6 +56,10 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::bookmark_handler::add_bookmark);
     cfg.service(presentation::handlers::bookmark_handler::remove_bookmark);
+
+    cfg.service(presentation::handlers::reaction_handler::upsert_reaction);
+    cfg.service(presentation::handlers::reaction_handler::remove_reaction);
+    cfg.service(presentation::handlers::reaction_handler::get_my_reaction);
 
     cfg.service(presentation::handlers::follow_handler::follow_user);
     cfg.service(presentation::handlers::follow_handler::unfollow_user);

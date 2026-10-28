@@ -4,7 +4,7 @@ use chrono::Utc;
 use uuid::Uuid;
 
 use crate::{
-    domains::{auth::error::AuthError, user::repository::UserRepository},
+    domains::{auth::error::AuthError, auth::repository::AuthRepository},
     infrastructure::{
         database::models::entities::User,
         security::{
@@ -15,15 +15,15 @@ use crate::{
 };
 
 pub struct AuthService {
-    user_repo: Arc<dyn UserRepository>,
+    repo: Arc<dyn AuthRepository>,
     jwt_key: String,
     jwt_expiry_hours: i64,
 }
 
 impl AuthService {
-    pub fn new(user_repo: Arc<dyn UserRepository>, jwt_key: String, jwt_expiry_hours: i64) -> Self {
+    pub fn new(repo: Arc<dyn AuthRepository>, jwt_key: String, jwt_expiry_hours: i64) -> Self {
         Self {
-            user_repo,
+            repo,
             jwt_key,
             jwt_expiry_hours,
         }
@@ -33,10 +33,10 @@ impl AuthService {
         if username.len() < 3 {
             return Err(AuthError::UsernameTooShort);
         }
-        if self.user_repo.find_by_email(email)?.is_some() {
+        if self.repo.find_by_email(email)?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
         }
-        if self.user_repo.find_by_username(username)?.is_some() {
+        if self.repo.find_by_username(username)?.is_some() {
             return Err(AuthError::UsernameAlreadyTaken);
         }
 
@@ -58,12 +58,12 @@ impl AuthService {
             muted_until: None,
         };
 
-        Ok(self.user_repo.create(&user)?)
+        Ok(self.repo.create(&user)?)
     }
 
     pub fn login(&self, email: &str, password: &str) -> Result<(User, String), AuthError> {
         let user = self
-            .user_repo
+            .repo
             .find_by_email(email)?
             .ok_or(AuthError::InvalidCredentials)?;
 
@@ -90,7 +90,7 @@ impl AuthService {
             .map_err(|_| AuthError::InvalidToken)?;
 
         let user = self
-            .user_repo
+            .repo
             .find_by_id(claims.sub)?
             .ok_or(AuthError::UserNotFound)?;
 
@@ -108,7 +108,7 @@ impl AuthService {
         new_password: &str,
     ) -> Result<(), AuthError> {
         let user = self
-            .user_repo
+            .repo
             .find_by_id(user_id)?
             .ok_or(AuthError::UserNotFound)?;
 
@@ -121,13 +121,13 @@ impl AuthService {
         }
 
         let hashed = hash_password(new_password)?;
-        self.user_repo.update_password(user_id, &hashed)?;
+        self.repo.update_password(user_id, &hashed)?;
         Ok(())
     }
 
     pub fn delete_account(&self, user_id: Uuid, password: &str) -> Result<(), AuthError> {
         let user = self
-            .user_repo
+            .repo
             .find_by_id(user_id)?
             .ok_or(AuthError::UserNotFound)?;
 
@@ -139,7 +139,7 @@ impl AuthService {
             return Err(AuthError::CannotDeleteAdmin);
         }
 
-        self.user_repo.delete(user_id)?;
+        self.repo.delete(user_id)?;
         Ok(())
     }
 }

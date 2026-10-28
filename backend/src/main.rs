@@ -1,5 +1,5 @@
 use actix_web::{App, HttpServer, middleware::Logger};
-use backend::{bootstrap, presentation::openapi::ApiDoc, routes};
+use backend::{bootstrap, cors, presentation::openapi::ApiDoc, routes};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -12,11 +12,13 @@ async fn main() -> std::io::Result<()> {
     let state = bootstrap::run().expect("Bootstrap failed");
     let host = state.config.server_host.clone();
     let port = state.config.server_port;
+    let origins = state.config.cors_allowed_origins.clone();
 
     HttpServer::new(move || {
         App::new()
             .app_data(state.clone())
             .wrap(Logger::default())
+            .wrap(cors::build(&origins))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
                     .url("/api-docs/openapi.json", ApiDoc::openapi()),
