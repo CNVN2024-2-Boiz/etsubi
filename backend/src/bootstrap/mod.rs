@@ -10,13 +10,15 @@ use crate::{
     domains::{
         auth::service::AuthService, bookmark::service::BookmarkService,
         comment::service::CommentService, follow::service::FollowService,
-        language::service::LanguageService, post::service::PostService, tag::service::TagService,
-        user::service::UserService,
+        language::service::LanguageService, post::service::PostService,
+        reaction::service::ReactionService, tag::service::TagService, user::service::UserService,
     },
     infrastructure::database::repositories::{
-        bookmark_repo::PostgresBookmarkRepo, comment_repo::PostgresCommentRepo,
-        follow_repo::PostgresFollowRepo, language_repo::PostgresLanguageRepo,
-        post_repo::PostgresPostRepo, tag_repo::PostgresTagRepo, user_repo::PostgresUserRepo,
+        auth_repo::PostgresAuthRepo, bookmark_repo::PostgresBookmarkRepo,
+        comment_repo::PostgresCommentRepo, follow_repo::PostgresFollowRepo,
+        language_repo::PostgresLanguageRepo, post_repo::PostgresPostRepo,
+        reaction_repo::PostgresReactionRepo, tag_repo::PostgresTagRepo,
+        user_repo::PostgresUserRepo,
     },
 };
 
@@ -24,14 +26,15 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let config = Arc::new(AppConfig::from_env());
     let db_pool = pool::init(&config.database_url);
 
-    let user_repo = Arc::new(PostgresUserRepo::new(db_pool.clone()));
-    let user_service = Arc::new(UserService::new(user_repo.clone()));
-
+    let auth_repo = Arc::new(PostgresAuthRepo::new(db_pool.clone()));
     let auth_service = Arc::new(AuthService::new(
-        user_repo.clone(),
+        auth_repo,
         config.jwt_key.clone(),
         config.jwt_expiry_hours,
     ));
+
+    let user_repo = Arc::new(PostgresUserRepo::new(db_pool.clone()));
+    let user_service = Arc::new(UserService::new(user_repo.clone()));
 
     let post_repo = Arc::new(PostgresPostRepo::new(db_pool.clone()));
     let post_service = Arc::new(PostService::new(post_repo.clone()));
@@ -43,7 +46,10 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let tag_service = Arc::new(TagService::new(tag_repo, post_repo.clone()));
 
     let bookmark_repo = Arc::new(PostgresBookmarkRepo::new(db_pool.clone()));
-    let bookmark_service = Arc::new(BookmarkService::new(bookmark_repo, post_repo));
+    let bookmark_service = Arc::new(BookmarkService::new(bookmark_repo, post_repo.clone()));
+
+    let reaction_repo = Arc::new(PostgresReactionRepo::new(db_pool.clone()));
+    let reaction_service = Arc::new(ReactionService::new(reaction_repo, post_repo));
 
     let follow_repo = Arc::new(PostgresFollowRepo::new(db_pool.clone()));
     let follow_service = Arc::new(FollowService::new(follow_repo, user_repo));
@@ -62,5 +68,6 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
         bookmark_service,
         follow_service,
         language_service,
+        reaction_service,
     }))
 }
