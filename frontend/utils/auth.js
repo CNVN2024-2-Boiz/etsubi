@@ -13,10 +13,10 @@ export function safeRedirect(target, fallback = HOME_URL) {
 }
 
 export const auth = {
-  async register(username, email, password) {
+  async register(username, email, password, language = "vi") {
     return request("/auth/register", {
       method: "POST",
-      body: { username, email, password },
+      body: { username, email, password, language },
     });
   },
 
@@ -37,8 +37,13 @@ export const auth = {
     return user;
   },
 
-  logout() {
-    // BE không có endpoint logout (JWT stateless) → chỉ xoá token ở FE.
+  async logout() {
+    // Invalidate all tokens server-side; ignore network failure.
+    try {
+      await request("/auth/logout", { method: "POST" });
+    } catch {
+      /* ignore */
+    }
     setToken(null);
     cachedUser = null;
     window.location.href = HOME_URL;
@@ -54,10 +59,11 @@ export const auth = {
       cachedUser = {
         id: u.id,
         username: u.username,
+        email: u.email,
         role: u.role,
         status: u.status,
-        // GetUserResponse không trả muted_until → để null.
-        mutedUntil: null,
+        language: u.language,
+        mutedUntil: u.muted_until ?? null,
         isAdmin: u.role === "admin",
         isStaff: u.role === "admin" || u.role === "moderator",
       };
@@ -70,6 +76,11 @@ export const auth = {
 
   getUser() {
     return cachedUser;
+  },
+
+  isMuted() {
+    if (!cachedUser || !cachedUser.mutedUntil) return false;
+    return new Date(cachedUser.mutedUntil).getTime() > Date.now();
   },
 
   async requireAuth(action) {
