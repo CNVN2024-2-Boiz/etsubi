@@ -27,7 +27,7 @@ pub struct CommentResponse {
     pub parent_id: Option<Uuid>,
     pub post_id: Uuid,
     pub user_id: Uuid,
-    pub content: Option<String>,
+    pub content: String,
     pub status: String,
     pub is_deleted: bool,
     pub created_at: DateTime<Utc>,
@@ -42,11 +42,16 @@ impl From<Comment> for CommentResponse {
             parent_id: c.parent_id,
             post_id: c.post_id,
             user_id: c.user_id,
-            content: if deleted { None } else { Some(c.content) },
+            content: c.content,
             status: c.status,
             is_deleted: deleted,
             created_at: c.created_at,
             updated_at: c.updated_at,
         }
     }
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct LockCommentsRequest {
+    pub locked: bool,
 }

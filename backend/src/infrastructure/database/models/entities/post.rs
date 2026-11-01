@@ -10,8 +10,8 @@ pub struct Post {
     pub id: Uuid,
     pub author_id: Uuid,
     pub title: String,
-    pub content: Option<String>,
-    pub view_count: i32,
+    pub content: String,
+    pub language: String,
     pub status: String,
     pub comments_locked: bool,
     pub created_at: DateTime<Utc>,
@@ -24,6 +24,7 @@ pub struct Post {
 pub struct NewPost<'a> {
     pub author_id: Uuid,
     pub title: &'a str,
-    pub content: Option<&'a str>,
+    pub content: &'a str,
+    pub language: &'a str,
     pub status: &'a str,
 }

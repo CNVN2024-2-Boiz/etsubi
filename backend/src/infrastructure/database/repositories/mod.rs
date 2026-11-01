@@ -6,4 +6,5 @@ pub mod language_repo;
 pub mod post_repo;
 pub mod reaction_repo;
 pub mod tag_repo;
+pub mod translation_repo;
 pub mod user_repo;

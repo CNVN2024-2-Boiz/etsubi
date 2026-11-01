@@ -19,6 +19,9 @@ pub enum UserError {
     #[error("Invalid role")]
     InvalidRole,
 
+    #[error("Invalid language code (must be vi, en, or ja)")]
+    InvalidLanguage,
+
     #[error("Email already exists")]
     EmailAlreadyExists,
 
@@ -36,6 +39,9 @@ pub enum UserError {
 
     #[error("Cannot ban yourself")]
     CannotBanSelf,
+
+    #[error("Cannot mute yourself")]
+    CannotMuteSelf,
 
     #[error("Cannot change your own role")]
     CannotChangeOwnRole,
@@ -68,6 +74,7 @@ impl ResponseError for UserError {
             UserError::UsernameTooShort
             | UserError::InvalidStatus
             | UserError::InvalidRole
+            | UserError::InvalidLanguage
             | UserError::InvalidToken => StatusCode::BAD_REQUEST,
 
             UserError::EmailAlreadyExists
@@ -77,6 +84,7 @@ impl ResponseError for UserError {
             UserError::ForbiddenProfileEdit
             | UserError::CannotModifyHigherRole
             | UserError::CannotBanSelf
+            | UserError::CannotMuteSelf
             | UserError::CannotChangeOwnRole
             | UserError::CannotAssignAdminRole
             | UserError::RequiresAdmin

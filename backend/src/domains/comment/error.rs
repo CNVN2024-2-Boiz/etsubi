@@ -22,6 +22,9 @@ pub enum CommentError {
     #[error("Post is locked")]
     PostLocked,
 
+    #[error("User not found")]
+    UserNotFound,
+
     #[error("Post is not available")]
     PostUnavailable,
 
@@ -39,6 +42,7 @@ impl ResponseError for CommentError {
     fn status_code(&self) -> StatusCode {
         match self {
             CommentError::NotFound
+            | CommentError::UserNotFound
             | CommentError::PostUnavailable
             | CommentError::ParentUnavailable => StatusCode::NOT_FOUND,
 

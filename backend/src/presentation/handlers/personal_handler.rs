@@ -1,6 +1,4 @@
-use actix_web::{
-    Error, HttpResponse, delete, error::ErrorInternalServerError, get, patch, post, web,
-};
+use actix_web::{Error, HttpResponse, delete, error::ErrorInternalServerError, get, patch, web};
 
 use uuid::Uuid;
 
@@ -10,7 +8,6 @@ use crate::presentation::dto::{
     bookmark_dto::BookmarkStatusResponse,
     comment_dto::CommentResponse,
     follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
-    language_dto::LanguageResponse,
     post_dto::PostResponse,
     user_dto::{
         ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, UpdateProfileRequest,
@@ -64,6 +61,7 @@ pub async fn update_my_profile(
             requester_id,
             req.username,
             req.email,
+            req.language,
             req.school,
             req.address,
             req.bio,
@@ -378,81 +376,4 @@ pub async fn check_my_follower(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(FollowerStatusResponse { followed_by }))
-}
-
-#[utoipa::path(
-    get, path = "/api/v1/my/languages", tag = "personal",
-    responses(
-        (status = 200, description = "Languages I speak", body = [LanguageResponse]),
-        (status = 401, description = "Not authenticated"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[get("/my/languages")]
-pub async fn list_my_languages(
-    state: web::Data<AppState>,
-    user: AuthUser,
-) -> Result<HttpResponse, Error> {
-    let service = state.language_service.clone();
-    let user_id = user.id;
-
-    let languages = web::block(move || service.list_by_user(user_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    let resp: Vec<LanguageResponse> = languages.into_iter().map(LanguageResponse::from).collect();
-    Ok(HttpResponse::Ok().json(resp))
-}
-
-#[utoipa::path(
-    post, path = "/api/v1/my/languages/{language_id}", tag = "personal",
-    params(("language_id" = Uuid, Path, description = "Language ID")),
-    responses(
-        (status = 204, description = "Language added"),
-        (status = 404, description = "Language not found"),
-        (status = 409, description = "Already added"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[post("/my/languages/{language_id}")]
-pub async fn add_my_language(
-    state: web::Data<AppState>,
-    user: AuthUser,
-    path: web::Path<Uuid>,
-) -> Result<HttpResponse, Error> {
-    let service = state.language_service.clone();
-    let user_id = user.id;
-    let language_id = path.into_inner();
-
-    web::block(move || service.add(user_id, language_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::NoContent().finish())
-}
-
-#[utoipa::path(
-    delete, path = "/api/v1/my/languages/{language_id}", tag = "personal",
-    params(("language_id" = Uuid, Path, description = "Language ID")),
-    responses(
-        (status = 204, description = "Language removed"),
-        (status = 409, description = "Not added"),
-    ),
-    security(("bearer_auth" = [])),
-)]
-#[delete("/my/languages/{language_id}")]
-pub async fn remove_my_language(
-    state: web::Data<AppState>,
-    user: AuthUser,
-    path: web::Path<Uuid>,
-) -> Result<HttpResponse, Error> {
-    let service = state.language_service.clone();
-    let user_id = user.id;
-    let language_id = path.into_inner();
-
-    web::block(move || service.remove(user_id, language_id))
-        .await
-        .map_err(ErrorInternalServerError)??;
-
-    Ok(HttpResponse::NoContent().finish())
 }

@@ -25,6 +25,9 @@ pub enum PostError {
     #[error("Post is hidden, cannot edit")]
     HiddenCannotEdit,
 
+    #[error("user not found")]
+    UserNotFound,
+
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
 }
@@ -32,7 +35,7 @@ pub enum PostError {
 impl ResponseError for PostError {
     fn status_code(&self) -> StatusCode {
         match self {
-            PostError::NotFound => StatusCode::NOT_FOUND,
+            PostError::UserNotFound | PostError::NotFound => StatusCode::NOT_FOUND,
 
             PostError::EmptyTitle
             | PostError::TitleTooLong

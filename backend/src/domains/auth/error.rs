@@ -28,6 +28,9 @@ pub enum AuthError {
     #[error("Password must be at least 8 characters")]
     WeakPassword,
 
+    #[error("Invalid language code (must be vi, en, or ja)")]
+    InvalidLanguage,
+
     #[error("Admin account cannot be self-deleted")]
     CannotDeleteAdmin,
 
@@ -43,6 +46,7 @@ impl ResponseError for AuthError {
             AuthError::UserNotFound => StatusCode::NOT_FOUND,
             AuthError::UsernameTooShort
             | AuthError::WeakPassword
+            | AuthError::InvalidLanguage
             | AuthError::CannotDeleteAdmin => StatusCode::BAD_REQUEST,
             AuthError::EmailAlreadyExists | AuthError::UsernameAlreadyTaken => StatusCode::CONFLICT,
             AuthError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,

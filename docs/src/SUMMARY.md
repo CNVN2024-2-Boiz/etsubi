@@ -1,4 +1,5 @@
 - [Entities](./content/Entities.md)
+- [Structure](./content/Structure.md)
 - [Features](./content/Features.md)
 - [RBAC](./content/RBAC.md)
 - [API](./content/API.md)
