@@ -9,7 +9,7 @@ use crate::{
     domains::comment::repository::CommentRepository,
     infrastructure::database::{
         models::entities::{Comment, NewComment},
-        schema::comments,
+        schema::{comment_translation, comments},
     },
 };
 
@@ -31,6 +31,7 @@ impl CommentRepository for PostgresCommentRepo {
             parent_id: comment.parent_id,
             post_id: comment.post_id,
             user_id: comment.user_id,
+            language: &comment.language,
             content: &comment.content,
             status: &comment.status,
         };
@@ -45,16 +46,29 @@ impl CommentRepository for PostgresCommentRepo {
 
     fn update_content(&self, comment: &Comment) -> Result<Comment> {
         let mut conn = self.pool.get()?;
+        let now = Utc::now();
 
-        let updated = diesel::update(comments::table.find(comment.id))
-            .set((
-                comments::content.eq(&comment.content),
-                comments::updated_at.eq(Utc::now()),
-            ))
-            .returning(Comment::as_returning())
-            .get_result(&mut conn)?;
+        Ok(conn.transaction::<_, diesel::result::Error, _>(|conn| {
+            let updated = diesel::update(comments::table.find(comment.id))
+                .set((
+                    comments::content.eq(&comment.content),
+                    comments::language.eq(&comment.language),
+                    comments::updated_at.eq(now),
+                ))
+                .returning(Comment::as_returning())
+                .get_result(conn)?;
 
-        Ok(updated)
+            diesel::update(comment_translation::table)
+                .filter(comment_translation::original_comment_id.eq(comment.id))
+                .filter(comment_translation::deleted_at.is_null())
+                .set((
+                    comment_translation::deleted_at.eq(Some(now)),
+                    comment_translation::updated_at.eq(now),
+                ))
+                .execute(conn)?;
+
+            Ok(updated)
+        })?)
     }
 
     fn update_status(&self, id: Uuid, status: &str) -> Result<Comment> {
@@ -74,28 +88,80 @@ impl CommentRepository for PostgresCommentRepo {
     fn delete(&self, id: Uuid) -> Result<()> {
         let mut conn = self.pool.get()?;
 
-        diesel::update(comments::table.find(id))
-            .set((
-                comments::deleted_at.eq(Some(Utc::now())),
-                comments::updated_at.eq(Utc::now()),
-            ))
-            .execute(&mut conn)?;
+        conn.transaction::<_, diesel::result::Error, _>(|conn| {
+            let comment = comments::table
+                .find(id)
+                .select(Comment::as_select())
+                .first::<Comment>(conn)
+                .optional()?;
 
+            let Some(comment) = comment else {
+                return Err(diesel::result::Error::NotFound);
+            };
+            if comment.deleted_at.is_some() {
+                return Ok(());
+            }
+
+            let now = Utc::now();
+            diesel::update(comments::table.find(id))
+                .set((
+                    comments::deleted_at.eq(Some(now)),
+                    comments::updated_at.eq(now),
+                ))
+                .execute(conn)?;
+
+            diesel::update(comment_translation::table)
+                .filter(comment_translation::original_comment_id.eq(id))
+                .filter(comment_translation::deleted_at.is_null())
+                .set((
+                    comment_translation::deleted_at.eq(Some(now)),
+                    comment_translation::updated_at.eq(now),
+                ))
+                .execute(conn)?;
+
+            Ok(())
+        })?;
         Ok(())
     }
 
     fn restore(&self, id: Uuid) -> Result<Comment> {
         let mut conn = self.pool.get()?;
 
-        let comment = diesel::update(comments::table.find(id))
-            .set((
-                comments::deleted_at.eq(None::<DateTime<Utc>>),
-                comments::updated_at.eq(Utc::now()),
-            ))
-            .returning(Comment::as_returning())
-            .get_result(&mut conn)?;
+        Ok(conn.transaction::<_, diesel::result::Error, _>(|conn| {
+            let comment = comments::table
+                .find(id)
+                .select(Comment::as_select())
+                .first::<Comment>(conn)
+                .optional()?;
 
-        Ok(comment)
+            let Some(comment) = comment else {
+                return Err(diesel::result::Error::NotFound);
+            };
+            let Some(delete_time) = comment.deleted_at else {
+                return Err(diesel::result::Error::NotFound);
+            };
+
+            let now = Utc::now();
+
+            let restored = diesel::update(comments::table.find(id))
+                .set((
+                    comments::deleted_at.eq(None::<DateTime<Utc>>),
+                    comments::updated_at.eq(now),
+                ))
+                .returning(Comment::as_returning())
+                .get_result(conn)?;
+
+            diesel::update(comment_translation::table)
+                .filter(comment_translation::original_comment_id.eq(id))
+                .filter(comment_translation::deleted_at.eq(delete_time))
+                .set((
+                    comment_translation::deleted_at.eq(None::<DateTime<Utc>>),
+                    comment_translation::updated_at.eq(now),
+                ))
+                .execute(conn)?;
+
+            Ok(restored)
+        })?)
     }
 
     fn find_by_id(&self, id: Uuid) -> Result<Option<Comment>> {

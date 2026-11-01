@@ -1,258 +1,107 @@
 # Entities
 
-## ER Diagram
+Etsubi dùng PostgreSQL 15 với 10 bảng nghiệp vụ, truy cập qua Diesel ORM.
 
 ```mermaid
 erDiagram
-    users ||--o{ posts : "author_id"
-    users ||--o{ comments : "user_id"
-    users ||--o{ users_follows : "follower_id"
-    users ||--o{ users_follows : "following_id"
-    users ||--o{ reactions : "user_id"
-    users ||--o{ bookmarks : "user_id"
-    users ||--o{ speaks : "user_id"
-
-    posts ||--o{ comments : "post_id"
-    posts ||--o{ posts_tags : "post_id"
-    posts ||--o{ reactions : "post_id"
-    posts ||--o{ bookmarks : "post_id"
-
-    comments ||--o{ comments : "parent_id"
-
-    tags ||--o{ posts_tags : "tag_id"
-
-    languages ||--o{ speaks : "language_id"
-
-    users {
-        uuid        id            PK
-        text        username      UK
-        text        email         UK
-        text        school
-        text        address
-        text        password
-        text        avatar_url
-        text        bio
-        text        role          "user | moderator | admin"
-        text        status        "active | banned"
+    USERS {
+        uuid id PK
+        text username UK
+        text email UK
+        text language
+        text password
+        text role
+        text status
         timestamptz muted_until
-        timestamptz created_at
-        timestamptz updated_at
+        int token_version
     }
-
-    posts {
-        uuid        id              PK
-        uuid        author_id       FK
-        text        title
-        text        content
-        int         view_count
-        text        status          "published | hidden"
-        bool        comments_locked
-        timestamptz deleted_at      "nullable"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-
-    comments {
-        uuid        id            PK
-        uuid        parent_id     FK
-        uuid        post_id       FK
-        uuid        user_id       FK
-        text        content
-        text        status        "visible | hidden"
-        timestamptz deleted_at    "nullable"
-        timestamptz created_at
-        timestamptz updated_at
-    }
-
-    tags {
-        uuid        id            PK
-        text        name          UK
-        text        description
-        timestamptz created_at
-        timestamptz updated_at
-    }
-
-    posts_tags {
-        uuid post_id PK_FK
-        uuid tag_id  PK_FK
-    }
-
-    reactions {
-        uuid        user_id    PK_FK
-        uuid        post_id    PK_FK
-        text        emoji
-        timestamptz reacted_at
-    }
-
-    bookmarks {
-        uuid        user_id       PK_FK
-        uuid        post_id       PK_FK
-        timestamptz bookmarked_at
-    }
-
-    users_follows {
-        uuid        follower_id   PK_FK
-        uuid        following_id  PK_FK
+    USER_FOLLOWS {
+        uuid follower_id PK
+        uuid following_id PK
         timestamptz followed_at
     }
-
-    languages {
-        uuid        id            PK
-        text        code          UK
-        text        name
-        timestamptz created_at
-        timestamptz updated_at
+    POSTS {
+        uuid id PK
+        uuid author_id FK
+        text title
+        text content
+        text language
+        text status
+        bool comments_locked
+        timestamptz deleted_at
+    }
+    COMMENTS {
+        uuid id PK
+        uuid parent_id FK
+        uuid post_id FK
+        uuid user_id FK
+        text content
+        text language
+        text status
+        timestamptz deleted_at
+    }
+    REACTIONS {
+        uuid user_id PK
+        uuid post_id PK
+        text emoji
+        timestamptz reacted_at
+    }
+    BOOKMARKS {
+        uuid user_id PK
+        uuid post_id PK
+        timestamptz bookmarked_at
+    }
+    TAGS {
+        uuid id PK
+        text name UK
+        text description
+    }
+    POSTS_TAGS {
+        uuid post_id PK
+        uuid tag_id PK
+    }
+    POST_TRANSLATIONS {
+        uuid original_post_id PK
+        text language PK
+        text title
+        text content
+        timestamptz deleted_at
+    }
+    COMMENT_TRANSLATIONS {
+        uuid original_comment_id PK
+        text language PK
+        text content
+        timestamptz deleted_at
     }
 
-    speaks {
-        uuid        user_id       PK_FK
-        uuid        language_id   PK_FK
-        timestamptz assigned_at
-    }
+    USERS ||--o{ POSTS : author
+    USERS ||--o{ COMMENTS : writes
+    USERS ||--o{ REACTIONS : reacts
+    USERS ||--o{ BOOKMARKS : saves
+    USERS ||--o{ USER_FOLLOWS : follower
+    USERS ||--o{ USER_FOLLOWS : following
+    POSTS ||--o{ COMMENTS : has
+    POSTS ||--o{ REACTIONS : has
+    POSTS ||--o{ BOOKMARKS : has
+    POSTS ||--o{ POSTS_TAGS : tagged
+    POSTS ||--o{ POST_TRANSLATIONS : cached
+    COMMENTS ||--o{ COMMENTS : replies
+    COMMENTS ||--o{ COMMENT_TRANSLATIONS : cached
+    TAGS ||--o{ POSTS_TAGS : applied
 ```
 
-## Bảng chi tiết
+## Nhóm bảng
 
-### users
+| Nhóm | Bảng | Ghi chú |
+|---|---|---|
+| Người dùng | `users`, `users_follows` | Follow là N:M tự thân, có `CHECK (follower_id <> following_id)` |
+| Nội dung | `posts`, `comments` | Soft-delete bằng `deleted_at`; comment reply qua `parent_id` |
+| Tương tác | `reactions`, `bookmarks`, `tags`, `posts_tags` | Reaction và bookmark là N:M với PK tổng hợp, mỗi cặp user-post chỉ một bản ghi |
+| Cache dịch | `post_translation`, `comment_translation` | PK `(entity_id, language)`; `deleted_at` vô hiệu cache khi nội dung gốc đổi |
 
-Người dùng hệ thống.
+## Quy ước
 
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| id | UUID | Primary key |
-| username | text | Unique, tối thiểu 3 ký tự |
-| email | text | Unique, dùng để đăng nhập |
-| school | text? | |
-| address | text? | |
-| password | text | Hash Argon2 |
-| avatar_url | text? | |
-| bio | text? | |
-| role | text | `user`, `moderator`, `admin` |
-| status | text | `active`, `banned` |
-| muted_until | timestamptz? | Hết hạn mute; middleware chặn write nếu `> now()` |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-
-### posts
-
-Bài viết.
-
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| id | UUID | |
-| author_id | UUID | FK → users |
-| title | text | Tối đa 255 ký tự |
-| content | text? | Tối đa 100,000 ký tự |
-| view_count | int | Default 0 |
-| status | text | `published`, `hidden` |
-| comments_locked | bool | Khoá bình luận |
-| deleted_at | timestamptz? | Xoá mềm |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-
-### comments
-
-Bình luận, hỗ trợ reply.
-
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| id | UUID | |
-| parent_id | UUID? | FK → comments (reply) |
-| post_id | UUID | FK → posts |
-| user_id | UUID | FK → users |
-| content | text | Tối đa 10,000 ký tự |
-| status | text | `visible`, `hidden` |
-| deleted_at | timestamptz? | Xoá mềm |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-
-### tags
-
-Nhãn phân loại bài viết.
-
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| id | UUID | |
-| name | text | Unique |
-| description | text? | |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-
-Seed sẵn 5 tag: `general`, `question`, `discussion`, `announcement`, `showcase`
-(migration `2026-10-24-105248-0000_seed_tags`).
-
-### posts_tags
-
-Quan hệ N-N giữa `posts` và `tags`.
-
-| Trường | Kiểu |
-|--------|------|
-| post_id | UUID, FK → posts |
-| tag_id | UUID, FK → tags |
-
-Primary key: `(post_id, tag_id)`.
-
-### reactions
-
-User thả emoji vào post.
-
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| user_id | UUID | FK → users |
-| post_id | UUID | FK → posts |
-| emoji | text | Trim, tối đa 32 chars (validate ở service) |
-| reacted_at | timestamptz | Cập nhật lại mỗi lần upsert |
-
-Primary key: `(user_id, post_id)` — mỗi user chỉ có 1 reaction / post.
-POST là **upsert** (gửi cùng emoji = idempotent, gửi emoji khác = đổi).
-
-### bookmarks
-
-User lưu post.
-
-| Trường | Kiểu |
-|--------|------|
-| user_id | UUID, FK → users |
-| post_id | UUID, FK → posts |
-| bookmarked_at | timestamptz |
-
-Primary key: `(user_id, post_id)`.
-
-### users_follows
-
-Quan hệ follow giữa users.
-
-| Trường | Kiểu |
-|--------|------|
-| follower_id | UUID, FK → users |
-| following_id | UUID, FK → users |
-| followed_at | timestamptz |
-
-Primary key: `(follower_id, following_id)`. Có CHECK `follower_id <> following_id`.
-
-### languages
-
-Danh mục ngôn ngữ (bảng tra cứu).
-
-| Trường | Kiểu | Ghi chú |
-|--------|------|---------|
-| id | UUID | |
-| code | text | Unique, ISO 639-1 (2 ký tự) |
-| name | text | Tên hiển thị |
-| created_at | timestamptz | |
-| updated_at | timestamptz | |
-
-Seed sẵn 14 ngôn ngữ: `en`, `ja`, `vi`, `zh`, `ko`, `fr`, `de`, `es`, `pt`,
-`it`, `ru`, `ar`, `th`, `id` (migration `2026-10-26-162821-0000_seed_languages`).
-
-### speaks
-
-Quan hệ N-N giữa `users` và `languages` — user nói được ngôn ngữ nào.
-
-| Trường | Kiểu |
-|--------|------|
-| user_id | UUID, FK → users |
-| language_id | UUID, FK → languages |
-| assigned_at | timestamptz |
-
-Primary key: `(user_id, language_id)`.
+- `id` là UUID (`gen_random_uuid()`); thời gian là `TIMESTAMPTZ` UTC.
+- `language` chỉ nhận `vi`, `en`, `ja`.
+- `users` hard-delete, CASCADE xuống mọi bảng con. `posts`/`comments` và 2 bảng translation soft-delete.
+- `users.token_version` dùng để invalid JWT cũ khi logout / đổi mật khẩu.

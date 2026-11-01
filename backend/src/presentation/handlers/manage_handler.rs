@@ -8,7 +8,7 @@ use crate::{
         auth_dto::AuthUser,
         comment_dto::{CommentResponse, UpdateCommentStatusRequest},
         post_dto::{PostResponse, UpdatePostStatusRequest},
-        user_dto::{GetUserResponse, UpdateRoleRequest, UpdateStatusRequest},
+        user_dto::{GetUserResponse, MuteUserRequest, UpdateRoleRequest, UpdateStatusRequest},
     },
 };
 
@@ -37,15 +37,12 @@ pub async fn update_user_status(
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
     let requester_id = user.id;
-    let requester_role = user.role.clone();
     let status = body.into_inner().status;
     let service = state.user_service.clone();
 
-    let updated = web::block(move || {
-        service.update_status(target_id, requester_id, &requester_role, &status)
-    })
-    .await
-    .map_err(ErrorInternalServerError)??;
+    let updated = web::block(move || service.update_status(target_id, requester_id, &status))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
@@ -75,14 +72,46 @@ pub async fn update_user_role(
 ) -> Result<HttpResponse, Error> {
     let target_id = path.into_inner();
     let requester_id = user.id;
-    let requester_role = user.role.clone();
-    let role = body.into_inner().role;
+    let new_role = body.into_inner().role;
     let service = state.user_service.clone();
 
-    let updated =
-        web::block(move || service.update_role(target_id, requester_id, &requester_role, &role))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let updated = web::block(move || service.update_role(target_id, requester_id, &new_role))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/v1/manage/users/{id}/mute",
+    tag = "manage",
+    params(
+        ("id" = Uuid, Path, description = "ID of the user to mute or unmute")
+    ),
+    request_body = MuteUserRequest,
+    responses(
+        (status = 200, description = "Mute state updated", body = GetUserResponse),
+        (status = 403, description = "Requires moderator/admin, or target role too high, or self-mute"),
+        (status = 404, description = "User not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[patch("/manage/users/{id}/mute")]
+pub async fn mute_user(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    path: web::Path<Uuid>,
+    body: web::Json<MuteUserRequest>,
+) -> Result<HttpResponse, Error> {
+    let target_id = path.into_inner();
+    let requester_id = user.id;
+    let muted_until = body.into_inner().muted_until;
+    let service = state.user_service.clone();
+
+    let updated = web::block(move || service.update_mute(target_id, requester_id, muted_until))
+        .await
+        .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
@@ -112,10 +141,11 @@ pub async fn update_post_status(
 ) -> Result<HttpResponse, Error> {
     let service = state.post_service.clone();
     let post_id = path.into_inner();
-    let requester_role = user.role.clone();
+
+    let requester_id = user.id;
     let status = body.into_inner().status;
 
-    let updated = web::block(move || service.update_status(post_id, &requester_role, &status))
+    let updated = web::block(move || service.update_status(post_id, requester_id, &status))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -143,10 +173,10 @@ pub async fn restore_post(
     path: web::Path<Uuid>,
 ) -> Result<HttpResponse, Error> {
     let post_id = path.into_inner();
-    let requester_role = user.role.clone();
+    let requester_id = user.id;
     let service = state.post_service.clone();
 
-    let post = web::block(move || service.restore(post_id, &requester_role))
+    let post = web::block(move || service.restore(post_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -174,9 +204,9 @@ pub async fn list_post_comments_manage(
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
     let post_id = path.into_inner();
-    let requester_role = user.role.clone();
+    let requester_id = user.id;
 
-    let comments = web::block(move || service.list_all_by_post(post_id, &requester_role))
+    let comments = web::block(move || service.list_all_by_post(post_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -206,9 +236,9 @@ pub async fn get_comment_manage(
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
     let comment_id = path.into_inner();
-    let requester_role = user.role.clone();
+    let requester_id = user.id;
 
-    let comment = web::block(move || service.get_any(comment_id, &requester_role))
+    let comment = web::block(move || service.get_any(comment_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -240,10 +270,10 @@ pub async fn update_comment_status(
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
     let comment_id = path.into_inner();
-    let requester_role = user.role.clone();
+    let requester_id = user.id;
     let status = body.into_inner().status;
 
-    let updated = web::block(move || service.update_status(comment_id, &requester_role, &status))
+    let updated = web::block(move || service.update_status(comment_id, requester_id, &status))
         .await
         .map_err(ErrorInternalServerError)??;
 
@@ -272,9 +302,9 @@ pub async fn restore_comment(
 ) -> Result<HttpResponse, Error> {
     let service = state.comment_service.clone();
     let comment_id = path.into_inner();
-    let requester_role = user.role.clone();
+    let requester_id = user.id;
 
-    let comment = web::block(move || service.restore(comment_id, &requester_role))
+    let comment = web::block(move || service.restore(comment_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 

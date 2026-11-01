@@ -8,15 +8,23 @@ use uuid::Uuid;
 pub struct Claims {
     pub sub: Uuid,
     pub role: String,
+    pub ver: i32,
     pub exp: usize,
     pub iat: usize,
 }
 
-pub fn create_token(user_id: Uuid, role: String, secret: &str, hours: i64) -> Result<String> {
+pub fn create_token(
+    user_id: Uuid,
+    role: String,
+    token_version: i32,
+    secret: &str,
+    hours: i64,
+) -> Result<String> {
     let now = Utc::now();
     let claims = Claims {
         sub: user_id,
         role,
+        ver: token_version,
         exp: (now + Duration::hours(hours)).timestamp() as usize,
         iat: now.timestamp() as usize,
     };

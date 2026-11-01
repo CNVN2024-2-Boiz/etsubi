@@ -5,8 +5,8 @@ use crate::{
     domains::{
         auth::service::AuthService, bookmark::service::BookmarkService,
         comment::service::CommentService, follow::service::FollowService,
-        language::service::LanguageService, post::service::PostService,
-        reaction::service::ReactionService, tag::service::TagService, user::service::UserService,
+        post::service::PostService, reaction::service::ReactionService, tag::service::TagService,
+        translation::service::TranslationService, user::service::UserService,
     },
 };
 
@@ -21,6 +21,6 @@ pub struct AppState {
     pub tag_service: Arc<TagService>,
     pub bookmark_service: Arc<BookmarkService>,
     pub follow_service: Arc<FollowService>,
-    pub language_service: Arc<LanguageService>,
     pub reaction_service: Arc<ReactionService>,
+    pub translation_service: Arc<TranslationService>,
 }

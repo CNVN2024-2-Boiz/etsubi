@@ -9,12 +9,24 @@ diesel::table! {
 }
 
 diesel::table! {
+    comment_translation (original_comment_id, language) {
+        original_comment_id -> Uuid,
+        language -> Text,
+        content -> Text,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
     comments (id) {
         id -> Uuid,
         parent_id -> Nullable<Uuid>,
         post_id -> Uuid,
         user_id -> Uuid,
         content -> Text,
+        language -> Text,
         status -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
@@ -23,12 +35,14 @@ diesel::table! {
 }
 
 diesel::table! {
-    languages (id) {
-        id -> Uuid,
-        code -> Text,
-        name -> Text,
+    post_translation (original_post_id, language) {
+        original_post_id -> Uuid,
+        language -> Text,
+        title -> Text,
+        content -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -37,8 +51,8 @@ diesel::table! {
         id -> Uuid,
         author_id -> Uuid,
         title -> Text,
-        content -> Nullable<Text>,
-        view_count -> Int4,
+        content -> Text,
+        language -> Text,
         status -> Text,
         comments_locked -> Bool,
         created_at -> Timestamptz,
@@ -64,14 +78,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    speaks (user_id, language_id) {
-        user_id -> Uuid,
-        language_id -> Uuid,
-        assigned_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
     tags (id) {
         id -> Uuid,
         name -> Text,
@@ -88,6 +94,7 @@ diesel::table! {
         email -> Text,
         school -> Nullable<Text>,
         address -> Nullable<Text>,
+        language -> Text,
         password -> Text,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
@@ -96,6 +103,7 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         muted_until -> Nullable<Timestamptz>,
+        token_version -> Int4,
     }
 }
 
@@ -109,24 +117,24 @@ diesel::table! {
 
 diesel::joinable!(bookmarks -> posts (post_id));
 diesel::joinable!(bookmarks -> users (user_id));
+diesel::joinable!(comment_translation -> comments (original_comment_id));
 diesel::joinable!(comments -> posts (post_id));
 diesel::joinable!(comments -> users (user_id));
+diesel::joinable!(post_translation -> posts (original_post_id));
 diesel::joinable!(posts -> users (author_id));
 diesel::joinable!(posts_tags -> posts (post_id));
 diesel::joinable!(posts_tags -> tags (tag_id));
 diesel::joinable!(reactions -> posts (post_id));
 diesel::joinable!(reactions -> users (user_id));
-diesel::joinable!(speaks -> languages (language_id));
-diesel::joinable!(speaks -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
+    comment_translation,
     comments,
-    languages,
+    post_translation,
     posts,
     posts_tags,
     reactions,
-    speaks,
     tags,
     users,
     users_follows,

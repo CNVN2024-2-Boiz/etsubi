@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
@@ -12,6 +13,7 @@ pub struct UpdateProfileRequest {
     pub address: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub language: Option<String>,
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -22,6 +24,11 @@ pub struct UpdateStatusRequest {
 #[derive(Deserialize, ToSchema)]
 pub struct UpdateRoleRequest {
     pub role: String,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct MuteUserRequest {
+    pub muted_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -35,6 +42,8 @@ pub struct GetUserResponse {
     pub bio: Option<String>,
     pub role: String,
     pub status: String,
+    pub language: String,
+    pub muted_until: Option<DateTime<Utc>>,
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -60,6 +69,8 @@ impl From<User> for GetUserResponse {
             bio: u.bio,
             role: u.role,
             status: u.status,
+            language: u.language,
+            muted_until: u.muted_until,
         }
     }
 }

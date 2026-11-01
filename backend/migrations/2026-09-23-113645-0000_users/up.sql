@@ -4,6 +4,7 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     school TEXT,
     address TEXT,
+    language TEXT NOT NULL DEFAULT 'vi' CHECK (language IN ('vi', 'en', 'ja')),
     password TEXT NOT NULL,
     avatar_url TEXT,
     bio TEXT,
@@ -13,7 +14,8 @@ CREATE TABLE users (
         CHECK (status IN ('active', 'banned')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    muted_until TIMESTAMPTZ
+    muted_until TIMESTAMPTZ,
+    token_version INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_users_role ON users (role);

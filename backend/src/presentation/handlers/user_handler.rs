@@ -71,6 +71,7 @@ pub async fn update_user(
             requester_id,
             req.username,
             req.email,
+            req.language,
             req.school,
             req.address,
             req.bio,
