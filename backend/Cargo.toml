@@ -21,3 +21,4 @@ tracing-subscriber = "0.3.23"
 utoipa = { version = "6.0.0", features = ["actix_extras", "chrono", "uuid"] }
 utoipa-swagger-ui = { version = "10.0.1", features = ["actix-web"] }
 uuid = { version = "1.28.0", features = ["serde"] }
+whichlang = "0.1.1"
