@@ -13,6 +13,7 @@ pub struct User {
     pub email: String,
     pub school: Option<String>,
     pub address: Option<String>,
+    pub language: String,
     pub password: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
@@ -29,6 +30,7 @@ pub struct NewUser<'a> {
     pub username: &'a str,
     pub email: &'a str,
     pub password: &'a str,
+    pub language: &'a str,
     pub role: &'a str,
     pub status: &'a str,
 }

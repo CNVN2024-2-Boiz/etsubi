@@ -163,9 +163,8 @@ pub async fn delete_comment(
     let service = state.comment_service.clone();
     let comment_id = path.into_inner();
     let requester_id = user.id;
-    let requester_role = user.role.clone();
 
-    web::block(move || service.delete(comment_id, requester_id, &requester_role))
+    web::block(move || service.delete(comment_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 

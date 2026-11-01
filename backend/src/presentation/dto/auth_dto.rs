@@ -12,6 +12,7 @@ pub struct RegisterRequest {
     pub username: String,
     pub email: String,
     pub password: String,
+    pub language: String,
 }
 
 #[derive(Serialize, ToSchema)]

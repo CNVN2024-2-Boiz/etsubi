@@ -34,9 +34,11 @@ pub async fn create_post(
     let req = body.into_inner();
     let author_id = user.id;
 
-    let created = web::block(move || service.create(author_id, &req.title, req.content.as_deref()))
-        .await
-        .map_err(ErrorInternalServerError)??;
+    let created = web::block(move || {
+        service.create(author_id, &req.title, req.content.as_deref().unwrap_or(""))
+    })
+    .await
+    .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Created().json(PostResponse::from(created)))
 }
@@ -124,7 +126,12 @@ pub async fn update_post(
     let requester_id = user.id;
 
     let updated = web::block(move || {
-        service.update_content(post_id, requester_id, &req.title, req.content.as_deref())
+        service.update_content(
+            post_id,
+            requester_id,
+            &req.title,
+            req.content.as_deref().unwrap_or(""),
+        )
     })
     .await
     .map_err(ErrorInternalServerError)??;
@@ -155,9 +162,8 @@ pub async fn delete_post(
     let service = state.post_service.clone();
     let post_id = path.into_inner();
     let requester_id = user.id;
-    let requester_role = user.role.clone();
 
-    web::block(move || service.delete(post_id, requester_id, &requester_role))
+    web::block(move || service.delete(post_id, requester_id))
         .await
         .map_err(ErrorInternalServerError)??;
 

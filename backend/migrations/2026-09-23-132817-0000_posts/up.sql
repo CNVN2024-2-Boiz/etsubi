@@ -2,9 +2,8 @@ CREATE TABLE posts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    content TEXT,
+    content TEXT NOT NULL,
     language TEXT NOT NULL,
-    view_count INTEGER NOT NULL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'published'
         CHECK (status IN ('published', 'hidden')),
     comments_locked BOOLEAN NOT NULL DEFAULT FALSE,

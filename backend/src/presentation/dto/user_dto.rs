@@ -12,6 +12,7 @@ pub struct UpdateProfileRequest {
     pub address: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub language: Option<String>,
 }
 
 #[derive(Deserialize, ToSchema)]
