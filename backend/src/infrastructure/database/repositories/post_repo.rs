@@ -157,4 +157,16 @@ impl PostRepository for PostgresPostRepo {
             .select(Post::as_select())
             .load(&mut conn)?)
     }
+
+    fn set_comments_locked(&self, id: Uuid, locked: bool) -> Result<Post> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(posts::table.find(id))
+            .set((
+                posts::comments_locked.eq(locked),
+                posts::updated_at.eq(Utc::now()),
+            ))
+            .returning(Post::as_returning())
+            .get_result(&mut conn)?)
+    }
 }

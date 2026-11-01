@@ -225,4 +225,27 @@ impl PostService {
     pub fn list_deleted(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.post_repo.find_deleted_by_author(author_id)?)
     }
+
+    pub fn set_comments_locked(
+        &self,
+        post_id: Uuid,
+        requester_id: Uuid,
+        locked: bool,
+    ) -> Result<Post, PostError> {
+        let requester = self
+            .user_repo
+            .find_by_id(requester_id)?
+            .ok_or(PostError::UserNotFound)?;
+
+        let post = self.get_active(post_id)?;
+
+        let is_owner = post.author_id == requester.id;
+        let is_staff = matches!(requester.role.as_str(), "moderator" | "admin");
+
+        if !is_owner && !is_staff {
+            return Err(PostError::Forbidden);
+        }
+
+        Ok(self.post_repo.set_comments_locked(post_id, locked)?)
+    }
 }

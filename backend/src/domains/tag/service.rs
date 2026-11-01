@@ -11,33 +11,36 @@ use crate::{
 };
 
 pub struct TagService {
-    repo: Arc<dyn TagRepository>,
+    tag_repo: Arc<dyn TagRepository>,
     post_repo: Arc<dyn PostRepository>,
 }
 
 impl TagService {
-    pub fn new(repo: Arc<dyn TagRepository>, post_repo: Arc<dyn PostRepository>) -> Self {
-        Self { repo, post_repo }
+    pub fn new(tag_repo: Arc<dyn TagRepository>, post_repo: Arc<dyn PostRepository>) -> Self {
+        Self {
+            tag_repo,
+            post_repo,
+        }
     }
 
     pub fn list_all(&self) -> Result<Vec<Tag>, TagError> {
-        Ok(self.repo.find_all()?)
+        Ok(self.tag_repo.find_all()?)
     }
 
     pub fn get(&self, id: Uuid) -> Result<Tag, TagError> {
-        self.repo.find_by_id(id)?.ok_or(TagError::NotFound)
+        self.tag_repo.find_by_id(id)?.ok_or(TagError::NotFound)
     }
 
     pub fn list_by_post(&self, post_id: Uuid) -> Result<Vec<Tag>, TagError> {
         self.post_repo
             .find_published_by_id(post_id)?
             .ok_or(TagError::PostUnavailable)?;
-        Ok(self.repo.list_tags_by_post(post_id)?)
+        Ok(self.tag_repo.list_tags_by_post(post_id)?)
     }
 
     pub fn list_published_posts(&self, tag_id: Uuid) -> Result<Vec<Post>, TagError> {
         self.get(tag_id)?;
-        let post_ids = self.repo.list_post_ids_by_tag(tag_id)?;
+        let post_ids = self.tag_repo.list_post_ids_by_tag(tag_id)?;
         if post_ids.is_empty() {
             return Ok(vec![]);
         }
@@ -47,24 +50,24 @@ impl TagService {
     pub fn attach(&self, post_id: Uuid, tag_id: Uuid, requester_id: Uuid) -> Result<(), TagError> {
         self.ensure_owner(post_id, requester_id)?;
 
-        if self.repo.find_by_id(tag_id)?.is_none() {
+        if self.tag_repo.find_by_id(tag_id)?.is_none() {
             return Err(TagError::NotFound);
         }
-        if self.repo.is_attached(post_id, tag_id)? {
+        if self.tag_repo.is_attached(post_id, tag_id)? {
             return Err(TagError::AlreadyAttached);
         }
 
-        Ok(self.repo.attach(post_id, tag_id)?)
+        Ok(self.tag_repo.attach(post_id, tag_id)?)
     }
 
     pub fn detach(&self, post_id: Uuid, tag_id: Uuid, requester_id: Uuid) -> Result<(), TagError> {
         self.ensure_owner(post_id, requester_id)?;
 
-        if !self.repo.is_attached(post_id, tag_id)? {
+        if !self.tag_repo.is_attached(post_id, tag_id)? {
             return Err(TagError::NotAttached);
         }
 
-        Ok(self.repo.detach(post_id, tag_id)?)
+        Ok(self.tag_repo.detach(post_id, tag_id)?)
     }
 
     fn ensure_owner(&self, post_id: Uuid, requester_id: Uuid) -> Result<(), TagError> {

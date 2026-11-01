@@ -43,6 +43,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::comment_handler::create_comment);
     cfg.service(presentation::handlers::comment_handler::update_comment);
     cfg.service(presentation::handlers::comment_handler::delete_comment);
+    cfg.service(presentation::handlers::comment_handler::lock_post_comments);
 
     cfg.service(presentation::handlers::tag_handler::attach_tag);
     cfg.service(presentation::handlers::tag_handler::detach_tag);

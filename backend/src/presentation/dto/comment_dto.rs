@@ -50,3 +50,8 @@ impl From<Comment> for CommentResponse {
         }
     }
 }
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct LockCommentsRequest {
+    pub locked: bool,
+}

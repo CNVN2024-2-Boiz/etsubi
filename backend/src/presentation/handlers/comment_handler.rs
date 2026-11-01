@@ -8,7 +8,10 @@ use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
         auth_dto::AuthUser,
-        comment_dto::{CommentResponse, CreateCommentRequest, UpdateCommentRequest},
+        comment_dto::{
+            CommentResponse, CreateCommentRequest, LockCommentsRequest, UpdateCommentRequest,
+        },
+        post_dto::PostResponse,
     },
 };
 
@@ -169,4 +172,38 @@ pub async fn delete_comment(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::NoContent().finish())
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/v1/posts/{post_id}/comments/lock",
+    tag = "comment",
+    params(
+        ("post_id" = Uuid, Path, description = "Post ID")
+    ),
+    request_body = LockCommentsRequest,
+    responses(
+        (status = 200, description = "Comments lock state updated", body = PostResponse),
+        (status = 403, description = "Only the post owner or an admin can lock/unlock"),
+        (status = 404, description = "Post not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[patch("/posts/{post_id}/comments/lock")]
+pub async fn lock_post_comments(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    path: web::Path<Uuid>,
+    body: web::Json<LockCommentsRequest>,
+) -> Result<HttpResponse, Error> {
+    let service = state.post_service.clone();
+    let post_id = path.into_inner();
+    let requester_id = user.id;
+    let locked = body.into_inner().locked;
+
+    let updated = web::block(move || service.set_comments_locked(post_id, requester_id, locked))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
 }
