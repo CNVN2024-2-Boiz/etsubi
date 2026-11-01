@@ -11,13 +11,14 @@ use crate::{
         auth::service::AuthService, bookmark::service::BookmarkService,
         comment::service::CommentService, follow::service::FollowService,
         post::service::PostService, reaction::service::ReactionService, tag::service::TagService,
-        user::service::UserService,
+        translation::service::TranslationService, user::service::UserService,
     },
     infrastructure::database::repositories::{
         auth_repo::PostgresAuthRepo, bookmark_repo::PostgresBookmarkRepo,
         comment_repo::PostgresCommentRepo, follow_repo::PostgresFollowRepo,
         post_repo::PostgresPostRepo, reaction_repo::PostgresReactionRepo,
-        tag_repo::PostgresTagRepo, user_repo::PostgresUserRepo,
+        tag_repo::PostgresTagRepo, translation_repo::PostgresTranslationRepo,
+        user_repo::PostgresUserRepo,
     },
 };
 
@@ -41,9 +42,20 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
 
     let comment_repo = Arc::new(PostgresCommentRepo::new(db_pool.clone()));
     let comment_service = Arc::new(CommentService::new(
-        comment_repo,
+        comment_repo.clone(),
         post_repo.clone(),
         user_repo.clone(),
+    ));
+
+    let translation_repo = Arc::new(PostgresTranslationRepo::new(db_pool.clone()));
+    let translation_client =
+        crate::infrastructure::helper::translation::build_client(&config.translation)?;
+    let translation_service = Arc::new(TranslationService::new(
+        user_repo.clone(),
+        post_repo.clone(),
+        comment_repo.clone(),
+        translation_repo,
+        translation_client,
     ));
 
     let tag_repo = Arc::new(PostgresTagRepo::new(db_pool.clone()));
@@ -53,10 +65,10 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let bookmark_service = Arc::new(BookmarkService::new(bookmark_repo, post_repo.clone()));
 
     let reaction_repo = Arc::new(PostgresReactionRepo::new(db_pool.clone()));
-    let reaction_service = Arc::new(ReactionService::new(reaction_repo, post_repo));
+    let reaction_service = Arc::new(ReactionService::new(reaction_repo, post_repo.clone()));
 
     let follow_repo = Arc::new(PostgresFollowRepo::new(db_pool.clone()));
-    let follow_service = Arc::new(FollowService::new(follow_repo, user_repo));
+    let follow_service = Arc::new(FollowService::new(follow_repo, user_repo.clone()));
 
     Ok(web::Data::new(AppState {
         config,
@@ -69,5 +81,6 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
         bookmark_service,
         follow_service,
         reaction_service,
+        translation_service,
     }))
 }

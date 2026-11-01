@@ -6,7 +6,7 @@ use crate::{
         auth::service::AuthService, bookmark::service::BookmarkService,
         comment::service::CommentService, follow::service::FollowService,
         post::service::PostService, reaction::service::ReactionService, tag::service::TagService,
-        user::service::UserService,
+        translation::service::TranslationService, user::service::UserService,
     },
 };
 
@@ -22,4 +22,5 @@ pub struct AppState {
     pub bookmark_service: Arc<BookmarkService>,
     pub follow_service: Arc<FollowService>,
     pub reaction_service: Arc<ReactionService>,
+    pub translation_service: Arc<TranslationService>,
 }

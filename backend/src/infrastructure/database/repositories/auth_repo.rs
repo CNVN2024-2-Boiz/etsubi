@@ -53,6 +53,18 @@ impl AuthRepository for PostgresAuthRepo {
             .get_result(&mut conn)?)
     }
 
+    fn increment_token_version(&self, id: Uuid) -> Result<i32> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(users::table.find(id))
+            .set((
+                users::token_version.eq(users::token_version + 1),
+                users::updated_at.eq(Utc::now()),
+            ))
+            .returning(users::token_version)
+            .get_result::<i32>(&mut conn)?)
+    }
+
     fn delete(&self, id: Uuid) -> Result<()> {
         let mut conn = self.pool.get()?;
         diesel::delete(users::table.find(id)).execute(&mut conn)?;

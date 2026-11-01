@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use uuid::Uuid;
 
@@ -43,6 +43,7 @@ impl UserRepository for PostgresUserRepo {
 
         Ok(diesel::update(users::table.find(id))
             .set((users::status.eq(status), users::updated_at.eq(Utc::now())))
+            .returning(User::as_select())
             .get_result(&mut conn)?)
     }
 
@@ -51,6 +52,19 @@ impl UserRepository for PostgresUserRepo {
 
         Ok(diesel::update(users::table.find(id))
             .set((users::role.eq(role), users::updated_at.eq(Utc::now())))
+            .returning(User::as_select())
+            .get_result(&mut conn)?)
+    }
+
+    fn update_muted_until(&self, id: Uuid, muted_until: Option<DateTime<Utc>>) -> Result<User> {
+        let mut conn = self.pool.get()?;
+
+        Ok(diesel::update(users::table.find(id))
+            .set((
+                users::muted_until.eq(muted_until),
+                users::updated_at.eq(Utc::now()),
+            ))
+            .returning(User::as_select())
             .get_result(&mut conn)?)
     }
 
@@ -67,6 +81,7 @@ impl UserRepository for PostgresUserRepo {
         let mut conn = self.pool.get()?;
         Ok(users::table
             .filter(users::email.eq(email))
+            .select(User::as_select())
             .first::<User>(&mut conn)
             .optional()?)
     }
@@ -75,6 +90,7 @@ impl UserRepository for PostgresUserRepo {
         let mut conn = self.pool.get()?;
         Ok(users::table
             .filter(users::username.eq(username))
+            .select(User::as_select())
             .first::<User>(&mut conn)
             .optional()?)
     }

@@ -2,7 +2,9 @@ use actix_web::{Error, HttpResponse, error::ErrorInternalServerError, post, web}
 
 use crate::{
     bootstrap::state::AppState,
-    presentation::dto::auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
+    presentation::dto::auth_dto::{
+        AuthUser, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse,
+    },
 };
 
 #[utoipa::path(
@@ -12,7 +14,7 @@ use crate::{
     request_body = RegisterRequest,
     responses(
         (status = 201, description = "Registration successful", body = RegisterResponse),
-        (status = 400, description = "Invalid payload"),
+        (status = 400, description = "Invalid payload (username too short, weak password, invalid language)"),
         (status = 409, description = "Email or username already taken"),
     ),
 )]
@@ -41,6 +43,7 @@ pub async fn register(
     responses(
         (status = 200, description = "Login successful", body = LoginResponse),
         (status = 401, description = "Invalid email or password"),
+        (status = 403, description = "Account is banned"),
     ),
 )]
 #[post("/auth/login")]
@@ -59,4 +62,26 @@ pub async fn login(
         user_id: user.id,
         token,
     }))
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/logout",
+    tag = "auth",
+    responses(
+        (status = 204, description = "Logged out; all previously issued tokens are invalidated"),
+        (status = 401, description = "Not authenticated"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[post("/auth/logout")]
+pub async fn logout(state: web::Data<AppState>, user: AuthUser) -> Result<HttpResponse, Error> {
+    let service = state.auth_service.clone();
+    let user_id = user.id;
+
+    web::block(move || service.logout(user_id))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::NoContent().finish())
 }

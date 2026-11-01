@@ -8,20 +8,23 @@ use crate::presentation::{
         auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
         bookmark_dto::{BookmarkResponse, BookmarkStatusResponse},
         comment_dto::{
-            CommentResponse, CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
+            CommentResponse, CreateCommentRequest, LockCommentsRequest, UpdateCommentRequest,
+            UpdateCommentStatusRequest,
         },
         follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
         post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
         reaction_dto::{ReactionResponse, ReactionSummaryItem, UpsertReactionRequest},
         tag_dto::TagResponse,
+        translation_dto::{CommentTranslationResponse, PostTranslationResponse},
         user_dto::{
-            ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, UpdateProfileRequest,
-            UpdateRoleRequest, UpdateStatusRequest,
+            ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, MuteUserRequest,
+            UpdateProfileRequest, UpdateRoleRequest, UpdateStatusRequest,
         },
     },
     handlers::{
-        auth_handler, bookmark_handler, comment_handler, follow_handler, manage_handler,
-        personal_handler, post_handler, reaction_handler, tag_handler, user_handler,
+        auth_handler, bookmark_handler, comment_handler, follow_handler, health_handler,
+        manage_handler, personal_handler, post_handler, reaction_handler, tag_handler,
+        translation_handler, user_handler,
     },
 };
 
@@ -33,8 +36,11 @@ use crate::presentation::{
         description = "Backend API for the Etsubi"
     ),
     paths(
+        health_handler::health,
+
         auth_handler::register,
         auth_handler::login,
+        auth_handler::logout,
 
         personal_handler::get_my_profile,
         personal_handler::update_my_profile,
@@ -51,6 +57,11 @@ use crate::presentation::{
 
         personal_handler::list_my_followers,
         personal_handler::list_my_following,
+        personal_handler::check_my_following,
+        personal_handler::check_my_follower,
+
+        translation_handler::translate_post,
+        translation_handler::translate_comment,
 
         user_handler::get_user,
         user_handler::update_user,
@@ -66,6 +77,7 @@ use crate::presentation::{
         comment_handler::create_comment,
         comment_handler::update_comment,
         comment_handler::delete_comment,
+        comment_handler::lock_post_comments,
 
         bookmark_handler::add_bookmark,
         bookmark_handler::remove_bookmark,
@@ -83,6 +95,7 @@ use crate::presentation::{
 
         manage_handler::update_user_status,
         manage_handler::update_user_role,
+        manage_handler::mute_user,
         manage_handler::update_post_status,
         manage_handler::restore_post,
         manage_handler::list_post_comments_manage,
@@ -103,6 +116,7 @@ use crate::presentation::{
 
         GetUserResponse,
         UpdateProfileRequest, UpdateStatusRequest, UpdateRoleRequest,
+        MuteUserRequest,
         ChangePasswordRequest, DeleteAccountRequest,
 
         PostResponse,
@@ -110,6 +124,7 @@ use crate::presentation::{
 
         CommentResponse,
         CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,
+        LockCommentsRequest,
 
         TagResponse,
 
@@ -118,18 +133,21 @@ use crate::presentation::{
         FollowUserResponse, FollowStatusResponse, FollowerStatusResponse,
 
         ReactionResponse, ReactionSummaryItem, UpsertReactionRequest,
+
+        PostTranslationResponse, CommentTranslationResponse,
     )),
     tags(
-        (name = "system",    description = "System endpoints"),
-        (name = "auth",      description = "Authentication"),
-        (name = "personal",  description = "Self-service endpoints (/my/*)"),
-        (name = "user",      description = "User management"),
-        (name = "post",      description = "Post management"),
-        (name = "comment",   description = "Comment management"),
-        (name = "bookmark",  description = "Bookmarks"),
-        (name = "follow",    description = "Follow relationships"),
-        (name = "reaction",  description = "Post reactions (emoji)"),
-        (name = "manage",    description = "Moderation endpoints"),
+        (name = "system",      description = "System endpoints"),
+        (name = "auth",        description = "Authentication"),
+        (name = "personal",    description = "Self-service endpoints (/my/*)"),
+        (name = "user",        description = "User management"),
+        (name = "post",        description = "Post management"),
+        (name = "comment",     description = "Comment management"),
+        (name = "bookmark",    description = "Bookmarks"),
+        (name = "follow",      description = "Follow relationships"),
+        (name = "reaction",    description = "Post reactions (emoji)"),
+        (name = "manage",      description = "Moderation endpoints"),
+        (name = "translation", description = "Automatic translation (DeepSeek)"),
     ),
     modifiers(&SecurityAddon),
 )]

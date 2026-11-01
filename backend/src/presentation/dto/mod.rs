@@ -5,4 +5,5 @@ pub mod follow_dto;
 pub mod post_dto;
 pub mod reaction_dto;
 pub mod tag_dto;
+pub mod translation_dto;
 pub mod user_dto;

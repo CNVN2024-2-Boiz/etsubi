@@ -8,7 +8,7 @@ use crate::{
         auth_dto::AuthUser,
         comment_dto::{CommentResponse, UpdateCommentStatusRequest},
         post_dto::{PostResponse, UpdatePostStatusRequest},
-        user_dto::{GetUserResponse, UpdateRoleRequest, UpdateStatusRequest},
+        user_dto::{GetUserResponse, MuteUserRequest, UpdateRoleRequest, UpdateStatusRequest},
     },
 };
 
@@ -76,6 +76,40 @@ pub async fn update_user_role(
     let service = state.user_service.clone();
 
     let updated = web::block(move || service.update_role(target_id, requester_id, &new_role))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
+}
+
+#[utoipa::path(
+    patch,
+    path = "/api/v1/manage/users/{id}/mute",
+    tag = "manage",
+    params(
+        ("id" = Uuid, Path, description = "ID of the user to mute or unmute")
+    ),
+    request_body = MuteUserRequest,
+    responses(
+        (status = 200, description = "Mute state updated", body = GetUserResponse),
+        (status = 403, description = "Requires moderator/admin, or target role too high, or self-mute"),
+        (status = 404, description = "User not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[patch("/manage/users/{id}/mute")]
+pub async fn mute_user(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    path: web::Path<Uuid>,
+    body: web::Json<MuteUserRequest>,
+) -> Result<HttpResponse, Error> {
+    let target_id = path.into_inner();
+    let requester_id = user.id;
+    let muted_until = body.into_inner().muted_until;
+    let service = state.user_service.clone();
+
+    let updated = web::block(move || service.update_mute(target_id, requester_id, muted_until))
         .await
         .map_err(ErrorInternalServerError)??;
 

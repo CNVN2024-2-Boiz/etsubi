@@ -26,14 +26,26 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 }
 
 pub fn protected(cfg: &mut web::ServiceConfig) {
+    cfg.service(presentation::handlers::auth_handler::logout);
+
     cfg.service(presentation::handlers::personal_handler::get_my_profile);
+    cfg.service(presentation::handlers::personal_handler::update_my_profile);
+    cfg.service(presentation::handlers::personal_handler::change_my_password);
+    cfg.service(presentation::handlers::personal_handler::delete_my_account);
+
     cfg.service(presentation::handlers::personal_handler::list_my_posts);
     cfg.service(presentation::handlers::personal_handler::get_my_post);
     cfg.service(presentation::handlers::personal_handler::list_my_comments);
+    cfg.service(presentation::handlers::personal_handler::get_my_comment);
+
     cfg.service(presentation::handlers::personal_handler::list_my_bookmarks);
     cfg.service(presentation::handlers::personal_handler::check_my_bookmark);
+
     cfg.service(presentation::handlers::personal_handler::list_my_followers);
     cfg.service(presentation::handlers::personal_handler::list_my_following);
+    cfg.service(presentation::handlers::personal_handler::check_my_following);
+    cfg.service(presentation::handlers::personal_handler::check_my_follower);
+
     cfg.service(presentation::handlers::user_handler::update_user);
 
     cfg.service(presentation::handlers::post_handler::create_post);
@@ -60,12 +72,16 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::manage_handler::update_user_status);
     cfg.service(presentation::handlers::manage_handler::update_user_role);
+    cfg.service(presentation::handlers::manage_handler::mute_user);
     cfg.service(presentation::handlers::manage_handler::update_post_status);
     cfg.service(presentation::handlers::manage_handler::restore_post);
     cfg.service(presentation::handlers::manage_handler::list_post_comments_manage);
     cfg.service(presentation::handlers::manage_handler::get_comment_manage);
     cfg.service(presentation::handlers::manage_handler::update_comment_status);
     cfg.service(presentation::handlers::manage_handler::restore_comment);
+
+    cfg.service(presentation::handlers::translation_handler::translate_post);
+    cfg.service(presentation::handlers::translation_handler::translate_comment);
 }
 
 pub fn configure(cfg: &mut web::ServiceConfig) {

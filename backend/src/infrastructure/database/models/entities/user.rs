@@ -22,6 +22,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub muted_until: Option<DateTime<Utc>>,
+    pub token_version: i32,
 }
 
 #[derive(Debug, Insertable)]

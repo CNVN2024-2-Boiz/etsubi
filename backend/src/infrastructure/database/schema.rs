@@ -9,6 +9,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    comment_translation (original_comment_id, language) {
+        original_comment_id -> Uuid,
+        language -> Text,
+        content -> Text,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
     comments (id) {
         id -> Uuid,
         parent_id -> Nullable<Uuid>,
@@ -17,6 +28,18 @@ diesel::table! {
         content -> Text,
         language -> Text,
         status -> Text,
+        created_at -> Timestamptz,
+        updated_at -> Timestamptz,
+        deleted_at -> Nullable<Timestamptz>,
+    }
+}
+
+diesel::table! {
+    post_translation (original_post_id, language) {
+        original_post_id -> Uuid,
+        language -> Text,
+        title -> Text,
+        content -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         deleted_at -> Nullable<Timestamptz>,
@@ -80,6 +103,7 @@ diesel::table! {
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         muted_until -> Nullable<Timestamptz>,
+        token_version -> Int4,
     }
 }
 
@@ -93,8 +117,10 @@ diesel::table! {
 
 diesel::joinable!(bookmarks -> posts (post_id));
 diesel::joinable!(bookmarks -> users (user_id));
+diesel::joinable!(comment_translation -> comments (original_comment_id));
 diesel::joinable!(comments -> posts (post_id));
 diesel::joinable!(comments -> users (user_id));
+diesel::joinable!(post_translation -> posts (original_post_id));
 diesel::joinable!(posts -> users (author_id));
 diesel::joinable!(posts_tags -> posts (post_id));
 diesel::joinable!(posts_tags -> tags (tag_id));
@@ -103,7 +129,9 @@ diesel::joinable!(reactions -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
+    comment_translation,
     comments,
+    post_translation,
     posts,
     posts_tags,
     reactions,

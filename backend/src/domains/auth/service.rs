@@ -17,6 +17,10 @@ use crate::{
     },
 };
 
+const MIN_USERNAME_LEN: usize = 3;
+const MIN_PASSWORD_LEN: usize = 8;
+const VALID_LANGUAGES: &[&str] = &["vi", "en", "ja"];
+
 pub struct AuthService {
     auth_repo: Arc<dyn AuthRepository>,
     user_repo: Arc<dyn UserRepository>,
@@ -46,8 +50,14 @@ impl AuthService {
         language: &str,
         password: &str,
     ) -> Result<User, AuthError> {
-        if username.len() < 3 {
+        if username.len() < MIN_USERNAME_LEN {
             return Err(AuthError::UsernameTooShort);
+        }
+        if password.len() < MIN_PASSWORD_LEN {
+            return Err(AuthError::WeakPassword);
+        }
+        if !VALID_LANGUAGES.contains(&language) {
+            return Err(AuthError::InvalidLanguage);
         }
         if self.user_repo.find_by_email(email)?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
@@ -73,6 +83,7 @@ impl AuthService {
             created_at: now,
             updated_at: now,
             muted_until: None,
+            token_version: 0,
         };
 
         Ok(self.auth_repo.create(&user)?)
@@ -95,6 +106,7 @@ impl AuthService {
         let token = create_token(
             user.id,
             user.role.clone(),
+            user.token_version,
             &self.jwt_key,
             self.jwt_expiry_hours,
         )?;
@@ -111,11 +123,27 @@ impl AuthService {
             .find_by_id(claims.sub)?
             .ok_or(AuthError::UserNotFound)?;
 
+        // Token version mismatch means the token was issued before a logout
+        // or a password change. Treat as invalid.
+        if claims.ver != user.token_version {
+            return Err(AuthError::InvalidToken);
+        }
+
         match user.status.as_str() {
             "active" => Ok(user),
             "banned" => Err(AuthError::AccountBanned),
             _ => Err(AuthError::InvalidToken),
         }
+    }
+
+    /// Invalidate all JWTs issued for this user (bump `token_version`).
+    pub fn logout(&self, user_id: Uuid) -> Result<(), AuthError> {
+        self.user_repo
+            .find_by_id(user_id)?
+            .ok_or(AuthError::UserNotFound)?;
+
+        self.auth_repo.increment_token_version(user_id)?;
+        Ok(())
     }
 
     pub fn change_password(
@@ -133,12 +161,14 @@ impl AuthService {
             return Err(AuthError::InvalidCredentials);
         }
 
-        if new_password.len() < 8 {
+        if new_password.len() < MIN_PASSWORD_LEN {
             return Err(AuthError::WeakPassword);
         }
 
         let hashed = hash_password(new_password)?;
         self.auth_repo.update_password(user_id, &hashed)?;
+        // Also invalidate all previously issued tokens.
+        self.auth_repo.increment_token_version(user_id)?;
         Ok(())
     }
 

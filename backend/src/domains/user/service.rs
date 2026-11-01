@@ -1,11 +1,15 @@
 use std::sync::Arc;
 
+use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 use crate::{
     domains::user::{error::UserError, repository::UserRepository},
     infrastructure::database::models::entities::User,
 };
+
+const MIN_USERNAME_LEN: usize = 3;
+const VALID_LANGUAGES: &[&str] = &["vi", "en", "ja"];
 
 pub struct UserService {
     user_repo: Arc<dyn UserRepository>,
@@ -41,12 +45,8 @@ impl UserService {
             .user_repo
             .find_by_id(requester_id)?
             .ok_or(UserError::NotFound)?;
-        let target = self
-            .user_repo
-            .find_by_id(target_id)?
-            .ok_or(UserError::NotFound)?;
 
-        if requester.id != target.id {
+        if requester.id != target_id {
             return Err(UserError::ForbiddenProfileEdit);
         }
 
@@ -58,6 +58,9 @@ impl UserService {
         if let Some(new_username) = username
             && new_username != user.username
         {
+            if new_username.len() < MIN_USERNAME_LEN {
+                return Err(UserError::UsernameTooShort);
+            }
             if self.user_repo.find_by_username(&new_username)?.is_some() {
                 return Err(UserError::UsernameAlreadyTaken);
             }
@@ -82,6 +85,9 @@ impl UserService {
         }
 
         if let Some(language) = language {
+            if !VALID_LANGUAGES.contains(&language.as_str()) {
+                return Err(UserError::InvalidLanguage);
+            }
             user.language = language;
         }
 
@@ -176,5 +182,44 @@ impl UserService {
         }
 
         Ok(self.user_repo.update_role(target_id, new_role)?)
+    }
+
+    pub fn update_mute(
+        &self,
+        target_id: Uuid,
+        requester_id: Uuid,
+        muted_until: Option<DateTime<Utc>>,
+    ) -> Result<User, UserError> {
+        let requester = self
+            .user_repo
+            .find_by_id(requester_id)?
+            .ok_or(UserError::NotFound)?;
+
+        let target = self
+            .user_repo
+            .find_by_id(target_id)?
+            .ok_or(UserError::NotFound)?;
+
+        if !matches!(requester.role.as_str(), "moderator" | "admin") {
+            return Err(UserError::RequiresStaff);
+        }
+
+        let can_modify = match requester.role.as_str() {
+            "admin" => target.role != "admin",
+            "moderator" => target.role == "user",
+            _ => false,
+        };
+
+        if !can_modify {
+            return Err(UserError::CannotModifyHigherRole);
+        }
+
+        // Only disallow self-mute (setting a future mute on yourself);
+        // self-unmute is a no-op but harmless.
+        if target_id == requester_id && muted_until.is_some() {
+            return Err(UserError::CannotMuteSelf);
+        }
+
+        Ok(self.user_repo.update_muted_until(target_id, muted_until)?)
     }
 }
