@@ -30,34 +30,15 @@ impl AuthRepository for PostgresAuthRepo {
             username: &user.username,
             email: &user.email,
             password: &user.password,
+            language: &user.language,
             role: &user.role,
             status: &user.status,
         };
 
         Ok(diesel::insert_into(users::table)
             .values(&new_user)
+            .returning(User::as_select())
             .get_result::<User>(&mut conn)?)
-    }
-
-    fn find_by_id(&self, id: Uuid) -> Result<Option<User>> {
-        let mut conn = self.pool.get()?;
-        Ok(users::table.find(id).first::<User>(&mut conn).optional()?)
-    }
-
-    fn find_by_email(&self, email: &str) -> Result<Option<User>> {
-        let mut conn = self.pool.get()?;
-        Ok(users::table
-            .filter(users::email.eq(email))
-            .first::<User>(&mut conn)
-            .optional()?)
-    }
-
-    fn find_by_username(&self, username: &str) -> Result<Option<User>> {
-        let mut conn = self.pool.get()?;
-        Ok(users::table
-            .filter(users::username.eq(username))
-            .first::<User>(&mut conn)
-            .optional()?)
     }
 
     fn update_password(&self, id: Uuid, hashed_password: &str) -> Result<User> {
@@ -68,6 +49,7 @@ impl AuthRepository for PostgresAuthRepo {
                 users::password.eq(hashed_password),
                 users::updated_at.eq(Utc::now()),
             ))
+            .returning(User::as_select())
             .get_result(&mut conn)?)
     }
 

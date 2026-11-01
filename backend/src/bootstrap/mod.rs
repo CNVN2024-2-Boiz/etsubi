@@ -25,21 +25,26 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let config = Arc::new(AppConfig::from_env());
     let db_pool = pool::init(&config.database_url);
 
+    let user_repo = Arc::new(PostgresUserRepo::new(db_pool.clone()));
+    let user_service = Arc::new(UserService::new(user_repo.clone()));
+
     let auth_repo = Arc::new(PostgresAuthRepo::new(db_pool.clone()));
     let auth_service = Arc::new(AuthService::new(
         auth_repo,
+        user_repo.clone(),
         config.jwt_key.clone(),
         config.jwt_expiry_hours,
     ));
 
-    let user_repo = Arc::new(PostgresUserRepo::new(db_pool.clone()));
-    let user_service = Arc::new(UserService::new(user_repo.clone()));
-
     let post_repo = Arc::new(PostgresPostRepo::new(db_pool.clone()));
-    let post_service = Arc::new(PostService::new(post_repo.clone()));
+    let post_service = Arc::new(PostService::new(post_repo.clone(), user_repo.clone()));
 
     let comment_repo = Arc::new(PostgresCommentRepo::new(db_pool.clone()));
-    let comment_service = Arc::new(CommentService::new(comment_repo, post_repo.clone()));
+    let comment_service = Arc::new(CommentService::new(
+        comment_repo,
+        post_repo.clone(),
+        user_repo.clone(),
+    ));
 
     let tag_repo = Arc::new(PostgresTagRepo::new(db_pool.clone()));
     let tag_service = Arc::new(TagService::new(tag_repo, post_repo.clone()));

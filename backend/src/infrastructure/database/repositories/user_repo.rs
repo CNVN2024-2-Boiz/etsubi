@@ -29,10 +29,12 @@ impl UserRepository for PostgresUserRepo {
                 users::email.eq(&user.email),
                 users::school.eq(&user.school),
                 users::address.eq(&user.address),
+                users::language.eq(&user.language),
                 users::avatar_url.eq(&user.avatar_url),
                 users::bio.eq(&user.bio),
                 users::updated_at.eq(Utc::now()),
             ))
+            .returning(User::as_select())
             .get_result(&mut conn)?)
     }
 
@@ -54,7 +56,11 @@ impl UserRepository for PostgresUserRepo {
 
     fn find_by_id(&self, id: Uuid) -> Result<Option<User>> {
         let mut conn = self.pool.get()?;
-        Ok(users::table.find(id).first::<User>(&mut conn).optional()?)
+        Ok(users::table
+            .find(id)
+            .select(User::as_select())
+            .first::<User>(&mut conn)
+            .optional()?)
     }
 
     fn find_by_email(&self, email: &str) -> Result<Option<User>> {

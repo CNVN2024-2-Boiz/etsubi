@@ -31,6 +31,7 @@ impl CommentRepository for PostgresCommentRepo {
             parent_id: comment.parent_id,
             post_id: comment.post_id,
             user_id: comment.user_id,
+            language: &comment.language,
             content: &comment.content,
             status: &comment.status,
         };
@@ -49,6 +50,7 @@ impl CommentRepository for PostgresCommentRepo {
         let updated = diesel::update(comments::table.find(comment.id))
             .set((
                 comments::content.eq(&comment.content),
+                comments::language.eq(&comment.language),
                 comments::updated_at.eq(Utc::now()),
             ))
             .returning(Comment::as_returning())

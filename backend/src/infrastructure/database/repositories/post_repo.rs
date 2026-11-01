@@ -29,7 +29,8 @@ impl PostRepository for PostgresPostRepo {
         let new_post = NewPost {
             author_id: post.author_id,
             title: &post.title,
-            content: post.content.as_deref(),
+            content: &post.content,
+            language: &post.language,
             status: &post.status,
         };
 
@@ -45,7 +46,8 @@ impl PostRepository for PostgresPostRepo {
         Ok(diesel::update(posts::table.find(post.id))
             .set((
                 posts::title.eq(&post.title),
-                posts::content.eq(post.content.as_deref()),
+                posts::content.eq(&post.content),
+                posts::language.eq(&post.language),
                 posts::updated_at.eq(Utc::now()),
             ))
             .returning(Post::as_returning())
