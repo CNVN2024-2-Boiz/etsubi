@@ -90,7 +90,6 @@ Chi tiết từng file trong `crud/README.md` và `rbac/README.md`.
 
 ## TODO
 
-- Pagination: cập nhật assertion của các test list khi thêm paginate (response đổi từ array sang object có `items`, `total`, ...). Thêm test boundary: page overflow, `per_page=0`, tiebreaker khi `created_at` bằng nhau.
 - Translation full flow: cần mock translation server để test cache hit/miss và invalidate khi edit post/comment. Hiện chỉ test auth guard và missing post.
 - Grammar suggestion, map, live view: chưa có test.
 
