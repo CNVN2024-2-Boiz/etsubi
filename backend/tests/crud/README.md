@@ -128,9 +128,3 @@ Helper đặt private trong file, không export. Trả `String` (id) thay vì `V
 
 Không test translation thật vì: cần API key trả phí, response phụ thuộc LLM (không deterministic). Cache đã được test gián tiếp qua flow edit post (tạo translation → edit → cache bị invalidate).
 
-## Khi thêm test mới
-
-1. Đặt vào đúng file theo domain.
-2. Dùng `TestServer::start()` + `register_and_login()` từ `common`.
-3. Nếu tạo resource rác ngoài user, phải cleanup tay — hiện chỉ `TestUser` có Drop guard.
-4. Cập nhật bảng "Files" và mục "Chi tiết từng file" ở trên.
