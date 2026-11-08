@@ -29,7 +29,7 @@
           <mxGeometry height="80" width="120" x="880" y="80" as="geometry" />
         </mxCell>
         <mxCell id="ZRPHy6DXlnjWZyI110dt-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="UserRepository" vertex="1">
-          <mxGeometry height="60" width="120" x="220" y="580" as="geometry" />
+          <mxGeometry height="60" width="120" x="180" y="580" as="geometry" />
         </mxCell>
         <mxCell id="ZRPHy6DXlnjWZyI110dt-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="PostRepository" vertex="1">
           <mxGeometry height="60" width="120" x="680" y="580" as="geometry" />
