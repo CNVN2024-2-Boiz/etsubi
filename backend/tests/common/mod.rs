@@ -88,6 +88,7 @@ pub fn register_and_login(base: &str) -> TestUser {
             "username": username,
             "email": email,
             "password": password,
+            "native": "vi",
             "language": "en",
         }))
         .send()

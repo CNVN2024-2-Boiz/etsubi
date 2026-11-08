@@ -8,7 +8,7 @@ use crate::{
     bootstrap::state::AppState,
     presentation::dto::{
         auth_dto::AuthUser,
-        post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest},
+        post_dto::{CreatePostRequest, PostResponse, SearchPostsQuery, UpdatePostRequest},
     },
 };
 
@@ -35,7 +35,13 @@ pub async fn create_post(
     let author_id = user.id;
 
     let created = web::block(move || {
-        service.create(author_id, &req.title, req.content.as_deref().unwrap_or(""))
+        service.create(
+            author_id,
+            &req.title,
+            req.content.as_deref().unwrap_or(""),
+            req.latitude,
+            req.longitude,
+        )
     })
     .await
     .map_err(ErrorInternalServerError)??;
@@ -168,4 +174,38 @@ pub async fn delete_post(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::NoContent().finish())
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/posts",
+    tag = "post",
+    responses((status = 200, body = [PostResponse])),
+)]
+#[get("/posts")]
+pub async fn search_posts(
+    state: web::Data<AppState>,
+    q: web::Query<SearchPostsQuery>,
+) -> Result<HttpResponse, Error> {
+    let q = q.into_inner();
+    let tags: Vec<Uuid> = q
+        .tags
+        .as_deref()
+        .unwrap_or("")
+        .split(',')
+        .filter(|s| !s.is_empty())
+        .map(Uuid::parse_str)
+        .collect::<Result<_, _>>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid tag UUID"))?;
+    let service = state.post_service.clone();
+    let query = q.q;
+    let posts = web::block(move || service.search(query.as_deref(), &tags, q.limit, q.offset))
+        .await
+        .map_err(ErrorInternalServerError)??;
+    Ok(HttpResponse::Ok().json(
+        posts
+            .into_iter()
+            .map(PostResponse::from)
+            .collect::<Vec<_>>(),
+    ))
 }

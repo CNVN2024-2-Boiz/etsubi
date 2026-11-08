@@ -1,7 +1,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
+use diesel::dsl::count_star;
 use diesel::prelude::*;
-
 use uuid::Uuid;
 
 use crate::{
@@ -9,7 +9,7 @@ use crate::{
     domains::post::repository::PostRepository,
     infrastructure::database::{
         models::entities::{NewPost, Post},
-        schema::{post_translation, posts},
+        schema::{post_translation, posts, posts_tags},
     },
 };
 
@@ -32,6 +32,8 @@ impl PostRepository for PostgresPostRepo {
             title: &post.title,
             content: &post.content,
             language: &post.language,
+            latitude: post.latitude,
+            longitude: post.longitude,
             status: &post.status,
         };
 
@@ -51,6 +53,8 @@ impl PostRepository for PostgresPostRepo {
                     posts::title.eq(&post.title),
                     posts::content.eq(&post.content),
                     posts::language.eq(&post.language),
+                    posts::latitude.eq(post.latitude),
+                    posts::longitude.eq(post.longitude),
                     posts::updated_at.eq(now),
                 ))
                 .returning(Post::as_returning())
@@ -236,5 +240,59 @@ impl PostRepository for PostgresPostRepo {
             ))
             .returning(Post::as_returning())
             .get_result(&mut conn)?)
+    }
+
+    fn search_published(
+        &self,
+        query: Option<&str>,
+        tag_ids: &[Uuid],
+        limit: i64,
+        offset: i64,
+    ) -> Result<Vec<Post>> {
+        let mut conn = self.pool.get()?;
+
+        let mut tag_ids = tag_ids.to_vec();
+        tag_ids.sort();
+        tag_ids.dedup();
+
+        let tag_filter: Option<Vec<Uuid>> = if tag_ids.is_empty() {
+            None
+        } else {
+            let matching: Vec<Uuid> = posts_tags::table
+                .filter(posts_tags::tag_id.eq_any(&tag_ids))
+                .group_by(posts_tags::post_id)
+                .having(count_star().eq(tag_ids.len() as i64))
+                .select(posts_tags::post_id)
+                .load(&mut conn)?;
+            if matching.is_empty() {
+                return Ok(vec![]);
+            }
+            Some(matching)
+        };
+
+        let mut boxed = posts::table
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .into_boxed();
+
+        if let Some(term) = query {
+            let pattern = format!("%{}%", term);
+            boxed = boxed.filter(
+                posts::title
+                    .ilike(pattern.clone())
+                    .or(posts::content.ilike(pattern)),
+            );
+        }
+
+        if let Some(ids) = tag_filter {
+            boxed = boxed.filter(posts::id.eq_any(ids));
+        }
+
+        Ok(boxed
+            .select(Post::as_select())
+            .order(posts::created_at.desc())
+            .limit(limit)
+            .offset(offset)
+            .load(&mut conn)?)
     }
 }

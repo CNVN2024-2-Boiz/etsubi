@@ -28,6 +28,14 @@ pub enum PostError {
     #[error("user not found")]
     UserNotFound,
 
+    #[error(
+        "Invalid location: latitude and longitude must be both present or both absent, latitude in [-90,90], longitude in [-180,180]"
+    )]
+    InvalidLocation,
+
+    #[error("Search query is too long (max 200 characters)")]
+    QueryTooLong,
+
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
 }
@@ -40,7 +48,9 @@ impl ResponseError for PostError {
             PostError::EmptyTitle
             | PostError::TitleTooLong
             | PostError::ContentTooLong
-            | PostError::InvalidStatus => StatusCode::BAD_REQUEST,
+            | PostError::InvalidLocation
+            | PostError::InvalidStatus
+            | PostError::QueryTooLong => StatusCode::BAD_REQUEST,
 
             PostError::Forbidden | PostError::HiddenCannotEdit => StatusCode::FORBIDDEN,
 
