@@ -25,7 +25,14 @@ impl PostService {
         }
     }
 
-    pub fn create(&self, author_id: Uuid, title: &str, content: &str) -> Result<Post, PostError> {
+    pub fn create(
+        &self,
+        author_id: Uuid,
+        title: &str,
+        content: &str,
+        latitude: Option<f64>,
+        longitude: Option<f64>,
+    ) -> Result<Post, PostError> {
         let title = title.trim();
         if title.is_empty() {
             return Err(PostError::EmptyTitle);
@@ -54,6 +61,8 @@ impl PostService {
             title: title.to_string(),
             content: content.to_string(),
             language: detected_language,
+            latitude,
+            longitude,
             status: "published".into(),
             comments_locked: false,
             created_at: now,
@@ -224,6 +233,21 @@ impl PostService {
 
     pub fn list_deleted(&self, author_id: Uuid) -> Result<Vec<Post>, PostError> {
         Ok(self.post_repo.find_deleted_by_author(author_id)?)
+    }
+
+    pub fn search(
+        &self,
+        query: Option<&str>,
+        tag_ids: &[Uuid],
+        limit: Option<i64>,
+        offset: Option<i64>,
+    ) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.search_published(
+            query.map(str::trim).filter(|s| !s.is_empty()),
+            tag_ids,
+            limit.unwrap_or(20).clamp(1, 50),
+            offset.unwrap_or(0).max(0),
+        )?)
     }
 
     pub fn set_comments_locked(

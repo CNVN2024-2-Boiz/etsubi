@@ -35,6 +35,7 @@ impl UserService {
         requester_id: Uuid,
         username: Option<String>,
         email: Option<String>,
+        native: Option<String>,
         language: Option<String>,
         school: Option<String>,
         address: Option<String>,
@@ -82,6 +83,13 @@ impl UserService {
 
         if let Some(address) = address {
             user.address = Some(address);
+        }
+
+        if let Some(native) = native {
+            if !VALID_LANGUAGES.contains(&native.as_str()) {
+                return Err(UserError::InvalidLanguage);
+            }
+            user.native = native;
         }
 
         if let Some(language) = language {

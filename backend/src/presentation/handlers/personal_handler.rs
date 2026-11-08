@@ -61,6 +61,7 @@ pub async fn update_my_profile(
             requester_id,
             req.username,
             req.email,
+            req.native,
             req.language,
             req.school,
             req.address,

@@ -8,6 +8,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::auth_handler::login);
 
     cfg.service(presentation::handlers::user_handler::get_user);
+    cfg.service(presentation::handlers::post_handler::search_posts);
     cfg.service(presentation::handlers::post_handler::get_post);
     cfg.service(presentation::handlers::post_handler::list_user_posts);
     cfg.service(presentation::handlers::comment_handler::list_post_comments);

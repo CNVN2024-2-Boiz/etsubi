@@ -12,6 +12,8 @@ pub struct Post {
     pub title: String,
     pub content: String,
     pub language: String,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub status: String,
     pub comments_locked: bool,
     pub created_at: DateTime<Utc>,
@@ -26,5 +28,7 @@ pub struct NewPost<'a> {
     pub title: &'a str,
     pub content: &'a str,
     pub language: &'a str,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub status: &'a str,
 }

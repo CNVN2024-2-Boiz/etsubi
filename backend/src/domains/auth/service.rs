@@ -47,6 +47,7 @@ impl AuthService {
         &self,
         username: &str,
         email: &str,
+        native: &str,
         language: &str,
         password: &str,
     ) -> Result<User, AuthError> {
@@ -55,6 +56,9 @@ impl AuthService {
         }
         if password.len() < MIN_PASSWORD_LEN {
             return Err(AuthError::WeakPassword);
+        }
+        if !VALID_LANGUAGES.contains(&native) {
+            return Err(AuthError::InvalidLanguage);
         }
         if !VALID_LANGUAGES.contains(&language) {
             return Err(AuthError::InvalidLanguage);
@@ -75,6 +79,7 @@ impl AuthService {
             school: None,
             address: None,
             password: hashed,
+            native: native.into(),
             language: language.into(),
             avatar_url: None,
             bio: None,
@@ -123,8 +128,6 @@ impl AuthService {
             .find_by_id(claims.sub)?
             .ok_or(AuthError::UserNotFound)?;
 
-        // Token version mismatch means the token was issued before a logout
-        // or a password change. Treat as invalid.
         if claims.ver != user.token_version {
             return Err(AuthError::InvalidToken);
         }
@@ -136,7 +139,6 @@ impl AuthService {
         }
     }
 
-    /// Invalidate all JWTs issued for this user (bump `token_version`).
     pub fn logout(&self, user_id: Uuid) -> Result<(), AuthError> {
         self.user_repo
             .find_by_id(user_id)?
@@ -167,7 +169,6 @@ impl AuthService {
 
         let hashed = hash_password(new_password)?;
         self.auth_repo.update_password(user_id, &hashed)?;
-        // Also invalidate all previously issued tokens.
         self.auth_repo.increment_token_version(user_id)?;
         Ok(())
     }

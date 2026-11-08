@@ -27,7 +27,13 @@ pub async fn register(
     let body = body.into_inner();
 
     let user = web::block(move || {
-        service.register(&body.username, &body.email, &body.language, &body.password)
+        service.register(
+            &body.username,
+            &body.email,
+            &body.native,
+            &body.language,
+            &body.password,
+        )
     })
     .await
     .map_err(ErrorInternalServerError)??;

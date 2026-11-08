@@ -8,6 +8,7 @@ erDiagram
         uuid id PK
         text username UK
         text email UK
+        text native
         text language
         text password
         text role
@@ -27,6 +28,8 @@ erDiagram
         text content
         text language
         text status
+        text latitude
+        text longitude
         bool comments_locked
         timestamptz deleted_at
     }

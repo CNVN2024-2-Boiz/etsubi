@@ -13,6 +13,6 @@ read -s language
 echo
 
 
-curl -i -X POST http://localhost:11432/api/v1/auth/register \
+curl -i -X POST http://localhost:21432/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d "{\"username\":\"$username\",\"email\":\"$email\",\"password\":\"$password\", \"language\":\"$language\"}"

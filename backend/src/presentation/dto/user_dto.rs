@@ -13,6 +13,7 @@ pub struct UpdateProfileRequest {
     pub address: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub native: Option<String>,
     pub language: Option<String>,
 }
 
@@ -38,6 +39,7 @@ pub struct GetUserResponse {
     pub email: String,
     pub school: Option<String>,
     pub address: Option<String>,
+    pub native: String,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
     pub role: String,
@@ -65,6 +67,7 @@ impl From<User> for GetUserResponse {
             email: u.email,
             school: u.school,
             address: u.address,
+            native: u.native,
             avatar_url: u.avatar_url,
             bio: u.bio,
             role: u.role,
