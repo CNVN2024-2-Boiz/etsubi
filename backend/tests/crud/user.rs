@@ -63,13 +63,15 @@ fn full_auth_flow() {
 }
 
 #[rstest]
-#[case::weak_password("test_user", "x.com", "short", "en", 400)]
-#[case::bad_language("test_user", "x.com", "password123", "xx", 400)]
-#[case::short_username("ab", "x.com", "password123", "en", 400)]
+#[case::weak_password("test_user", "x.com", "short", "vi", "en", 400)]
+#[case::bad_language("test_user", "x.com", "password123", "vi", "xx", 400)]
+#[case::bad_native("test_user", "x.com", "password123", "xx", "en", 400)]
+#[case::short_username("ab", "x.com", "password123", "vi", "en", 400)]
 fn register_rejects_invalid_input(
     #[case] username: &str,
     #[case] domain: &str,
     #[case] password: &str,
+    #[case] native: &str,
     #[case] language: &str,
     #[case] expected: u16,
 ) {
@@ -84,6 +86,7 @@ fn register_rejects_invalid_input(
             "username": username,
             "email": email,
             "password": password,
+            "native": native,
             "language": language,
         }))
         .send()

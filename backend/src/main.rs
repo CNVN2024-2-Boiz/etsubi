@@ -10,9 +10,9 @@ async fn main() -> std::io::Result<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
-    let governor_conf = GovernorConfigBuilder::default()
-        .requests_per_second(2)
-        .burst_size(5)
+    let rate_limiter = GovernorConfigBuilder::default()
+        .requests_per_second(4)
+        .burst_size(7)
         .finish()
         .unwrap();
 
@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .wrap(Logger::default())
-            .wrap(Governor::new(&governor_conf))
+            .wrap(Governor::new(&rate_limiter))
             .wrap(cors::build(&origins))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")
