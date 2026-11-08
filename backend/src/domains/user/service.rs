@@ -37,7 +37,7 @@ impl UserService {
         email: Option<String>,
         native: Option<String>,
         language: Option<String>,
-        school: Option<String>,
+        institute: Option<String>,
         address: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
@@ -77,8 +77,8 @@ impl UserService {
             user.email = new_email;
         }
 
-        if let Some(school) = school {
-            user.school = Some(school);
+        if let Some(institute) = institute {
+            user.institute = Some(institute);
         }
 
         if let Some(address) = address {
@@ -222,8 +222,6 @@ impl UserService {
             return Err(UserError::CannotModifyHigherRole);
         }
 
-        // Only disallow self-mute (setting a future mute on yourself);
-        // self-unmute is a no-op but harmless.
         if target_id == requester_id && muted_until.is_some() {
             return Err(UserError::CannotMuteSelf);
         }

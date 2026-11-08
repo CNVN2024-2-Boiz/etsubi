@@ -27,7 +27,7 @@ impl UserRepository for PostgresUserRepo {
             .set((
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
-                users::school.eq(&user.school),
+                users::institute.eq(&user.institute),
                 users::address.eq(&user.address),
                 users::native.eq(&user.native),
                 users::language.eq(&user.language),

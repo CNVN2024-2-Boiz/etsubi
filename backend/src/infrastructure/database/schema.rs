@@ -94,7 +94,7 @@ diesel::table! {
         id -> Uuid,
         username -> Text,
         email -> Text,
-        school -> Nullable<Text>,
+        institute -> Nullable<Text>,
         address -> Nullable<Text>,
         native -> Text,
         language -> Text,

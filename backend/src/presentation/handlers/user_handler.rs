@@ -73,7 +73,7 @@ pub async fn update_user(
             req.email,
             req.native,
             req.language,
-            req.school,
+            req.institute,
             req.address,
             req.bio,
             req.avatar_url,
