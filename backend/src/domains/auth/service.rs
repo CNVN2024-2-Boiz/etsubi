@@ -76,7 +76,7 @@ impl AuthService {
             id: Uuid::nil(),
             username: username.into(),
             email: email.into(),
-            school: None,
+            institute: None,
             address: None,
             password: hashed,
             native: native.into(),

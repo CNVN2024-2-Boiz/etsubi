@@ -137,13 +137,13 @@ fn update_my_profile() {
         .client
         .patch(server.url("/api/v1/my"))
         .bearer_auth(&user.token)
-        .json(&json!({"bio": "hello world", "school": "UIT"}))
+        .json(&json!({"bio": "hello world", "institure": "UIT"}))
         .send()
         .unwrap();
     assert_eq!(r.status(), 200, "update: {:?}", r.text());
     let body: Value = r.json().unwrap();
     assert_eq!(body["bio"], "hello world");
-    assert_eq!(body["school"], "UIT");
+    assert_eq!(body["institure"], "UIT");
 }
 
 #[test]

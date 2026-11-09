@@ -61,7 +61,7 @@ Helper đặt private trong file, không export. Trả `String` (id) thay vì `V
 - Register validation: password ngắn, language sai, username ngắn
 - Login reject: sai password, email không tồn tại
 - Lấy user public
-- Cập nhật profile (bio, school)
+- Cập nhật profile (bio, institute)
 - Đổi mật khẩu: token cũ invalidated, password mới đăng nhập được
 
 ### `post.rs`
