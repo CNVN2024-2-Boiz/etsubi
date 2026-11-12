@@ -1,6 +1,6 @@
 /** Thanh điều hướng dùng chung cho mọi trang; quản lý menu, phiên và phím tắt tìm kiếm. */
 import { el, qs } from '/utils/dom.js';
-import { routes, withRedirect } from '/utils/routes.js';
+import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
 import { readStorage, writeStorage } from '/services/api/client.js';
 import { initials } from '/utils/format.js';
@@ -43,7 +43,7 @@ function navLinks(active) {
 /**
  * Gắn header dùng chung cho trang xác thực, nội dung và tìm kiếm.
  * @param {HTMLElement} target Vùng data-component="header" trong trang.
- * @param {object} options Biến thể, tab hiện tại, cờ ẩn đăng nhập và vùng ô tìm kiếm.
+ * @param {object} options Biến thể, tab hiện tại, cờ ẩn đăng nhập, searchSlot hoặc searchForm riêng cho Home.
  * @returns {HTMLElement|null} Header đã dựng hoặc null nếu không có vùng gắn.
  */
 export function mountHeader(target = qs('[data-component="header"]'), options = {}) {
@@ -55,6 +55,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   mounts.set(target, events);
   const { signal } = events;
   const variant = options.variant ?? target.dataset.variant ?? 'default';
+  const searchForm = options.searchForm === true && variant !== 'search';
   // Trang tìm kiếm không có tab đang chọn; các trang khác nhận tab từ options hoặc HTML.
   let active = options.active !== undefined ? options.active : target.dataset.active || null;
   if (variant === 'search') {
@@ -65,6 +66,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   const profileId = 'header-profile-' + headerCount;
   target.classList.add('site-header');
   target.classList.toggle('site-header--search', variant === 'search');
+  target.classList.toggle('site-header--home-search', searchForm);
 
   // Thương hiệu và điều hướng được dựng một lần tại component, không sao chép vào trang.
   const brand = el('a', {
@@ -172,6 +174,10 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       className: 'site-header__icon site-header__bell',
       'aria-label': 'Thông báo',
     }, icon('bell'));
+    // CẦN BACKEND: số thông báo chưa đọc; chấm 8px luôn ẩn cho tới khi có dữ liệu thật.
+    if (searchForm) {
+      bell.append(el('span', { className: 'site-header__bell-dot', hidden: true, 'aria-hidden': 'true' }));
+    }
     const avatar = el('button', {
       type: 'button',
       className: 'avatar site-header__avatar',
@@ -218,6 +224,25 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   // Thứ tự nút và liên kết giữ nguyên theo thiết kế để tab bàn phím đi đúng thứ tự.
   utils.append(languageButton, session, menuButton);
   target.replaceChildren(brand);
+  // Home chỉ gửi từ khoá khi Enter; không lắng nghe input và không gọi gợi ý trực tiếp.
+  if (searchForm) {
+    const input = el('input', {
+      type: 'search', name: 'q', 'data-search-input': '',
+      placeholder: 'Tìm kiếm bài viết, chủ đề...', 'aria-label': 'Tìm kiếm',
+    });
+    const form = el('form', {
+      className: 'site-header__home-search', role: 'search', action: routes.search,
+    }, el('label', { className: 'u-visually-hidden', for: 'home-search-' + headerCount }, 'Tìm kiếm'),
+    el('span', { className: 'site-header__home-search-icon', 'aria-hidden': 'true' }), input);
+    input.id = 'home-search-' + headerCount;
+    /** Chuẩn hoá URL bằng tiện ích dùng chung để từ khoá rỗng quay về trang tìm kiếm. */
+    function submitHomeSearch(event) {
+      event.preventDefault();
+      location.assign(searchUrl({ q: input.value }));
+    }
+    form.addEventListener('submit', submitHomeSearch, { signal });
+    target.append(form);
+  }
   if (variant === 'search' && options.searchSlot) {
     const slot = el('div', { className: 'site-header__search-slot' }, options.searchSlot);
     target.append(slot);
@@ -246,7 +271,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     if (event.key === '/' && !editable && !event.ctrlKey && !event.metaKey && !event.altKey) {
       event.preventDefault();
       const input = qs('[data-search-input]');
-      if (input) {
+      if (input && (!searchForm || window.innerWidth > 960)) {
         input.focus();
       } else {
         location.assign(routes.search);

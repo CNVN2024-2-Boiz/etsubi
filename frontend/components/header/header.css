@@ -308,3 +308,95 @@
     display: none;
   }
 }
+
+/* Home dùng form tìm kiếm riêng để không thay đổi header của Search hoặc trang xác thực. */
+.site-header--home-search {
+  gap: var(--space-7);
+}
+
+/* Pill kem tự co trên laptop; cỡ tối đa đúng 520 × 42 trong thiết kế desktop. */
+.site-header__home-search {
+  display: flex;
+  flex: 0 1 var(--home-search-width);
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 80px;
+  height: var(--home-search-height);
+  padding: 0 var(--space-4) 0 var(--home-search-padding-left);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+}
+
+/* Mặt nạ lấy đường nét search.svg và đổi sang muted, không sửa màu icon trang Search. */
+.site-header__home-search-icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: var(--color-muted);
+  mask: url('/assets/icons/search.svg') center / contain no-repeat;
+}
+
+/* Ô nhập tự nhận chiều ngang còn lại, giữ nền trong suốt theo pill cha. */
+.site-header__home-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: var(--color-transparent);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+/* Placeholder dùng màu muted chung để đủ tương phản trên nền kem. */
+.site-header__home-search input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Ẩn nút xoá mặc định vì pill chỉ gửi bằng Enter, không thêm điều khiển trùng. */
+.site-header__home-search input::-webkit-search-cancel-button,
+.site-header__home-search input::-webkit-search-decoration,
+.site-header__home-search input::-ms-clear {
+  display: none;
+}
+
+/* Desktop đã có form nên ẩn nút tìm kiếm dự phòng chỉ trong biến thể Home. */
+.site-header--home-search .site-header__search {
+  display: none;
+}
+
+/* Chuông làm mốc cho chấm chưa đọc; slot luôn ẩn khi backend chưa có số thông báo. */
+.site-header--home-search .site-header__bell {
+  position: relative;
+}
+
+/* Kích thước chấm không mang nghĩa số giả; chỉ hiển thị khi có API thật ở lần nối sau. */
+.site-header__bell-dot {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+}
+
+/* Tablet chuyển form thành icon để dành chỗ cho logo và tài khoản. */
+@media (max-width: 960px) {
+  /* Chỉ ẩn form của Home; ô tìm kiếm của trang Search giữ nguyên. */
+  .site-header__home-search {
+    display: none;
+  }
+
+  /* Nút dự phòng giữ liên kết thật và hoạt động cả khi mở tab mới. */
+  .site-header--home-search .site-header__search {
+    display: inline-grid;
+  }
+}
+
+/* Mobile dùng khoảng cách nhỏ của header sẵn có để không tràn ở 360px. */
+@media (max-width: 600px) {
+  /* Khoảng cách này chỉ áp dụng cho Home có form tìm kiếm ẩn. */
+  .site-header--home-search {
+    gap: var(--space-2);
+  }
+}
