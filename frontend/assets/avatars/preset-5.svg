@@ -1,0 +1,11 @@
+<!-- Ảnh mẫu quạt giấy: hình quạt mở có nan rõ ràng, hợp khung tròn và nền kem. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#FFFCF7"/>
+  <circle cx="128" cy="128" r="94" fill="#FCECF0"/>
+  <!-- Các nan cùng gặp ở chốt tạo dáng quạt Nhật bằng các đoạn thẳng dễ giải thích. -->
+  <path d="M39 103q89-100 178 0l-89 92z" fill="#C2454F"/>
+  <path d="M53 109q75-77 150 0l-75 78z" fill="#FAD6E1"/>
+  <path d="M128 195l-67-79m67 79L93 94m35 101V82m0 113l35-101m-35 101l67-79" stroke="#A8343F" stroke-width="4"/>
+  <path d="M128 180v31" stroke="#1F1A17" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="128" cy="185" r="7" fill="#C43A56"/>
+</svg>

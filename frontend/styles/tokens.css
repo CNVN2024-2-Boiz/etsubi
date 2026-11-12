@@ -84,6 +84,7 @@
   --shadow-card-strong: 0 12px 40px rgba(0,0,0,.2);
   --shadow-sidebar: 0 10px 28px rgba(0,0,0,.1);
   --shadow-result: 0 6px 12px rgba(0,0,0,.08);
+  --shadow-search-empty: 0 3px 12px rgba(194,69,79,.06);
   --shadow-button: 0 6px 8px rgba(194,69,79,.25);
   --shadow-navbar: 0 2px 8px rgba(0,0,0,.1);
   --focus-ring: 0 0 0 4px rgba(220,58,72,.18);
@@ -293,4 +294,18 @@
   --scene-petal-12-rotate: -35deg;
   --scene-petal-13-rotate: -50deg;
   --scene-petal-14-rotate: -25deg;
+
+  /* Màu riêng của trang Đăng ký nâng cao: thẻ mẹo vàng nhạt, mẹo nhanh, pill lưu nháp, thanh tiến trình. */
+  --color-tip-bg: #FFF4E6;
+  --color-tip-border: #FFC78C;
+  --color-tip-text: #784828;
+  --color-tip-quick: #5A282D;
+  --profile-draft-bg: rgba(255, 255, 255, .8);
+  --profile-draft-border: rgba(194, 69, 79, .15);
+  --profile-tip-border: rgba(194, 69, 79, .25);
+  --profile-summary-label: rgba(252, 227, 227, .8);
+  --profile-meter-bg: rgba(255, 255, 255, .22);
+  --profile-gradient-auth: linear-gradient(223deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
+  --profile-container: 1680px;
+  --profile-card-width: 1016px;
 }
