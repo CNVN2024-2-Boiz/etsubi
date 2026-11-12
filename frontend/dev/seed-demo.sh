@@ -6,6 +6,8 @@
 # Demo accounts (local only, never use in production):
 #   minhanh@demo.etsubi.vn / kenji@demo.etsubi.vn / lanhuong@demo.etsubi.vn
 #   password for all: etsubi-demo-123
+# QA account created by hand through the Register page during manual tests:
+#   qa-register@demo.etsubi.vn / etsubi-demo-123 (name "QA Đăng Ký")
 set -euo pipefail
 API="${1:-http://localhost:21432/api/v1}"
 PASS="etsubi-demo-123"
