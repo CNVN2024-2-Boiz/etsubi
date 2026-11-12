@@ -1,0 +1,431 @@
+/* Định dạng components cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
+
+/* ===== Nút bấm (Button) ===== */
+
+/* Nút dùng inline-flex để căn giữa nhãn và biểu tượng; đệm và bo góc lấy từ token, chỉ chuyển nền ngắn khi tương tác. */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--button-padding-y) var(--button-padding-x);
+  border: 1px solid var(--color-transparent);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  transition: background .15s;
+}
+
+/* Bỏ gạch chân khi liên kết được dùng như nút để hai loại điều khiển có cùng diện mạo. */
+.btn:hover {
+  text-decoration: none;
+}
+
+/* Nút chính có nền đỏ, chữ trắng đậm và bóng nhẹ để làm rõ thao tác gửi biểu mẫu. */
+.btn--primary {
+  color: var(--color-white);
+  background: var(--color-red);
+  box-shadow: var(--shadow-button);
+}
+
+/* Nền đổi sang đỏ hover từ token để phản hồi rê chuột mà không dùng filter hay dịch chuyển. */
+.btn--primary:hover {
+  background: var(--color-red-hover);
+}
+
+/* Nền đỏ sẫm khi nhấn giúp nhận biết thao tác mà vẫn giữ vị trí nút. */
+.btn--primary:active {
+  background: var(--color-red-dark);
+}
+
+/* Nút phụ có nền trắng, chữ tối và viền trung tính để không cạnh tranh với nút chính. */
+.btn--secondary {
+  color: var(--color-text);
+  background: var(--color-white);
+  border-color: var(--color-input-border);
+}
+
+/* Nút cảnh báo dùng chữ và viền đỏ trên nền trắng để nhấn ý nghĩa thận trọng. */
+.btn--danger-outline {
+  background: var(--color-white);
+  border-color: var(--color-red-40);
+  color: var(--color-red);
+}
+
+/* Nút nhẹ bỏ nền và dùng chữ dịu cho thao tác ít ưu tiên. */
+.btn--ghost {
+  color: var(--color-muted);
+  background: var(--color-transparent);
+}
+
+/* Giảm đệm của nút nhỏ theo token để dùng trong vùng công cụ có diện tích hạn chế. */
+.btn--sm {
+  padding: var(--button-small-y) var(--radio-padding);
+}
+
+/* Nút chiếm trọn bề rộng vùng chứa để thao tác chính dễ chạm trên điện thoại. */
+.btn--block {
+  width: 100%;
+}
+
+/* Nút khoá hoặc đang xử lý mờ còn 40% và không nhận nhấn lặp; trạng thái chờ chỉ dùng chữ tĩnh. */
+.btn:disabled, .btn.is-loading {
+  opacity: .4;
+  pointer-events: none;
+}
+
+/* ===== Trường nhập liệu ===== */
+
+/* Nhãn, ô nhập và gợi ý xếp dọc bằng flex với khoảng cách nhỏ; min-width cho phép co trên mobile. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Nhãn trường dùng cỡ 14px và độ đậm 600 để phân biệt với nội dung nhập. */
+.field__label {
+  color: var(--color-label);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Dấu bắt buộc dùng màu nguy hiểm để người dùng nhận biết trường không được bỏ trống. */
+.field__required {
+  color: var(--color-danger);
+}
+
+/* Ô nhập rộng theo trường, cao theo token xác thực, nền nhạt và viền trung tính để văn bản dễ đọc. */
+.input {
+  width: 100%;
+  min-width: 0;
+  height: var(--auth-input-height);
+  padding: 0 var(--control-padding);
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+}
+
+/* Gợi ý dùng màu riêng và độ mờ đầy đủ để khớp sắc độ thiết kế. */
+.input::placeholder {
+  color: var(--color-placeholder);
+  opacity: 1;
+}
+
+/* Thay viền mặc định bằng viền đỏ và vòng sáng để chỉ rõ ô đang nhập. */
+.input:focus {
+  outline: none;
+  border-color: var(--color-red);
+  box-shadow: var(--focus-ring);
+}
+
+/* Viền đỏ lỗi đồng bộ với aria-invalid để trạng thái sai được biểu đạt cả trực quan và ngữ nghĩa. */
+.input.is-invalid, .input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+/* Nền và chữ dịu hơn phân biệt ô không sửa được với ô đang cho nhập. */
+.input:disabled, .input[readonly] {
+  background: var(--color-neutral-100);
+  color: var(--color-muted);
+}
+
+/* Ô nhiều dòng có chiều cao tối thiểu, đệm dọc và chỉ cho kéo theo chiều dọc để giữ bố cục. */
+textarea.input, .input--textarea {
+  min-height: 120px;
+  height: auto;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+/* Chừa đệm bên phải cho mũi tên chọn để không đè lên nội dung. */
+select.input, .input--select {
+  padding-right: var(--space-8);
+}
+
+/* Gợi ý nhỏ hơn nhãn và dùng màu dịu để bổ sung thông tin mà không lấn át trường nhập. */
+.field__hint {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* Gợi ý lỗi chuyển sang màu nguy hiểm để người dùng biết nội dung cần sửa. */
+.field__hint--error, .field.is-invalid .field__hint {
+  color: var(--color-danger);
+}
+
+/* Gợi ý hợp lệ dùng màu thành công để xác nhận thông tin đã đạt yêu cầu. */
+.field__hint--success, .field.is-valid .field__hint {
+  color: var(--color-success);
+}
+
+/* Làm mốc định vị cho nút mắt nằm bên trong ô mật khẩu. */
+.input-group {
+  position: relative;
+}
+
+/* Chừa khoảng trống bên phải để mật khẩu không nằm dưới nút mắt. */
+.input-group .input {
+  padding-right: calc(var(--space-9) + var(--space-4));
+}
+
+/* Nút mắt được căn giữa dọc bằng phép dịch tĩnh, nền trong suốt và vùng chạm đủ rộng trong ô nhập. */
+.input-group__button {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-red);
+}
+
+/* Giữ biểu tượng mắt ở 24px để đồng nhất các icon trong biểu mẫu. */
+.input-group__button img {
+  width: 24px;
+  height: 24px;
+}
+
+/* Nền hồng báo mật khẩu đang hiện, đồng bộ trạng thái nhấn cho trình đọc màn hình. */
+.input-group__button[aria-pressed='true'] {
+  background: var(--color-sakura);
+}
+
+/* ===== Lựa chọn biểu mẫu ===== */
+
+/* Nhãn checkbox dùng flex để căn ô chọn với chữ, cho phép nhấn cả nhãn thay vì chỉ ô nhỏ. */
+.checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-body);
+}
+
+/* Ẩn hình điều khiển gốc nhưng giữ input thật để bàn phím và công nghệ hỗ trợ vẫn hoạt động. */
+.checkbox__input, .radio-card__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* Vẽ ô vuông trắng có viền trung tính và không co lại khi nhãn dài. */
+.checkbox__box {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+}
+
+/* Khi được chọn, ô chuyển đỏ và hiện dấu trắng từ SVG để trạng thái không chỉ phụ thuộc màu. */
+.checkbox__input:checked + .checkbox__box {
+  background: var(--color-red) url('/assets/icons/checkbox-check.svg') center / 14px 14px no-repeat;
+  border-color: var(--color-red);
+}
+
+/* Hiện vòng sáng trên ô thay thế khi input thật nhận focus bàn phím. */
+.checkbox__input:focus-visible + .checkbox__box {
+  box-shadow: var(--focus-ring);
+  outline: 2px solid var(--color-red-dark);
+  outline-offset: 2px;
+}
+
+/* Viền lỗi của ô chọn phản ánh yêu cầu chấp thuận còn thiếu. */
+.checkbox__input[aria-invalid='true'] + .checkbox__box {
+  border-color: var(--color-danger);
+}
+
+/* Thẻ đáp án xếp dấu chọn và nội dung ngang hàng, có viền và đệm để cả thẻ dễ nhấn. */
+.radio-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--radio-padding);
+  background: var(--color-white);
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* Dấu chọn tròn có kích thước cố định và viền trung tính khi chưa chọn. */
+.radio-card__circle {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-pill);
+}
+
+/* Thẻ đang chọn có nền hồng và viền đỏ rõ hơn để phân biệt với các đáp án khác. */
+.radio-card:has(.radio-card__input:checked) {
+  background: var(--color-sakura);
+  border: 1.5px solid var(--color-red);
+}
+
+/* Thay vòng rỗng bằng SVG có chấm để biểu thị lựa chọn đã chọn. */
+.radio-card__input:checked + .radio-card__circle {
+  border: 0;
+  background: url('/assets/icons/radio-checked.svg') center / contain no-repeat;
+}
+
+/* Vòng sáng bao quanh cả thẻ khi dùng bàn phím để người dùng thấy vùng đang thao tác. */
+.radio-card:has(.radio-card__input:focus-visible) {
+  box-shadow: var(--focus-ring);
+  outline: 2px solid var(--color-red-dark);
+  outline-offset: 2px;
+}
+
+/* Đổi viền sang đỏ khi rê chuột để báo thẻ có thể chọn mà không di chuyển. */
+.radio-card:hover {
+  border-color: var(--color-red);
+}
+
+/* ===== Thẻ và thông báo ===== */
+
+/* Thẻ dùng nền kem, viền đỏ 2px, bo góc nhỏ và bóng chung để tách khỏi nền trang. */
+.card {
+  background: var(--color-cream);
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+}
+
+/* Dải đầu thẻ có chiều cao token và nền đỏ, làm mốc đặt cổng cùng tiêu đề. */
+.card__band {
+  position: relative;
+  height: var(--auth-band-height);
+  background: var(--color-red);
+  text-align: center;
+  color: var(--color-band-text);
+}
+
+/* Cổng nhỏ được căn giữa ngang bằng dịch tĩnh và đặt cao theo token để khớp dải đỏ Figma. */
+.card__torii {
+  position: absolute;
+  top: var(--auth-band-icon-top);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 58px;
+  height: 48px;
+}
+
+/* Tiêu đề dải đỏ đặt theo mốc token, căn giữa toàn chiều rộng và dùng chữ đậm. */
+.card__band-title {
+  position: absolute;
+  top: var(--auth-band-title-top);
+  width: 100%;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 700;
+}
+
+/* Phím gợi ý có nền nhẹ, viền và bo góc để dễ phân biệt với văn bản hướng dẫn. */
+.kbd {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: 12px;
+}
+
+/* Thông báo có đệm, viền và cho xuống dòng từ dài để lỗi API không làm tràn thẻ. */
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* Thông báo lỗi dùng nền hồng, chữ nguy hiểm và viền đỏ nhẹ để chỉ rõ sự cố. */
+.alert--error {
+  background: var(--color-sakura);
+  color: var(--color-danger);
+  border-color: var(--color-red-40);
+}
+
+/* Thông báo thông tin dùng nền hồng và chữ đỏ sẫm để đọc rõ trên thẻ kem. */
+.alert--info {
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+}
+
+/* Thông báo thành công dùng chữ xanh trên nền trung tính để phân biệt với lỗi. */
+.alert--success {
+  background: var(--color-neutral-100);
+  color: var(--color-success);
+}
+
+/* ===== Ảnh đại diện ===== */
+
+/* Avatar tròn căn giữa chữ viết tắt, nền chuyển sắc tĩnh và cắt phần ảnh vượt khung. */
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+/* Avatar nhỏ dùng khung 24px và chữ 10px để phù hợp với danh sách hoặc thẻ ngắn. */
+.avatar--24, .avatar--sm {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+/* Avatar mặc định giữ khung 38px để dùng nhất quán trong header. */
+.avatar--38 {
+  width: 38px;
+  height: 38px;
+}
+
+/* Avatar hồ sơ tăng lên 96px và chữ 32px để nhận diện rõ ở trang cá nhân. */
+.avatar--96, .avatar--lg {
+  width: 96px;
+  height: 96px;
+  font-size: 32px;
+}
+
+/* Ảnh phủ kín khung avatar theo object-fit cover để không méo tỷ lệ. */
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (prefers-reduced-motion: reduce) {
+  /* Nút dùng inline-flex để căn giữa nhãn và biểu tượng; đệm và bo góc lấy từ token, chỉ chuyển nền ngắn khi tương tác. */
+  .btn {
+    transition: none;
+  }
+}

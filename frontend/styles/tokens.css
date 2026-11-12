@@ -1,0 +1,296 @@
+/* Bộ giá trị thiết kế dùng chung cho toàn bộ giao diện Etsubi. */
+
+/* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
+:root {
+  /* Màu thương hiệu, nền, chữ, viền và trạng thái dùng cho nút, trường nhập và thông báo. */
+  --color-red: #C2454F;
+  --color-red-hover: #B23C46;
+  --color-red-dark: #A8343F;
+  --color-red-accent: #C43A56;
+  --color-cream: #FFFCF7;
+  --color-page: #FAF7F5;
+  --color-sakura: #FCECF0;
+  --color-sakura-100: #FAD6E1;
+  --color-pink-border: #F5C0D0;
+  --color-text: #1F1A17;
+  --color-text-secondary: #4A403B;
+  --color-text-body: #59544D;
+  --color-muted: #80736B;
+  --color-border: #E0D9CC;
+  --color-input-border: #D1C7B8;
+  --color-input-bg: #FAF7F0;
+  --color-success: #2E965A;
+  --color-danger: #D63C3C;
+  --color-staff: #0F1729;
+
+  /* Màu phụ giữ đúng sắc độ bản thiết kế cho gợi ý, nhãn và lời chào. */
+  --color-placeholder: #9E9485;
+  --color-label: #1F1F1F;
+  --color-link-muted: #736B61;
+  --color-hero-text: rgba(90,40,45,.85);
+  --color-band-text: #FCE3E3;
+  --color-neutral-100: #F7F3EE;
+
+  /* Màu trắng và các mức trong suốt dùng ở header, footer và viền tài khoản. */
+  --color-white: #FFFFFF;
+  --color-white-85: rgba(255,255,255,.85);
+  --color-white-70: rgba(255,255,255,.7);
+  --color-white-68: rgba(255,255,255,.68);
+  --color-white-20: rgba(255,255,255,.2);
+  --color-white-15: rgba(255,255,255,.15);
+  --color-red-40: rgba(194,69,79,.4);
+  --color-transparent: transparent;
+
+  /* Nền chuyển sắc cố định của trang xác thực và ảnh đại diện. */
+  --gradient-auth: linear-gradient(209.36deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
+  --gradient-avatar: linear-gradient(135deg, #C2454F 0%, #E1648C 71.429%);
+
+  /* Màu riêng của từng phần cổng torii trên trang đăng nhập và đăng ký. */
+  --torii-pillar: #9E0D17;
+  --torii-cap: #8C0A14;
+  --torii-kasagi: #B2121C;
+  --torii-nuki: #A80F1A;
+  --torii-plaque: #800812;
+  --torii-plaque-text: #FFEBCC;
+
+  /* Phông chữ cho nội dung, tiếng Nhật, tiêu đề và chữ thương hiệu. */
+  --font-body: 'Be Vietnam Pro', sans-serif;
+  --font-jp: 'Noto Sans JP', sans-serif;
+  --font-display: 'Etsubi Display', 'Be Vietnam Pro', sans-serif;
+  --font-logo: 'Etsubi Logo', 'Be Vietnam Pro', sans-serif;
+
+  /* Thang khoảng cách 4px dùng để căn lề, đệm và khoảng trống giữa thành phần. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 72px;
+
+  /* Bo góc của thẻ, nút, chip và chi tiết cổng trang trí. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-language: 15px;
+  --radius-cap: 13px;
+  --radius-kasagi: 8px;
+
+  /* Bóng đổ của thẻ, nút và thanh điều hướng; vòng sáng hỗ trợ thao tác bàn phím. */
+  --shadow-card: 0 12px 40px rgba(0,0,0,.16);
+  --shadow-card-strong: 0 12px 40px rgba(0,0,0,.2);
+  --shadow-sidebar: 0 10px 28px rgba(0,0,0,.1);
+  --shadow-result: 0 6px 12px rgba(0,0,0,.08);
+  --shadow-button: 0 6px 8px rgba(194,69,79,.25);
+  --shadow-navbar: 0 2px 8px rgba(0,0,0,.1);
+  --focus-ring: 0 0 0 4px rgba(220,58,72,.18);
+
+  /* Kích thước bố cục chung cho khung nội dung, header, footer và cột bên. */
+  --container-width: 1440px;
+  --page-gutter: 48px;
+  --header-height: 77px;
+  --footer-slim-height: 57.6px;
+  --content-column: 1096px;
+  --sidebar-width: 320px;
+  --nav-gap: 44px;
+  --utils-gap: 22px;
+
+  /* Khoảng đệm của nút, trường nhập, thẻ lựa chọn và chân trang. */
+  --button-padding-y: 15px;
+  --button-padding-x: 28px;
+  --button-small-y: 10px;
+  --control-padding: 16.8px;
+  --radio-padding: 18px;
+  --footer-top: 64px;
+
+  /* Kích thước và khoảng cách biểu mẫu xác thực để giữ nguyên khung Figma. */
+  --auth-card-width: 504px;
+  --auth-card-login-height: 584px;
+  --auth-card-register-height: 766px;
+  --auth-body-top: 23px;
+  --auth-body-side: 39.2px;
+  --auth-field-gap: 17px;
+  --auth-input-height: 52.8px;
+  --auth-button-height: 55.2px;
+  --auth-band-height: 94px;
+  --auth-band-icon-top: 5.2px;
+  --auth-band-title-top: 60.8px;
+  --auth-title-size: 31px;
+  --auth-title-line: 37.2px;
+  --auth-subtitle-line: 18.2px;
+
+  /* Cỡ chữ lời chào và chiều cao sóng cùng khoảng cách cuối thẻ xác thực. */
+  --auth-hero-size: 86px;
+  --auth-hero-brand-size: 38px;
+  --auth-hero-copy-size: 22px;
+  --auth-hero-copy-line: 28px;
+  --auth-wave-height: 28.8px;
+  --auth-switch-gap: 18px;
+  --auth-switch-bottom: 48px;
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 600px) {
+  /* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
+  :root {
+    --page-gutter: 16px;
+    --header-height: 64px;
+    --auth-body-side: 24px;
+    --auth-band-height: 78px;
+    --auth-band-title-top: 52px;
+  }
+
+}
+
+/* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
+:root {
+  /* Hệ toạ độ tĩnh 1920 × 1080 cho cảnh trang trí, co theo màn hình bằng scale. */
+  --scene-width: 1920px;
+  --scene-height: 1080px;
+  --scene-wave-height: 240px;
+  --scene-wave-step: 24px;
+  --scene-character-size: 53px;
+
+  /* Toạ độ và kích thước mặt trời cùng ba đám mây phía sau cổng. */
+  --scene-sun-x: 1056px;
+  --scene-sun-y: 108px;
+  --scene-sun-width: 744px;
+  --scene-sun-height: 744px;
+  --scene-cloud-1-x: 144px;
+  --scene-cloud-1-y: 132px;
+  --scene-cloud-1-width: 312px;
+  --scene-cloud-1-height: 108px;
+  --scene-cloud-2-x: 72px;
+  --scene-cloud-2-y: 216px;
+  --scene-cloud-2-width: 216px;
+  --scene-cloud-2-height: 84px;
+  --scene-cloud-3-x: 360px;
+  --scene-cloud-3-y: 108px;
+  --scene-cloud-3-width: 240px;
+  --scene-cloud-3-height: 96px;
+
+  /* Toạ độ và kích thước từng thanh, cột, bảng tên và chữ trên cổng torii. */
+  --scene-pillar-left-x: 588px;
+  --scene-pillar-left-y: 144px;
+  --scene-pillar-left-width: 84px;
+  --scene-pillar-left-height: 792px;
+  --scene-pillar-right-x: 1248px;
+  --scene-pillar-right-y: 144px;
+  --scene-pillar-right-width: 84px;
+  --scene-pillar-right-height: 792px;
+  --scene-cap-x: 444px;
+  --scene-cap-y: 129.6px;
+  --scene-cap-width: 1032px;
+  --scene-cap-height: 31.2px;
+  --scene-kasagi-x: 480px;
+  --scene-kasagi-y: 144px;
+  --scene-kasagi-width: 960px;
+  --scene-kasagi-height: 64.8px;
+  --scene-nuki-x: 540px;
+  --scene-nuki-y: 312px;
+  --scene-nuki-width: 840px;
+  --scene-nuki-height: 40.8px;
+  --scene-plaque-x: 906px;
+  --scene-plaque-y: 201.6px;
+  --scene-plaque-width: 108px;
+  --scene-plaque-height: 115.2px;
+  --scene-character-x: 906px;
+  --scene-character-y: 216px;
+  --scene-character-width: 108px;
+  --scene-character-height: 80px;
+
+  /* Toạ độ và kích thước vạch nhấn, lời chào, thương hiệu và lời giới thiệu. */
+  --scene-accent-x: 144px;
+  --scene-accent-y: 348px;
+  --scene-accent-width: 76.8px;
+  --scene-accent-height: 7.2px;
+  --scene-title-x: 144px;
+  --scene-title-y: 372px;
+  --scene-title-width: 550px;
+  --scene-title-height: 104px;
+  --scene-brand-x: 144px;
+  --scene-brand-y: 480px;
+  --scene-brand-width: 500px;
+  --scene-brand-height: 58px;
+  --scene-copy-x: 144px;
+  --scene-copy-y: 552px;
+  --scene-copy-width: 550px;
+  --scene-copy-height: 64px;
+
+  /* Toạ độ và kích thước của 14 cánh hoa cố định để trang trí quanh thẻ. */
+  --scene-petal-1-x: 168px;
+  --scene-petal-1-y: 495.6px;
+  --scene-petal-1-width: 16.8px;
+  --scene-petal-1-height: 25.2px;
+  --scene-petal-2-x: 276px;
+  --scene-petal-2-y: 341.3px;
+  --scene-petal-2-width: 21.6px;
+  --scene-petal-2-height: 32.4px;
+  --scene-petal-3-x: 108px;
+  --scene-petal-3-y: 740.3px;
+  --scene-petal-3-width: 14.4px;
+  --scene-petal-3-height: 21.6px;
+  --scene-petal-4-x: 408px;
+  --scene-petal-4-y: 629.1px;
+  --scene-petal-4-width: 19.2px;
+  --scene-petal-4-height: 28.8px;
+  --scene-petal-5-x: 216px;
+  --scene-petal-5-y: 903.5px;
+  --scene-petal-5-width: 12px;
+  --scene-petal-5-height: 18px;
+  --scene-petal-6-x: 1584px;
+  --scene-petal-6-y: 303.8px;
+  --scene-petal-6-width: 24px;
+  --scene-petal-6-height: 36px;
+  --scene-petal-7-x: 1704px;
+  --scene-petal-7-y: 488.2px;
+  --scene-petal-7-width: 16.8px;
+  --scene-petal-7-height: 25.2px;
+  --scene-petal-8-x: 1416px;
+  --scene-petal-8-y: 203.7px;
+  --scene-petal-8-width: 19.2px;
+  --scene-petal-8-height: 28.8px;
+  --scene-petal-9-x: 1800px;
+  --scene-petal-9-y: 708.2px;
+  --scene-petal-9-width: 14.4px;
+  --scene-petal-9-height: 21.6px;
+  --scene-petal-10-x: 1512px;
+  --scene-petal-10-y: 860.3px;
+  --scene-petal-10-width: 21.6px;
+  --scene-petal-10-height: 32.4px;
+  --scene-petal-11-x: 504px;
+  --scene-petal-11-y: 141.6px;
+  --scene-petal-11-width: 26.4px;
+  --scene-petal-11-height: 39.6px;
+  --scene-petal-12-x: 1296px;
+  --scene-petal-12-y: 133.7px;
+  --scene-petal-12-width: 18px;
+  --scene-petal-12-height: 27px;
+  --scene-petal-13-x: 72px;
+  --scene-petal-13-y: 396px;
+  --scene-petal-13-width: 15.6px;
+  --scene-petal-13-height: 23.4px;
+  --scene-petal-14-x: 1848px;
+  --scene-petal-14-y: 402.4px;
+  --scene-petal-14-width: 13.2px;
+  --scene-petal-14-height: 19.8px;
+
+  /* Góc xoay tĩnh của từng cánh hoa để khớp thiết kế, không có animation. */
+  --scene-petal-1-rotate: -30deg;
+  --scene-petal-2-rotate: -60deg;
+  --scene-petal-3-rotate: -15deg;
+  --scene-petal-4-rotate: -80deg;
+  --scene-petal-5-rotate: -45deg;
+  --scene-petal-6-rotate: -20deg;
+  --scene-petal-7-rotate: -70deg;
+  --scene-petal-8-rotate: -40deg;
+  --scene-petal-9-rotate: -55deg;
+  --scene-petal-10-rotate: -10deg;
+  --scene-petal-11-rotate: -90deg;
+  --scene-petal-12-rotate: -35deg;
+  --scene-petal-13-rotate: -50deg;
+  --scene-petal-14-rotate: -25deg;
+}
