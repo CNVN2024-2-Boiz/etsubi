@@ -1,4 +1,161 @@
 /* Bộ giá trị thiết kế dùng chung cho toàn bộ giao diện Etsubi. */
+/* Trang chủ: toạ độ tĩnh của hoa theo khung 1920px, lấy tâm viewport làm mốc ngang. */
+:root {
+  --home-accent-radius: 2px;
+  --home-band-gap: 6px;
+  /* Cánh 1: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-1-x: -735px;
+  --home-petal-1-y: 210px;
+  --home-petal-1-width: 16.8px;
+  --home-petal-1-height: 25.2px;
+  --home-petal-1-rotate: -30deg;
+  /* Cánh 2: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-2-x: -850px;
+  --home-petal-2-y: 420px;
+  --home-petal-2-width: 21.6px;
+  --home-petal-2-height: 32.4px;
+  --home-petal-2-rotate: -60deg;
+  /* Cánh 3: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-3-x: -780px;
+  --home-petal-3-y: 532px;
+  --home-petal-3-width: 14.4px;
+  --home-petal-3-height: 21.6px;
+  --home-petal-3-rotate: -15deg;
+  /* Cánh 4: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-4-x: -816px;
+  --home-petal-4-y: 755px;
+  --home-petal-4-width: 19.2px;
+  --home-petal-4-height: 28.8px;
+  --home-petal-4-rotate: -80deg;
+  /* Cánh 5: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-5-x: -740px;
+  --home-petal-5-y: 945px;
+  --home-petal-5-width: 12px;
+  --home-petal-5-height: 18px;
+  --home-petal-5-rotate: -45deg;
+  /* Cánh 6: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-6-x: -730px;
+  --home-petal-6-y: 1130px;
+  --home-petal-6-width: 24px;
+  --home-petal-6-height: 36px;
+  --home-petal-6-rotate: -20deg;
+  /* Cánh 7: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-7-x: -730px;
+  --home-petal-7-y: 1320px;
+  --home-petal-7-width: 16.8px;
+  --home-petal-7-height: 25.2px;
+  --home-petal-7-rotate: -70deg;
+  /* Cánh 8: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-8-x: 745px;
+  --home-petal-8-y: 530px;
+  --home-petal-8-width: 19.2px;
+  --home-petal-8-height: 28.8px;
+  --home-petal-8-rotate: -40deg;
+  /* Cánh 9: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-9-x: 848px;
+  --home-petal-9-y: 760px;
+  --home-petal-9-width: 14.4px;
+  --home-petal-9-height: 21.6px;
+  --home-petal-9-rotate: -55deg;
+  /* Cánh 10: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-10-x: 808px;
+  --home-petal-10-y: 915px;
+  --home-petal-10-width: 21.6px;
+  --home-petal-10-height: 32.4px;
+  --home-petal-10-rotate: -10deg;
+  /* Cánh 11: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-11-x: 747px;
+  --home-petal-11-y: 1050px;
+  --home-petal-11-width: 26.4px;
+  --home-petal-11-height: 39.6px;
+  --home-petal-11-rotate: -90deg;
+  /* Cánh 12: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-12-x: 765px;
+  --home-petal-12-y: 1120px;
+  --home-petal-12-width: 18px;
+  --home-petal-12-height: 27px;
+  --home-petal-12-rotate: -35deg;
+  /* Cánh 13: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-13-x: 842px;
+  --home-petal-13-y: 1210px;
+  --home-petal-13-width: 15.6px;
+  --home-petal-13-height: 23.4px;
+  --home-petal-13-rotate: -50deg;
+  /* Cánh 14: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-14-x: 780px;
+  --home-petal-14-y: 1320px;
+  --home-petal-14-width: 13.2px;
+  --home-petal-14-height: 19.8px;
+  --home-petal-14-rotate: -25deg;
+  /* Cánh 15: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-15-x: 540px;
+  --home-petal-15-y: 60px;
+  --home-petal-15-width: 16.8px;
+  --home-petal-15-height: 25.2px;
+  --home-petal-15-rotate: 0deg;
+  /* Cánh 16: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-16-x: 600px;
+  --home-petal-16-y: 143px;
+  --home-petal-16-width: 21.6px;
+  --home-petal-16-height: 32.4px;
+  --home-petal-16-rotate: -40deg;
+  /* Cánh 17: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-17-x: 660px;
+  --home-petal-17-y: 240px;
+  --home-petal-17-width: 14.4px;
+  --home-petal-17-height: 21.6px;
+  --home-petal-17-rotate: -80deg;
+  /* Cánh 18: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-18-x: 710px;
+  --home-petal-18-y: 320px;
+  --home-petal-18-width: 19.2px;
+  --home-petal-18-height: 28.8px;
+  --home-petal-18-rotate: -120deg;
+  /* Cánh 19: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-19-x: 769px;
+  --home-petal-19-y: 87px;
+  --home-petal-19-width: 12px;
+  --home-petal-19-height: 18px;
+  --home-petal-19-rotate: -160deg;
+  /* Cánh 20: vị trí, kích thước và góc xoay cố định, không hoạt ảnh. */
+  --home-petal-20-x: 805px;
+  --home-petal-20-y: 171px;
+  --home-petal-20-width: 24px;
+  --home-petal-20-height: 36px;
+  --home-petal-20-rotate: 160deg;
+}
+
+/* Trang chủ: màu, kích thước và đệm riêng của Home 4, không đổi token trang xác thực. */
+:root {
+  --color-hero-kicker: #FFCCB8;
+  --color-hero-title: #FFF2E5;
+  --color-home-hero-text: rgba(255,255,255,.88);
+  --gradient-home-hero: linear-gradient(90deg, rgba(70,8,16,.88) 0%, rgba(168,52,63,.55) 45%, rgba(0,0,0,0) 85%);
+  --gradient-suggest-thumb: linear-gradient(135deg, #FCE8EE 0%, #F5C0D0 71.429%);
+  --chip-soft-bg: rgba(255,255,255,.6);
+  --chip-soft-border: rgba(194,69,79,.35);
+  --postcard-feed-border: rgba(194,69,79,.3);
+  --shadow-featured: 0 10px 32px rgba(0,0,0,.12);
+  --color-placeholder-bar: #ECE6DC;
+  --color-featured-rank: rgba(255,255,255,.35);
+  --color-featured-badge: rgba(255,255,255,.16);
+  --home-hero-height: 480px;
+  --home-hero-top: 79px;
+  --home-hero-copy-width: 640px;
+  --home-section-gap: 28px;
+  --home-card-gap: 30px;
+  --home-sidebar-width: 440px;
+  --home-sidebar-laptop: 360px;
+  --home-featured-height: 361px;
+  --home-card-padding-y: 22px;
+  --home-feed-padding-x: 26px;
+  --home-detail-padding-x: 14px;
+  --home-chip-padding-y: 5px;
+  --home-tab-padding-y: 9px;
+  --home-search-width: 520px;
+  --home-search-height: 42px;
+  --home-search-padding-left: 17px;
+}
 
 /* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
 :root {

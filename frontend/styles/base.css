@@ -131,6 +131,25 @@ fieldset {
   padding-inline: var(--page-gutter);
 }
 
+/* Thanh chờ dữ liệu tĩnh: giữ hình dáng nội dung mà không giả tên hoặc tạo shimmer. */
+.u-placeholder-bar {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-placeholder-bar);
+}
+
+/* Thanh tiêu đề cao hơn để phân biệt với phần đoạn trích đang chờ dữ liệu. */
+.u-placeholder-bar--title {
+  height: 16px;
+}
+
+/* Thanh ngắn giữ chỗ cho tag hoặc phần cuối dòng văn bản. */
+.u-placeholder-bar--short {
+  width: 40%;
+}
+
 /* ===== Hỗ trợ bàn phím và trình đọc màn hình ===== */
 
 /* Liên kết bỏ qua điều hướng: đặt vị trí hoặc góc xoay tĩnh để giữ bố cục Figma, không tạo chuyển động. */
