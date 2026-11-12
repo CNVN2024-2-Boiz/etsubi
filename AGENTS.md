@@ -171,7 +171,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 
 | Component | Where | States |
 |---|---|---|
-| Button | `components.css` `.btn` | `--primary` (red, white bold, shadow), `--secondary` (white, input border), `--danger-outline` (white, red 40% border, red text), `--ghost` (no bg, muted text), sizes `--sm` (10/18 padding) / default (15/28) / `--block`; `:hover` (darken 6%), `:active`, `:focus-visible`, `[disabled]`/`.is-loading` (opacity .4, spinner) |
+| Button | `components.css` `.btn` | `--primary` (red, white bold, shadow), `--secondary` (white, input border), `--danger-outline` (white, red 40% border, red text), `--ghost` (no bg, muted text), sizes `--sm` (10/18 padding) / default (15/28) / `--block`; `:hover` (darken 6%), `:active`, `:focus-visible`, `[disabled]`/`.is-loading` (opacity .4 + static text such as "Đang gửi…", no spinner) |
 | Text input | `.field`, `.field__label`, `.input`, `.field__hint` | default, focus (red border + focus ring), `.is-invalid` (danger border + error hint), `.is-valid` (success hint), disabled/readonly (muted bg) |
 | Password input | `.input-group` + eye button | hidden/visible (button has `aria-pressed`) |
 | Checkbox | `.checkbox` (real `<input type=checkbox>` visually styled) | unchecked (white, input border), checked (red box + white check), focus |
@@ -179,13 +179,15 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 | Card | `.card` | cream bg, 2px red border, radius 4, `--shadow-card`; `.card__band` red top band with torii |
 | Tag chip | `components/tag-chip` | `default` (sakura bg, pink border, `#` red-accent + name red-dark, optional count muted), `selected` (red bg, check icon, cream text), `removable` (sakura-100 bg, radius 6, × button) |
 | Search bar | header variant `search` | empty-focused (placeholder, `Esc` kbd, Tag button neutral, **Submit opacity .4 + disabled**), has-query (clear ×, Tag button pink with count badge, Submit enabled) |
-| Result card / PostCard | `components/postcard` | default (cream, 1.2px red border, radius 6, `--shadow-result`), hover (lift), query highlight (red, title) / bold (excerpt) |
+| Result card / PostCard | `components/postcard` | default (cream, 1.2px red border, radius 6, `--shadow-result`), hover (border turns `--color-red-dark` + `--shadow-sidebar`; no movement), query highlight (red, title) / bold (excerpt) |
 | Kbd | `.kbd` | static |
 | Alert | `.alert` `--error` / `--info` / `--success` | with `role="alert"` or `role="status"` |
 
 ### Icons
 
 - UI icons are Lucide-style line icons. Use the SVGs in `assets/icons/` (exported from Figma) through `<img src alt="">` when the colour is fixed, or **inline Lucide SVG** (`stroke="currentColor"`, 24 viewBox, stroke-width 2) when the icon must follow text colour. Never use icon fonts. Decorative icons get `alt=""`/`aria-hidden="true"`.
+- **Check every Figma-exported SVG before use.** Figma exports carry `preserveAspectRatio="none"` and sometimes a squashed path (the old `eye.svg` was flattened vertically). If an icon looks thinner or wider than the Lucide original, replace the file with the original Lucide SVG (24 viewBox, stroke-width 2, round caps/joins) in the needed colour, and compare at real size in the browser.
+- Native browser controls must not duplicate ours: password inputs hide Edge's own reveal button (`::-ms-reveal`, `::-ms-clear` in `components.css`). Do the same for any input where the browser adds its own control (e.g. `input[type=search]` clear button).
 
 ## 5. JavaScript conventions
 
@@ -249,6 +251,17 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 Figma MCP note: Etsubi Display/Logo are local fonts, so MCP cannot edit those text layers. This front end is read-only towards Figma – never edit the Figma files.
 
 ## 8. Back-end contract (as of `upstream/main`, Nov 2026)
+
+### Front end first: the back end follows the front end
+
+The back-end dev has agreed to **adjust the back end to match the front-end code** (confirmed 2026-11-13). So:
+
+- **Build every screen completely as in Figma.** Do not drop or hide a UI element (counts, featured posts, author name, badges…) just because the current API does not return that data yet.
+- **The front end defines the contract.** For each missing piece, write the service function in `services/api/` with the request and response shape the UI needs (endpoint, query params, JSON field names in `snake_case` like the existing API). Add a comment above it starting with `// CẦN BACKEND:` explaining in Vietnamese what is missing.
+- **Until the back end has it,** the service returns what it can, and the UI shows a neutral placeholder in that slot ("–" for a number, a grey bar for text). Never show invented numbers or text as if they were real data.
+- **Record every request** in the "Yêu cầu cho backend" table in `HANDOFF.md` (endpoint, fields, which page needs it, status). That table is what the team sends to the back-end dev.
+- **Do not edit `backend/`** from a front-end branch. Back-end changes are the back-end dev's job.
+- Agreed exceptions that stay deferred (do not build UI for them): search over socket (HTTP is used, see Search) and email verification.
 
 Base URL: `http://localhost:11432/api/v1` (local `cargo run`) or `http://localhost:21432/api/v1` (Docker `--profile full`). Swagger UI: `/swagger-ui/`. Errors are JSON `{ "error": "<English message>" }` (some framework errors are plain text).
 

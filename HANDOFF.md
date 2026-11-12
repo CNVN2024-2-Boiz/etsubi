@@ -2,7 +2,7 @@
 
 > **Read [`AGENTS.md`](AGENTS.md) first and follow it.** It holds the binding rules: pure HTML/CSS/JS, tokens, header/footer reuse, minimal animation, Vietnamese comments on every block, no em dash, back-end contract.
 
-Last update: 2026-11-12 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`).
+Last update: 2026-11-13 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`).
 
 ## 1. What is done (batch 1)
 
@@ -25,7 +25,7 @@ Last update: 2026-11-12 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`
 
 | Page | Figma frame | Notes |
 |---|---|---|
-| Home (Trang chủ) | Home 4 `140:135` | Header `active: 'home'`, footer `full`. Post list can reuse `components/postcard` (add a `postcard--feed` variant from PostCard `139:157`). Placeholder `pages/index.html` exists. |
+| Home (Trang chủ) | Home 4 `140:135` | Header `active: 'home'`, footer `full`. Post list can reuse `components/postcard` (add a `postcard--feed` variant from PostCard `139:157`). `pages/index.html` is the team's old placeholder (wrong paths, `/assets/banner.png`, no header/footer): **rewrite it completely** from the AGENTS.md page skeleton. Agreed Home 4 content: banner with a single "Đăng bài →" button, red "Xem chi tiết →" button on each post card, no "Xem thêm bài viết", no "Xem tất cả →" in "Bài viết nổi bật". Featured posts and counts have no API yet: follow AGENTS.md §8 "Front end first". |
 | Reading page (post detail) | `234:1679` | Route `routes.post(id)` → `/pages/post.html?id=`. Comments, reactions, bookmark, translate button (`POST /posts/{id}/translate`), `comments_locked`. |
 | Diễn đàn (forum) | `236:1725` | `/pages/forum.html`; "Viết bài" goes to `routes.newPost` (`/pages/forum.html?compose=1`). |
 | Hỗ trợ | `243:1848` / `247:2088` | `/pages/support.html`; red icon set + StatusBadge in `242:1843`. |
@@ -44,6 +44,15 @@ bash frontend/dev/seed-demo.sh
 # Static front end on the CORS-allowed port 12321
 cd frontend && python -m http.server 12321      # or: npx live-server --port=12321 .
 ```
+
+Later restarts (containers already built, data kept):
+
+```bash
+docker compose --profile full start postgres backend   # stop: docker compose --profile full stop
+cd frontend && python -m http.server 12321
+```
+
+Always open the site through `http://localhost:12321`. Other origins (VS Code Live Server on 5500, `file://`) are blocked by the back end's CORS and show "Không kết nối được máy chủ".
 
 Open `http://localhost:12321/pages/profile/login.html?api=http://localhost:21432/api/v1` once: the `?api=` value is saved in `localStorage` so every page talks to the Docker API (port 21432). `?api=reset` goes back to the default `http://localhost:11432/api/v1` (back end run with `cargo run`).
 
@@ -64,3 +73,21 @@ Contract test (no dependencies): `node frontend/dev/tests/auth-foundation.mjs`.
 - A failed login (`401`) or a taken email (`409`) logs a network error line in the browser console. That is the browser's own request log, not a JS error – expected.
 - `python -m http.server` lets the browser cache ES modules. After editing a `.js` file, hard-reload (Ctrl+Shift+R) or disable cache in DevTools, otherwise you may test old code.
 - Search tag counts in "Tag phổ biến" come from one capped search per tag (max 50, shown as "50+").
+- Fixed after review (2026-11-13): on mobile the search heading now takes its own row above the sort/"Viết bài" buttons. The password eye icon was squashed by the Figma export, so it was replaced with the Lucide original, and Edge's own reveal button is hidden (`::-ms-reveal`).
+- **Pending, aligned with the new "Front end first" rule (AGENTS.md §8):** search result cards currently hide comment/like/view counts and show "10+" instead of a real total. Restore those slots as in Figma `168:1084` with "–" placeholders and request the fields below. This has not been done yet; the team will schedule it.
+
+## 5. Yêu cầu cho backend (requests for the back-end dev)
+
+The back end will be adjusted to the front end. Every agent adds a row here when a screen needs data the API does not return yet. Status: `cần làm` → `đã có` once the back end ships it.
+
+| Needed by | Endpoint / change | Fields or behaviour the front end expects | Status |
+|---|---|---|---|
+| Search results, Home, Forum | `GET /posts` (and `GET /posts/{id}`) | add `author: { id, username, avatar_url, native }`, `tags: [{ id, name }]`, `comment_count`, `like_count`, `view_count` to each post, so cards need no extra requests | cần làm |
+| Search results | `GET /posts?q=&tags=` | total match count, e.g. `{ items: [...], total }` or header `X-Total-Count` | cần làm |
+| Search results | `GET /posts?sort=` | `sort=relevance`, `newest`, `oldest`, `popular` ("Liên quan nhất" in Figma) | cần làm |
+| Search "Tag phổ biến" | `GET /tags` | `post_count` per tag | cần làm |
+| Home "Bài viết nổi bật" | new, e.g. `GET /posts/featured?limit=` | which posts are featured (staff pick or most reactions); same post shape as above | cần làm |
+| Login "Quên mật khẩu?" | new password-reset endpoints | request reset by email, set new password with a token | cần làm |
+| Register Advanced avatar | new upload endpoint | upload an image, return a URL for `avatar_url` (today: preset path or small data URL) | cần làm |
+| Search | socket transport | deferred by team, HTTP stays for now | hoãn |
+| Register | email verification | deferred by team | hoãn |
