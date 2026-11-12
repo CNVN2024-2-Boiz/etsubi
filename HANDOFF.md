@@ -18,6 +18,7 @@ Last update: 2026-11-13 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`
 | **Register** | `frontend/pages/profile/register.html` + `register.js` | Register 1a `256:2355` |
 | **Register Advanced** (profile completion, native language single choice) | `frontend/pages/profile/register-advanced.html` + `.js`, `styles/pages/register-advanced.css`, `assets/avatars/` | Register Advanced 2 `159:524` (and `126:2`) |
 | **Search** (empty + results, tag chips, tag filter, mobile) | `frontend/pages/search.html` + `search.js`, `styles/pages/search.css`, `components/search-bar/`, `components/tag-chip/`, `components/postcard/` | `267:2576`, `168:1084`, `204:1448`, states `168:869` |
+| **Home (Trang chủ), implementation done**: hero, featured placeholders/pagination, recommendations, real latest/question feed, tabs, bookmark/follow, opt-in header search | `frontend/pages/index.html` + `index.js`, `styles/pages/home.css`, `components/featured-card/`, feed export in `components/postcard/`, capability-gated API services | Home 4 `140:135`, Navbar `140:200`, PostCard `139:157` |
 | Demo data script | `frontend/dev/seed-demo.sh` | – |
 | Figma reference renders | `design-ref/*.png` | – |
 
@@ -25,7 +26,7 @@ Last update: 2026-11-13 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`
 
 | Page | Figma frame | Notes |
 |---|---|---|
-| Home (Trang chủ) | Home 4 `140:135` | Header `active: 'home'`, footer `full`. Post list can reuse `components/postcard` (add a `postcard--feed` variant from PostCard `139:157`). `pages/index.html` is the team's old placeholder (wrong paths, `/assets/banner.png`, no header/footer): **rewrite it completely** from the AGENTS.md page skeleton. Agreed Home 4 content: banner with a single "Đăng bài →" button, red "Xem chi tiết →" button on each post card, no "Xem thêm bài viết", no "Xem tất cả →" in "Bài viết nổi bật". Featured posts and counts have no API yet: follow AGENTS.md §8 "Front end first". |
+| Home (Trang chủ): done, checked in the browser at 1920 and 375 (2026-11-13) | Home 4 `140:135` | Rewritten with shared header (`active: 'home', searchForm: true`) and full footer. Single Đăng bài action, detail links, no view-all/load-more. Unsupported contracts return null behind `capabilities.js`; featured/personal suggestions use static neutral placeholders; topics use real GET /tags. Newest and question feeds enrich author, tags, reaction summary sequentially, max 5 posts. Bookmark state is unknown (`aria-pressed=mixed`) until backend provides it or a real save succeeds. Gutter petals use the explicitly requested 1600px visibility threshold in addition to standard breakpoints. Passed all JS syntax checks, existing auth foundation checks (`node --experimental-vm-modules frontend/dev/tests/auth-foundation.mjs`) and in-memory mocked Home service/DOM checks for signed-in/out tabs, errors/retry, pagination, bookmark/follow and clipboard. Original Search card function/CSS verified unchanged. No server started; browser access host unavailable, so desktop/mobile visual, real-size icons and live API checks remain unverified. Compose/detail destinations (`forum.html`, `post.html`) are later page tasks, currently absent from this checkout. |
 | Reading page (post detail) | `234:1679` | Route `routes.post(id)` → `/pages/post.html?id=`. Comments, reactions, bookmark, translate button (`POST /posts/{id}/translate`), `comments_locked`. |
 | Diễn đàn (forum) | `236:1725` | `/pages/forum.html`; "Viết bài" goes to `routes.newPost` (`/pages/forum.html?compose=1`). |
 | Hỗ trợ | `243:1848` / `247:2088` | `/pages/support.html`; red icon set + StatusBadge in `242:1843`. |
@@ -76,17 +77,26 @@ Contract test (no dependencies): `node frontend/dev/tests/auth-foundation.mjs`.
 - Fixed after review (2026-11-13): on mobile the search heading now takes its own row above the sort/"Viết bài" buttons. The password eye icon was squashed by the Figma export, so it was replaced with the Lucide original, and Edge's own reveal button is hidden (`::-ms-reveal`).
 - **Pending, aligned with the new "Front end first" rule (AGENTS.md §8):** search result cards currently hide comment/like/view counts and show "10+" instead of a real total. Restore those slots as in Figma `168:1084` with "–" placeholders and request the fields below. This has not been done yet; the team will schedule it.
 
+- **Home and `services/api/capabilities.js`:** every Home feature the API lacks (featured posts, recommendations, post stats, popular sort, following feed, bookmark state, feed translation, display name, unread notifications) is behind a flag in `backendSupports`. A `false` flag means no request is sent and the UI shows neutral placeholders ("–", grey bars). When the back end ships an endpoint from §5, flip its flag to `true` and test.
+- **Home decisions:** the Figma "Bài viết mới" header has a "Xem thêm →" link; it is left out because the team agreed on "no Xem thêm bài viết". The hero photo from Figma (2400px, 1.35 MB) was resized to 1920px JPEG (`assets/images/home-hero.jpg`, ~0.6 MB).
+
 ## 5. Yêu cầu cho backend (requests for the back-end dev)
 
 The back end will be adjusted to the front end. Every agent adds a row here when a screen needs data the API does not return yet. Status: `cần làm` → `đã có` once the back end ships it.
 
 | Needed by | Endpoint / change | Fields or behaviour the front end expects | Status |
 |---|---|---|---|
-| Search results, Home, Forum | `GET /posts` (and `GET /posts/{id}`) | add `author: { id, username, avatar_url, native }`, `tags: [{ id, name }]`, `comment_count`, `like_count`, `view_count` to each post, so cards need no extra requests | cần làm |
+| Search results, Home, Forum | `GET /posts` (and `GET /posts/{id}`) | add `author: { id, username, avatar_url, native }`, `tags: [{ id, name }]`, `comment_count`, `repost_count`, `like_count`, `view_count` to each post, so cards need no extra requests; Home `getPostStats(postId, post)` reads list fields behind `postStats` | cần làm |
 | Search results | `GET /posts?q=&tags=` | total match count, e.g. `{ items: [...], total }` or header `X-Total-Count` | cần làm |
-| Search results | `GET /posts?sort=` | `sort=relevance`, `newest`, `oldest`, `popular` ("Liên quan nhất" in Figma) | cần làm |
+| Search results, Home tab Phổ biến | `GET /posts?sort=` | `sort=relevance`, `newest`, `oldest`, `popular` ("Liên quan nhất" in Figma); Home `listPosts({ sort: 'popular' })` gated by `popularSort` | cần làm |
 | Search "Tag phổ biến" | `GET /tags` | `post_count` per tag | cần làm |
-| Home "Bài viết nổi bật" | new, e.g. `GET /posts/featured?limit=` | which posts are featured (staff pick or most reactions); same post shape as above | cần làm |
+| Home "Bài viết nổi bật" | `GET /posts/featured?limit=9` | `getFeaturedPosts({limit=9})`: array ordered by rank (staff pick / most reactions this week), each `{...post, author:{id,username,avatar_url,native}, tags:[{id,name}], comment_count}`; flag `featuredPosts` | cần làm |
+| Home "Có thể bạn quan tâm" | `GET /my/recommendations` (JWT); users: chủ đề quan tâm | `getMyRecommendations()` returns `{topics:[{id,name}], posts:[{id,title,comment_count,tag:{id,name}}], members:[{id,username,avatar_url,institute,address}]}` based on registration topics. Add a stored interested-topics field on users and support saving it at registration/profile update; flag `recommendations` | cần làm |
+| Home tab Đang theo dõi | `GET /my/feed?limit=&offset=` (JWT) | `listFollowingFeed({limit,offset})`: posts from followed users with the same shape as GET /posts; flag `followingFeed` | cần làm |
+| Home bookmark icon | `GET /posts` for signed-in viewer | `is_bookmarked: boolean` per post, read by `getBookmarkState(post)` behind `bookmarkState`; do not add a request per post. Existing POST/DELETE /posts/{id}/bookmark are already used for real saves | cần làm |
+| Home feed translation | `GET /posts?lang=vi` | translated `title`/`content`, `original_language`, `is_translated`; `listPosts({lang})` behind `autoTranslateFeed`. Until supported, show source language and link to post detail with `&translate=1` | cần làm |
+| Home author name and handle | users and embedded `author` in `GET /posts` | `display_name` (Họ và tên) separate from unique `username` (@handle); `getAuthorDisplayName(author)` behind `userHandle`. Today both labels use the real username | cần làm |
+| Home header bell | unread notification count endpoint (backend to define) | `unread_count: number` for the signed-in user; the 8px `site-header__bell-dot` remains hidden until real data is available, no request sent today | cần làm |
 | Login "Quên mật khẩu?" | new password-reset endpoints | request reset by email, set new password with a token | cần làm |
 | Register Advanced avatar | new upload endpoint | upload an image, return a URL for `avatar_url` (today: preset path or small data URL) | cần làm |
 | Search | socket transport | deferred by team, HTTP stays for now | hoãn |
