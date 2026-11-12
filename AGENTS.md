@@ -264,6 +264,8 @@ Base URL: `http://localhost:11432/api/v1` (local `cargo run`) or `http://localho
 
 🔒 = `Authorization: Bearer <token>`. Write calls from a muted user return `403 "Your account is muted until …"`.
 
+No email verification exists yet (team decision: skipped for now), so registration is active immediately.
+
 Flow used by the front end: Register → (auto) Login with the same email/password → store token → Register Advanced (`PATCH /my`) → Home.
 
 ### Users
@@ -275,7 +277,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 - `GET /posts?q=&tags=<uuid,uuid>&limit=&offset=` – published, not deleted posts; `q` matches title or content (ILIKE, max 200 chars); `tags` = **all** listed tags must match; newest first. Returns `PostResponse[]` (`id, author_id, title, content, language, status, comments_locked, created_at, …`) – no author name, tags, counts or total.
 - `GET /tags` – fixed set (`general, question, discussion, announcement, showcase`). The UI uses tag **names**; `services/api/tags.js` maps name ↔ UUID.
 - `GET /posts/{id}/tags`, `GET /users/{id}`, `GET /posts/{id}/reactions/summary` for enrichment (mind the rate limit).
-- **Socket:** the design brief says search goes over a socket, but the back end has **no WebSocket endpoint** yet. `services/api/posts.js` exposes `searchPosts()` over HTTP behind one function so a socket transport can replace it later without touching pages.
+- **Socket (deferred):** search was planned over a socket, but the back-end dev has not implemented it yet, so the team decided to skip it for now (confirmed 2026-11-12). The back end has **no WebSocket endpoint**. `services/api/posts.js` exposes `searchPosts()` over HTTP behind one function so a socket transport can replace it later without touching pages.
 - Search UX rules (agreed): **no live suggestions, no results while typing**. Results load only on Enter or the "Tìm kiếm" button. Submit is `opacity .4` + disabled while there is no query and no tag.
 - **Tag → search:** clicking a tag anywhere navigates to `/pages/search.html?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
 
