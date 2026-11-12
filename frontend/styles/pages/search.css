@@ -661,6 +661,12 @@
     line-height: 1.5;
   }
 
+  /* Phần chữ chiếm trọn một hàng để nút sắp xếp và "Viết bài" xuống dòng dưới,
+     tránh tiêu đề bị ép thành cột hẹp bên cạnh hai nút trên màn hình điện thoại. */
+  .search-heading__copy {
+    flex-basis: 100%;
+  }
+
   /* Giảm cỡ dòng giải thích ở mobile nhưng giữ màu muted tiêu chuẩn. */
   .search-heading__description {
     font-size: 12px;
