@@ -1,0 +1,684 @@
+/* Trang tìm kiếm giữ nền và chiều rộng theo token; flex đẩy footer xuống đáy khi chưa có kết quả. */
+.page--search {
+  background: var(--color-page);
+}
+
+/* Khung 1440px tương ứng lề 240px ở 1920px, chia cột nội dung và sidebar 320px với khe 24px. */
+.search-layout {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  align-content: start;
+  align-items: start;
+  gap: var(--space-6);
+  padding-block: var(--space-10) calc(var(--space-10) + var(--space-1));
+}
+
+/* Cột chính xếp các trạng thái dọc với khe 16px, có thể co nhỏ hơn chiều dài tiêu đề. */
+.search-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Hàng tiêu đề đặt thao tác ở bên phải, cho phép xuống dòng khi khoảng trống không đủ. */
+.search-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Phần chữ tự giãn và cho phép ngắt từ khoá rất dài lấy từ URL. */
+.search-heading__copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tiêu đề ban đầu lớn hơn một chút để nhấn chức năng tìm kiếm của trang. */
+.search-heading__title {
+  color: var(--color-text);
+  font-size: 26px;
+  line-height: 1.35;
+}
+
+/* Khi có kết quả, cỡ chữ 24px và dòng 32px khớp khung kết quả trong bản thiết kế. */
+.search-heading.is-submitted .search-heading__title {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+/* Mô tả phụ giải thích thao tác gửi hoặc quy tắc khớp tất cả thẻ đã chọn. */
+.search-heading__description {
+  margin-top: var(--space-1);
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Từ khoá và tag trong phần tóm tắt dùng màu thương hiệu, không thêm nền đánh dấu. */
+.search-heading__query {
+  color: var(--color-red);
+  font-weight: 500;
+}
+
+/* Nhóm thao tác không co để nhãn viết bài và sắp xếp luôn đọc trọn vẹn. */
+.search-heading__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Nút viết bài có kích thước gọn 36px, nền đỏ và icon trắng như bản thiết kế. */
+.search-write {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-transparent);
+  border-radius: var(--radius-md);
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Đổi nền khi rê chuột mà không di chuyển nút hoặc nội dung xung quanh. */
+.search-write:hover {
+  background: var(--color-red-hover);
+  text-decoration: none;
+}
+
+/* Trạng thái kiểm tra phiên chỉ giảm độ mờ, nhãn chờ được JS thay bằng văn bản. */
+.search-write[aria-disabled='true'] {
+  opacity: .4;
+}
+
+/* Nút phụ hình viên thuốc dùng chung cho sort, tải thêm, thử lại và xoá lọc ở thẻ trống. */
+.search-pill {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  color: var(--color-text-body);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Nút phụ phản hồi bằng viền đỏ thay vì hoạt ảnh. */
+.search-pill:hover:not(:disabled) {
+  border-color: var(--color-red);
+}
+
+/* Khoá nút tải thêm trong khi đang gửi để tránh trùng trang và trùng bài. */
+.search-pill:disabled {
+  opacity: .4;
+}
+
+/* Vùng sort làm mốc cho menu nhỏ ngay dưới nút. */
+.search-sort {
+  position: relative;
+}
+
+/* Menu sort nổi trên thẻ bài, có hai thao tác và không dùng vai trò menu cần xử lý phím phức tạp. */
+.search-sort__options {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 4;
+  min-width: 160px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Mỗi lựa chọn phủ ngang menu, chữ căn trái và dùng nền trong suốt lúc chưa chọn. */
+.search-sort__option {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-text-body);
+  text-align: left;
+  font-size: 13px;
+}
+
+/* Nền hồng cho lựa chọn đang dùng hoặc đang trỏ để dễ phân biệt thứ tự hiện tại. */
+.search-sort__option:hover,
+.search-sort__option[aria-pressed='true'] {
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+}
+
+/* Thanh lọc ngăn nhóm tag và nút xoá; vùng cuộn bên trái không đẩy nút ra ngoài. */
+.search-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--button-small-y) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+}
+
+/* Danh sách tag desktop cuộn ngang nội bộ khi có nhiều thẻ thay vì tràn cả trang. */
+.search-filters__tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-1);
+  overflow-x: auto;
+  /* Ẩn thanh cuộn xám của hệ điều hành; người dùng vẫn vuốt/cuộn ngang được. */
+  scrollbar-width: none;
+}
+
+/* Nhãn Tag nhỏ và không co, đứng trước mọi chip lọc. */
+.search-filters__label {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Nút xoá lọc chỉ có chữ đỏ, đủ đệm để thao tác mà không tạo thêm nút nền nổi bật. */
+.search-clear {
+  flex-shrink: 0;
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-red);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Gạch chân thể hiện rõ nút chữ đang được trỏ tới mà không thêm chuyển động. */
+.search-clear:hover {
+  text-decoration: underline;
+}
+
+/* Thẻ trống căn giữa nội dung và dùng bóng có sẵn; token bóng riêng sẽ được đề xuất cho nhóm dùng chung. */
+.search-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--space-4) - 2px);
+  padding: calc(var(--space-9) + var(--space-2)) var(--space-8) var(--space-9);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-search-empty, var(--shadow-result));
+  text-align: center;
+}
+
+/* Vòng tròn hồng 64px làm rõ biểu tượng tìm kiếm ở giữa thẻ trống. */
+.search-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+}
+
+/* Tiêu đề thẻ dùng display 22px theo thiết kế, được dùng lại khi không có kết quả. */
+.search-empty__title {
+  font-size: 22px;
+  line-height: 1.5;
+}
+
+/* Giới hạn đoạn hướng dẫn 560px để dòng chữ không quá dài ở màn hình desktop. */
+.search-empty__description {
+  max-width: 560px;
+  color: var(--color-muted);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+/* Các phím tắt là nội dung tĩnh, tự xuống dòng khi thẻ hẹp hơn bản thiết kế. */
+.search-empty__shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-6);
+  padding-top: calc(var(--space-2) - 2px);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Phím và nhãn đi cùng nhau trong một nhóm để khi xuống dòng không bị tách ý nghĩa. */
+.search-empty__shortcuts > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Phím dùng đệm 3px theo thiết kế, đậm vừa hơn phần hướng dẫn. */
+.search-empty__shortcuts .kbd {
+  padding: calc(var(--space-1) - 1px) var(--space-2);
+  font-weight: 600;
+}
+
+/* Danh sách kết quả không thêm độ rộng tối thiểu, mọi thẻ có khe 16px như Figma. */
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Vùng tải thêm căn giữa nút, nằm sau toàn bộ danh sách kết quả đã tải. */
+.search-more {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--space-2);
+}
+
+/* Lỗi và nút thử lại xếp dọc để lời giải thích không chen cùng hàng với thao tác. */
+.search-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* Thẻ giữ chỗ có viền đỏ, nền kem và ba thanh xám hoàn toàn tĩnh. */
+.search-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border: 1.2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+}
+
+/* Thanh dài giữ chỗ đoạn trích, không có keyframe hoặc chuyển màu khi tải. */
+.search-skeleton__bar {
+  width: 100%;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+/* Thanh ngắn gợi hàng tác giả để hình dạng thẻ tải gần với thẻ thật. */
+.search-skeleton__bar--short {
+  width: 30%;
+}
+
+/* Thanh vừa gợi tiêu đề ngắn, giữ chiều rộng tương đối khi cột co. */
+.search-skeleton__bar--medium {
+  width: 70%;
+}
+
+/* Sidebar xếp hai thẻ dọc với khe 16px và không kéo giãn theo chiều cao kết quả. */
+.search-sidebar {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Thẻ sidebar dùng đúng viền đỏ 2px và bóng riêng từ hệ token. */
+.search-sidebar-card {
+  min-width: 0;
+  padding-bottom: var(--radio-padding);
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Dải đầu sidebar đỏ với cổng torii nhỏ, tiêu đề 14px đậm vừa thay vì phông display. */
+.search-sidebar-card__title {
+  display: flex;
+  align-items: center;
+  gap: var(--button-small-y);
+  margin-bottom: calc(var(--space-4) - 2px);
+  padding: var(--space-3) var(--radio-padding);
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Danh sách mô tả dùng dl để ghép từng phím với lời giải thích tương ứng. */
+.search-tips {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0 var(--radio-padding);
+}
+
+/* Cột phím rộng 84px giữ các lời giải thích thẳng hàng như thiết kế sidebar. */
+.search-tips > div {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: start;
+}
+
+/* Phím sidebar nhỏ, nền trung tính và góc vừa để cân với lời giải thích 12px. */
+.search-tips .kbd {
+  padding: calc(var(--space-1) - 2px) calc(var(--space-2) - 2px);
+  border-radius: var(--radius-md);
+  color: var(--color-text-body);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Bỏ lề mặc định của dd và dùng chữ muted dễ đọc trên nền kem. */
+.search-tips dd {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Tag phổ biến được xuống dòng trong sidebar, có khoảng cách 8px giữa các chip. */
+.search-popular-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0 var(--radio-padding);
+}
+
+/* Chữ chờ hoặc lỗi danh mục nhỏ và tĩnh, không hiện số lượng giả. */
+.search-sidebar-card__note {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Các điều khiển đặc thù điện thoại được ẩn trên desktop để giữ đúng bố cục khung lớn. */
+.search-mobile-tags,
+.search-mobile-info,
+.search-back {
+  display: none;
+}
+
+/* Thu khoảng cách header riêng trang này để thanh 660px còn chỗ cho đủ bốn tab desktop. */
+.page--search .site-header {
+  gap: var(--space-6);
+}
+
+/* Giữ slot tìm kiếm co được khi người dùng đã đăng nhập và có thêm chuông, avatar. */
+.page--search .site-header__search-slot {
+  flex: 0 1 660px;
+  min-width: 0;
+}
+
+/* Chỉ áp dụng hidden sau các lớp flex/grid để mọi trạng thái thực sự được ẩn. */
+.page--search [hidden] {
+  display: none;
+}
+
+/* Laptop giữ hai cột nhưng thu sidebar xuống 280px, không thay các breakpoint đã thống nhất. */
+@media (max-width: 1280px) {
+  /* Cột chính nhận phần còn lại sau sidebar 280px và khe 24px. */
+  .search-layout {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+
+  /* Header dùng khe nhỏ hơn để các tab và nhóm phiên vẫn nằm cùng hàng trên laptop. */
+  .page--search .site-header {
+    gap: var(--space-3);
+  }
+
+  /* Tab thu khe xuống 16px nhưng vẫn giữ cùng hộp nhãn và vị trí vạch chân của component. */
+  .page--search .site-header__nav {
+    gap: var(--space-4);
+  }
+
+  /* Ô tìm kiếm thu linh hoạt thay vì buộc độ rộng làm tràn header. */
+  .page--search .site-header__search-slot {
+    flex: 1 1 300px;
+  }
+
+  /* Bỏ spacer dư vì ô tìm kiếm đã nhận phần trống linh hoạt. */
+  .page--search .site-header__spacer {
+    display: none;
+  }
+}
+
+/* Tablet chuyển nội dung một cột, sidebar hai cột và thanh tìm kiếm nằm hàng thứ hai của header. */
+@media (max-width: 960px) {
+  /* Khung nội dung một cột, đệm dọc 48px để không chiếm quá nhiều chiều cao. */
+  .search-layout {
+    grid-template-columns: minmax(0, 1fr);
+    padding-block: var(--space-9);
+  }
+
+  /* Sidebar chuyển hai cột cân nhau bên dưới kết quả. */
+  .search-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Header dùng flex-wrap tự nhiên thay vì định vị tuyệt đối các nhóm điều khiển. */
+  .page--search .site-header {
+    flex-wrap: wrap;
+    height: auto;
+    padding-block: var(--space-3);
+  }
+
+  /* Cho thương hiệu lại hiện đầy đủ ở tablet vì điều hướng desktop đã chuyển thành menu. */
+  .page--search .site-header__brand .brand-word {
+    display: inline;
+  }
+
+  /* Công cụ ở mép phải hàng đầu, không can thiệp nội dung component dùng chung. */
+  .page--search .site-header__utils {
+    margin-left: auto;
+  }
+
+  /* Slot chiếm trọn hàng kế tiếp; max-width của thanh được bỏ trong trang này. */
+  .page--search .site-header__search-slot {
+    order: 2;
+    flex: 1 0 100%;
+  }
+
+  /* Thanh tìm kiếm lấp đầy chiều ngang của hàng tablet. */
+  .page--search .search-bar {
+    max-width: none;
+  }
+}
+
+/* Điện thoại dùng header tác vụ và hàng tag cuộn giống khung Mobile Màn tìm kiếm. */
+@media (max-width: 600px) {
+  /* Trang nhỏ dùng nền kem và không cho bất kỳ cột con nào áp chiều rộng tối thiểu. */
+  .page--search {
+    background: var(--color-cream);
+  }
+
+  /* Header chỉ có một hàng, có đệm 16px và cao tự nhiên theo viên thuốc 40px. */
+  .page--search .site-header {
+    flex-wrap: nowrap;
+    gap: var(--space-3);
+    min-height: 72px;
+    padding: var(--space-4);
+  }
+
+  /* Ẩn các nhóm điều hướng chung trên trang tác vụ mobile để dành chỗ nhập và nút Tìm. */
+  .page--search .site-header__brand,
+  .page--search .site-header__nav,
+  .page--search .site-header__utils,
+  .page--search .site-header__spacer,
+  .page--search .site-header__mobile-nav {
+    display: none;
+  }
+
+  /* Slot nhận phần ngang còn lại, bỏ order của tablet để giữ đúng thứ tự nút quay lại rồi ô nhập. */
+  .page--search .site-header__search-slot {
+    order: 0;
+    flex: 1;
+  }
+
+  /* Nút quay lại trắng trên nền đỏ với vùng chạm riêng, không có chữ thừa trên màn hình nhỏ. */
+  .search-back {
+    display: grid;
+    flex: 0 0 28px;
+    place-items: center;
+    width: 28px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-transparent);
+    color: var(--color-white);
+  }
+
+  /* Form mobile bỏ nền chung để ô nhập và nút Tìm thành hai viên thuốc độc lập. */
+  .page--search .search-bar__form {
+    gap: var(--space-2);
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--color-transparent);
+  }
+
+  /* Vòng focus chỉ bao input pill, không bao cả khoảng trống giữa hai nút. */
+  .page--search .search-bar__form:focus-within {
+    box-shadow: none;
+  }
+
+  /* Viên nhập trắng cao 40px, giữ chip, input và nút xoá trên cùng hàng. */
+  .page--search .search-bar__field {
+    height: 40px;
+    padding: calc(var(--space-2) - 2px) var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+  }
+
+  /* Focus trong viên nhập vẫn dùng vòng sáng chung cho người thao tác bàn phím. */
+  .page--search .search-bar__field:focus-within {
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Bỏ các chi tiết desktop không có trong bản thiết kế mobile. */
+  .page--search .search-bar__leading-icon,
+  .page--search .search-bar__escape,
+  .page--search .search-bar__divider,
+  .page--search .search-bar__tag-button,
+  .page--search .search-bar__submit-label {
+    display: none;
+  }
+
+  /* Chip được cuộn bên trong để luôn còn ô nhập khi có nhiều tag, kể cả ở 360px. */
+  .page--search .search-bar__chips {
+    max-width: 58%;
+  }
+
+  /* Input mobile dùng cỡ 16px để thiết bị không tự zoom khi người dùng focus. */
+  .page--search .search-bar__input {
+    flex-basis: 40px;
+    min-width: 24px;
+    font-size: 16px;
+  }
+
+  /* Nút Tìm riêng màu trắng, chữ đỏ, đệm gọn để không ép vùng nhập khỏi màn hình. */
+  .page--search .search-bar__submit {
+    height: 36px;
+    padding: 0 var(--space-3);
+    background: var(--color-white);
+    color: var(--color-red);
+  }
+
+  /* Icon tìm trên nút mobile đổi sang bản đỏ đã có sẵn trong tài sản của dự án. */
+  .page--search .search-bar__submit img {
+    content: url('/assets/icons/search-brand.svg');
+  }
+
+  /* Nhãn Tìm rút gọn hiện riêng; khi chờ thay bằng nhãn rõ ràng và vẫn giữ nút khoá. */
+  .page--search .search-bar__mobile-label {
+    display: inline;
+  }
+
+  /* Trạng thái chờ mobile dùng cùng nhãn Đang xử lý thay cho nhãn ngắn mặc định. */
+  .page--search .search-bar__submit.is-loading .search-bar__mobile-label {
+    display: none;
+  }
+
+  /* Cho phép nhãn chờ gọn xuống dòng để không gây tràn header hẹp. */
+  .page--search .search-bar__submit.is-loading .search-bar__submit-label {
+    display: inline;
+    max-width: 64px;
+    white-space: normal;
+    font-size: 11px;
+  }
+
+  /* Hàng tag cream có viền đáy và cuộn ngang riêng, không cuộn cả trang. */
+  .search-mobile-tags {
+    display: flex;
+    flex-shrink: 0;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4) var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-cream);
+    overflow-x: auto;
+    /* Ẩn thanh cuộn xám của hệ điều hành; hàng chip vẫn vuốt ngang được như Figma mobile. */
+    scrollbar-width: none;
+  }
+
+  /* Nội dung mobile chỉ có một cột, lề ngang 16px và khoảng trên 16px như Figma. */
+  .search-layout {
+    gap: 0;
+    padding-block: var(--space-4) var(--space-8);
+  }
+
+  /* Ẩn tiêu đề desktop khi chưa tìm và ẩn các vùng phụ không có trong thiết kế mobile. */
+  .search-heading:not(.is-submitted),
+  .search-sidebar,
+  .search-filters,
+  .search-empty:not(.search-empty--no-results) {
+    display: none;
+  }
+
+  /* Kết quả mobile giữ tiêu đề nhỏ và xuống dòng an toàn nếu từ khoá dài. */
+  .search-heading.is-submitted .search-heading__title {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  /* Giảm cỡ dòng giải thích ở mobile nhưng giữ màu muted tiêu chuẩn. */
+  .search-heading__description {
+    font-size: 12px;
+  }
+
+  /* Banner trống mobile có nền sakura, chữ đỏ sẫm và không chứa gợi ý động. */
+  .search-mobile-info {
+    display: block;
+    padding: var(--button-small-y) calc(var(--space-4) - 2px);
+    border-radius: var(--radius-md);
+    background: var(--color-sakura);
+    color: var(--color-red-dark);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  /* Không có kết quả vẫn cần lời giải thích và nút xoá lọc, dùng thẻ gọn trên điện thoại. */
+  .search-empty--no-results {
+    padding: var(--space-7) var(--space-4);
+  }
+}

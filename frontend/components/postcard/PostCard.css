@@ -1,0 +1,180 @@
+/* Thẻ kết quả dùng flex dọc, nền kem và viền đỏ; position là mốc cho liên kết phủ thẻ. */
+.postcard--result {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--button-small-y);
+  min-width: 0;
+  padding: var(--space-5) var(--space-5) var(--radio-padding);
+  border: 1.2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-result);
+}
+
+/* Phản hồi hover chỉ đổi bóng và màu viền, giữ nguyên vị trí của cả danh sách. */
+.postcard--result:hover {
+  border-color: var(--color-red-dark);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Hàng tác giả nhỏ hơn tiêu đề, có thể co và xuống dòng khi ngày hoặc tên dài. */
+.postcard__author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Avatar cố định 24px có nền hồng, cắt ảnh theo hình tròn và dự phòng bằng chữ viết tắt. */
+.postcard__avatar {
+  display: inline-grid;
+  flex: 0 0 24px;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura-100);
+  color: var(--color-red-dark);
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+/* Ảnh phủ khung avatar mà không méo tỷ lệ gốc. */
+.postcard__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tên tác giả đậm vừa và có thể ngắt từ dài để không gây tràn ngang. */
+.postcard__author-name {
+  color: var(--color-text);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh xám tĩnh giữ chỗ tên tác giả trong lúc bổ sung dữ liệu, không có shimmer. */
+.postcard__author-placeholder {
+  width: 120px;
+  height: 12px;
+  margin-block: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+/* Tiêu đề bài dùng phông nội dung theo thiết kế PostCard, không dùng phông display. */
+.postcard__title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Liên kết tiêu đề kế thừa màu để chỉ phần khớp từ khoá mới có màu đỏ. */
+.postcard__link {
+  color: var(--color-text);
+}
+
+/* Vùng phủ làm cả thẻ bấm được; các tag có lớp nổi riêng ở phía trên. */
+.postcard__link::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-md);
+  content: '';
+}
+
+/* Focus bàn phím của liên kết tiêu đề làm rõ đường viền cả thẻ. */
+.postcard__link:focus-visible::after {
+  outline: 2px solid var(--color-red-dark);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đoạn trích desktop chỉ một dòng, cắt bằng ellipsis để danh sách kết quả đều nhau. */
+.postcard__excerpt {
+  overflow: hidden;
+  color: var(--color-text-body);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Mark bỏ nền mặc định; tiêu đề đỏ còn đoạn trích chỉ tăng độ đậm để dễ đọc. */
+.hl {
+  background: var(--color-transparent);
+  color: inherit;
+}
+
+/* Phần khớp tiêu đề dùng đỏ thương hiệu để nổi bật từ người dùng đang tìm. */
+.hl--title {
+  color: var(--color-red);
+}
+
+/* Phần khớp trong đoạn trích đậm hơn văn cảnh nhưng không thêm nền màu. */
+.hl--body {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Chân thẻ tách chip và thống kê, cho xuống hàng khi không đủ chỗ. */
+.postcard__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+/* Tag nằm trên vùng phủ liên kết bài viết để nhấn lọc không mở bài. */
+.postcard__tags {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Thống kê nhỏ gọn ở mép phải; nhóm rỗng không tạo khoảng trống thừa. */
+.postcard__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Mỗi số và biểu tượng khoá xếp cùng hàng để người đọc hiểu đúng ý nghĩa. */
+.postcard__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Thu gọn thẻ trên điện thoại và cho đoạn trích hai dòng để đủ ngữ cảnh. */
+@media (max-width: 600px) {
+  /* Đệm 16px giữ cỡ chữ dễ đọc mà không chiếm quá nhiều bề ngang màn hình nhỏ. */
+  .postcard--result {
+    padding: var(--space-4);
+  }
+
+  /* Line clamp tĩnh hiển thị tối đa hai dòng, không dùng JavaScript cắt theo kích thước màn hình. */
+  .postcard__excerpt {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
