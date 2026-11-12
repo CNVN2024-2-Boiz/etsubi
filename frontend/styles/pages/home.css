@@ -186,7 +186,8 @@
   background: var(--color-red-dark);
 }
 
-/* Ảnh phủ khung 1920 × 480, không kéo méo tỷ lệ của tài nguyên gốc. */
+/* Ảnh phủ toàn bộ hero (cao 336px, thấp hơn Figma 480px theo yêu cầu của nhóm
+   để thẻ nổi bật nằm trọn trong màn hình đầu), không kéo méo tỷ lệ của tài nguyên gốc. */
 .home-hero__photo {
   position: absolute;
   inset: 0;
@@ -210,7 +211,7 @@
 .home-hero__inner {
   position: relative;
   padding-top: var(--home-hero-top);
-  padding-bottom: var(--space-9);
+  padding-bottom: var(--space-8);
 }
 
 /* Lời chào xếp dọc bằng flex, không định vị tuyệt đối các đoạn văn bản. */
@@ -218,7 +219,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--radio-padding);
+  gap: var(--space-3);
 }
 
 /* Vạch vàng nhạt làm điểm mở đầu cho cụm thương hiệu. */
@@ -245,12 +246,13 @@
 .home-hero__title {
   max-width: 100%;
   color: var(--color-hero-title);
-  font-size: 68px;
+  font-size: 56px;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
-/* Đoạn giới thiệu giới hạn 640px để tạo hai dòng ở desktop như Figma. */
+/* Đoạn giới thiệu rộng tối đa 1100px để nằm gọn một dòng trên desktop,
+   giúp hero thấp hơn và các thẻ "Bài viết nổi bật" lọt trọn trong màn hình đầu tiên. */
 .home-hero__description {
   max-width: var(--home-hero-copy-width);
   color: var(--color-home-hero-text);
@@ -263,10 +265,11 @@
   padding-top: var(--button-small-y);
 }
 
-/* Nội dung chính có đệm 72px và cánh hoa luôn nằm sau vùng tương tác. */
+/* Nội dung chính: đệm trên 32px (gọn để thẻ nổi bật hiện đủ trong màn hình đầu),
+   đệm dưới 72px; cánh hoa luôn nằm sau vùng tương tác. */
 .home {
   position: relative;
-  padding-block: var(--space-10);
+  padding-block: var(--space-7) var(--space-10);
   background: var(--color-page);
 }
 

@@ -341,9 +341,23 @@
   width: 100%;
   min-width: 0;
   border: 0;
+  outline: none;
   background: var(--color-transparent);
   color: var(--color-text);
   font-size: 14px;
+}
+
+/* Bỏ khung vuông focus mặc định của ô nhập (nằm lọt trong pill trông rất lạ);
+   thay vào đó cả pill hiện vòng focus mềm, giống thanh tìm kiếm của trang Search,
+   để người dùng bàn phím vẫn thấy rõ ô đang được chọn. */
+.site-header__home-search input:focus,
+.site-header__home-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.site-header__home-search:focus-within {
+  box-shadow: var(--focus-ring);
 }
 
 /* Placeholder dùng màu muted chung để đủ tương phản trên nền kem. */

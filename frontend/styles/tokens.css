@@ -139,9 +139,9 @@
   --color-placeholder-bar: #ECE6DC;
   --color-featured-rank: rgba(255,255,255,.35);
   --color-featured-badge: rgba(255,255,255,.16);
-  --home-hero-height: 480px;
-  --home-hero-top: 79px;
-  --home-hero-copy-width: 640px;
+  --home-hero-height: 336px;
+  --home-hero-top: var(--space-8);
+  --home-hero-copy-width: 1100px;
   --home-section-gap: 28px;
   --home-card-gap: 30px;
   --home-sidebar-width: 440px;
