@@ -175,6 +175,13 @@ select.input, .input--select {
   padding-right: calc(var(--space-9) + var(--space-4));
 }
 
+/* Ẩn nút hiện mật khẩu có sẵn của Edge/IE, vì trang đã có nút mắt riêng;
+   nếu không ô mật khẩu sẽ hiện hai con mắt cạnh nhau. */
+.input-group .input::-ms-reveal,
+.input-group .input::-ms-clear {
+  display: none;
+}
+
 /* Nút mắt được căn giữa dọc bằng phép dịch tĩnh, nền trong suốt và vùng chạm đủ rộng trong ô nhập. */
 .input-group__button {
   position: absolute;
