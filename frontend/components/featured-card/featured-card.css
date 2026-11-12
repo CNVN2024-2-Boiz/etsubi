@@ -150,12 +150,15 @@
   font-size: 12px;
 }
 
-/* Nút chi tiết nhỏ đúng Figma, tái dùng cho thẻ bảng tin trên Home. */
+/* Nút chi tiết nhỏ đúng Figma (138 × 34, đệm 8/14/8/16), tái dùng cho thẻ bảng tin trên Home.
+   Bỏ viền 1px và đặt dòng chữ 18px để nút cao đúng 34px, không bị "phình" thành 37-38px. */
 .featured-card__detail {
   gap: var(--space-1);
   padding: var(--space-2) var(--home-detail-padding-x) var(--space-2) var(--space-4);
+  border-width: 0;
   font-size: 14px;
   font-weight: 600;
+  line-height: 18px;
 }
 
 /* Hai pill xám giữ chỗ cho tag mà không tạo tên chủ đề giả. */

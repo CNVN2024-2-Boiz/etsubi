@@ -293,6 +293,32 @@
   font-size: 16px;
 }
 
+/* Tiêu đề có link phụ: lưới 2 cột, tiêu đề bên trái, "Xem thêm" bên phải cùng hàng,
+   dòng mô tả nằm hàng dưới và trải hết chiều ngang. */
+.home-section-heading--with-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-4);
+}
+
+.home-section-heading--with-link > p {
+  grid-column: 1 / -1;
+}
+
+/* Link "Xem thêm →" chữ đỏ SemiBold 15px như Figma; hover gạch chân để báo có thể bấm. */
+.home-section-heading__more {
+  color: var(--color-red);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.home-section-heading__more:hover {
+  text-decoration: underline;
+}
+
 /* H2 có vạch đỏ 5 × 26 và đủ khoảng cách, không cần thẻ rỗng trong HTML. */
 .home-section-heading__title {
   display: flex;

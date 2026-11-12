@@ -61,16 +61,22 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
     }
   }
   const stats = el('div', { className: 'postcard__stats' });
-  // Chỉ hiện số thực do dữ liệu cung cấp; API hiện tại không có nên tuyệt đối không tạo số giả.
+  // Luôn giữ đủ 3 ô số như Figma (bình luận, lượt thích, lượt xem) theo quy tắc "front end đi trước".
+  // CẦN BACKEND: GET /posts chưa trả comment_count, like_count, view_count; khi thiếu thì hiện "–",
+  // tuyệt đối không tạo số giả. Khi backend bổ sung trường, các ô tự hiện số thật.
   const numbers = [
-    ['message-circle', post.comment_count, 'bình luận'],
-    ['heart', post.like_count ?? post.reaction_count, 'lượt thích'],
+    ['message-circle', post.comment_count, 'bình luận', ''],
+    ['heart', post.like_count ?? post.reaction_count, 'lượt thích', ''],
+    ['eye-muted', post.view_count, 'lượt xem', ' lượt xem'],
   ];
-  for (const [icon, count, label] of numbers) {
-    if (typeof count === 'number' && Number.isFinite(count)) {
-      stats.append(el('span', { className: 'postcard__stat', 'aria-label': count + ' ' + label },
-        el('img', { src: '/assets/icons/' + icon + '.svg', alt: '', width: 16, height: 16 }), count));
-    }
+  for (const [icon, count, label, suffix] of numbers) {
+    const known = typeof count === 'number' && Number.isFinite(count);
+    stats.append(el('span', {
+      className: 'postcard__stat' + (known ? '' : ' postcard__stat--unknown'),
+      'aria-label': known ? count + ' ' + label : 'Chưa có số ' + label,
+    },
+    el('img', { src: '/assets/icons/' + icon + '.svg', alt: '', width: 16, height: 16 }),
+    (known ? String(count) : '–') + suffix));
   }
   if (post.comments_locked) {
     const lock = el('span', { className: 'postcard__stat postcard__lock' });

@@ -72,8 +72,10 @@
 
           <!-- Bảng tin chỉ tải khi chọn tab, có vùng trạng thái chờ, lỗi và rỗng riêng. -->
           <section class="home-feed" aria-labelledby="feed-title">
-            <header class="home-section-heading">
+            <!-- Tiêu đề có link "Xem thêm" ở góc phải như Figma Home 4, dẫn sang trang Diễn đàn để xem toàn bộ bài. -->
+            <header class="home-section-heading home-section-heading--with-link">
               <h2 id="feed-title" class="t-display home-section-heading__title">Bài viết mới</h2>
+              <a class="home-section-heading__more" href="/pages/forum.html" data-route="forum">Xem thêm →</a>
               <p>Cập nhật liên tục từ cộng đồng Etsubi</p>
             </header>
             <div class="home-feed__tabs" role="tablist" aria-label="Chọn bảng tin" data-feed-tabs>

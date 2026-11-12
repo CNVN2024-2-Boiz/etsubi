@@ -154,7 +154,11 @@
   --home-tab-padding-y: 9px;
   --home-search-width: 520px;
   --home-search-height: 42px;
-  --home-search-padding-left: 17px;
+  --home-search-padding-left: 16px;
+  /* Ô tìm kiếm Home trong suốt trên nền đỏ (Figma Home 4, node SearchBar 1:1169). */
+  --home-search-bg: rgba(255,255,255,.12);
+  --home-search-border: rgba(255,255,255,.22);
+  --home-search-placeholder: rgba(255,255,255,.6);
 }
 
 /* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */

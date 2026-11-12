@@ -156,8 +156,8 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - Red bar (`--color-red`), height 77px, 48px side padding, shadow `--shadow-navbar`.
 - Left: circular Etsubi logo with white ring (`assets/icons/etsubi-logo.svg`) + "Etsubi" in Etsubi Logo, white. Links to Home.
 - Tabs, in this order: **Trang chủ · Diễn đàn · Hỗ trợ · Giới thiệu** (17px, Medium, white 85%). Every tab has the same box (label + 3px underline slot), so labels always line up vertically. The active tab gets white text + visible pink underline. On the search page **no tab is active**.
-- Right: language badge (VI/JA/EN), and when signed in: notification bell + gradient avatar with initials (38px, 2px white 70% ring). When signed out on content pages: "Đăng nhập" link.
-- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`.
+- Right, in Figma order: when signed in **notification bell → language badge (VI/JA/EN) → gradient avatar** with initials (38px, 2px white 70% ring); when signed out on content pages: language badge → "Đăng nhập" link. Login/Register show only the language badge (no search icon). Figma also draws a sun "theme toggle" before the bell; there is no dark theme yet, so it is not built (team to decide).
+- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
 
@@ -249,6 +249,49 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 | Mod/Admin board | `260:1891` |
 
 Figma MCP note: Etsubi Display/Logo are local fonts, so MCP cannot edit those text layers. This front end is read-only towards Figma – never edit the Figma files.
+
+### Shared team file frame IDs (source of truth `HFYjrrtGqo86EpOX1Bdg88`, Page 1)
+
+| Screen | Frame ID |
+|---|---|
+| Etsubi Login 3a | `1:910` |
+| Etsubi Register 1a | `1:1013` |
+| Etsubi Register Advanced 2 | `1:700` |
+| Etsubi Home 4 | `1:1124` (Navbar `1:1156`, search pill `1:1169`, feed PostCard `1:1291`, FeaturedCard `1:1231`) |
+| Etsubi Reading Page | `1:1337` |
+| Etsubi Diễn đàn | `1:1587` |
+| Etsubi Giới thiệu | `1:1737` |
+| Etsubi Hỗ trợ 2 | `1:1966` |
+| Etsubi - Góc nhìn Mod/Admin | `1:2435` |
+| Search with tags / empty / mobile / states | `1:2927` / `1:3151` / `1:3319` / `1:3651` |
+| Profile - Màn hình áp dụng | `1:3896` |
+| Etsubi Components / Components tìm kiếm / Components Hỗ trợ & Giới thiệu | `1:517` / `1:3398` / `1:2212` |
+
+### Final review procedure (required before a page batch is called done)
+
+The reviewer (the person or agent who did not write the code) runs every step and fixes or reports each mismatch. Do this for every page touched in the batch.
+
+1. **Get the real numbers from Figma, not from memory.** Use the shared file frame IDs above. `get_metadata` on the frame or instance gives positions and sizes of every child (for example a card's Divider, EngagementRow and DetailButton). `get_design_context` on a small node gives exact colours, padding, gaps and font sizes. `get_screenshot` gives the visual target. Read small nodes, not whole pages, to save the shared file's MCP quota.
+2. **Measure the web page the same way.** Serve `frontend/` on `http://localhost:12321` with the back end running. Hard-reload so CSS/JS are not cached: Ctrl+Shift+R, or `fetch(url, {cache:'reload'})` and then reload. Compare with `getBoundingClientRect()` and `getComputedStyle()` in the console: the top, height and padding of the key blocks, and the gap between elements such as a divider and the button below it. Anything more than about 2px off the Figma value is a bug unless it is a documented team decision.
+3. **Compare side by side at 1920×1080**, section by section, with the Figma screenshot: header, hero/heading, cards, sidebars, footer. Check alignment, spacing, sizes, colours, font weight and icon proportion.
+4. **Check the header everywhere.**
+   - Tab labels line up vertically and only the right tab is active (none on Search).
+   - Right-side order follows Figma: bell, language badge, avatar.
+   - Login/Register show only the language badge.
+   - The Home search pill is translucent on the red bar.
+   - Clicking any input shows no square browser focus box inside a pill. The whole pill shows the focus state instead.
+5. **Check both session states.** Do this signed out and signed in. An info banner or avatar changes the layout, so the signed-out Login/Register card must sit exactly where Figma puts it.
+6. **Check the first screen.** At a common laptop browser height (1920×947 viewport), Home's featured cards must be fully visible without scrolling. This is a team requirement that overrides the 480px Figma hero.
+7. **Check every state.** Cover hover, focus-visible, disabled, loading text, empty, error and "no results". Placeholders for data the back end lacks must show "–" or grey bars, never invented values (§8).
+8. **Check mobile at 375×812.** There must be no horizontal scroll (`document.documentElement.scrollWidth === innerWidth`), buttons must be full-width where Figma shows it, and text must not be squeezed into narrow columns.
+9. **Check icons at real size.** Zoom in on every icon. If one looks squashed, replace it with the Lucide original (§4 Icons). A browser-native control (Edge password eye, search clear ×) must not duplicate ours.
+10. **Keep the console clean.** There must be no errors and no failed requests other than the expected 401/409 network lines.
+11. **Run the rule checks.** These must all pass:
+    - `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md` returns nothing (no em dash).
+    - No `@keyframes` or JS animation.
+    - No inline styles.
+    - Every new block has a Vietnamese comment.
+12. **Record the result.** In `HANDOFF.md`, list what was fixed, any intentional difference from Figma together with the reason, and any new back-end needs in §5. Then commit.
 
 ## 8. Back-end contract (as of `upstream/main`, Nov 2026)
 

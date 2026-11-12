@@ -314,25 +314,27 @@
   gap: var(--space-7);
 }
 
-/* Pill kem tự co trên laptop; cỡ tối đa đúng 520 × 42 trong thiết kế desktop. */
+/* Pill trong suốt trên nền đỏ đúng Figma Home 4: nền trắng 12%, viền trắng 22%,
+   tự co trên laptop; cỡ tối đa 520 × 42 trong thiết kế desktop. */
 .site-header__home-search {
   display: flex;
   flex: 0 1 var(--home-search-width);
   align-items: center;
-  gap: var(--space-2);
+  gap: 10px;
   min-width: 80px;
   height: var(--home-search-height);
   padding: 0 var(--space-4) 0 var(--home-search-padding-left);
+  border: 1px solid var(--home-search-border);
   border-radius: var(--radius-pill);
-  background: var(--color-cream);
+  background: var(--home-search-bg);
 }
 
-/* Mặt nạ lấy đường nét search.svg và đổi sang muted, không sửa màu icon trang Search. */
+/* Mặt nạ lấy đường nét search.svg và tô trắng mờ như chữ gợi ý, không sửa icon trang Search. */
 .site-header__home-search-icon {
   flex: 0 0 18px;
   width: 18px;
   height: 18px;
-  background: var(--color-muted);
+  background: var(--home-search-placeholder);
   mask: url('/assets/icons/search.svg') center / contain no-repeat;
 }
 
@@ -343,8 +345,8 @@
   border: 0;
   outline: none;
   background: var(--color-transparent);
-  color: var(--color-text);
-  font-size: 14px;
+  color: var(--color-white);
+  font-size: 15px;
 }
 
 /* Bỏ khung vuông focus mặc định của ô nhập (nằm lọt trong pill trông rất lạ);
@@ -356,13 +358,16 @@
   box-shadow: none;
 }
 
+/* Trên nền đỏ, vòng focus đỏ nhạt gần như không thấy, nên khi đang gõ
+   pill sáng viền trắng 70% và nền đậm hơn một chút để báo rõ ô đang được chọn. */
 .site-header__home-search:focus-within {
-  box-shadow: var(--focus-ring);
+  border-color: var(--color-white-70);
+  background: var(--color-white-20);
 }
 
-/* Placeholder dùng màu muted chung để đủ tương phản trên nền kem. */
+/* Chữ gợi ý trắng 60% như Figma; vẫn đọc được trên nền đỏ của header. */
 .site-header__home-search input::placeholder {
-  color: var(--color-muted);
+  color: var(--home-search-placeholder);
   opacity: 1;
 }
 

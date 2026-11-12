@@ -24,9 +24,10 @@ Last update: 2026-11-13 · branch `feat/fe-auth-search` (fork `ShiroTrang/IE104`
 
 ## 2. What is left (next batches)
 
+Frame IDs below are in the personal file. The shared team file (source of truth) has its own IDs, listed in AGENTS.md §7.
+
 | Page | Figma frame | Notes |
 |---|---|---|
-| Home (Trang chủ): done, checked in the browser at 1920 and 375 (2026-11-13) | Home 4 `140:135` | Rewritten with shared header (`active: 'home', searchForm: true`) and full footer. Single Đăng bài action, detail links, no view-all/load-more. Unsupported contracts return null behind `capabilities.js`; featured/personal suggestions use static neutral placeholders; topics use real GET /tags. Newest and question feeds enrich author, tags, reaction summary sequentially, max 5 posts. Bookmark state is unknown (`aria-pressed=mixed`) until backend provides it or a real save succeeds. Gutter petals use the explicitly requested 1600px visibility threshold in addition to standard breakpoints. Passed all JS syntax checks, existing auth foundation checks (`node --experimental-vm-modules frontend/dev/tests/auth-foundation.mjs`) and in-memory mocked Home service/DOM checks for signed-in/out tabs, errors/retry, pagination, bookmark/follow and clipboard. Original Search card function/CSS verified unchanged. No server started; browser access host unavailable, so desktop/mobile visual, real-size icons and live API checks remain unverified. Compose/detail destinations (`forum.html`, `post.html`) are later page tasks, currently absent from this checkout. |
 | Reading page (post detail) | `234:1679` | Route `routes.post(id)` → `/pages/post.html?id=`. Comments, reactions, bookmark, translate button (`POST /posts/{id}/translate`), `comments_locked`. |
 | Diễn đàn (forum) | `236:1725` | `/pages/forum.html`; "Viết bài" goes to `routes.newPost` (`/pages/forum.html?compose=1`). |
 | Hỗ trợ | `243:1848` / `247:2088` | `/pages/support.html`; red icon set + StatusBadge in `242:1843`. |
@@ -75,10 +76,23 @@ Contract test (no dependencies): `node frontend/dev/tests/auth-foundation.mjs`.
 - `python -m http.server` lets the browser cache ES modules. After editing a `.js` file, hard-reload (Ctrl+Shift+R) or disable cache in DevTools, otherwise you may test old code.
 - Search tag counts in "Tag phổ biến" come from one capped search per tag (max 50, shown as "50+").
 - Fixed after review (2026-11-13): on mobile the search heading now takes its own row above the sort/"Viết bài" buttons. The password eye icon was squashed by the Figma export, so it was replaced with the Lucide original, and Edge's own reveal button is hidden (`::-ms-reveal`).
-- **Pending, aligned with the new "Front end first" rule (AGENTS.md §8):** search result cards currently hide comment/like/view counts and show "10+" instead of a real total. Restore those slots as in Figma `168:1084` with "–" placeholders and request the fields below. This has not been done yet; the team will schedule it.
+- Search result cards now always show the comment, like and view slots as in Figma `1:2927`, with "–" until `GET /posts` returns the counts (see §5). The result total still shows "10+" when there may be more pages, until the API returns a total.
 
 - **Home and `services/api/capabilities.js`:** every Home feature the API lacks (featured posts, recommendations, post stats, popular sort, following feed, bookmark state, feed translation, display name, unread notifications) is behind a flag in `backendSupports`. A `false` flag means no request is sent and the UI shows neutral placeholders ("–", grey bars). When the back end ships an endpoint from §5, flip its flag to `true` and test.
 - **Home decisions:** the Figma "Bài viết mới" header has a "Xem thêm →" link; it is left out because the team agreed on "no Xem thêm bài viết". The hero photo from Figma (2400px, 1.35 MB) was resized to 1920px JPEG (`assets/images/home-hero.jpg`, ~0.6 MB).
+
+- **Figma review, 2026-11-13** (shared file `HFYjrrtGqo86EpOX1Bdg88`, following AGENTS.md §7 "Final review procedure"):
+  - Home feed card: the "Xem chi tiết" row sat too close to the divider. Its top padding is now 18px, so the button is 19px below the line as in Figma. Detail buttons are now exactly 34px tall.
+  - Home header search: now the translucent pill from Figma instead of a cream pill. The square focus box inside it was removed, and the whole pill shows the focus state instead.
+  - Home hero: height reduced from 480 to 336px on the team's request, so the three featured cards fit in the first screen at 1920×947. This is an intentional difference from Figma.
+  - Home "Bài viết mới": added the "Xem thêm →" link to the forum page, as in Figma.
+  - Header: the right side is now in Figma order, bell → language badge → avatar. Login/Register no longer show the search icon.
+  - Search result cards: comment, like and view slots restored with "–" placeholders.
+  - Checked and matching Figma within a few px: Login (signed out), Register, Register Advanced 2, and both Search states.
+  - Intentional differences:
+    - The terms checkbox starts unchecked (Figma draws it checked), because consent must be the user's own action.
+    - The Figma sun "theme toggle" is not built, because there is no dark theme yet.
+    - Register Advanced shows the bell and avatar, because the user is already signed in at that step.
 
 ## 5. Yêu cầu cho backend (requests for the back-end dev)
 

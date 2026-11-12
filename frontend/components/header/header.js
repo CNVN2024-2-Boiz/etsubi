@@ -82,7 +82,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     'aria-label': 'Chính',
   }, navLinks(active));
   const utils = el('div', { className: 'site-header__utils' });
-  if (variant !== 'search') {
+  // Trang Đăng nhập/Đăng ký (hideAuthLink) theo Figma chỉ có huy hiệu ngôn ngữ, không có nút tìm kiếm.
+  if (variant !== 'search' && !hideAuthLink) {
     utils.append(el('a', {
       className: 'site-header__icon site-header__search',
       href: routes.search,
@@ -161,6 +162,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   function renderSession(user) {
     session.replaceChildren();
     if (!user) {
+      // Chưa đăng nhập: nút ngôn ngữ đứng ngay trước liên kết "Đăng nhập".
+      utils.insertBefore(languageButton, session);
       if (!hideAuthLink) {
         session.append(el('a', {
           className: 'site-header__login',
@@ -218,7 +221,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       signOut.disabled = true;
       void logout();
     }, { signal });
-    session.append(bell, avatar, menu);
+    // Thứ tự đúng Figma Home 4: chuông, huy hiệu ngôn ngữ (VI/JA/EN), rồi avatar.
+    session.append(bell, languageButton, avatar, menu);
   }
 
   // Thứ tự nút và liên kết giữ nguyên theo thiết kế để tab bàn phím đi đúng thứ tự.

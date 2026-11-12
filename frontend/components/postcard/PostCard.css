@@ -268,13 +268,15 @@
   font-weight: 500;
 }
 
-/* Hàng tương tác có divider và khoảng hở 24px giữa các chỉ số. */
+/* Hàng tương tác có divider và khoảng hở 24px giữa các chỉ số.
+   Theo Figma Home 4: dưới đường kẻ có khoảng 14px, rồi hàng có đệm trên 4px,
+   nên đệm trên là 18px; nút "Xem chi tiết" vì vậy cách đường kẻ ~19px, không dính sát. */
 .postcard-feed__engagement {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-6);
-  padding-top: var(--space-1);
+  padding-top: 18px;
   border-top: 1px solid var(--color-border);
 }
 
