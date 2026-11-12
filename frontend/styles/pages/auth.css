@@ -1,0 +1,628 @@
+/* Định dạng auth cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
+
+/* ===== Bố cục xác thực ===== */
+
+/* Khung xác thực tạo lớp riêng, cắt cảnh tràn và căn giữa thẻ trên nền chuyển sắc tĩnh. */
+.auth {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--header-height) - var(--footer-slim-height));
+  padding-block: var(--space-7);
+  background: var(--gradient-auth);
+}
+
+/* Trang login dùng đệm dọc lớn hơn để giữ vị trí thẻ giống bản thiết kế. */
+.page--login .auth {
+  padding-block: var(--space-9);
+}
+
+/* Cảnh trang trí tĩnh: giữ kích thước, màu và khoảng cách thống nhất với thiết kế. */
+/* Placeholder không tạo hộp bố cục để cảnh và hero vẫn định vị theo main như trước. */
+.auth-scene-mount {
+  display: contents;
+}
+
+/* ===== Cảnh torii tĩnh ===== */
+.auth-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Cảnh và lời chào cùng hệ toạ độ Figma, căn giữa và co bằng scale tĩnh để giữ tương quan vị trí. */
+.auth-scene__stage, /* ===== Lời chào và giới thiệu ===== */
+.auth-hero {
+  position: absolute;
+  width: var(--scene-width);
+  height: var(--scene-height);
+  left: 50%;
+  top: calc(-1 * var(--header-height) * var(--scene-scale, 1));
+  transform: translateX(-50%) scale(var(--scene-scale, 1));
+  transform-origin: top center;
+}
+
+/* Chi tiết cảnh và lời chào dùng toạ độ token, không bị giới hạn ảnh chung làm thay đổi tỷ lệ. */
+.auth-scene__item, .auth-hero__accent, .auth-hero__title, .auth-hero__brand, .auth-hero__copy {
+  position: absolute;
+  max-width: none;
+}
+
+/* Hai cột cổng dùng cùng màu và bo góc để torii cân đối theo thiết kế. */
+.auth-scene__pillar-left, .auth-scene__pillar-right {
+  background: var(--torii-pillar);
+  border-radius: var(--radius-md);
+}
+
+/* Mái cổng dùng màu đỏ riêng và góc bo riêng để giữ hình dáng torii. */
+.auth-scene__cap {
+  background: var(--torii-cap);
+  border-radius: var(--radius-cap);
+}
+
+/* Xà trên dùng màu và bo góc riêng để phân biệt với mái cổng. */
+.auth-scene__kasagi {
+  background: var(--torii-kasagi);
+  border-radius: var(--radius-kasagi);
+}
+
+/* Xà ngang dưới dùng token màu torii và góc bo nhỏ để giữ cấu trúc cổng. */
+.auth-scene__nuki {
+  background: var(--torii-nuki);
+  border-radius: var(--radius-sm);
+}
+
+/* Bảng tên nền đỏ tối tạo tương phản cho chữ Nhật trên cổng. */
+.auth-scene__plaque {
+  background: var(--torii-plaque);
+  border-radius: var(--radius-sm);
+}
+
+/* Chữ Nhật trên cổng căn giữa, đậm và màu sáng để nhìn rõ trên bảng tên. */
+.auth-scene__character {
+  text-align: center;
+  font-size: var(--scene-character-size);
+  font-weight: 700;
+  color: var(--torii-plaque-text);
+}
+
+/* Sóng nằm dưới cảnh, chiều cao và mốc đáy cùng co theo scale để giữ vị trí tương đối. */
+.auth-scene__waves {
+  position: absolute;
+  width: 100%;
+  height: calc(var(--scene-wave-height) * var(--scene-scale, 1));
+  bottom: calc(-1 * var(--footer-slim-height) * var(--scene-scale, 1));
+}
+
+/* Mỗi lớp sóng phủ trọn khung sóng và dùng vị trí tuyệt đối để các lớp chồng lên nhau. */
+.auth-scene__wave {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Lớp sóng thứ hai lệch xuống một bước token theo scale, tạo các dải sóng tĩnh. */
+.auth-scene__wave--2 {
+  top: calc(var(--scene-wave-step) * var(--scene-scale, 1));
+}
+
+/* Lớp sóng thứ ba lệch xuống hai bước token theo scale để giữ độ chồng lớp. */
+.auth-scene__wave--3 {
+  top: calc(2 * var(--scene-wave-step) * var(--scene-scale, 1));
+}
+
+/* Lời chào nằm phía sau thẻ và không bắt thao tác, tránh cản biểu mẫu. */
+.auth-hero {
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Vạch nhấn dùng đỏ accent và góc bo nhỏ để dẫn mắt tới lời chào. */
+.auth-hero__accent {
+  background: var(--color-red-accent);
+  border-radius: var(--radius-sm);
+}
+
+/* Lời chào dùng phông tiêu đề đậm, đỏ thương hiệu và không xuống dòng để giữ khung chữ Figma. */
+.auth-hero__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--auth-hero-size);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  color: var(--color-red);
+  white-space: nowrap;
+}
+
+/* Tên Nhật và logo xếp theo đường chân chữ bằng flex, giữ khoảng cách và sắc đỏ accent. */
+.auth-hero__brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  color: var(--color-red-accent);
+  font-family: var(--font-display);
+  font-size: var(--auth-hero-brand-size);
+  font-weight: 700;
+}
+
+/* Chữ Nhật dùng nét vừa vì phông thương hiệu không có glyph tiếng Nhật. */
+.auth-hero__brand :lang(ja) {
+  font-weight: 500;
+}
+
+/* Lời giới thiệu dùng cỡ chữ, chiều cao dòng và màu dịu từ token để cân đối với tiêu đề lớn. */
+.auth-hero__copy {
+  font-size: var(--auth-hero-copy-size);
+  line-height: var(--auth-hero-copy-line);
+  color: var(--color-hero-text);
+}
+
+/* ===== Biểu mẫu HTML ===== */
+
+/* Thẻ có chiều rộng cố định nhưng giới hạn theo màn hình, chiều cao tối thiểu và bóng mạnh; cắt sóng trong viền. */
+.auth-card {
+  position: relative;
+  width: var(--auth-card-width);
+  max-width: calc(100% - 2 * var(--space-4));
+  min-height: var(--auth-card-login-height);
+  box-shadow: var(--shadow-card-strong);
+  overflow: hidden;
+}
+
+/* Dịch thẻ login lên một khoảng token cố định để khớp vị trí thiết kế, không phải hiệu ứng tương tác. */
+.auth-card--login {
+  transform: translateY(calc(-1 * var(--space-4)));
+}
+
+/* Thẻ đăng ký cao hơn để đủ chỗ cho tên, xác nhận mật khẩu và điều khoản. */
+.auth-card--register {
+  min-height: var(--auth-card-register-height);
+}
+
+/* Đệm bốn phía theo token để nội dung cách viền và chừa chỗ cho sóng cuối thẻ. */
+.auth-card__body {
+  padding: var(--auth-body-top) var(--auth-body-side) var(--auth-switch-bottom);
+}
+
+/* Tiêu đề biểu mẫu dùng cỡ chữ và chiều cao dòng riêng để khớp thẻ xác thực. */
+.auth-card__title {
+  font-size: var(--auth-title-size);
+  line-height: var(--auth-title-line);
+}
+
+/* Lời dẫn nhỏ và màu dịu để phân cấp dưới tiêu đề biểu mẫu. */
+.auth-card__subtitle {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: var(--auth-subtitle-line);
+}
+
+/* Nhóm trường xếp dọc với khoảng cách token, cách lời dẫn một khoảng thống nhất. */
+.auth-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--auth-field-gap);
+  margin-top: var(--space-5);
+}
+
+/* Ghi nhớ và quên mật khẩu nằm hai đầu hàng, căn giữa dọc với khoảng cách tối thiểu. */
+.auth-card__options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Liên kết quên mật khẩu có nét vừa và không xuống dòng để dễ nhận ra trong hàng tuỳ chọn. */
+.auth-card__forgot {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Chừa khoảng cách phía trên điều khoản để tách khỏi nhóm nhập liệu. */
+.auth-card__terms {
+  margin-top: var(--space-4);
+}
+
+/* Căn ô chọn theo đầu dòng để nhãn điều khoản nhiều dòng vẫn thẳng hàng. */
+.auth-card__terms .checkbox {
+  align-items: flex-start;
+}
+
+/* Nút gửi cao và cỡ chữ riêng theo Figma, không dùng bóng; cách nhóm tuỳ chọn bằng token. */
+.auth-card__submit {
+  height: var(--auth-button-height);
+  padding-block: 0;
+  margin-top: var(--radio-padding);
+  font-size: 18px;
+  box-shadow: none;
+}
+
+/* Đường phân cách mảnh phủ ngang nội dung và cách nút gửi theo token. */
+.auth-card__divider {
+  width: 100%;
+  height: 1px;
+  margin-top: var(--space-6);
+}
+
+/* Dòng đổi biểu mẫu căn giữa, màu dịu và có khoảng cách rõ sau đường phân cách. */
+.auth-card__switch {
+  margin-top: var(--auth-switch-gap);
+  text-align: center;
+  color: var(--color-link-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Liên kết đổi trang dùng chữ đậm để nổi bật trong câu hướng dẫn. */
+.auth-card__switch a {
+  font-weight: 700;
+}
+
+/* Sóng cố định sát đáy thẻ, phủ ngang và không nhận sự kiện chuột. */
+.auth-card__bottom-wave {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: var(--auth-wave-height);
+  pointer-events: none;
+}
+
+/* Chừa khoảng cách trước thông báo để lỗi không dính vào trường hoặc nút. */
+.auth-card__message {
+  margin-top: var(--space-4);
+}
+
+/* Thông báo phiên cách tiêu đề để khi xuất hiện không dính vào nội dung biểu mẫu. */
+.auth-card__session {
+  margin-bottom: var(--space-5);
+}
+
+/* Nút đăng xuất trong câu có dạng liên kết gạch chân, không có nền hay đệm thừa. */
+.auth-card__session button {
+  padding: 0;
+  background: var(--color-transparent);
+  color: var(--color-red-dark);
+  border: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+/* ===== Toạ độ trang trí theo Figma ===== */
+
+/* Đặt .auth-scene__sun theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__sun {
+  left: var(--scene-sun-x);
+  top: var(--scene-sun-y);
+  width: var(--scene-sun-width);
+  height: var(--scene-sun-height);
+}
+
+/* Đặt .auth-scene__cloud-1 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__cloud-1 {
+  left: var(--scene-cloud-1-x);
+  top: var(--scene-cloud-1-y);
+  width: var(--scene-cloud-1-width);
+  height: var(--scene-cloud-1-height);
+}
+
+/* Đặt .auth-scene__cloud-2 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__cloud-2 {
+  left: var(--scene-cloud-2-x);
+  top: var(--scene-cloud-2-y);
+  width: var(--scene-cloud-2-width);
+  height: var(--scene-cloud-2-height);
+}
+
+/* Đặt .auth-scene__cloud-3 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__cloud-3 {
+  left: var(--scene-cloud-3-x);
+  top: var(--scene-cloud-3-y);
+  width: var(--scene-cloud-3-width);
+  height: var(--scene-cloud-3-height);
+}
+
+/* Đặt .auth-scene__pillar-left theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__pillar-left {
+  left: var(--scene-pillar-left-x);
+  top: var(--scene-pillar-left-y);
+  width: var(--scene-pillar-left-width);
+  height: var(--scene-pillar-left-height);
+}
+
+/* Đặt .auth-scene__pillar-right theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__pillar-right {
+  left: var(--scene-pillar-right-x);
+  top: var(--scene-pillar-right-y);
+  width: var(--scene-pillar-right-width);
+  height: var(--scene-pillar-right-height);
+}
+
+/* Đặt .auth-scene__cap theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__cap {
+  left: var(--scene-cap-x);
+  top: var(--scene-cap-y);
+  width: var(--scene-cap-width);
+  height: var(--scene-cap-height);
+}
+
+/* Đặt .auth-scene__kasagi theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__kasagi {
+  left: var(--scene-kasagi-x);
+  top: var(--scene-kasagi-y);
+  width: var(--scene-kasagi-width);
+  height: var(--scene-kasagi-height);
+}
+
+/* Đặt .auth-scene__nuki theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__nuki {
+  left: var(--scene-nuki-x);
+  top: var(--scene-nuki-y);
+  width: var(--scene-nuki-width);
+  height: var(--scene-nuki-height);
+}
+
+/* Đặt .auth-scene__plaque theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__plaque {
+  left: var(--scene-plaque-x);
+  top: var(--scene-plaque-y);
+  width: var(--scene-plaque-width);
+  height: var(--scene-plaque-height);
+}
+
+/* Đặt .auth-scene__character theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-scene__character {
+  left: var(--scene-character-x);
+  top: var(--scene-character-y);
+  width: var(--scene-character-width);
+  height: var(--scene-character-height);
+}
+
+/* Đặt .auth-hero__accent theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-hero__accent {
+  left: var(--scene-accent-x);
+  top: var(--scene-accent-y);
+  width: var(--scene-accent-width);
+  height: var(--scene-accent-height);
+}
+
+/* Đặt .auth-hero__title theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-hero__title {
+  left: var(--scene-title-x);
+  top: var(--scene-title-y);
+  width: var(--scene-title-width);
+  height: var(--scene-title-height);
+}
+
+/* Đặt .auth-hero__brand theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-hero__brand {
+  left: var(--scene-brand-x);
+  top: var(--scene-brand-y);
+  width: var(--scene-brand-width);
+  height: var(--scene-brand-height);
+}
+
+/* Đặt .auth-hero__copy theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. */
+.auth-hero__copy {
+  left: var(--scene-copy-x);
+  top: var(--scene-copy-y);
+  width: var(--scene-copy-width);
+  height: var(--scene-copy-height);
+}
+
+/* Đặt .auth-scene__petal-1 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-1 {
+  left: var(--scene-petal-1-x);
+  top: var(--scene-petal-1-y);
+  width: var(--scene-petal-1-width);
+  height: var(--scene-petal-1-height);
+  transform: rotate(var(--scene-petal-1-rotate));
+}
+
+/* Đặt .auth-scene__petal-2 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-2 {
+  left: var(--scene-petal-2-x);
+  top: var(--scene-petal-2-y);
+  width: var(--scene-petal-2-width);
+  height: var(--scene-petal-2-height);
+  transform: rotate(var(--scene-petal-2-rotate));
+}
+
+/* Đặt .auth-scene__petal-3 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-3 {
+  left: var(--scene-petal-3-x);
+  top: var(--scene-petal-3-y);
+  width: var(--scene-petal-3-width);
+  height: var(--scene-petal-3-height);
+  transform: rotate(var(--scene-petal-3-rotate));
+}
+
+/* Đặt .auth-scene__petal-4 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-4 {
+  left: var(--scene-petal-4-x);
+  top: var(--scene-petal-4-y);
+  width: var(--scene-petal-4-width);
+  height: var(--scene-petal-4-height);
+  transform: rotate(var(--scene-petal-4-rotate));
+}
+
+/* Đặt .auth-scene__petal-5 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-5 {
+  left: var(--scene-petal-5-x);
+  top: var(--scene-petal-5-y);
+  width: var(--scene-petal-5-width);
+  height: var(--scene-petal-5-height);
+  transform: rotate(var(--scene-petal-5-rotate));
+}
+
+/* Đặt .auth-scene__petal-6 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-6 {
+  left: var(--scene-petal-6-x);
+  top: var(--scene-petal-6-y);
+  width: var(--scene-petal-6-width);
+  height: var(--scene-petal-6-height);
+  transform: rotate(var(--scene-petal-6-rotate));
+}
+
+/* Đặt .auth-scene__petal-7 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-7 {
+  left: var(--scene-petal-7-x);
+  top: var(--scene-petal-7-y);
+  width: var(--scene-petal-7-width);
+  height: var(--scene-petal-7-height);
+  transform: rotate(var(--scene-petal-7-rotate));
+}
+
+/* Đặt .auth-scene__petal-8 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-8 {
+  left: var(--scene-petal-8-x);
+  top: var(--scene-petal-8-y);
+  width: var(--scene-petal-8-width);
+  height: var(--scene-petal-8-height);
+  transform: rotate(var(--scene-petal-8-rotate));
+}
+
+/* Đặt .auth-scene__petal-9 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-9 {
+  left: var(--scene-petal-9-x);
+  top: var(--scene-petal-9-y);
+  width: var(--scene-petal-9-width);
+  height: var(--scene-petal-9-height);
+  transform: rotate(var(--scene-petal-9-rotate));
+}
+
+/* Đặt .auth-scene__petal-10 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-10 {
+  left: var(--scene-petal-10-x);
+  top: var(--scene-petal-10-y);
+  width: var(--scene-petal-10-width);
+  height: var(--scene-petal-10-height);
+  transform: rotate(var(--scene-petal-10-rotate));
+}
+
+/* Đặt .auth-scene__petal-11 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-11 {
+  left: var(--scene-petal-11-x);
+  top: var(--scene-petal-11-y);
+  width: var(--scene-petal-11-width);
+  height: var(--scene-petal-11-height);
+  transform: rotate(var(--scene-petal-11-rotate));
+}
+
+/* Đặt .auth-scene__petal-12 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-12 {
+  left: var(--scene-petal-12-x);
+  top: var(--scene-petal-12-y);
+  width: var(--scene-petal-12-width);
+  height: var(--scene-petal-12-height);
+  transform: rotate(var(--scene-petal-12-rotate));
+}
+
+/* Đặt .auth-scene__petal-13 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-13 {
+  left: var(--scene-petal-13-x);
+  top: var(--scene-petal-13-y);
+  width: var(--scene-petal-13-width);
+  height: var(--scene-petal-13-height);
+  transform: rotate(var(--scene-petal-13-rotate));
+}
+
+/* Đặt .auth-scene__petal-14 theo toạ độ và kích thước token của khung Figma để giữ nguyên vị trí cảnh. Góc xoay là cố định, không có chuyển động cánh hoa. */
+.auth-scene__petal-14 {
+  left: var(--scene-petal-14-x);
+  top: var(--scene-petal-14-y);
+  width: var(--scene-petal-14-width);
+  height: var(--scene-petal-14-height);
+  transform: rotate(var(--scene-petal-14-rotate));
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 1280px) {
+  /* Ẩn lời chào từ laptop trở xuống để thẻ biểu mẫu luôn có đủ chỗ và không chồng lên chữ. */
+  .auth-hero {
+    display: none;
+  }
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 600px) {
+  /* Giảm đệm dọc trên mobile để biểu mẫu tận dụng chiều cao màn hình. */
+  .auth, .page--login .auth {
+    padding-block: var(--space-6);
+  }
+
+  /* Trên mobile, cảnh bám theo khung thật và bỏ scale desktop để cánh hoa không lệch khỏi màn hình. */
+  .auth-scene__stage {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    transform: none;
+  }
+
+  /* Ẩn cảnh lớn và sóng trên mobile để không che hoặc làm rối biểu mẫu. */
+  .auth-scene__item, .auth-scene__waves {
+    display: none;
+  }
+
+  /* Chỉ giữ ba cánh hoa cố định quanh mép màn hình để mobile vẫn có nét trang trí nhẹ. */
+  .auth-scene__petal-1, .auth-scene__petal-6, .auth-scene__petal-10 {
+    display: block;
+  }
+
+  /* Đặt cánh hoa đầu gần mép trái và phía trên biểu mẫu, không tham gia bố cục thẻ. */
+  .auth-scene__petal-1 {
+    left: 6%;
+    top: var(--space-2);
+  }
+
+  /* Đặt cánh hoa thứ sáu sát mép phải, ở khoảng giữa màn hình mobile. */
+  .auth-scene__petal-6 {
+    left: auto;
+    right: var(--space-2);
+    top: 40%;
+  }
+
+  /* Đặt cánh hoa thứ mười gần góc trái dưới để cân đối với hoa phía trên. */
+  .auth-scene__petal-10 {
+    left: 4%;
+    top: auto;
+    bottom: var(--space-2);
+  }
+
+  /* Bỏ chiều cao tối thiểu trên mobile để thẻ vừa nội dung và không tạo khoảng trống thừa. */
+  .auth-card {
+    min-height: 0;
+  }
+
+  /* Bỏ độ dịch tĩnh của desktop để thẻ login nằm đúng trong luồng dọc trên mobile. */
+  .auth-card--login {
+    transform: none;
+  }
+
+  /* Cho ghi nhớ và quên mật khẩu xuống hàng khi cần để màn hình nhỏ không tràn ngang. */
+  .auth-card__options {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+  }
+
+  /* Thu biểu tượng cổng còn 40px trên mobile để phù hợp dải đầu thẻ thấp hơn. */
+  .card__torii {
+    height: 40px;
+  }
+
+  /* Giảm tiêu đề dải đỏ còn 15px trên mobile để giữ tỷ lệ với cổng nhỏ. */
+  .card__band-title {
+    font-size: 15px;
+  }
+}
