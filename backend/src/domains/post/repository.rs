@@ -17,4 +17,16 @@ pub trait PostRepository: Send + Sync {
     fn find_deleted_by_author(&self, author_id: Uuid) -> Result<Vec<Post>>;
     fn find_published_by_ids(&self, ids: &[Uuid]) -> Result<Vec<Post>>;
     fn set_comments_locked(&self, id: Uuid, locked: bool) -> Result<Post>;
+    fn search_published(
+        &self,
+        query: Option<&str>,
+        tag_ids: &[Uuid],
+        limit: i64,
+        offset: i64,
+    ) -> Result<Vec<Post>>;
+
+    fn list_newest_posts(&self) -> Result<Vec<Post>>;
+    fn list_popular_posts(&self) -> Result<Vec<Post>>;
+    fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>>;
+    fn list_question_and_answer_posts(&self) -> Result<Vec<Post>>;
 }

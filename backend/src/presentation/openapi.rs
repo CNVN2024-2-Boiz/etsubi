@@ -12,7 +12,10 @@ use crate::presentation::{
             UpdateCommentStatusRequest,
         },
         follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
-        post_dto::{CreatePostRequest, PostResponse, UpdatePostRequest, UpdatePostStatusRequest},
+        post_dto::{
+            CreatePostRequest, PostResponse, SearchPostsQuery, UpdatePostRequest,
+            UpdatePostStatusRequest,
+        },
         reaction_dto::{ReactionResponse, ReactionSummaryItem, UpsertReactionRequest},
         tag_dto::TagResponse,
         translation_dto::{CommentTranslationResponse, PostTranslationResponse},
@@ -71,6 +74,11 @@ use crate::presentation::{
         post_handler::list_user_posts,
         post_handler::update_post,
         post_handler::delete_post,
+        post_handler::search_posts,
+        post_handler::list_newest_posts,
+        post_handler::list_popular_posts,
+        post_handler::list_question_and_answer_posts,
+        post_handler::list_following_user_posts,
 
         comment_handler::list_post_comments,
         comment_handler::get_comment,
@@ -120,7 +128,7 @@ use crate::presentation::{
         ChangePasswordRequest, DeleteAccountRequest,
 
         PostResponse,
-        CreatePostRequest, UpdatePostRequest, UpdatePostStatusRequest,
+        CreatePostRequest, UpdatePostRequest, UpdatePostStatusRequest, SearchPostsQuery,
 
         CommentResponse,
         CreateCommentRequest, UpdateCommentRequest, UpdateCommentStatusRequest,

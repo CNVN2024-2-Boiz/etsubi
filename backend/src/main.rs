@@ -1,3 +1,4 @@
+use actix_governor::{Governor, GovernorConfigBuilder};
 use actix_web::{App, HttpServer, middleware::Logger};
 use backend::{bootstrap, cors, presentation::openapi::ApiDoc, routes};
 use utoipa::OpenApi;
@@ -9,6 +10,12 @@ async fn main() -> std::io::Result<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
+    let rate_limiter = GovernorConfigBuilder::default()
+        .requests_per_second(4)
+        .burst_size(7)
+        .finish()
+        .unwrap();
+
     let state = bootstrap::run().expect("Bootstrap failed");
     let host = state.config.server_host.clone();
     let port = state.config.server_port;
@@ -18,6 +25,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(state.clone())
             .wrap(Logger::default())
+            .wrap(Governor::new(&rate_limiter))
             .wrap(cors::build(&origins))
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}")

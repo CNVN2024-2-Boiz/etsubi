@@ -129,7 +129,7 @@ fn strip_code_fence(s: &str) -> String {
     let t = s.trim();
     for prefix in ["```json", "```JSON", "```"] {
         if let Some(rest) = t.strip_prefix(prefix) {
-            let rest = rest.trim_start_matches(|c: char| c == '\n' || c == '\r');
+            let rest = rest.trim_start_matches(['\n', '\r']);
             let rest = rest.strip_suffix("```").unwrap_or(rest);
             return rest.trim().to_string();
         }

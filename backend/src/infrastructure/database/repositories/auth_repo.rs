@@ -30,6 +30,7 @@ impl AuthRepository for PostgresAuthRepo {
             username: &user.username,
             email: &user.email,
             password: &user.password,
+            native: &user.native,
             language: &user.language,
             role: &user.role,
             status: &user.status,

@@ -48,6 +48,15 @@
       </div>
 
       <div>
+        <label for="native">Ngôn ngữ mẹ đẻ</label>
+        <select id="native" required>
+          <option value="vi" selected>Tiếng Việt</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
+
+      <div>
         <label for="language">Ngôn ngữ hiển thị</label>
         <select id="language" required>
           <option value="vi" selected>Tiếng Việt</option>
@@ -121,6 +130,7 @@
               username: document.getElementById("username").value.trim(),
               email: document.getElementById("email").value.trim(),
               password,
+              native: document.getElementById("native").value,
               language: document.getElementById("language").value,
             },
           });

@@ -35,8 +35,9 @@ impl UserService {
         requester_id: Uuid,
         username: Option<String>,
         email: Option<String>,
+        native: Option<String>,
         language: Option<String>,
-        school: Option<String>,
+        institute: Option<String>,
         address: Option<String>,
         bio: Option<String>,
         avatar_url: Option<String>,
@@ -76,12 +77,19 @@ impl UserService {
             user.email = new_email;
         }
 
-        if let Some(school) = school {
-            user.school = Some(school);
+        if let Some(institute) = institute {
+            user.institute = Some(institute);
         }
 
         if let Some(address) = address {
             user.address = Some(address);
+        }
+
+        if let Some(native) = native {
+            if !VALID_LANGUAGES.contains(&native.as_str()) {
+                return Err(UserError::InvalidLanguage);
+            }
+            user.native = native;
         }
 
         if let Some(language) = language {
@@ -214,8 +222,6 @@ impl UserService {
             return Err(UserError::CannotModifyHigherRole);
         }
 
-        // Only disallow self-mute (setting a future mute on yourself);
-        // self-unmute is a no-op but harmless.
         if target_id == requester_id && muted_until.is_some() {
             return Err(UserError::CannotMuteSelf);
         }

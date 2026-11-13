@@ -5,7 +5,7 @@ echo "Enter password:"
 read -s password
 echo
 
-curl -s -X POST http://localhost:11432/api/v1/auth/login \
+curl -s -X POST http://localhost:21432/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$email\",\"password\":\"$password\"}" \
   > token.json

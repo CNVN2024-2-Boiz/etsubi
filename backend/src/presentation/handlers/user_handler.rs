@@ -71,8 +71,9 @@ pub async fn update_user(
             requester_id,
             req.username,
             req.email,
+            req.native,
             req.language,
-            req.school,
+            req.institute,
             req.address,
             req.bio,
             req.avatar_url,
@@ -83,5 +84,3 @@ pub async fn update_user(
 
     Ok(HttpResponse::Ok().json(GetUserResponse::from(updated)))
 }
-
-// pub async fn user_follow();
