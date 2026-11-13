@@ -1,0 +1,169 @@
+/* Thẻ nổi bật dùng flex dọc để chân thẻ thẳng hàng dù nội dung có độ dài khác nhau. */
+.featured-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: var(--home-featured-height);
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-featured);
+}
+
+/* Dải đỏ giữ nhãn nổi bật ở trái và thứ hạng ở phải theo bố cục Figma. */
+.featured-card__band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-red);
+}
+
+/* Nhãn sáng nhẹ và bo tròn để phân biệt với nền đỏ mà không tạo hiệu ứng động. */
+.featured-card__badge {
+  padding: var(--space-1) var(--button-small-y);
+  border-radius: var(--radius-pill);
+  background: var(--color-featured-badge);
+  color: var(--color-band-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Số thứ hạng lớn nhưng nhạt để tiêu đề bài vẫn là điểm đọc chính. */
+.featured-card__rank {
+  font-family: var(--font-display);
+  color: var(--color-featured-rank);
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Đệm thân thẻ và khoảng cách lấy từ token Trang chủ, có thể lớn hơn chiều cao tối thiểu. */
+.featured-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--home-card-padding-y) var(--space-6);
+}
+
+/* Tiêu đề dùng phông nội dung và cho phép ngắt chuỗi dài để không tràn thẻ. */
+.featured-card__title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+/* Liên kết tiêu đề giữ màu chữ chính và vẫn có vòng focus dùng chung. */
+.featured-card__title a {
+  color: var(--color-text);
+}
+
+/* Đoạn trích tối đa ba dòng để ba thẻ có nhịp đọc đều nhau. */
+.featured-card__excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Tag được xuống dòng tự nhiên, không cắt tên từ máy chủ. */
+.featured-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Chip nhẹ dùng chung với gợi ý, mọi màu và đệm đều qua token. */
+.featured-card__chip {
+  display: inline-flex;
+  padding: var(--home-chip-padding-y) var(--space-3);
+  border: 1px solid var(--chip-soft-border);
+  border-radius: var(--radius-pill);
+  background: var(--chip-soft-bg);
+  color: var(--color-red);
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* Khoảng trống co giãn đẩy thông tin tác giả và thao tác xuống đáy. */
+.featured-card__spacer {
+  flex: 1;
+}
+
+/* Tác giả có đường phân cách phía trên, thời gian tự xuống dòng khi tên dài. */
+.featured-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Avatar 28px cố định, không kế thừa kích thước avatar 38px của header. */
+.featured-card__avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+}
+
+/* Placeholder avatar không dùng màu ngẫu nhiên để tránh giống một thành viên thật. */
+.featured-card__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Tên đậm hơn thời gian giúp người xem nhận diện nhanh tác giả. */
+.featured-card__name {
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Hàng chân thẻ tự xuống dòng khi cần, không ép số bình luận và nút đè lên nhau. */
+.featured-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* Icon và số bình luận cùng hàng để người xem hiểu số thuộc chỉ số nào. */
+.featured-card__comments {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Nút chi tiết nhỏ đúng Figma (138 × 34, đệm 8/14/8/16), tái dùng cho thẻ bảng tin trên Home.
+   Bỏ viền 1px và đặt dòng chữ 18px để nút cao đúng 34px, không bị "phình" thành 37-38px. */
+.featured-card__detail {
+  gap: var(--space-1);
+  padding: var(--space-2) var(--home-detail-padding-x) var(--space-2) var(--space-4);
+  border-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Hai pill xám giữ chỗ cho tag mà không tạo tên chủ đề giả. */
+.featured-card__pill-placeholder {
+  width: 64px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+}

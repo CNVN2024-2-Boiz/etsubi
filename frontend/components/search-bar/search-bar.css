@@ -1,0 +1,231 @@
+/* Vùng gốc làm mốc cho bảng chọn và lỗi, giữ thanh rộng tối đa 660px theo Figma. */
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 660px;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+/* Form là viên thuốc 48px, có viền đỏ và đệm từ thang khoảng cách dùng chung. */
+.search-bar__form {
+  display: flex;
+  align-items: center;
+  gap: var(--button-small-y);
+  height: 48px;
+  padding: 0 calc(var(--space-2) - 2px) 0 var(--space-4);
+  border: 1.5px solid var(--color-red);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+}
+
+/* Focus ở bất kỳ điều khiển nào trong form đều làm rõ cả vùng tìm kiếm. */
+.search-bar__form:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+/* Nhóm nhập tự co trong flex để các nút cố định không đẩy trang tràn ngang. */
+.search-bar__field {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: calc(var(--space-2) - 2px);
+  min-width: 0;
+}
+
+/* Biểu tượng đầu giữ nguyên kích thước trong khi input và danh sách chip có thể co. */
+.search-bar__leading-icon {
+  flex-shrink: 0;
+}
+
+/* Các chip cuộn trong vùng riêng, giữ input luôn còn chỗ để nhập trên màn hình hẹp. */
+.search-bar__chips {
+  display: flex;
+  flex: 0 1 auto;
+  gap: calc(var(--space-2) - 2px);
+  min-width: 0;
+  max-width: 55%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+/* Nhóm chip trống không chiếm khoảng cách để placeholder có đủ chiều ngang. */
+.search-bar__chips:empty {
+  display: none;
+}
+
+/* Input trong viên thuốc bỏ viền riêng; vòng focus chung của form vẫn luôn nhìn thấy. */
+.search-bar__input {
+  flex: 1 1 80px;
+  width: 100%;
+  min-width: 32px;
+  padding: var(--space-1) 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: var(--color-transparent);
+  color: var(--color-text);
+  font-size: 15px;
+  box-shadow: none;
+}
+
+/* Placeholder có độ tương phản theo token, không dùng gợi ý trực tiếp khi người dùng gõ. */
+.search-bar__input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Tắt nút xoá mặc định WebKit để chỉ còn một nút xoá có tên truy cập rõ ràng. */
+.search-bar__input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* Gợi ý Escape nhỏ và tĩnh, chỉ xuất hiện khi không có nội dung. */
+.search-bar__escape {
+  flex-shrink: 0;
+  padding: calc(var(--space-1) - 2px) calc(var(--space-2) - 2px);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Nút xoá tròn trung tính, không co để luôn thao tác được khi có nhiều chip. */
+.search-bar__clear {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-100);
+}
+
+/* Viền dọc phân tách vùng nhập và nút lọc mà không dùng ảnh trang trí. */
+.search-bar__divider {
+  flex: 0 0 1px;
+  height: 24px;
+  background: var(--color-border);
+}
+
+/* Hai nút chính giữ chiều cao 36px, nhãn không xuống dòng để cân với viên thuốc. */
+.search-bar__tag-button,
+.search-bar__submit {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space-2) - 2px);
+  height: 36px;
+  padding: 0 calc(var(--space-4) - 2px) 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Nút Tag trung tính khi chưa lọc để không lấn át nút gửi. */
+.search-bar__tag-button {
+  background: var(--color-neutral-100);
+  color: var(--color-text-body);
+}
+
+/* Nút Tag chuyển hồng khi bản nháp có tag, cùng trạng thái với badge đếm. */
+.search-bar__tag-button.is-active {
+  background: var(--color-sakura-100);
+  color: var(--color-red-dark);
+}
+
+/* Badge đỏ đếm số tag đang chọn, đệm giữ số hai chữ số không bị cắt. */
+.search-bar__badge {
+  min-width: 20px;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+/* Nút gửi nền đỏ chữ trắng, kích thước gọn đúng thanh tìm kiếm desktop. */
+.search-bar__submit {
+  padding: 0 var(--space-4) 0 calc(var(--space-4) - 2px);
+  background: var(--color-red);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Nút gửi rỗng hoặc đang chờ mờ còn 40%, không dùng spinner hay chuyển động. */
+.search-bar__submit:disabled {
+  opacity: .4;
+}
+
+/* Phản hồi rê chuột chỉ đổi màu nền để giữ mọi phần tử tại vị trí cũ. */
+.search-bar__submit:hover:not(:disabled) {
+  background: var(--color-red-hover);
+}
+
+/* Nhãn rút gọn chỉ dùng trên điện thoại qua ghi đè riêng của trang search. */
+.search-bar__mobile-label {
+  display: none;
+}
+
+/* Bảng chọn nằm dưới thanh, có nền kem và bóng chung, chỉ xuất hiện khi nhấn nút Tag. */
+.search-bar__picker {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 40;
+  width: min(100%, 420px);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Tiêu đề bảng chọn nhỏ, đậm vừa để phân biệt với hàng chip bên dưới. */
+.search-bar__picker-title {
+  margin-bottom: var(--space-3);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Danh sách chỉ là các lựa chọn cố định từ danh mục, không phải gợi ý khi gõ. */
+.search-bar__picker-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Ghi chú giải thích quy tắc khớp tất cả tag để người dùng hiểu kết quả bị thu hẹp. */
+.search-bar__picker-note {
+  margin-top: var(--space-3);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Lỗi dưới thanh dùng nền kem để luôn đọc rõ trên header đỏ. */
+.search-bar__error {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 41;
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-danger);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Tôn trọng hidden dù các lớp điều khiển có khai báo display cụ thể ở phía trên. */
+.search-bar [hidden] {
+  display: none;
+}

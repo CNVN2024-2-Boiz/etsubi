@@ -1,0 +1,11 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="facebook">
+<g id="facebook_2">
+<circle cx="17" cy="17" r="17" fill="white" fill-opacity="0.12"/>
+<circle cx="17" cy="17" r="16.5" stroke="white" stroke-opacity="0.24"/>
+</g>
+<g id="facebook_icon">
+<path id="Vector" d="M21 10.3333H19C18.1159 10.3333 17.2681 10.6845 16.643 11.3096C16.0179 11.9348 15.6667 12.7826 15.6667 13.6667V15.6667H13.6667V18.3333H15.6667V23.6667H18.3333V18.3333H20.3333L21 15.6667H18.3333V13.6667C18.3333 13.4899 18.4036 13.3203 18.5286 13.1953C18.6536 13.0702 18.8232 13 19 13H21V10.3333Z" fill="#BCC3CE"/>
+</g>
+</g>
+</svg>

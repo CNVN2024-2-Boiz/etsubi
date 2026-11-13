@@ -1,0 +1,148 @@
+/* Định dạng footer cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
+
+/* ===== Khung footer và biến thể ===== */
+
+/* Chân trang không bị co bởi flex, dùng nền đỏ sẫm và chữ trắng trong theo thiết kế chung. */
+.site-footer {
+  flex-shrink: 0;
+  background: var(--color-red-dark);
+  color: var(--color-white-70);
+}
+
+/* Bản rút gọn căn giữa một dòng, giữ chiều cao tối thiểu và đệm ngang của trang xác thực. */
+.site-footer--slim {
+  min-height: var(--footer-slim-height);
+  display: grid;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+  padding-inline: var(--page-gutter);
+}
+
+/* Bản đầy đủ chừa đệm trên lớn cho lưới cột và đệm dưới cho dòng bản quyền. */
+.site-footer--full {
+  padding-block: var(--footer-top) var(--space-8);
+}
+
+/* ===== Nội dung bốn cột ===== */
+
+/* Bốn cột chia đều bề rộng bằng grid; minmax cho phép nội dung co mà không đẩy tràn khung. */
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+/* Cho cột co nhỏ hơn độ rộng nội dung tự nhiên để lưới footer thích ứng màn hình hẹp. */
+.site-footer__column {
+  min-width: 0;
+}
+
+/* Tên thương hiệu và chữ Nhật xếp theo chân chữ, màu trắng và cỡ lớn để nhận diện ở đầu cột. */
+.site-footer__brand {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: baseline;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-white);
+}
+
+/* Đoạn giới thiệu có cỡ nhỏ, màu trắng dịu và giãn dòng để dễ đọc trên nền tối. */
+.site-footer__description {
+  margin-top: var(--space-5);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-white-68);
+}
+
+/* Các mạng xã hội xếp ngang, cách đoạn giới thiệu và cách nhau theo token để dễ chạm. */
+.site-footer__socials {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* Icon mạng xã hội dùng khung tròn 34px đồng nhất để không làm lệch hàng. */
+.site-footer__socials a, .site-footer__socials img {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+}
+
+/* Tiêu đề cột trắng và đậm vừa, cách danh sách bên dưới để phân nhóm nội dung rõ ràng. */
+.site-footer__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-white);
+  letter-spacing: .5px;
+  margin-bottom: var(--space-3);
+}
+
+/* Danh sách bỏ dấu đầu dòng và đệm mặc định, xếp dọc với khoảng cách đều và chữ trắng dịu. */
+.site-footer__links {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--button-small-y);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-white-68);
+}
+
+/* Liên kết kế thừa màu danh sách để không trở thành đỏ trên nền đỏ sẫm. */
+.site-footer__links a {
+  color: inherit;
+}
+
+/* ===== Phân cách và bản quyền ===== */
+
+/* Đường phân cách mảnh trắng trong, có khoảng trống hai bên theo chiều dọc để tách dòng bản quyền. */
+.site-footer__divider {
+  height: 1px;
+  background: var(--color-white-15);
+  margin-block: var(--space-8);
+}
+
+/* Bản quyền căn giữa và cỡ nhỏ để kết thúc footer gọn gàng. */
+.site-footer__copyright {
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Ẩn dòng bản quyền tối giản trên màn hình rộng, chỉ dùng khi thu về mobile. */
+.site-footer__mobile {
+  display: none;
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 960px) {
+  /* Giảm footer xuống hai cột trên tablet để liên kết không bị ép quá hẹp. */
+  .site-footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 600px) {
+  /* Hai biến thể footer dùng cùng đệm gọn, chiều cao tối thiểu và căn giữa trên mobile. */
+  .site-footer--full, .site-footer--slim {
+    padding: var(--space-5) var(--page-gutter);
+    min-height: var(--footer-slim-height);
+    text-align: center;
+  }
+
+  /* Ẩn nội dung footer desktop trên mobile để chỉ giữ dòng bản quyền gọn. */
+  .site-footer__content, .site-footer__slim-copy {
+    display: none;
+  }
+
+  /* Điều chỉnh kích thước, đệm hoặc chữ của .site-footer__mobile cho màn hình hẹp để giữ nội dung vừa khung. */
+  .site-footer__mobile {
+    display: block;
+    font-size: 13px;
+    color: var(--color-white);
+  }
+}

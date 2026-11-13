@@ -1,0 +1,803 @@
+/* Kích thước bố cục riêng của trang Đăng ký nâng cao (màu sắc đã nằm trong styles/tokens.css). */
+:root {
+  --profile-side-width: 300px;
+  --profile-summary-padding: 22px;
+  --profile-summary-row-padding: 11px;
+}
+
+/* Nội dung có lớp nền riêng, kéo dài theo form; gradient chỉ đổi góc tại trang này để khớp frame. */
+.profile-setup {
+  --gradient-auth: var(--profile-gradient-auth);
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  overflow: clip;
+  padding: var(--space-7) var(--page-gutter) calc(var(--space-10) + var(--space-4));
+  background: var(--gradient-auth);
+}
+
+/* Mặt trời, mây, hoa và sóng là ảnh nền tĩnh dùng lại tài nguyên xác thực, neo sóng vào cuối main. */
+.profile-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url('/assets/illustrations/cloud-1.svg'), url('/assets/illustrations/cloud-2.svg'), url('/assets/illustrations/cloud-3.svg'), url('/assets/illustrations/sun.svg'), url('/assets/illustrations/sakura-11.svg'), url('/assets/illustrations/sakura-12.svg'), url('/assets/illustrations/sakura-8.svg'), url('/assets/illustrations/sakura-13.svg'), url('/assets/illustrations/sakura-14.svg'), url('/assets/illustrations/sakura-3.svg'), url('/assets/illustrations/sakura-7.svg'), url('/assets/illustrations/sakura-5.svg'), url('/assets/illustrations/sakura-10.svg'), url('/assets/illustrations/sakura-4.svg'), url('/assets/illustrations/wave-3.svg'), url('/assets/illustrations/wave-2.svg'), url('/assets/illustrations/wave-1.svg');
+  background-repeat: no-repeat;
+  background-position: 9% var(--space-10), 4% 8%, 23% var(--space-7), 86% var(--space-7), 27% var(--space-10), 69% 4%, 75% 8%, 4% 20%, 97% 20%, 6% 41%, 89% 47%, 10% 76%, 84% 71%, 95% 88%, center bottom, center bottom, center bottom;
+  background-size: 312px 108px, 216px 84px, 240px 96px, 744px 744px, 40px 28px, 18px 27px, 20px 29px, 16px 24px, 14px 20px, 15px 22px, 17px 26px, 12px 18px, 22px 33px, 20px 29px, 100% 100px, 100% 124px, 100% 156px;
+}
+
+/* Khung riêng của frame được căn giữa, không thay đổi container chung của các trang khác. */
+.profile-setup__container {
+  width: 100%;
+  max-width: var(--profile-container);
+  margin-inline: auto;
+}
+
+/* Tiêu đề và nhãn nháp cùng hàng trên desktop; flex cho phép nhãn xuống hàng khi thiếu chỗ. */
+.profile-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+/* Khối giới thiệu xếp dọc, giữ khoảng thở giữa đường dẫn, vạch nhấn, tiêu đề và mô tả. */
+.profile-heading__copy {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Breadcrumb cỡ nhỏ, cho xuống dòng để tên trang dài không tạo thanh cuộn ngang. */
+.profile-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* Hai đường dẫn trước dùng màu dịu, bước hiện tại dùng đỏ và nét đậm để nhận biết vị trí. */
+.profile-breadcrumb a {
+  color: var(--color-muted);
+}
+
+/* Tô đậm tên bước hiện tại mà không dùng màu làm dấu hiệu duy nhất. */
+.profile-breadcrumb [aria-current] {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* Vạch nhấn 77 × 7px lấy chiều rộng từ token cảnh xác thực để thống nhất thương hiệu. */
+.profile-heading__accent {
+  width: var(--scene-accent-width);
+  height: var(--scene-accent-height);
+  background: var(--color-red-accent);
+}
+
+/* Tiêu đề chính dùng phông thương hiệu 40px, chiều cao gọn giống ảnh tham chiếu. */
+.profile-heading h1 {
+  font-size: 40px;
+  line-height: 1.2;
+  color: var(--color-red);
+}
+
+/* Mô tả dùng sắc đỏ dịu và cỡ 17px để phân biệt với tiêu đề. */
+.profile-heading__copy > p {
+  font-size: 17px;
+  color: var(--color-hero-text);
+}
+
+/* Nháp có nền trắng trong suốt, chỉ hiển thị sau khi ghi thành công vào bộ nhớ. */
+.profile-draft {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding: var(--button-small-y) var(--space-4);
+  border: 1px solid var(--profile-draft-border);
+  border-radius: var(--radius-pill);
+  background: var(--profile-draft-bg);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Grid giữ hai cột bên 300px và cho cột giữa co trong khoảng desktop hẹp. */
+.profile-layout {
+  display: grid;
+  grid-template-columns: var(--profile-side-width) minmax(0, 1fr) var(--profile-side-width);
+  align-items: start;
+  gap: var(--space-7);
+}
+
+/* Các cột bên có khoảng cách thống nhất và cho phép nội dung dài co lại. */
+.profile-progress, .profile-summary, .profile-summary__help {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* Thẻ tiến trình có đệm 20px, dùng lại nền, viền và bóng của card chung. */
+.profile-progress__card {
+  padding: var(--space-5);
+}
+
+/* Nhãn nhỏ viết hoa có khoảng cách chữ để phân cấp thông tin ở hai cột bên. */
+.profile-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.1px;
+  color: var(--color-muted);
+}
+
+/* Danh sách bước bỏ số trình duyệt vì đã có dấu tròn cùng trạng thái chữ cho trình đọc. */
+.profile-steps {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Nút bước dễ nhấn, giữ tên và mô tả trên cùng cột với dấu tròn bên trái. */
+.profile-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-transparent);
+  color: var(--color-text-body);
+  text-align: left;
+}
+
+/* Hover và bước hiện tại chỉ đổi nền, không có di chuyển hoặc hiệu ứng cuộn. */
+.profile-step:hover, .profile-step[aria-current='step'] {
+  background: var(--color-sakura);
+}
+
+/* Dấu tròn chưa làm có viền trung tính, không co khi dòng chữ dài. */
+.profile-step__dot {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--color-input-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Bước hiện tại có số trắng trên đỏ để nhìn rõ vị trí đang cần bổ sung. */
+.profile-step[aria-current='step'] .profile-step__dot {
+  background: var(--color-red);
+  border-color: var(--color-red);
+  color: var(--color-white);
+}
+
+/* Bước xong dùng dấu check trắng trên xanh, kết hợp nhãn truy cập do JS cập nhật. */
+.profile-step.is-done .profile-step__dot {
+  border-color: var(--color-success);
+  background: var(--color-success) url('/assets/icons/step-check.svg') center / 14px 14px no-repeat;
+  color: var(--color-transparent);
+}
+
+/* Tên bước và phụ đề tách dòng với hai cỡ chữ để dễ đọc. */
+.profile-step strong, .profile-step small {
+  display: block;
+}
+
+/* Tên bước dùng nét vừa đủ rõ, giữ cỡ 15px theo thiết kế. */
+.profile-step strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Phụ đề nhỏ và dịu hơn để ưu tiên tên bước. */
+.profile-step small {
+  margin-top: var(--space-1);
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.25;
+}
+
+/* Màu tên bước xong hoặc đang làm đậm hơn trạng thái chưa tới. */
+.profile-step.is-done strong, .profile-step[aria-current] strong {
+  color: var(--color-text);
+}
+
+/* Hộp mẹo nền kem vàng giúp tách lời khuyên khỏi nội dung biểu mẫu. */
+.profile-tip {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--radio-padding);
+  border: 1.2px solid var(--color-tip-border);
+  border-radius: var(--radius-md);
+  background: var(--color-tip-bg);
+  color: var(--color-tip-text);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Tên mẹo dùng đỏ thương hiệu và cỡ 14px để dễ quét mắt. */
+.profile-tip h2 {
+  color: var(--color-red);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Hộp mẹo nhanh thay bằng nền hồng để đồng bộ với phần tóm tắt. */
+.profile-tip--quick {
+  background: var(--color-sakura);
+  border-color: var(--profile-tip-border);
+  color: var(--color-tip-quick);
+}
+
+/* Cắt dải đầu vào viền thẻ và cho phép cột trung tâm co mà không tràn ngang. */
+.profile-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Dải đầu dùng flex, không định vị tuyệt đối để ảnh và chữ vẫn căn giữa khi đổi cỡ. */
+.profile-card__band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  background: var(--color-red);
+  color: var(--color-band-text);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* Thân form chừa 40px dọc và 48px ngang như frame desktop. */
+.profile-form {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-9);
+}
+
+/* Vùng dữ liệu và các mục cách nhau 40px để dễ phân biệt ba bước. */
+.profile-form__fields {
+  display: grid;
+  gap: var(--space-8);
+}
+
+/* Khi đang tải, giữ form tĩnh và làm dịu nội dung khoá, không dùng skeleton chuyển động. */
+.profile-form[aria-busy='true'] .profile-form__fields {
+  opacity: .55;
+}
+
+/* Mỗi mục xếp dọc và chừa khoảng cách 20px trước nội dung. */
+.profile-section {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+  scroll-margin-top: var(--space-6);
+}
+
+/* Tiêu đề có thanh nhấn bên trái thay cho phần tử trang trí cần thêm vào DOM. */
+.profile-section__heading h2 {
+  border-left: 4px solid var(--color-red-accent);
+  padding-left: var(--space-2);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+/* Mô tả nhỏ bên dưới giúp người dùng hiểu dữ liệu sẽ xuất hiện ở đâu. */
+.profile-section__heading p {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+/* Khung ảnh có nền trắng và viền nhập liệu để phân biệt với nền kem của form. */
+.profile-avatar-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+/* Chỉ badge camera định vị theo avatar, tránh dùng toạ độ cho bố cục chính. */
+.profile-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Nền gradient tạo vòng ngoài, chữ viết tắt dùng phông tiêu đề khi chưa có ảnh. */
+.profile-avatar__frame {
+  padding: 3px;
+  box-shadow: var(--shadow-button);
+  font-family: var(--font-display);
+  font-size: 34px;
+}
+
+/* Viền trắng 2px tạo khoảng ngắt giữa ảnh vuông cắt tròn và vòng gradient ngoài. */
+.profile-avatar__frame img {
+  border: 2px solid var(--color-white);
+  border-radius: var(--radius-pill);
+}
+
+/* Camera có vùng tròn 30px và viền đỏ; đây là nút thật có tên truy cập trong HTML. */
+.profile-avatar__camera {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+}
+
+/* Chi tiết ảnh cho phép co, các nút tự xuống dòng ở cột giữa hẹp. */
+.profile-avatar-box__details {
+  min-width: 0;
+}
+
+/* Tên thao tác ảnh nổi hơn dòng yêu cầu định dạng ngay dưới. */
+.profile-avatar-box h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Dòng định dạng giữ cỡ 13px và màu gợi ý thống nhất. */
+.profile-avatar-box p {
+  margin-top: var(--space-1);
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* Hàng nút ảnh có khoảng đệm trên 8px và cho xuống dòng để tránh tràn. */
+.profile-avatar-box__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: 14px;
+}
+
+/* Bảng ảnh mẫu mở trong luồng trang, có viền để người dùng nhận ra nhóm lựa chọn. */
+.profile-presets {
+  padding: var(--space-4);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+}
+
+/* Sáu mẫu đều nhau và chia được thành hai hàng trên màn hình nhỏ. */
+.profile-presets__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+/* Nút chọn ảnh có viền cố định để trạng thái đang chọn không làm đổi kích thước. */
+.profile-preset {
+  min-width: 0;
+  padding: var(--space-1);
+  border: 2px solid var(--color-transparent);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+}
+
+/* Mẫu được chọn và mẫu đang rê chuột được làm rõ bằng viền đỏ. */
+.profile-preset[aria-pressed='true'], .profile-preset:hover {
+  border-color: var(--color-red);
+}
+
+/* Ảnh vuông co theo nút để giữ tỷ lệ và tránh đẩy lưới rộng ra. */
+.profile-preset img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-pill);
+}
+
+/* Hai cột dữ liệu bằng nhau, mục giới thiệu được trải hết cả hàng. */
+.profile-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+/* Mục giới thiệu chiếm toàn bộ chiều rộng để có đủ chỗ đọc đoạn văn. */
+.profile-fields-grid__wide {
+  grid-column: 1 / -1;
+}
+
+/* Giãn nhãn tới ô nhập 8px; gợi ý vẫn gần ô để thể hiện cùng một trường. */
+.profile-form .field {
+  gap: var(--space-2);
+}
+
+/* Gợi ý trang hồ sơ dùng 12px như frame thay vì cỡ mặc định dùng chung. */
+.profile-form .field__hint {
+  font-size: 12px;
+}
+
+/* Select gốc giữ điều khiển bàn phím, chỉ thay hình mũi tên bằng tài nguyên dự án. */
+.profile-select {
+  appearance: none;
+  background-image: url('/assets/icons/chevron-down-muted.svg');
+  background-repeat: no-repeat;
+  background-size: 20px;
+  background-position: right var(--space-4) center;
+}
+
+/* Khung giới thiệu làm mốc cho bộ đếm nằm ở góc phải bên dưới. */
+.profile-bio {
+  position: relative;
+}
+
+/* Ô giới thiệu chừa chỗ dưới bộ đếm, dùng chiều cao 104px và giãn dòng dễ đọc. */
+.profile-bio textarea {
+  display: block;
+  min-height: 104px;
+  height: 104px;
+  padding-bottom: var(--space-7);
+  line-height: 1.5;
+}
+
+/* Bộ đếm không nhận chuột để không cản đặt con trỏ trong textarea. */
+.profile-bio__counter {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-3);
+  pointer-events: none;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Chạm giới hạn 300 ký tự đổi đỏ để báo không còn chỗ nhập. */
+.profile-bio__counter.is-limit {
+  color: var(--color-danger);
+}
+
+/* Chú thích chọn một dùng nét thường để không cạnh tranh với tên nhóm. */
+.profile-native legend {
+  margin-bottom: var(--space-4);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Phần trong ngoặc là gợi ý, vì vậy dùng màu dịu và độ đậm thường. */
+.profile-native legend span {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+/* Ba radio bằng nhau, chọn được cả thẻ và không tự tạo hành vi bàn phím riêng. */
+.profile-native__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+/* Radio căn lên đầu để dấu tròn đi cùng dòng tên khi mô tả xuống hàng. */
+.profile-native .radio-card {
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+/* Tên và phụ đề radio tách dòng, nội dung dài được phép ngắt để không tràn. */
+.profile-native strong, .profile-native small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+/* Tên ngôn ngữ dùng cỡ 15px và nét 600 theo thiết kế. */
+.profile-native strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Mô tả lá cờ dùng cỡ 13px và màu gợi ý. */
+.profile-native small {
+  margin-top: var(--space-1);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Ghi chú cài đặt nằm sau nhóm radio, tách khỏi mô tả riêng từng lựa chọn. */
+.profile-native > .field__hint {
+  margin-top: var(--space-4);
+}
+
+/* Checkbox nằm đầu dòng để đoạn điều khoản nhiều hàng vẫn dễ theo dõi. */
+.profile-terms .checkbox {
+  align-items: flex-start;
+}
+
+/* Liên kết điều khoản nét đậm và đỏ, gạch chân khi hover do base.css xử lý. */
+.profile-terms a {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* Lỗi checkbox cách hàng điều khoản một bước nhỏ. */
+.profile-terms > p {
+  margin-top: var(--space-2);
+}
+
+/* Thanh thao tác có đường phân chia, giữ quay lại trái và lưu bên phải. */
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Hai thao tác lưu có khoảng cách rõ ràng nhưng không dùng hiệu ứng di chuyển. */
+.profile-actions__save {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Nút quay lại có đệm nhỏ hơn để nhãn gần mép nội dung giống frame. */
+.profile-actions > .btn {
+  padding-inline: var(--space-4);
+}
+
+/* Nút thử lại trong thông báo luôn ở dưới nội dung lỗi, không thuộc fieldset khoá. */
+.profile-form .alert .btn {
+  margin-top: var(--space-3);
+}
+
+/* Tóm tắt cắt nền đỏ trong góc card, bỏ bóng mạnh để giống cột nhỏ bên phải. */
+.profile-summary__card {
+  overflow: hidden;
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Phần đầu nền đỏ xếp dọc với tiến độ và phần trăm dễ thấy. */
+.profile-summary__top {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--profile-summary-padding);
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+/* Nhãn trên nền đỏ dùng màu sáng riêng từ frame để đủ tách biệt với tiêu đề. */
+.profile-summary__top .profile-eyebrow {
+  color: var(--profile-summary-label);
+}
+
+/* Tiêu đề tóm tắt dùng display 20px tương tự các đề mục form. */
+.profile-summary__top h2 {
+  font-size: 20px;
+}
+
+/* Rãnh tiến độ 8px dùng nền trắng trong suốt; không có animation chiều rộng. */
+.profile-meter {
+  height: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--profile-meter-bg);
+  overflow: hidden;
+}
+
+/* JS chỉ thay custom property cho giá trị động, không gán style tĩnh trong HTML. */
+.profile-meter span {
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-pink-border);
+}
+
+/* Số phần trăm lớn, dấu phần trăm nhỏ cùng đường chân chữ. */
+.profile-summary__percent {
+  display: flex;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Số tiến độ 30px dùng phông thương hiệu để giữ nhịp thị giác của cột bên. */
+.profile-summary__percent .t-display {
+  font-size: 30px;
+}
+
+/* Thân tóm tắt có đệm riêng, giữ hàng dữ liệu cách viền thẻ. */
+.profile-summary__body {
+  padding: var(--space-5) var(--profile-summary-padding);
+}
+
+/* Bỏ lề dl mặc định để hàng đầu nằm ngay sau nhãn nhỏ. */
+.profile-summary__rows {
+  margin: var(--space-2) 0 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+/* Nhãn và giá trị chia hàng theo flex, có gạch nhẹ giữa các dữ liệu. */
+.profile-summary__rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block: var(--profile-summary-row-padding);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Hàng cuối không cần đường chia vì đã có đệm đáy thẻ. */
+.profile-summary__rows > div:last-child {
+  border-bottom: 0;
+}
+
+/* Nhãn dữ liệu màu dịu và được phép xuống dòng trong cột 300px. */
+.profile-summary__rows dt {
+  color: var(--color-muted);
+}
+
+/* Giá trị dài được rút bằng dấu ba chấm, title do JS cung cấp giữ nội dung đầy đủ. */
+.profile-summary__rows dd {
+  max-width: 60%;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Dữ liệu trống có sắc độ dịu để người dùng phân biệt với giá trị thực. */
+.profile-summary__rows dd.is-empty {
+  color: var(--color-muted);
+}
+
+/* Liên hệ quản trị viên có khoảng cách nhỏ dưới nhãn hỗ trợ. */
+.profile-support .btn {
+  margin-top: var(--space-2);
+  padding-inline: var(--space-3);
+  font-size: 14px;
+}
+
+/* Thu gọn desktop theo đúng breakpoint dự án, đưa tiến trình lên trên và tóm tắt xuống dưới. */
+@media (max-width: 1280px) {
+  /* Giới hạn toàn bộ nội dung theo chiều rộng thẻ chính khi bỏ hai cột bên. */
+  .profile-setup__container {
+    max-width: var(--profile-card-width);
+  }
+
+  /* Cả ba khu vực chuyển thành hàng riêng, giữ nguyên thứ tự đọc của DOM. */
+  .profile-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Ba bước chia đều thành dải ngang, mẹo trái được ẩn vì đã có mẹo nhanh bên dưới. */
+  .profile-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Ẩn mẹo lặp ở laptop để không đẩy biểu mẫu xuống xa. */
+  .profile-progress > .profile-tip {
+    display: none;
+  }
+
+  /* Tóm tắt và cụm trợ giúp tạo hai cột cân bằng ở dưới thẻ. */
+  .profile-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+/* Tablet trở xuống xếp mọi nội dung theo một cột, hai trường không còn chen ngang. */
+@media (max-width: 960px) {
+  /* Tiêu đề và nháp xếp dọc để không ép chữ giới thiệu trên tablet. */
+  .profile-heading {
+    flex-direction: column;
+  }
+
+  /* Nhãn nháp không giữ khoảng trên của bố cục desktop. */
+  .profile-draft {
+    margin-top: 0;
+  }
+
+  /* Các lưới chuyển thành một cột theo yêu cầu tablet. */
+  .profile-steps, .profile-summary, .profile-fields-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Radio chia dọc sớm để chữ mô tả không bị dồn vào những cột quá hẹp. */
+  .profile-native__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Ảnh nền nhỏ lại để không tranh diện tích thị giác với form trên tablet. */
+  .profile-scene {
+    opacity: .65;
+  }
+}
+
+/* Mobile dùng lề 16px, nội dung dễ chạm và không có thanh cuộn ngang ở 360px. */
+@media (max-width: 600px) {
+  /* Giảm khoảng dọc của main và khoảng cách lưới cho màn hình nhỏ. */
+  .profile-setup {
+    padding-block: var(--space-6) var(--space-9);
+  }
+
+  /* Tiêu đề xuống 28px theo frame mobile, giữ chiều cao dòng của desktop. */
+  .profile-heading h1 {
+    font-size: 28px;
+  }
+
+  /* Đoạn giới thiệu giảm nhẹ để đọc thoải mái trong lề 16px. */
+  .profile-heading__copy > p {
+    font-size: 15px;
+  }
+
+  /* Thân card dùng đệm 24 × 16px để giữ chiều rộng có ích cho ô nhập. */
+  .profile-form {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  /* Ảnh ở giữa phía trên nội dung và hàng nút trên điện thoại. */
+  .profile-avatar-box {
+    flex-direction: column;
+    padding: var(--space-5) var(--space-3);
+    text-align: center;
+  }
+
+  /* Các nút ảnh được căn giữa, vẫn tự xuống dòng nếu nhãn dài. */
+  .profile-avatar-box__actions {
+    justify-content: center;
+  }
+
+  /* Bảng ảnh chia ba cột để sáu nút vẫn đủ rộng cho thao tác chạm. */
+  .profile-presets__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Các nút form xếp dọc; nhóm lưu nằm trên quay lại và submit nằm trước lưu nháp. */
+  .profile-actions, .profile-actions__save {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Nhóm lưu là vùng thao tác ưu tiên trên điện thoại. */
+  .profile-actions__save {
+    order: -1;
+  }
+
+  /* Submit xuất hiện đầu nhóm để người dùng tìm thấy hành động hoàn tất nhanh nhất. */
+  .profile-actions__save [type='submit'] {
+    order: -1;
+  }
+
+  /* Nút trải toàn bề ngang theo yêu cầu thao tác trên điện thoại. */
+  .profile-actions .btn {
+    width: 100%;
+  }
+}
+
+/* Thuộc tính hidden luôn thắng các display trang này để nháp, lỗi và bảng ảnh không lộ khi đóng. */
+.profile-setup [hidden] {
+  display: none;
+}

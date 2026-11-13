@@ -1,91 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
+<!-- Trang đăng nhập Etsubi: biểu mẫu HTML tĩnh và các vùng component dùng chung. -->
 <html lang="vi">
-
+  <!-- Khai báo ngôn ngữ hiển thị, tài nguyên dùng chung và module riêng của trang. -->
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" >
-    <title>Đăng nhập - Etsubi</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng nhập · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+JP:wght@350;400;500;700&display=swap" />
     <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/auth.css" />
+    <script type="module" src="/pages/profile/login.js"></script>
   </head>
-
-  <body>
-
-    <header id="header">
-      <img src="/public/logo.svg" alt="Etsubi_logo" >
-      <span>Etsubi</span>
-      <a href="#">Trang chủ</a>
-      <a href="#">Diễn đàn</a>
-      <a href="#">Về chúng tôi</a>
-      <a href="#">Liên hệ</a>
-      <button type="button" class="lang-btn">VI</button>
-    </header>
-
-    <form id="login_form">
-      <h1>Đăng nhập</h1>
-      <h2>Chào mừng trở lại</h2>
-      <div>
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="you@example.com" required />
-      </div>
-      <div>
-        <label for="password">Mật khẩu</label>
-        <input type="password" id="password" required />
-      </div>
-      <div>
-        <input type="checkbox" id="remember_me" />
-        <label for="remember_me">Ghi nhớ đăng nhập</label>
-        <a href="#">Quên mật khẩu?</a> 
-      </div>
-      <div>
-        <button type="submit">Đăng nhập</button>
+  <body class="page page--login">
+    <!-- Liên kết bàn phím đi thẳng tới nội dung, bỏ qua thanh điều hướng. -->
+    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <!-- Vùng gắn header dùng chung; module trang gọi mountHeader để dựng điều hướng. -->
+    <header class="site-header" data-component="header" data-variant="default"></header>
+    <!-- Nội dung chính gồm cảnh trang trí và thẻ biểu mẫu HTML, vẫn đọc được khi tắt JavaScript. -->
+    <main id="main" class="auth" data-auth-scene>
+      <!-- Placeholder cảnh và lời chào: component dùng chung dựng phần trang trí khi có JavaScript. -->
+      <div class="auth-scene-mount" data-component="auth-scene" data-title="XIN CHÀO"></div>
+      <!-- Thẻ xác thực chứa tiêu đề và biểu mẫu thật để giữ cấu trúc ngữ nghĩa và khả năng truy cập. -->
+      <section class="card auth-card auth-card--login" aria-labelledby="auth-title">
+        <!-- Dải đỏ và biểu tượng cổng ở đầu thẻ, giữ bố cục giống bản thiết kế. -->
+        <div class="card__band">
+          <img class="card__torii" src="/assets/icons/torii-mini.svg" alt="" aria-hidden="true" />
+          <p class="card__band-title">Đăng nhập</p>
         </div>
-        <p id="msg"></p>
-      <div>
-        <span>hoặc</span>
+        <!-- Nội dung thẻ: tiêu đề, biểu mẫu và liên kết chuyển giữa đăng nhập với đăng ký. -->
+        <div class="auth-card__body">
+          <!-- Thông báo phiên đang có, chỉ hiện sau khi tải được hồ sơ người dùng. -->
+          <div class="alert alert--info auth-card__session" role="status" data-session-notice hidden></div>
+          <h1 class="t-display auth-card__title" id="auth-title">Đăng nhập</h1>
+          <p class="auth-card__subtitle">Chào mừng trở lại</p>
+          <!-- Biểu mẫu dùng kiểm tra tiếng Việt trong module thay cho thông báo mặc định của trình duyệt. -->
+          <form data-auth-form novalidate>
+            <!-- Nhóm trường nhập xếp dọc; mỗi trường có nhãn và vùng gợi ý lỗi riêng. -->
+            <div class="auth-card__fields">
+              <!-- Trường email: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+              <div class="field" data-field="email">
+                <label class="field__label" for="email">Email</label>
+                <input class="input" id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="email-hint" required />
+                <p class="field__hint field__hint--error" id="email-hint" hidden></p>
+              </div>
+              <!-- Trường password: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+              <div class="field" data-field="password">
+                <label class="field__label" for="password">Mật khẩu</label>
+                <!-- Ô mật khẩu và nút mắt: nút thật hỗ trợ bàn phím và công bố trạng thái ẩn/hiện. -->
+                <div class="input-group">
+                  <input class="input" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" aria-describedby="password-hint" required />
+                  <button type="button" class="input-group__button" data-password-toggle="password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="password">
+                    <img src="/assets/icons/eye.svg" alt="" width="24" height="24" />
+                  </button>
+                </div>
+                <p class="field__hint field__hint--error" id="password-hint" hidden></p>
+              </div>
+            </div>
+            <!-- Tuỳ chọn ghi nhớ phiên và liên kết khôi phục mật khẩu đang chờ triển khai. -->
+            <div class="auth-card__options">
+              <label class="checkbox" for="remember">
+                <input class="checkbox__input" type="checkbox" id="remember" name="remember" checked />
+                <span class="checkbox__box" aria-hidden="true">
+                </span>
+                <span>Ghi nhớ đăng nhập</span>
+              </label>
+              <a class="auth-card__forgot" href="#" data-forgot title="Sắp ra mắt">Quên mật khẩu?</a>
+            </div>
+            <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
+            <div class="alert alert--info auth-card__message" role="status" data-info-alert hidden></div>
+            <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
+            <div class="alert alert--error auth-card__message" role="alert" data-form-alert hidden></div>
+            <!-- Nút gửi có nhãn gốc để module phục hồi sau trạng thái chờ tĩnh. -->
+            <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit>Đăng nhập</button>
+          </form>
+          <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
+          <img class="auth-card__divider" src="/assets/illustrations/card-divider.svg" alt="" aria-hidden="true" />
+          <!-- Liên kết sang biểu mẫu còn lại; module giữ tham số trang quay về nếu có. -->
+          <p class="auth-card__switch">Chưa có tài khoản? <a href="/pages/profile/register.html" data-auth-switch>Đăng ký</a></p>
         </div>
-      <div>
-        <button type="button" class="btn-google">
-          <span>G</span>
-          Đăng nhập với Google
-        </button>
-      </div>
-      <div class="register_redirect">
-        <p>Chưa có tài khoản? <a id="register" href="/pages/profile/register.html">Đăng ký</a></p>
-      </div>
-    </form>
-
-    <footer id="footer">© 2025 Etsubi • 越日 | IE104 — UIT | Cầu nối văn hoá Việt — Nhật</footer>
-
-    <script type="module">
-        import { auth, safeRedirect } from '/utils/auth.js';
-
-        const params = new URLSearchParams(location.search);
-        const redirect = params.get('redirect');
-
-        // Giữ tham số redirect khi người dùng chuyển sang trang đăng ký
-        if (redirect) {
-            document.getElementById('register').href =
-                '/pages/profile/register.html?redirect=' + encodeURIComponent(redirect);
-        }
-
-        const msg = document.getElementById('msg');
-
-        document.getElementById('login_form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            msg.textContent = '';
-            try {
-                await auth.login(
-                    document.getElementById('email').value.trim(),
-                    document.getElementById('password').value
-                );
-                window.location.href = safeRedirect(redirect);
-            } catch (err) {
-                msg.textContent = err.status === 401
-                    ? 'Email hoặc mật khẩu không chính xác.'
-                    : err.message;
-            }
-        });
-    </script>
-
+        <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
+        <img class="auth-card__bottom-wave" src="/assets/illustrations/card-bottom-wave.svg" alt="" aria-hidden="true" />
+      </section>
+    </main>
+    <!-- Vùng gắn chân trang rút gọn dùng chung cho các trang xác thực. -->
+    <footer class="site-footer" data-component="footer" data-variant="slim"></footer>
   </body>
 </html>
