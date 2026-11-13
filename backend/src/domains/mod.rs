@@ -2,6 +2,7 @@ pub mod auth;
 pub mod bookmark;
 pub mod comment;
 pub mod follow;
+pub mod notification;
 pub mod post;
 pub mod reaction;
 pub mod tag;

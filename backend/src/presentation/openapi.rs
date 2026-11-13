@@ -75,6 +75,10 @@ use crate::presentation::{
         post_handler::update_post,
         post_handler::delete_post,
         post_handler::search_posts,
+        post_handler::list_newest_posts,
+        post_handler::list_popular_posts,
+        post_handler::list_question_and_answer_posts,
+        post_handler::list_following_user_posts,
 
         comment_handler::list_post_comments,
         comment_handler::get_comment,
