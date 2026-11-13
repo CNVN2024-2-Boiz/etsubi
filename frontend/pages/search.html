@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+  <!-- Nạp phông, token và CSS dùng chung trước CSS trang để giữ đúng hệ thiết kế Etsubi. -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tìm kiếm · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@350;400;500;700&amp;display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/components/tag-chip/tag-chip.css" />
+    <link rel="stylesheet" href="/components/search-bar/search-bar.css" />
+    <link rel="stylesheet" href="/components/postcard/PostCard.css" />
+    <link rel="stylesheet" href="/styles/pages/search.css" />
+    <script type="module" src="/pages/search.js"></script>
+  </head>
+  <body class="page page--search">
+    <!-- Header và footer được gắn bằng component, không sao chép nội dung dùng chung vào trang. -->
+    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header" data-variant="search"></header>
+
+    <!-- Hàng tag trên điện thoại cuộn trong vùng riêng, mỗi lần nhấn là một tìm kiếm chủ động. -->
+    <nav class="search-mobile-tags" aria-label="Lọc theo tag" data-mobile-tags></nav>
+
+    <!-- Khung nội dung hai cột dùng cùng chiều rộng container với footer của dự án. -->
+    <main id="main" class="search-layout container">
+      <!-- Cột chính gom tiêu đề, bộ lọc và mọi trạng thái tìm kiếm theo đúng thứ tự đọc. -->
+      <section class="search-content" aria-labelledby="search-title">
+        <!-- Tiêu đề và bộ đếm được cập nhật sau mỗi lần gửi, không thay khi người dùng đang gõ. -->
+        <div class="search-heading" data-search-heading>
+          <div class="search-heading__copy">
+            <h1 id="search-title" class="search-heading__title t-display" data-search-title>Tìm kiếm trên Etsubi</h1>
+            <p class="search-heading__description" data-search-description>Nhập từ khoá hoặc #tag rồi nhấn Enter / bấm “Tìm kiếm”.</p>
+          </div>
+          <div class="search-heading__actions">
+            <!-- Menu chỉ sắp xếp danh sách đã tải; máy chủ luôn trả bài mới trước. -->
+            <div class="search-sort" data-sort-container hidden>
+              <button type="button" class="search-pill" aria-expanded="false" aria-controls="search-sort-options" data-sort-button>
+                <img src="/assets/icons/arrow-up-down.svg" alt="" width="16" height="16" />
+                <span data-sort-label>Mới nhất</span>
+                <img src="/assets/icons/chevron-down.svg" alt="" width="14" height="14" />
+              </button>
+              <div id="search-sort-options" class="search-sort__options" data-sort-options hidden>
+                <button type="button" class="search-sort__option" aria-pressed="true" data-sort="newest">Mới nhất</button>
+                <button type="button" class="search-sort__option" aria-pressed="false" data-sort="oldest">Cũ nhất</button>
+              </div>
+            </div>
+            <a class="search-write" href="/pages/forum.html?compose=1" data-write-post>
+              <img src="/assets/icons/plus.svg" alt="" width="16" height="16" />Viết bài
+            </a>
+          </div>
+        </div>
+
+        <!-- Bộ lọc desktop dùng chip bật tắt; lọc nhiều tag luôn áp dụng quy tắc khớp tất cả. -->
+        <div class="search-filters" data-search-filters hidden>
+          <div class="search-filters__tags" data-filter-tags></div>
+          <button type="button" class="search-clear" data-clear-tags>Xóa lọc</button>
+        </div>
+
+        <!-- Thông báo chờ và số kết quả được đọc nhẹ nhàng mà không di chuyển focus của người dùng. -->
+        <p class="u-visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-search-status></p>
+        <div class="alert alert--error search-error" role="alert" data-search-error hidden>
+          <p data-error-message></p>
+          <button type="button" class="search-pill" data-retry>Thử lại</button>
+        </div>
+
+        <!-- Khối trống giải thích rõ tìm kiếm chỉ diễn ra sau thao tác gửi, không có gợi ý trực tiếp. -->
+        <section class="search-empty" data-empty-card aria-labelledby="search-empty-title">
+          <span class="search-empty__icon" aria-hidden="true"><img src="/assets/icons/search-brand.svg" alt="" width="28" height="28" /></span>
+          <h2 id="search-empty-title" class="search-empty__title t-display" data-empty-title>Bạn muốn tìm gì?</h2>
+          <p class="search-empty__description" data-empty-description>Kết quả chỉ hiển thị sau khi bạn nhấn Enter hoặc bấm “Tìm kiếm”. Gõ # để thêm tag, hoặc dùng nút “Tag” để chọn từ danh sách.</p>
+          <div class="search-empty__shortcuts" data-search-shortcuts>
+            <span><kbd class="kbd">Enter</kbd> Tìm kiếm</span>
+            <span><kbd class="kbd">#</kbd> Thêm tag</span>
+            <span><kbd class="kbd">/</kbd> Mở ô tìm kiếm</span>
+            <span><kbd class="kbd">Backspace</kbd> Gỡ tag cuối</span>
+          </div>
+          <button type="button" class="search-pill" data-empty-clear hidden>Xóa lọc</button>
+        </section>
+
+        <!-- Điện thoại thay thẻ trống lớn bằng banner gọn như bản thiết kế màn tìm kiếm. -->
+        <p class="search-mobile-info" data-mobile-info>Gõ từ khoá hoặc #tag rồi bấm “Tìm” (hoặc phím Tìm trên bàn phím) để xem kết quả. Không có gợi ý trong lúc gõ.</p>
+
+        <!-- Danh sách chứa article thật hoặc ba thẻ giữ chỗ tĩnh; không dùng chuyển động khi tải. -->
+        <div class="search-results" aria-busy="false" data-search-results></div>
+        <div class="search-more" data-more-container hidden>
+          <button type="button" class="search-pill" data-load-more>Xem thêm kết quả</button>
+        </div>
+      </section>
+
+      <!-- Sidebar giải thích phím tắt và liệt kê tag; ẩn trên điện thoại để ưu tiên nội dung. -->
+      <aside class="search-sidebar" aria-label="Hỗ trợ tìm kiếm">
+        <!-- Thẻ mẹo dùng danh sách định nghĩa để mỗi phím có lời giải thích truy cập rõ ràng. -->
+        <section class="search-sidebar-card" aria-labelledby="search-tips-title">
+          <h2 id="search-tips-title" class="search-sidebar-card__title"><img src="/assets/icons/torii-mini-small.svg" alt="" width="24" height="20" />Mẹo tìm kiếm</h2>
+          <dl class="search-tips">
+            <div><dt><kbd class="kbd">#tag</kbd></dt><dd>Lọc theo tag, ví dụ #question onsen</dd></div>
+            <div><dt><kbd class="kbd">/</kbd></dt><dd>Mở nhanh ô tìm kiếm ở mọi trang</dd></div>
+            <div><dt><kbd class="kbd">Backspace</kbd></dt><dd>Gỡ tag cuối khi ô đang trống</dd></div>
+            <div><dt><kbd class="kbd">Enter</kbd></dt><dd>Gửi tìm kiếm</dd></div>
+          </dl>
+        </section>
+        <!-- Tag phổ biến bắt đầu không có số, sau đó nhận số đếm thực từ các yêu cầu tuần tự. -->
+        <section class="search-sidebar-card" aria-labelledby="search-popular-title">
+          <h2 id="search-popular-title" class="search-sidebar-card__title"><img src="/assets/icons/torii-mini-small.svg" alt="" width="24" height="20" />Tag phổ biến</h2>
+          <div class="search-popular-tags" data-popular-tags><p class="search-sidebar-card__note">Đang tải…</p></div>
+        </section>
+      </aside>
+    </main>
+
+    <!-- Chân trang đầy đủ tự chuyển thành một dòng bản quyền ở ngưỡng mobile. -->
+    <footer class="site-footer" data-component="footer" data-variant="full"></footer>
+  </body>
+</html>

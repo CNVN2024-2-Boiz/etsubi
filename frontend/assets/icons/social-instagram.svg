@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="instagram">
+<g id="instagram_2">
+<circle cx="17" cy="17" r="17" fill="white" fill-opacity="0.12"/>
+<circle cx="17" cy="17" r="16.5" stroke="white" stroke-opacity="0.24"/>
+</g>
+<g id="instagram_icon" clip-path="url(#clip0_0_214)">
+<path id="Vector" d="M13.6667 10.3333H20.3333C22.1743 10.3333 23.6667 11.8257 23.6667 13.6667V20.3333C23.6667 22.1743 22.1743 23.6667 20.3333 23.6667H13.6667C11.8257 23.6667 10.3333 22.1743 10.3333 20.3333V13.6667C10.3333 11.8257 11.8257 10.3333 13.6667 10.3333Z" stroke-width="1.33333" stroke="#BCC3CE"/>
+<path id="Vector_2" d="M20.3333 17C20.3333 18.8409 18.8409 20.3333 17 20.3333C15.1591 20.3333 13.6667 18.8409 13.6667 17C13.6667 15.1591 15.1591 13.6667 17 13.6667C18.8409 13.6667 20.3333 15.1591 20.3333 17Z" stroke-width="1.33333" stroke="#BCC3CE"/>
+<path id="Vector_3" d="M20.6667 14.3333C21.219 14.3333 21.6667 13.8856 21.6667 13.3333C21.6667 12.781 21.219 12.3333 20.6667 12.3333C20.1144 12.3333 19.6667 12.781 19.6667 13.3333C19.6667 13.8856 20.1144 14.3333 20.6667 14.3333Z" fill="#BCC3CE"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_214">
+<rect width="16" height="16" fill="white" transform="translate(9 9)"/>
+</clipPath>
+</defs>
+</svg>

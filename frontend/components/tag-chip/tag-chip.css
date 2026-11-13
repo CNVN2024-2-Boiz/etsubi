@@ -1,0 +1,79 @@
+/* Chip nhỏ giữ cùng hình dạng ở thanh tìm kiếm, bộ lọc, sidebar và thẻ bài viết. */
+.tag-chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  padding: calc(var(--space-1) + 1px) var(--button-small-y);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* Đổi viền khi rê chuột nhưng giữ nguyên vị trí và kích thước để tránh chuyển động. */
+.tag-chip:hover {
+  border-color: var(--color-red-40);
+  text-decoration: none;
+}
+
+/* Dấu thăng nhấn bằng màu thương hiệu còn tên và số vẫn là văn bản đọc được. */
+.tag-chip__hash {
+  color: var(--color-red-accent);
+}
+
+/* Số lượng nhẹ hơn tên để người đọc nhận diện tên thẻ trước. */
+.tag-chip__count {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Chip đã chọn có dấu kiểm và nền đỏ để thể hiện bộ lọc đang có hiệu lực. */
+.tag-chip--selected {
+  padding-left: var(--space-2);
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-cream);
+}
+
+/* Dấu thăng và số dùng màu sáng từ token để đọc rõ trên nền đỏ của chip đã chọn. */
+.tag-chip--selected .tag-chip__hash {
+  color: var(--color-pink-border);
+}
+
+/* Giữ độ tương phản của số lượng trên nền đỏ mà không làm tên thẻ mất nổi bật. */
+.tag-chip--selected .tag-chip__count {
+  color: var(--color-sakura-100);
+}
+
+/* Chip trong ô nhập dùng góc vừa và đệm gọn để chừa chỗ cho nút xoá riêng. */
+.tag-chip--removable {
+  padding: calc(var(--space-1) - 1px) var(--space-1) calc(var(--space-1) - 1px) var(--space-2);
+  border-color: var(--color-transparent);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura-100);
+}
+
+/* Nút xoá nằm trong span, tránh lồng nút trong nút và giữ tên truy cập đầy đủ. */
+.tag-chip__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-red-dark);
+}
+
+/* Nền kem phản hồi thao tác rê chuột trên nút xoá, không tạo hiệu ứng chuyển động. */
+.tag-chip__remove:hover {
+  background: var(--color-cream);
+}

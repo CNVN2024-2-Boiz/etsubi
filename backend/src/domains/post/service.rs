@@ -272,4 +272,20 @@ impl PostService {
 
         Ok(self.post_repo.set_comments_locked(post_id, locked)?)
     }
+
+    pub fn list_newest_posts(&self) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_newest_posts()?)
+    }
+
+    pub fn list_popular_posts(&self) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_popular_posts()?)
+    }
+
+    pub fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_following_user_posts(user_id)?)
+    }
+
+    pub fn list_question_and_answer_posts(&self) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_question_and_answer_posts()?)
+    }
 }

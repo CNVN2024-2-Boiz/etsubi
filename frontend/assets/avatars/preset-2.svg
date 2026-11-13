@@ -1,0 +1,15 @@
+<!-- Ảnh mẫu hoa anh đào: năm cánh hồng đậm cân đối trong nền kem, rõ khi thu nhỏ. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#FFFCF7"/>
+  <circle cx="128" cy="128" r="94" fill="#FCECF0"/>
+  <!-- Cánh hoa dùng phép xoay SVG tĩnh để giữ số hình ít, không có mã animation. -->
+  <g fill="#C2454F">
+    <path id="petal" d="M128 134C93 110 93 62 117 56l11 12 11-12c24 6 24 54-11 78z"/>
+    <use href="#petal" transform="rotate(72 128 128)"/>
+    <use href="#petal" transform="rotate(144 128 128)"/>
+    <use href="#petal" transform="rotate(216 128 128)"/>
+    <use href="#petal" transform="rotate(288 128 128)"/>
+  </g>
+  <circle cx="128" cy="128" r="19" fill="#FAD6E1"/>
+  <circle cx="128" cy="128" r="8" fill="#FFFCF7"/>
+</svg>

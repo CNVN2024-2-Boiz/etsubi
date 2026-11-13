@@ -1,0 +1,14 @@
+<!-- Ảnh mẫu sóng biển: ba lớp sóng đỏ hồng và mặt trời kem giữ tương phản khi hiển thị nhỏ. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#FAD6E1"/>
+  <circle cx="128" cy="128" r="94" fill="#FCECF0"/>
+  <circle cx="154" cy="84" r="26" fill="#FFFCF7"/>
+  <!-- Cắt các lớp bằng hình tròn an toàn, không dùng ảnh ngoài hoặc tài nguyên tạm. -->
+  <defs><clipPath id="safe"><circle cx="128" cy="128" r="94"/></clipPath></defs>
+  <g clip-path="url(#safe)">
+    <path d="M28 132q40-43 80 0t80 0 80 0v96H28z" fill="#C2454F"/>
+    <path d="M8 156q40-43 80 0t80 0 80 0v72H8z" fill="#FFFCF7"/>
+    <path d="M28 176q40-43 80 0t80 0 80 0v52H28z" fill="#A8343F"/>
+    <path d="M8 200q40-43 80 0t80 0 80 0v28H8z" fill="#C43A56"/>
+  </g>
+</svg>
