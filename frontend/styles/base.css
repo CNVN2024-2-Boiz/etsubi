@@ -1,0 +1,193 @@
+/* Định dạng base cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
+
+/* ===== Phông chữ tự lưu trữ ===== */
+
+/* Nạp phông chữ thương hiệu tự lưu trữ để tiêu đề và logo khớp bản thiết kế. */
+@font-face {
+  font-family: 'Etsubi Display';
+  src: url('/assets/fonts/EtsubiDisplay-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Nạp phông chữ thương hiệu tự lưu trữ để tiêu đề và logo khớp bản thiết kế. */
+@font-face {
+  font-family: 'Etsubi Logo';
+  src: url('/assets/fonts/EtsubiLogo-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== Chuẩn hoá trình duyệt ===== */
+
+/* Tính cả viền và đệm trong kích thước khai báo để thẻ không bị tràn ngang. */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Bỏ lề mặc định để khoảng cách giữa các khối do token của dự án quyết định. */
+body, h1, h2, h3, p, figure, fieldset, ul {
+  margin: 0;
+}
+
+/* Thiết lập chữ và nền mặc định để các trang dùng chung diện mạo. */
+body {
+  min-width: 0;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-page);
+  line-height: 1.5;
+}
+
+/* Cho điều khiển kế thừa phông của trang để biểu mẫu không dùng phông mặc định khác biệt. */
+button, input, textarea, select {
+  font: inherit;
+}
+
+/* Bỏ lớp sáng mặc định khi chạm; trạng thái focus vẫn được hiển thị bằng vòng sáng chung. */
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: var(--color-transparent);
+}
+
+/* Con trỏ bàn tay báo rằng nút có thể thao tác. */
+button {
+  cursor: pointer;
+}
+
+/* Con trỏ khoá báo nút đang không nhận thao tác. */
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* Hiển thị ảnh thành khối và giới hạn theo khung cha để tránh tràn màn hình. */
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Liên kết dùng đỏ thương hiệu, mặc định bỏ gạch chân để khớp thiết kế. */
+a {
+  color: var(--color-red);
+  text-decoration: none;
+}
+
+/* Gạch chân khi rê chuột giúp người dùng nhận ra liên kết mà không cần chuyển động. */
+a:hover {
+  text-decoration: underline;
+}
+
+/* Bỏ viền và đệm mặc định nhưng giữ nhóm biểu mẫu có ngữ nghĩa; cho phép co theo cột hẹp. */
+fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* Ẩn phần tử chưa cần hiển thị theo trạng thái HTML. */
+[hidden] {
+  display: none;
+}
+
+/* Chữ tiếng Nhật dùng phông có đủ ký tự để tránh lỗi hiển thị. */
+:lang(ja) {
+  font-family: var(--font-jp);
+}
+
+/* ===== Chữ thương hiệu và bố cục chung ===== */
+
+/* Tiêu đề dùng Etsubi Display đậm để đồng nhất các trang với tiêu đề Figma. */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Dùng Etsubi Logo đậm và bật liên tự để chuỗi Etsubi tạo đúng hình lá và hoa của logo. */
+.brand-word {
+  font-family: var(--font-logo);
+  font-weight: 700;
+  font-variant-ligatures: common-ligatures;
+}
+
+/* Viền bàn phím dùng chung giúp nhận biết vị trí tương tác. */
+:focus-visible {
+  outline: 2px solid var(--color-red-dark);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* Trang chiếm ít nhất chiều cao màn hình, xếp header, nội dung và footer theo cột để chân trang nằm cuối. */
+.page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Giới hạn nội dung ở chiều rộng chung, căn giữa và chừa đệm ngang từ token để không sát mép. */
+.container {
+  width: min(100%, calc(var(--container-width) + 2 * var(--page-gutter)));
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* Thanh chờ dữ liệu tĩnh: giữ hình dáng nội dung mà không giả tên hoặc tạo shimmer. */
+.u-placeholder-bar {
+  display: block;
+  width: 100%;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-placeholder-bar);
+}
+
+/* Thanh tiêu đề cao hơn để phân biệt với phần đoạn trích đang chờ dữ liệu. */
+.u-placeholder-bar--title {
+  height: 16px;
+}
+
+/* Thanh ngắn giữ chỗ cho tag hoặc phần cuối dòng văn bản. */
+.u-placeholder-bar--short {
+  width: 40%;
+}
+
+/* ===== Hỗ trợ bàn phím và trình đọc màn hình ===== */
+
+/* Liên kết bỏ qua điều hướng: đặt vị trí hoặc góc xoay tĩnh để giữ bố cục Figma, không tạo chuyển động. */
+.skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-4);
+  z-index: 100;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  transform: translateY(-200%);
+}
+
+/* Liên kết bỏ qua điều hướng: làm rõ vị trí bàn phím để người dùng biết điều khiển đang được chọn. */
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Thu nhỏ và cắt nội dung khỏi vùng nhìn nhưng vẫn giữ trong cây truy cập cho trình đọc màn hình. */
+.u-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (prefers-reduced-motion: reduce) {
+  /* Khi người dùng yêu cầu giảm chuyển động, tắt cả chuyển màu và cuộn mượt ở mọi phần tử. */
+  *, *::before, *::after {
+    animation: none;
+    transition: none;
+    scroll-behavior: auto;
+  }
+}

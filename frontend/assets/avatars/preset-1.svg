@@ -1,0 +1,12 @@
+<!-- Ảnh mẫu cổng torii: các chi tiết nằm trong vùng tròn an toàn để không bị cắt khi làm avatar. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#FCECF0"/>
+  <circle cx="128" cy="119" r="91" fill="#FAD6E1"/>
+  <!-- Cột, xà và mái đỏ tạo biểu tượng torii tối giản, không chứa chữ hoặc dữ liệu người dùng. -->
+  <path d="M77 79h18v116H77zm84 0h18v116h-18z" fill="#C2454F"/>
+  <path d="M59 69q69 18 138 0v15q-69 18-138 0zM68 116h120v13H68z" fill="#A8343F"/>
+  <path d="M53 62q75 17 150 0v10q-75 18-150 0z" fill="#C43A56"/>
+  <path d="M116 91h24v29h-24z" fill="#A8343F"/>
+  <path d="M119 97h18v4h-18zm0 9h18v4h-18z" fill="#FFFCF7"/>
+  <path d="M64 196h128" stroke="#F5C0D0" stroke-width="8" stroke-linecap="round"/>
+</svg>

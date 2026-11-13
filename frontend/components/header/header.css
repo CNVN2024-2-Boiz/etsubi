@@ -1,0 +1,421 @@
+/* Định dạng header cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
+
+/* ===== Khung header và thương hiệu ===== */
+
+/* Thanh đỏ cao theo token, căn giữa logo và công cụ bằng flex, có bóng và lớp nổi để menu không bị che. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--header-height);
+  min-height: var(--header-height);
+  padding: 0 var(--page-gutter);
+  background: var(--color-red);
+  color: var(--color-white);
+  box-shadow: var(--shadow-navbar);
+}
+
+/* Logo và chữ thương hiệu nằm ngang, không co lại; khoảng cách nhỏ giúp giữ chúng thành một nhóm. */
+.site-header__brand {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-white);
+  font-size: 22px;
+}
+
+/* Bỏ gạch chân khi rê chuột để hình logo và tên thương hiệu giữ nguyên diện mạo. */
+.site-header__brand:hover {
+  text-decoration: none;
+}
+
+/* Logo tròn có kích thước cố định 36px để cân với chữ thương hiệu trên desktop. */
+.site-header__brand img {
+  width: 36px;
+  height: 36px;
+}
+
+/* Khoảng trống linh hoạt đẩy điều hướng và công cụ về bên phải mà không dùng toạ độ tuyệt đối. */
+.site-header__spacer {
+  flex: 1;
+}
+
+/* ===== Điều hướng ===== */
+
+/* Các tab xếp ngang và căn giữa với khoảng cách chung từ token để nhãn luôn thẳng hàng. */
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--nav-gap);
+}
+
+/* Mỗi tab có nhãn và chỗ cho vạch chân, chữ trắng dịu, không xuống dòng để không lệch hàng. */
+.site-header__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  color: var(--color-white-85);
+  font-size: 17px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Tab sáng trắng khi rê chuột, bỏ gạch chân mặc định vì đã có vùng vạch chân riêng. */
+.site-header__link:hover {
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+/* Chừa sẵn vạch chân 3px trong suốt để tab chưa chọn vẫn có cùng chiều cao với tab đang chọn. */
+.site-header__underline {
+  width: 28px;
+  height: 3px;
+  background: var(--color-transparent);
+  border-radius: var(--radius-pill);
+}
+
+/* Tab hiện tại có chữ trắng đầy đủ để phân biệt với các tab còn lại. */
+.site-header__link.is-active {
+  color: var(--color-white);
+}
+
+/* Vạch hồng xuất hiện ở tab hiện tại để bổ sung dấu hiệu ngoài màu chữ. */
+.site-header__link.is-active .site-header__underline {
+  background: var(--color-pink-border);
+}
+
+/* ===== Tiện ích và phiên ===== */
+
+/* Các tiện ích và nhóm tài khoản dùng flex với cùng khoảng cách để các nút cân nhau. */
+.site-header__utils, .site-header__session {
+  display: flex;
+  align-items: center;
+  gap: var(--utils-gap);
+}
+
+/* Nhóm phiên làm mốc định vị menu tài khoản ngay bên dưới avatar. */
+.site-header__session {
+  position: relative;
+}
+
+/* Ẩn vùng phiên rỗng để trang xác thực không chừa khoảng cách thừa khi chưa đăng nhập. */
+.site-header__session:empty {
+  display: none;
+}
+
+/* Nút icon có khung chạm 40px, căn giữa biểu tượng, nền trong suốt và màu trắng theo thanh điều hướng. */
+.site-header__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: var(--space-2);
+  color: var(--color-white);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-transparent);
+}
+
+/* Nền trắng trong nhẹ khi rê chuột cho thấy nút có thể thao tác mà không làm nó dịch chuyển. */
+.site-header__icon:hover {
+  background: var(--color-white-15);
+}
+
+/* Nhãn ngôn ngữ có khung cố định, bo góc và nền trắng trong để VI, JA, EN không đổi chiều rộng. */
+.site-header__language {
+  width: 72px;
+  height: 36px;
+  padding: var(--space-1) var(--button-small-y);
+  border: 0;
+  border-radius: var(--radius-language);
+  background: var(--color-white-15);
+  color: var(--color-white);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Liên kết đăng nhập dùng chữ trắng đậm vừa và không xuống dòng để nằm gọn trong nhóm công cụ. */
+.site-header__login {
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Viền trắng trong 2px tách avatar khỏi nền đỏ, bỏ đệm để ảnh lấp đúng khung. */
+.site-header__avatar {
+  border: 2px solid var(--color-white-70);
+  padding: 0;
+}
+
+/* Ẩn nút menu trên desktop vì đã có đủ chỗ hiển thị các tab. */
+.site-header__menu-button {
+  display: none;
+}
+
+/* ===== Menu nổi ===== */
+
+/* Menu nổi dưới header có nền kem, viền và bóng, căn phải để không làm thay đổi bố cục thanh đỏ. */
+.site-header__mobile-nav, .site-header__profile-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: var(--page-gutter);
+  min-width: 200px;
+  padding: var(--space-3);
+  background: var(--color-cream);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Menu tài khoản đặt sát dưới nhóm phiên và căn theo mép avatar thay vì mép trang. */
+.site-header__profile-menu {
+  top: calc(100% + var(--space-3));
+  right: 0;
+}
+
+/* Mỗi thao tác tài khoản phủ ngang menu, căn chữ trái và có đệm để dễ nhấn. */
+.site-header__profile-action {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  background: var(--color-transparent);
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-red-dark);
+  font-size: 14px;
+}
+
+/* Nền hồng khi rê chuột làm rõ mục menu đang trỏ mà không cần hiệu ứng chuyển động. */
+.site-header__profile-action:hover {
+  background: var(--color-sakura);
+  text-decoration: none;
+}
+
+/* Liên kết trong menu di động căn trái, chữ đỏ sẫm trên nền kem và có đệm riêng để dễ chạm. */
+.site-header__mobile-nav .site-header__link {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-red-dark);
+}
+
+/* Ô tìm kiếm nhận tối đa 660px và có thể co theo chiều ngang để các công cụ khác vẫn đủ chỗ. */
+.site-header__search-slot {
+  flex: 0 1 660px;
+  min-width: 0;
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 1280px) {
+  /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
+  .site-header {
+    gap: var(--space-6);
+  }
+
+  /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
+  .site-header__nav {
+    gap: var(--space-6);
+  }
+
+  /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
+  .site-header__utils, .site-header__session {
+    gap: var(--space-3);
+  }
+
+  /* Ẩn chữ thương hiệu ở bản search trên laptop để dành chiều ngang cho ô tìm kiếm. */
+  .site-header--search .site-header__brand .brand-word {
+    display: none;
+  }
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 960px) {
+  /* Ẩn .site-header__nav ở ngưỡng màn hình này để ưu tiên nội dung và tránh chật ngang. */
+  .site-header__nav {
+    display: none;
+  }
+
+  /* Hiện nút menu khi màn hình hẹp để thay thế dãy tab desktop. */
+  .site-header__menu-button {
+    display: inline-grid;
+  }
+}
+
+/* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
+@media (max-width: 600px) {
+  /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
+  .site-header {
+    gap: var(--space-3);
+  }
+
+  /* Điều chỉnh kích thước, đệm hoặc chữ của .site-header__brand img cho màn hình hẹp để giữ nội dung vừa khung. */
+  .site-header__brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Điều chỉnh kích thước, đệm hoặc chữ của .site-header__brand cho màn hình hẹp để giữ nội dung vừa khung. */
+  .site-header__brand {
+    font-size: 22px;
+  }
+
+  /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
+  .site-header__utils, .site-header__session {
+    gap: var(--space-2);
+  }
+
+  /* Nền trắng trong giúp nút tìm kiếm dễ nhận ra khi thanh điều hướng được thu gọn trên mobile. */
+  .site-header__search {
+    background: var(--color-white-20);
+  }
+
+  /* Ẩn ngôn ngữ và chuông trên mobile để logo, tìm kiếm và tài khoản không tràn ngang. */
+  .site-header__language, .site-header__bell {
+    display: none;
+  }
+
+  /* Điều chỉnh kích thước, đệm hoặc chữ của .site-header__login cho màn hình hẹp để giữ nội dung vừa khung. */
+  .site-header__login {
+    font-size: 13px;
+  }
+
+  /* Thu khoảng cách của header search trên mobile để ô tìm kiếm có thêm chỗ nhập. */
+  .site-header--search {
+    gap: var(--space-2);
+  }
+
+  /* Ẩn nhóm thương hiệu trong biến thể search trên mobile để ưu tiên tác vụ tìm kiếm. */
+  .site-header--search .site-header__brand {
+    display: none;
+  }
+
+  /* Ô tìm kiếm nhận phần chiều ngang còn lại khi header search ở mobile. */
+  .site-header--search .site-header__search-slot {
+    flex: 1;
+  }
+
+  /* Bỏ khoảng đệm linh hoạt ở header search mobile vì ô tìm kiếm đã tự giãn. */
+  .site-header--search .site-header__spacer {
+    display: none;
+  }
+}
+
+/* Home dùng form tìm kiếm riêng để không thay đổi header của Search hoặc trang xác thực. */
+.site-header--home-search {
+  gap: var(--space-7);
+}
+
+/* Pill trong suốt trên nền đỏ đúng Figma Home 4: nền trắng 12%, viền trắng 22%,
+   tự co trên laptop; cỡ tối đa 520 × 42 trong thiết kế desktop. */
+.site-header__home-search {
+  display: flex;
+  flex: 0 1 var(--home-search-width);
+  align-items: center;
+  gap: 10px;
+  min-width: 80px;
+  height: var(--home-search-height);
+  padding: 0 var(--space-4) 0 var(--home-search-padding-left);
+  border: 1px solid var(--home-search-border);
+  border-radius: var(--radius-pill);
+  background: var(--home-search-bg);
+}
+
+/* Mặt nạ lấy đường nét search.svg và tô trắng mờ như chữ gợi ý, không sửa icon trang Search. */
+.site-header__home-search-icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: var(--home-search-placeholder);
+  mask: url('/assets/icons/search.svg') center / contain no-repeat;
+}
+
+/* Ô nhập tự nhận chiều ngang còn lại, giữ nền trong suốt theo pill cha. */
+.site-header__home-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: var(--color-transparent);
+  color: var(--color-white);
+  font-size: 15px;
+}
+
+/* Bỏ khung vuông focus mặc định của ô nhập (nằm lọt trong pill trông rất lạ);
+   thay vào đó cả pill hiện vòng focus mềm, giống thanh tìm kiếm của trang Search,
+   để người dùng bàn phím vẫn thấy rõ ô đang được chọn. */
+.site-header__home-search input:focus,
+.site-header__home-search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Trên nền đỏ, vòng focus đỏ nhạt gần như không thấy, nên khi đang gõ
+   pill sáng viền trắng 70% và nền đậm hơn một chút để báo rõ ô đang được chọn. */
+.site-header__home-search:focus-within {
+  border-color: var(--color-white-70);
+  background: var(--color-white-20);
+}
+
+/* Chữ gợi ý trắng 60% như Figma; vẫn đọc được trên nền đỏ của header. */
+.site-header__home-search input::placeholder {
+  color: var(--home-search-placeholder);
+  opacity: 1;
+}
+
+/* Ẩn nút xoá mặc định vì pill chỉ gửi bằng Enter, không thêm điều khiển trùng. */
+.site-header__home-search input::-webkit-search-cancel-button,
+.site-header__home-search input::-webkit-search-decoration,
+.site-header__home-search input::-ms-clear {
+  display: none;
+}
+
+/* Desktop đã có form nên ẩn nút tìm kiếm dự phòng chỉ trong biến thể Home. */
+.site-header--home-search .site-header__search {
+  display: none;
+}
+
+/* Chuông làm mốc cho chấm chưa đọc; slot luôn ẩn khi backend chưa có số thông báo. */
+.site-header--home-search .site-header__bell {
+  position: relative;
+}
+
+/* Kích thước chấm không mang nghĩa số giả; chỉ hiển thị khi có API thật ở lần nối sau. */
+.site-header__bell-dot {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+}
+
+/* Tablet chuyển form thành icon để dành chỗ cho logo và tài khoản. */
+@media (max-width: 960px) {
+  /* Chỉ ẩn form của Home; ô tìm kiếm của trang Search giữ nguyên. */
+  .site-header__home-search {
+    display: none;
+  }
+
+  /* Nút dự phòng giữ liên kết thật và hoạt động cả khi mở tab mới. */
+  .site-header--home-search .site-header__search {
+    display: inline-grid;
+  }
+}
+
+/* Mobile dùng khoảng cách nhỏ của header sẵn có để không tràn ở 360px. */
+@media (max-width: 600px) {
+  /* Khoảng cách này chỉ áp dụng cho Home có form tìm kiếm ẩn. */
+  .site-header--home-search {
+    gap: var(--space-2);
+  }
+}

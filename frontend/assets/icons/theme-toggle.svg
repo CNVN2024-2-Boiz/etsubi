@@ -1,0 +1,18 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ThemeToggle" clip-path="url(#clip0_0_220)">
+<path id="Vector" d="M14.6667 11C14.6667 13.025 13.025 14.6667 11 14.6667C8.97496 14.6667 7.33333 13.025 7.33333 11C7.33333 8.97496 8.97496 7.33333 11 7.33333C13.025 7.33333 14.6667 8.97496 14.6667 11Z" stroke-width="1.83333" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_2" d="M11 1.83333V4.58333" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_3" d="M11 17.4167V20.1667" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_4" d="M3.86833 3.86833L5.81167 5.81167" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_5" d="M16.1883 16.1883L18.1317 18.1317" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_6" d="M1.83333 11H4.58333" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_7" d="M17.4167 11H20.1667" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_8" d="M3.86833 18.1317L5.81167 16.1883" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_9" d="M16.1883 5.81167L18.1317 3.86833" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+</g>
+<defs>
+<clipPath id="clip0_0_220">
+<rect width="22" height="22" fill="white"/>
+</clipPath>
+</defs>
+</svg>

@@ -1,0 +1,10 @@
+<!-- Ảnh mẫu Phú Sĩ và mặt trời: hình phẳng dùng bảng màu thương hiệu, bố cục không chạm góc cắt tròn. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="#FCECF0"/>
+  <circle cx="168" cy="84" r="28" fill="#C43A56"/>
+  <!-- Đỉnh tuyết kem đặt trên sườn núi đỏ để nhận diện được ở cỡ avatar nhỏ. -->
+  <path d="M38 189l78-104h24l78 104z" fill="#A8343F"/>
+  <path d="M86 125l30-40h24l30 40-25-9-17 17-17-17z" fill="#FFFCF7"/>
+  <path d="M39 195q44-15 89 0t89 0v17H39z" fill="#F5C0D0"/>
+  <path d="M48 175h25m111-53h25M49 93h32" stroke="#FFFCF7" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="1920" height="240" viewBox="0 0 1920 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Wave3" clip-path="url(#clip0_0_50)">
+<path id="Vector" d="M0 172.8C288 115.2 576 115.2 864 172.8C1152 230.4 1440 230.4 1728 172.8C2016 115.2 2208 115.2 2304 172.8V288H0V172.8Z" fill="#D67092" fill-opacity="0.55"/>
+</g>
+<defs>
+<clipPath id="clip0_0_50">
+<rect width="1920" height="240" fill="white"/>
+</clipPath>
+</defs>
+</svg>

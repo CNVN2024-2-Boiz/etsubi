@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="NotificationBell">
+<g id="BellIcon">
+<path id="Vector" d="M16.5 8.33333C16.5 6.87464 15.9205 5.4757 14.8891 4.44425C13.8576 3.4128 12.4587 2.83333 11 2.83333C9.54131 2.83333 8.14236 3.4128 7.11091 4.44425C6.07946 5.4757 5.5 6.87464 5.5 8.33333C5.5 14.75 2.75 16.5833 2.75 16.5833H19.25C19.25 16.5833 16.5 14.75 16.5 8.33333Z" stroke-width="1.83333" stroke-linecap="round" stroke-linejoin="round" stroke="white" stroke-opacity="0.85"/>
+<path id="Vector_2" d="M12.5858 20.25C12.4247 20.5278 12.1934 20.7584 11.915 20.9187C11.6367 21.079 11.3212 21.1634 11 21.1634C10.6788 21.1634 10.3633 21.079 10.085 20.9187C9.80664 20.7584 9.57533 20.5278 9.41417 20.25" stroke-width="1.83333" stroke-linecap="round" stroke="white" stroke-opacity="0.85"/>
+</g>
+<circle id="RedDot" cx="18" cy="4" r="4" fill="#DB2626"/>
+</g>
+</svg>

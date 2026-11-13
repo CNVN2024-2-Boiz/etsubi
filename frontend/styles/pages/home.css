@@ -1,0 +1,764 @@
+/* Cánh 1 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--1 {
+  --home-petal-x: var(--home-petal-1-x);
+  --home-petal-y: var(--home-petal-1-y);
+  --home-petal-width: var(--home-petal-1-width);
+  --home-petal-height: var(--home-petal-1-height);
+  --home-petal-rotate: var(--home-petal-1-rotate);
+}
+
+/* Cánh 2 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--2 {
+  --home-petal-x: var(--home-petal-2-x);
+  --home-petal-y: var(--home-petal-2-y);
+  --home-petal-width: var(--home-petal-2-width);
+  --home-petal-height: var(--home-petal-2-height);
+  --home-petal-rotate: var(--home-petal-2-rotate);
+}
+
+/* Cánh 3 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--3 {
+  --home-petal-x: var(--home-petal-3-x);
+  --home-petal-y: var(--home-petal-3-y);
+  --home-petal-width: var(--home-petal-3-width);
+  --home-petal-height: var(--home-petal-3-height);
+  --home-petal-rotate: var(--home-petal-3-rotate);
+}
+
+/* Cánh 4 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--4 {
+  --home-petal-x: var(--home-petal-4-x);
+  --home-petal-y: var(--home-petal-4-y);
+  --home-petal-width: var(--home-petal-4-width);
+  --home-petal-height: var(--home-petal-4-height);
+  --home-petal-rotate: var(--home-petal-4-rotate);
+}
+
+/* Cánh 5 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--5 {
+  --home-petal-x: var(--home-petal-5-x);
+  --home-petal-y: var(--home-petal-5-y);
+  --home-petal-width: var(--home-petal-5-width);
+  --home-petal-height: var(--home-petal-5-height);
+  --home-petal-rotate: var(--home-petal-5-rotate);
+}
+
+/* Cánh 6 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--6 {
+  --home-petal-x: var(--home-petal-6-x);
+  --home-petal-y: var(--home-petal-6-y);
+  --home-petal-width: var(--home-petal-6-width);
+  --home-petal-height: var(--home-petal-6-height);
+  --home-petal-rotate: var(--home-petal-6-rotate);
+}
+
+/* Cánh 7 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--7 {
+  --home-petal-x: var(--home-petal-7-x);
+  --home-petal-y: var(--home-petal-7-y);
+  --home-petal-width: var(--home-petal-7-width);
+  --home-petal-height: var(--home-petal-7-height);
+  --home-petal-rotate: var(--home-petal-7-rotate);
+}
+
+/* Cánh 8 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--8 {
+  --home-petal-x: var(--home-petal-8-x);
+  --home-petal-y: var(--home-petal-8-y);
+  --home-petal-width: var(--home-petal-8-width);
+  --home-petal-height: var(--home-petal-8-height);
+  --home-petal-rotate: var(--home-petal-8-rotate);
+}
+
+/* Cánh 9 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--9 {
+  --home-petal-x: var(--home-petal-9-x);
+  --home-petal-y: var(--home-petal-9-y);
+  --home-petal-width: var(--home-petal-9-width);
+  --home-petal-height: var(--home-petal-9-height);
+  --home-petal-rotate: var(--home-petal-9-rotate);
+}
+
+/* Cánh 10 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--10 {
+  --home-petal-x: var(--home-petal-10-x);
+  --home-petal-y: var(--home-petal-10-y);
+  --home-petal-width: var(--home-petal-10-width);
+  --home-petal-height: var(--home-petal-10-height);
+  --home-petal-rotate: var(--home-petal-10-rotate);
+}
+
+/* Cánh 11 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--11 {
+  --home-petal-x: var(--home-petal-11-x);
+  --home-petal-y: var(--home-petal-11-y);
+  --home-petal-width: var(--home-petal-11-width);
+  --home-petal-height: var(--home-petal-11-height);
+  --home-petal-rotate: var(--home-petal-11-rotate);
+}
+
+/* Cánh 12 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--12 {
+  --home-petal-x: var(--home-petal-12-x);
+  --home-petal-y: var(--home-petal-12-y);
+  --home-petal-width: var(--home-petal-12-width);
+  --home-petal-height: var(--home-petal-12-height);
+  --home-petal-rotate: var(--home-petal-12-rotate);
+}
+
+/* Cánh 13 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--13 {
+  --home-petal-x: var(--home-petal-13-x);
+  --home-petal-y: var(--home-petal-13-y);
+  --home-petal-width: var(--home-petal-13-width);
+  --home-petal-height: var(--home-petal-13-height);
+  --home-petal-rotate: var(--home-petal-13-rotate);
+}
+
+/* Cánh 14 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--14 {
+  --home-petal-x: var(--home-petal-14-x);
+  --home-petal-y: var(--home-petal-14-y);
+  --home-petal-width: var(--home-petal-14-width);
+  --home-petal-height: var(--home-petal-14-height);
+  --home-petal-rotate: var(--home-petal-14-rotate);
+}
+
+/* Cánh 15 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--15 {
+  --home-petal-x: var(--home-petal-15-x);
+  --home-petal-y: var(--home-petal-15-y);
+  --home-petal-width: var(--home-petal-15-width);
+  --home-petal-height: var(--home-petal-15-height);
+  --home-petal-rotate: var(--home-petal-15-rotate);
+}
+
+/* Cánh 16 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--16 {
+  --home-petal-x: var(--home-petal-16-x);
+  --home-petal-y: var(--home-petal-16-y);
+  --home-petal-width: var(--home-petal-16-width);
+  --home-petal-height: var(--home-petal-16-height);
+  --home-petal-rotate: var(--home-petal-16-rotate);
+}
+
+/* Cánh 17 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--17 {
+  --home-petal-x: var(--home-petal-17-x);
+  --home-petal-y: var(--home-petal-17-y);
+  --home-petal-width: var(--home-petal-17-width);
+  --home-petal-height: var(--home-petal-17-height);
+  --home-petal-rotate: var(--home-petal-17-rotate);
+}
+
+/* Cánh 18 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--18 {
+  --home-petal-x: var(--home-petal-18-x);
+  --home-petal-y: var(--home-petal-18-y);
+  --home-petal-width: var(--home-petal-18-width);
+  --home-petal-height: var(--home-petal-18-height);
+  --home-petal-rotate: var(--home-petal-18-rotate);
+}
+
+/* Cánh 19 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--19 {
+  --home-petal-x: var(--home-petal-19-x);
+  --home-petal-y: var(--home-petal-19-y);
+  --home-petal-width: var(--home-petal-19-width);
+  --home-petal-height: var(--home-petal-19-height);
+  --home-petal-rotate: var(--home-petal-19-rotate);
+}
+
+/* Cánh 20 nhận toạ độ từ token, không có inline style hoặc bộ đếm thời gian. */
+.home-petal--20 {
+  --home-petal-x: var(--home-petal-20-x);
+  --home-petal-y: var(--home-petal-20-y);
+  --home-petal-width: var(--home-petal-20-width);
+  --home-petal-height: var(--home-petal-20-height);
+  --home-petal-rotate: var(--home-petal-20-rotate);
+}
+
+/* Hero giữ ảnh nền ở phía sau nội dung thật và lớp phủ đỏ giúp chữ đủ tương phản. */
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: var(--home-hero-height);
+  background: var(--color-red-dark);
+}
+
+/* Ảnh phủ toàn bộ hero (cao 336px, thấp hơn Figma 480px theo yêu cầu của nhóm
+   để thẻ nổi bật nằm trọn trong màn hình đầu), không kéo méo tỷ lệ của tài nguyên gốc. */
+.home-hero__photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Lớp phủ chuyển sắc là hình tĩnh, không có animation hoặc hiệu ứng khi cuộn. */
+.home-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gradient-home-hero);
+  content: '';
+}
+
+/* Khung dùng container chung, vị trí top của lời chào lấy đúng thiết kế Home 4. */
+.home-hero__inner {
+  position: relative;
+  padding-top: var(--home-hero-top);
+  padding-bottom: var(--space-8);
+}
+
+/* Lời chào xếp dọc bằng flex, không định vị tuyệt đối các đoạn văn bản. */
+.home-hero__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* Vạch vàng nhạt làm điểm mở đầu cho cụm thương hiệu. */
+.home-hero__accent {
+  width: 77px;
+  height: 7px;
+  background: var(--color-tip-border);
+}
+
+/* Kicker kết hợp đúng phông Nhật, display và logo qua các phần tử trong HTML. */
+.home-hero__kicker {
+  color: var(--color-hero-kicker);
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+/* Cụm Nhật dùng Medium theo thiết kế, không ép sang phông thiếu glyph Nhật. */
+.home-hero__kicker :lang(ja) {
+  font-weight: 500;
+}
+
+/* Tiêu đề lớn và có ngắt từ an toàn khi viewport bị thu nhỏ. */
+.home-hero__title {
+  max-width: 100%;
+  color: var(--color-hero-title);
+  font-size: 56px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Đoạn giới thiệu rộng tối đa 1100px để nằm gọn một dòng trên desktop,
+   giúp hero thấp hơn và các thẻ "Bài viết nổi bật" lọt trọn trong màn hình đầu tiên. */
+.home-hero__description {
+  max-width: var(--home-hero-copy-width);
+  color: var(--color-home-hero-text);
+  font-size: 21px;
+  line-height: 1.5;
+}
+
+/* Hero chỉ có một thao tác Đăng bài, giữ khoảng hở nhỏ với đoạn giới thiệu. */
+.home-hero__actions {
+  padding-top: var(--button-small-y);
+}
+
+/* Nội dung chính: đệm trên 32px (gọn để thẻ nổi bật hiện đủ trong màn hình đầu),
+   đệm dưới 72px; cánh hoa luôn nằm sau vùng tương tác. */
+.home {
+  position: relative;
+  padding-block: var(--space-7) var(--space-10);
+  background: var(--color-page);
+}
+
+/* Khung nội dung nổi trên trang trí, vùng lỗi không chiếm chỗ khi ẩn. */
+.home__content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Lỗi chung có khoảng hở với phần nổi bật, chỉ xuất hiện khi có lỗi thật. */
+.home__content > .alert {
+  margin-bottom: var(--space-6);
+}
+
+/* Mẫu tiêu đề dùng chung cho ba section để giữ nhịp đọc và canh vạch đỏ. */
+.home-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: 16px;
+}
+
+/* Tiêu đề có link phụ: lưới 2 cột, tiêu đề bên trái, "Xem thêm" bên phải cùng hàng,
+   dòng mô tả nằm hàng dưới và trải hết chiều ngang. */
+.home-section-heading--with-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-4);
+}
+
+.home-section-heading--with-link > p {
+  grid-column: 1 / -1;
+}
+
+/* Link "Xem thêm →" chữ đỏ SemiBold 15px như Figma; hover gạch chân để báo có thể bấm. */
+.home-section-heading__more {
+  color: var(--color-red);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.home-section-heading__more:hover {
+  text-decoration: underline;
+}
+
+/* H2 có vạch đỏ 5 × 26 và đủ khoảng cách, không cần thẻ rỗng trong HTML. */
+.home-section-heading__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 1.3;
+}
+
+/* Vạch là chi tiết trang trí tĩnh, không dùng làm nội dung cho trình đọc màn hình. */
+.home-section-heading__title::before {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 26px;
+  border-radius: var(--home-accent-radius);
+  background: var(--color-red);
+  content: '';
+}
+
+/* Section nổi bật cách hàng thẻ đúng 28px từ mô tả. */
+.home-featured__cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--home-card-gap);
+  margin-top: var(--home-section-gap);
+}
+
+/* Ghi chú API nhỏ và dịu, giải thích rõ lý do đang có khung chờ. */
+.home-featured__note {
+  margin-top: var(--space-3);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Chấm phân trang căn giữa và chỉ đổi nội dung khi nhấn, không trượt thẻ. */
+.home-featured__pagination {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--home-section-gap);
+}
+
+/* Chấm thường 8 × 8; nút khoá giữ nguyên màu để đúng hình dáng Figma. */
+.home-featured__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-pink-border);
+}
+
+/* Chấm đang chọn dài 24px, giúp nhận diện ngoài dấu hiệu màu sắc. */
+.home-featured__dot.is-active {
+  width: 24px;
+  background: var(--color-red);
+}
+
+/* Hai cột gồm gợi ý 440px, vạch 1px và bảng tin nhận phần chiều ngang còn lại. */
+.home-columns {
+  display: grid;
+  grid-template-columns: var(--home-sidebar-width) 1px minmax(0, 1fr);
+  column-gap: var(--space-8);
+  margin-top: var(--space-10);
+}
+
+/* Vạch giữa trải theo chiều cao nội dung hai cột, không phải một thẻ dữ liệu. */
+.home-columns__divider {
+  background: var(--color-border);
+}
+
+/* Hai vùng đều cho phép co để tên dài hoặc tab không đẩy trang rộng ra. */
+.home-recommendations, .home-feed {
+  min-width: 0;
+}
+
+/* Thẻ gợi ý có cùng viền, bóng và nền với thẻ nổi bật. */
+.home-recommendations__card {
+  margin-top: var(--home-section-gap);
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-featured);
+}
+
+/* Band đỏ căn torii và lời chào ở giữa; chữ được phép xuống dòng khi tên dài. */
+.home-recommendations__band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--home-band-gap);
+  padding: var(--space-3);
+  background: var(--color-red);
+  color: var(--color-band-text);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Thân thẻ gợi ý chia các khối bằng khoảng hở và divider, không dùng định vị tuyệt đối. */
+.home-recommendations__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--radio-padding);
+  padding: var(--space-6);
+}
+
+/* Lời mời đăng nhập gọn, không xoá các khối chờ cần giữ bố cục. */
+.home-recommendations__signin {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Mỗi khối có tiêu đề nhỏ và danh sách xếp dọc để trình bày chủ đề, bài và thành viên. */
+.home-recommendations__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-detail-padding-x);
+  min-width: 0;
+}
+
+/* Divider chỉ nằm giữa các nhóm, không thêm một đường ở đầu thẻ. */
+.home-recommendations__group + .home-recommendations__group {
+  padding-top: var(--radio-padding);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Eyebrow có độ giãn chữ đúng thiết kế nhưng dùng phông nội dung để dễ đọc ở cỡ nhỏ. */
+.home-recommendations__eyebrow {
+  font-family: var(--font-body);
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.1px;
+}
+
+/* Chủ đề thật xuống dòng theo chiều ngang của sidebar. */
+.home-recommendations__topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Bài gợi ý có thumbnail tĩnh ở trái và tiêu đề nhận chiều rộng còn lại. */
+.home-suggestion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Kanji trên nền hồng là trang trí theo loại tag, không phải nội dung giả từ máy chủ. */
+.home-suggestion__thumb {
+  display: grid;
+  flex: 0 0 60px;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Thumbnail chờ nhạt hơn thumbnail có bài thật. */
+.home-suggestion__thumb--placeholder {
+  opacity: .4;
+}
+
+/* Văn bản và thanh chờ tự co; mọi chuỗi dài đều ngắt được trong sidebar. */
+.home-suggestion__text, .home-member__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tiêu đề bài gợi ý giới hạn hai dòng theo Figma. */
+.home-suggestion__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* Meta gợi ý và thành viên có cỡ nhỏ, dùng màu muted chung. */
+.home-suggestion__meta, .home-member__sub {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Thành viên xếp avatar, tên và nút theo dõi cùng hàng với gap 12px. */
+.home-member {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Avatar sidebar có khung 40px riêng, tránh ảnh hưởng avatar dùng chung của header. */
+.home-member__avatar {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+}
+
+/* Avatar chờ là hình tròn xám, không có chữ đầu tên tưởng tượng. */
+.home-member__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Tên thành viên đậm vừa để phân biệt với handle và địa chỉ ở dòng dưới. */
+.home-member__name {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Địa chỉ được rút bằng ellipsis trực quan, giữ nguyên dữ liệu thật trong DOM. */
+.home-member__sub {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Nút theo dõi nhỏ gọn nhưng vẫn cho nhãn đã theo dõi xuống dòng khi sidebar hẹp. */
+.home-member__follow {
+  flex: 0 0 auto;
+  max-width: 120px;
+  padding: var(--space-2) var(--home-detail-padding-x);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Bảng tin xếp tiêu đề, tab và danh sách thành ba khối cách nhau 24px. */
+.home-feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Dải tab được phép cuộn nội bộ, không làm body cuộn ngang ở kích thước nhỏ. */
+.home-feed__tabs {
+  display: flex;
+  gap: var(--button-small-y);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* Ẩn thanh cuộn WebKit nhưng vẫn cho chạm và bàn phím chọn các tab. */
+.home-feed__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Tab chưa chọn có viền trung tính và nền trắng đúng bộ thành phần. */
+.home-feed__tab {
+  flex-shrink: 0;
+  padding: var(--home-tab-padding-y) var(--radio-padding);
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-text-body);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Hover chỉ đổi viền, không dịch chuyển tab hoặc danh sách. */
+.home-feed__tab:hover {
+  border-color: var(--color-red);
+}
+
+/* Tab đang chọn có nền đỏ và chữ trắng đậm vừa, giữ kích thước như tab chưa chọn. */
+.home-feed__tab.is-active {
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Danh sách giữ 24px giữa các bài, không có nút tải thêm theo quyết định của nhóm. */
+.home-feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+/* Trạng thái thông tin và lỗi có bố cục đơn giản với nút tuỳ chọn bên dưới. */
+.home-feed__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Thẻ tải có chiều cao tối thiểu để ba thanh chờ giữ nhịp bố cục bảng tin. */
+.home-feed__placeholder {
+  min-height: 218px;
+}
+
+/* Vùng cánh hoa không nhận chuột và được cắt trong khung để không tạo cuộn ngang. */
+.home-hero__petals, .home__petals {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Mỗi cánh hoa có vị trí tĩnh riêng trong token, không thay đổi theo thời gian. */
+.home-petal {
+  position: absolute;
+  width: var(--home-petal-width);
+  height: var(--home-petal-height);
+  left: calc(50% + var(--home-petal-x));
+  top: var(--home-petal-y);
+  transform: rotate(var(--home-petal-rotate));
+}
+
+/* Cánh hoa bên lề nhạt để không cạnh tranh với bài viết. */
+.home__petals {
+  opacity: .8;
+}
+
+/* Laptop giảm cột gợi ý và khoảng cách nhưng giữ ba thẻ nổi bật. */
+@media (max-width: 1280px) {
+  /* Sidebar giảm xuống 360px để bảng tin vẫn có vùng nội dung hợp lý. */
+  .home-columns {
+    grid-template-columns: var(--home-sidebar-laptop) 1px minmax(0, 1fr);
+    column-gap: var(--space-7);
+  }
+
+  /* Thẻ nổi bật giảm đệm ngang, không thay đổi cỡ chữ để giữ khả năng đọc. */
+  .featured-card__body {
+    padding-inline: var(--space-4);
+  }
+}
+
+/* Tablet dùng một thẻ nổi bật mỗi trang, ưu tiên bảng tin rồi tới gợi ý. */
+@media (max-width: 960px) {
+  /* Nội dung Featured do JS phân trang cùng breakpoint, không dùng kéo trượt. */
+  .home-featured__cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Hai cột trở thành flex dọc để đổi thứ tự mà giữ nguyên cấu trúc ngữ nghĩa. */
+  .home-columns {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* Bảng tin mới hiện trước khối gợi ý trên màn hình hẹp. */
+  .home-feed {
+    order: -1;
+  }
+
+  /* Vạch chia và cánh hoa hero không cần thiết trong bố cục một cột. */
+  .home-columns__divider, .home-hero__petals {
+    display: none;
+  }
+}
+
+/* Mobile thu tiêu đề và đệm, giữ gutter 16px từ token chung. */
+@media (max-width: 600px) {
+  /* Hero không ép chiều cao cố định khi đoạn văn xuống nhiều dòng. */
+  .home-hero {
+    min-height: 360px;
+  }
+
+  /* Khung giữ gutter chung, chỉ đổi đệm dọc của lời chào thành 40px. */
+  .home-hero__inner {
+    padding-block: var(--space-8);
+  }
+
+  /* Tiêu đề 36px vừa điện thoại nhỏ và không tạo cuộn ngang. */
+  .home-hero__title {
+    font-size: 36px;
+  }
+
+  /* Kicker thu về 22px theo thiết kế mobile. */
+  .home-hero__kicker {
+    font-size: 22px;
+  }
+
+  /* Đoạn giới thiệu giữ 16px và line-height kế thừa để dễ đọc. */
+  .home-hero__description {
+    font-size: 16px;
+  }
+
+  /* H2 giảm còn 24px, chữ phụ 14px để phần đầu section không lấn quá nhiều chỗ. */
+  .home-section-heading__title {
+    font-size: 24px;
+  }
+
+  /* Mô tả section nhỏ hơn desktop nhưng giữ nguyên nội dung. */
+  .home-section-heading {
+    font-size: 14px;
+  }
+
+  /* Thân gợi ý thu đệm để avatar, tên và nút vẫn vừa ở 360px. */
+  .home-recommendations__body {
+    padding: var(--space-4);
+  }
+
+  /* Khoảng cách thành viên nhỏ hơn, giữ cỡ avatar và chữ dễ nhìn. */
+  .home-member {
+    gap: var(--space-2);
+  }
+}
+
+/* Ngoại lệ theo yêu cầu Home: chỉ vẽ hoa bên lề khi viewport lớn hơn 1600px. */
+@media (max-width: 1600px) {
+  /* Màn hình nhỏ không còn đủ lề ngoài container để trang trí. */
+  .home__petals {
+    display: none;
+  }
+}

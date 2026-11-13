@@ -1,0 +1,389 @@
+/* Thẻ kết quả dùng flex dọc, nền kem và viền đỏ; position là mốc cho liên kết phủ thẻ. */
+.postcard--result {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--button-small-y);
+  min-width: 0;
+  padding: var(--space-5) var(--space-5) var(--radio-padding);
+  border: 1.2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-result);
+}
+
+/* Phản hồi hover chỉ đổi bóng và màu viền, giữ nguyên vị trí của cả danh sách. */
+.postcard--result:hover {
+  border-color: var(--color-red-dark);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Hàng tác giả nhỏ hơn tiêu đề, có thể co và xuống dòng khi ngày hoặc tên dài. */
+.postcard__author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Avatar cố định 24px có nền hồng, cắt ảnh theo hình tròn và dự phòng bằng chữ viết tắt. */
+.postcard__avatar {
+  display: inline-grid;
+  flex: 0 0 24px;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura-100);
+  color: var(--color-red-dark);
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+}
+
+/* Ảnh phủ khung avatar mà không méo tỷ lệ gốc. */
+.postcard__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tên tác giả đậm vừa và có thể ngắt từ dài để không gây tràn ngang. */
+.postcard__author-name {
+  color: var(--color-text);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh xám tĩnh giữ chỗ tên tác giả trong lúc bổ sung dữ liệu, không có shimmer. */
+.postcard__author-placeholder {
+  width: 120px;
+  height: 12px;
+  margin-block: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+}
+
+/* Tiêu đề bài dùng phông nội dung theo thiết kế PostCard, không dùng phông display. */
+.postcard__title {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* Liên kết tiêu đề kế thừa màu để chỉ phần khớp từ khoá mới có màu đỏ. */
+.postcard__link {
+  color: var(--color-text);
+}
+
+/* Vùng phủ làm cả thẻ bấm được; các tag có lớp nổi riêng ở phía trên. */
+.postcard__link::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-md);
+  content: '';
+}
+
+/* Focus bàn phím của liên kết tiêu đề làm rõ đường viền cả thẻ. */
+.postcard__link:focus-visible::after {
+  outline: 2px solid var(--color-red-dark);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đoạn trích desktop chỉ một dòng, cắt bằng ellipsis để danh sách kết quả đều nhau. */
+.postcard__excerpt {
+  overflow: hidden;
+  color: var(--color-text-body);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Mark bỏ nền mặc định; tiêu đề đỏ còn đoạn trích chỉ tăng độ đậm để dễ đọc. */
+.hl {
+  background: var(--color-transparent);
+  color: inherit;
+}
+
+/* Phần khớp tiêu đề dùng đỏ thương hiệu để nổi bật từ người dùng đang tìm. */
+.hl--title {
+  color: var(--color-red);
+}
+
+/* Phần khớp trong đoạn trích đậm hơn văn cảnh nhưng không thêm nền màu. */
+.hl--body {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Chân thẻ tách chip và thống kê, cho xuống hàng khi không đủ chỗ. */
+.postcard__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+}
+
+/* Tag nằm trên vùng phủ liên kết bài viết để nhấn lọc không mở bài. */
+.postcard__tags {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Thống kê nhỏ gọn ở mép phải; nhóm rỗng không tạo khoảng trống thừa. */
+.postcard__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Mỗi số và biểu tượng khoá xếp cùng hàng để người đọc hiểu đúng ý nghĩa. */
+.postcard__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Thu gọn thẻ trên điện thoại và cho đoạn trích hai dòng để đủ ngữ cảnh. */
+@media (max-width: 600px) {
+  /* Đệm 16px giữ cỡ chữ dễ đọc mà không chiếm quá nhiều bề ngang màn hình nhỏ. */
+  .postcard--result {
+    padding: var(--space-4);
+  }
+
+  /* Line clamp tĩnh hiển thị tối đa hai dòng, không dùng JavaScript cắt theo kích thước màn hình. */
+  .postcard__excerpt {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Bảng tin Home có lớp riêng hoàn toàn để không đổi bố cục thẻ kết quả Search. */
+.postcard--feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-detail-padding-x);
+  min-width: 0;
+  padding: var(--home-card-padding-y) var(--home-feed-padding-x);
+  border: 1.2px solid var(--postcard-feed-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-result);
+}
+
+/* Phản hồi hover chỉ đổi viền và bóng, không dịch chuyển thẻ. */
+.postcard--feed:hover {
+  border-color: var(--color-red);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Hàng người viết căn giữa avatar và tên, menu được đẩy về mép phải. */
+.postcard-feed__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Avatar bảng tin có khung tròn 44px và tự cắt ảnh đúng tỷ lệ qua lớp dùng chung. */
+.postcard-feed__avatar {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  font-size: 14px;
+}
+
+/* Avatar chờ tác giả dùng xám trung tính, không gán một người dùng tưởng tượng. */
+.postcard-feed__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Tên và handle tự co, ngắt chuỗi dài để bảo đảm không cuộn ngang. */
+.postcard-feed__identity {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Tên người viết đậm hơn handle và thời gian ở dòng dưới. */
+.postcard-feed__name {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Dòng phụ và ghi chú dịch giữ cỡ nhỏ cùng màu muted đủ tương phản. */
+.postcard-feed__sub, .postcard-feed__translation {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Ghi chú ngôn ngữ dùng flex để globe không bị kéo méo hoặc chèn lên chữ. */
+.postcard-feed__translation {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Globe luôn vuông 14px như hình gốc. */
+.postcard-feed__translation img {
+  flex: 0 0 14px;
+}
+
+/* Nội dung plain text có độ dài giới hạn tại JS nhưng vẫn cho xuống dòng với chuỗi dài. */
+.postcard-feed__content {
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* Hashtag và nút dịch dùng màu đỏ thương hiệu, đậm vừa để dễ thấy trong đoạn văn. */
+.postcard-feed__content a, .postcard-feed__translation a {
+  color: var(--color-red);
+  font-weight: 500;
+}
+
+/* Hàng tương tác có divider và khoảng hở 24px giữa các chỉ số.
+   Theo Figma Home 4: dưới đường kẻ có khoảng 14px, rồi hàng có đệm trên 4px,
+   nên đệm trên là 18px; nút "Xem chi tiết" vì vậy cách đường kẻ ~19px, không dính sát. */
+.postcard-feed__engagement {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Icon và con số tạo một nhóm, không bị tách khi hàng xuống dòng. */
+.postcard-feed__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Nút chi tiết nhận khoảng trống linh hoạt để canh về phía bookmark. */
+.postcard-feed__detail {
+  margin-left: auto;
+}
+
+/* Các nút biểu tượng có vùng nhấn lớn hơn hình và không có viền nền nặng. */
+.postcard-feed__icon-button {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-muted);
+  font-size: 18px;
+}
+
+/* Hover làm rõ vùng tương tác mà không thêm chuyển động. */
+.postcard-feed__icon-button:hover {
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* Khi đã lưu thành công, hình bookmark dùng cả viền lẫn lòng màu đỏ. */
+.postcard-feed__bookmark[aria-pressed='true'] {
+  color: var(--color-red);
+}
+
+/* SVG dùng currentColor để trạng thái không phụ thuộc một ảnh màu cố định. */
+.postcard-feed__bookmark[aria-pressed='true'] svg {
+  fill: currentColor;
+}
+
+/* Menu đặt theo nút ba chấm trong từng thẻ, không chiếm chỗ của hàng tên. */
+.postcard-feed__more {
+  position: relative;
+  margin-left: auto;
+}
+
+/* Bảng menu hẹp tự bám mép phải để không tràn trang trên điện thoại. */
+.postcard-feed__menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 5;
+  width: 200px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Liên kết và nút trong menu có cùng kiểu và thứ tự Tab tự nhiên. */
+.postcard-feed__menu-action {
+  display: block;
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-text);
+  font-size: 13px;
+  text-align: left;
+}
+
+/* Hover giữ thống nhất nền hồng của các menu dùng chung. */
+.postcard-feed__menu-action:hover {
+  background: var(--color-sakura);
+}
+
+/* Mobile thu đệm và đưa chi tiết thành hàng đủ rộng để dễ chạm. */
+@media (max-width: 600px) {
+  /* Đệm 18 × 16 giữ phần nội dung dễ đọc ở 360px. */
+  .postcard--feed {
+    padding: var(--radio-padding) var(--space-4);
+  }
+
+  /* Hàng số liệu vẫn chừa đúng khoảng cách, bookmark nằm cùng hàng đầu. */
+  .postcard-feed__engagement {
+    gap: var(--space-4);
+  }
+
+  /* Chi tiết chuyển xuống cuối và nhận toàn chiều ngang của thẻ. */
+  .postcard-feed__detail {
+    order: 1;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  /* Khoảng trống trước bookmark đẩy nút về bên phải trong hàng thống kê. */
+  .postcard-feed__bookmark {
+    margin-left: auto;
+  }
+}
