@@ -287,7 +287,7 @@ function setFieldError(name, message = '') {
   const defaults = {
     username: 'Tên cần ít nhất 3 ký tự.',
     bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
-    native: 'Có thể thay đổi bất cứ lúc nào trong phần Cài đặt',
+    native: 'Có thể thay đổi bất cứ lúc nào trong Hồ sơ › Chỉnh sửa hồ sơ',
   };
   hint.textContent = message || defaults[name];
   if (name === 'username' && !message && validUsername(input(name).value)) {
