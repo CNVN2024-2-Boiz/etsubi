@@ -10,6 +10,9 @@ export const routes = Object.freeze({
   register: '/pages/profile/register.html',
   registerAdvanced: '/pages/profile/register-advanced.html',
   profile: '/pages/profile/index.html',
+  profileEdit: '/pages/profile/edit.html',
+  // Mã thành viên được mã hoá để liên kết thông báo mở đúng hồ sơ công khai.
+  userProfile: id => '/pages/profile/index.html?id=' + encodeURIComponent(id),
   search: '/pages/search.html',
   // Mã bài cần được mã hoá để không phá vỡ chuỗi tham số URL.
   post: id => '/pages/post.html?id=' + encodeURIComponent(id),

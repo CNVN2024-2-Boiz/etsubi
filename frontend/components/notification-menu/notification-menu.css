@@ -1,0 +1,157 @@
+/* Menu dùng cùng nền kem, viền và bóng với menu tài khoản; bám vào khung header. */
+.notification-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: var(--page-gutter);
+  width: var(--notification-menu-width);
+  max-width: calc(100vw - var(--page-gutter) - var(--page-gutter));
+  overflow: hidden;
+  background: var(--color-cream);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Hàng tiêu đề chia chỗ cho nút đọc tất cả, không dùng bố cục toạ độ cố định. */
+.notification-menu__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Tiêu đề nhỏ dùng phông nội dung để đúng cỡ SemiBold 15 trong yêu cầu. */
+.notification-menu__heading h2 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Nút chữ đỏ và nền trong giúp thao tác phụ không lấn át nội dung thông báo. */
+.notification-menu__action {
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-red);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Chỉ đổi nền khi rê chuột, không thêm chuyển động vào menu. */
+.notification-menu__action:hover:not(:disabled), .notification-menu__item:hover {
+  background: var(--color-sakura);
+  text-decoration: none;
+}
+
+/* Nút vô hiệu hoá giữ diện tích để tiêu đề không nhảy khi số chưa đọc thay đổi. */
+.notification-menu__action:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Danh sách cuộn trong phần còn lại của màn hình để mọi mục vẫn mở được trên laptop. */
+.notification-menu__list {
+  max-height: min(var(--notification-menu-max-height), calc(100dvh - var(--header-height) - var(--space-10)));
+  overflow-y: auto;
+}
+
+/* Bỏ ký hiệu và lề mặc định của danh sách để mỗi mục phủ trọn chiều ngang thẻ. */
+.notification-menu__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Mục có cột chấm riêng; phần nội dung co được để không gây cuộn ngang. */
+.notification-menu__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Nền hồng làm rõ thông báo chưa đọc bên cạnh chấm và nhãn cho trình đọc màn hình. */
+.notification-menu__item.is-unread {
+  background: var(--color-sakura);
+}
+
+/* Chấm 6px giữ chỗ ở mục đã đọc để các dòng chữ luôn thẳng cột. */
+.notification-menu__dot {
+  flex: 0 0 var(--notification-dot-size);
+  height: var(--notification-dot-size);
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-transparent);
+}
+
+/* Chỉ thông báo chưa đọc mới có chấm đỏ. */
+.notification-menu__item.is-unread .notification-menu__dot {
+  background: var(--color-red);
+}
+
+/* Nội dung dùng lưới một cột để thời gian luôn nằm dưới thông điệp. */
+.notification-menu__content {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+/* Thông điệp giới hạn hai dòng nhưng vẫn giữ đầy đủ văn bản cho công cụ trợ năng. */
+.notification-menu__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Thời gian nhỏ và dịu màu để thông điệp là phần được đọc trước. */
+.notification-menu__time {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Trạng thái tải, rỗng và lỗi đều là chữ tĩnh, căn giữa với khoảng đệm dễ đọc. */
+.notification-menu__placeholder, .notification-menu__status {
+  margin: 0;
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-muted);
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Vòng focus nằm trong mục để không bị phần overflow của card cắt mất. */
+.notification-menu a:focus-visible, .notification-menu button:focus-visible {
+  outline: 2px solid var(--color-red);
+  outline-offset: -2px;
+  box-shadow: var(--focus-ring);
+  position: relative;
+  z-index: 1;
+}
+
+/* Thuộc tính hidden luôn đóng menu và dòng trạng thái dù các lớp khác đặt display. */
+.notification-menu[hidden], .notification-menu [hidden] {
+  display: none;
+}
+
+/* Trên điện thoại, menu phủ ngang ngay dưới header để không ép thông báo vào cột hẹp. */
+@media (max-width: 600px) {
+  /* Bỏ lề hai bên và khe trên, giữ chiều rộng bên trong viewport. */
+  .notification-menu {
+    top: 100%;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}

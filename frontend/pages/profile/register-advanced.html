@@ -136,7 +136,7 @@
                 <!-- Radio gốc đảm bảo một ngôn ngữ duy nhất và hỗ trợ phím mũi tên tự nhiên. -->
                 <section class="profile-section" id="native-section" tabindex="-1" aria-labelledby="native-title">
                   <div class="profile-section__heading"><h2 class="t-display" id="native-title">Ngôn ngữ mẹ đẻ</h2><p>Chọn ngôn ngữ mẹ đẻ của bạn – thành viên khác sẽ thấy trên hồ sơ và cạnh tên khi bạn đăng bài.</p></div>
-                  <fieldset class="profile-native" aria-describedby="native-hint">
+                  <fieldset class="profile-native" aria-describedby="native-hint" data-native-group>
                     <legend>Ngôn ngữ mẹ đẻ <span>(chọn 1)</span></legend>
                     <div class="profile-native__grid">
                       <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="vi" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong>Tiếng Việt</strong><small>Cờ Việt Nam hiển thị cạnh tên</small></span></label>
@@ -184,7 +184,12 @@
             </section>
             <div class="profile-summary__help">
               <div class="profile-tip profile-tip--quick"><h2>ⓘ Mẹo nhanh</h2><p>Hồ sơ có ảnh đại diện và lời giới thiệu giúp thành viên từ nhiều quốc gia dễ làm quen và trò chuyện với bạn hơn.</p></div>
-              <div class="profile-support"><p class="profile-eyebrow">CẦN HỖ TRỢ?</p><a class="btn btn--secondary btn--block" href="/pages/support.html" data-route="support">Liên hệ quản trị viên</a></div>
+              <!-- Cho phép bỏ qua bước bổ sung, giải thích nơi quay lại chỉnh sửa theo frame 159:524. -->
+              <div class="profile-support">
+                <p class="profile-eyebrow">CHƯA MUỐN ĐIỀN NGAY?</p>
+                <a class="btn btn--secondary btn--block" href="/pages/index.html" data-route="home">Bỏ qua, hoàn thiện sau</a>
+                <p class="profile-support__note">Bạn có thể hoàn thiện hồ sơ bất cứ lúc nào trong trang Hồ sơ › Chỉnh sửa hồ sơ.</p>
+              </div>
             </div>
           </aside>
         </div>

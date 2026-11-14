@@ -672,11 +672,22 @@
   color: var(--color-muted);
 }
 
-/* Liên hệ quản trị viên có khoảng cách nhỏ dưới nhãn hỗ trợ. */
+/* Khối bỏ qua dùng khoảng cách 10px như PublicProfile trong frame cập nhật. */
+.profile-support {
+  display: grid;
+  gap: var(--profile-skip-gap);
+}
+
+/* Nút bỏ qua phủ ngang cột, giữ cỡ chữ và đệm quen thuộc của nút phụ. */
 .profile-support .btn {
-  margin-top: var(--space-2);
   padding-inline: var(--space-3);
   font-size: 14px;
+}
+
+/* Ghi chú chỉ nơi chỉnh sửa sau này, chữ nhỏ dịu màu và tự xuống dòng trên mobile. */
+.profile-support__note {
+  color: var(--color-muted);
+  font-size: 12px;
 }
 
 /* Thu gọn desktop theo đúng breakpoint dự án, đưa tiến trình lên trên và tóm tắt xuống dưới. */

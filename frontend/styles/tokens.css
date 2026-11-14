@@ -1,3 +1,18 @@
+/* HeaderSearchSubmit 292:2401 và menu thông báo: kích thước riêng, không đổi token đang dùng. */
+:root {
+  --header-search-gap: 10px;
+  --header-search-padding-y: 10px;
+  --header-search-padding-right: 5px;
+  --header-search-submit-height: 32px;
+  --header-search-submit-radius: 16px;
+  --header-search-submit-gap: 6px;
+  --header-search-submit-right: 14px;
+  --notification-menu-width: 360px;
+  --notification-menu-max-height: 480px;
+  --notification-dot-size: 6px;
+  --profile-skip-gap: 10px;
+}
+
 /* Bộ giá trị thiết kế dùng chung cho toàn bộ giao diện Etsubi. */
 /* Trang chủ: toạ độ tĩnh của hoa theo khung 1920px, lấy tâm viewport làm mốc ngang. */
 :root {

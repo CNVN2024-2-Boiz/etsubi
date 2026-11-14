@@ -32,6 +32,8 @@ let busy = true;
 let finished = false;
 let previewSource = null;
 let usernameConflict = false;
+// Chỉ lựa chọn trực tiếp hoặc nháp có dấu xác nhận mới hoàn tất bước ngôn ngữ mẹ đẻ.
+let nativeChosen = false;
 
 /** Lấy input theo name trong form để không phụ thuộc các lớp trình bày. */
 function input(name) {
@@ -51,7 +53,7 @@ function readValues() {
     address: input('address').value.trim(),
     bio: input('bio').value.trim(),
     avatar_url: avatarUrl,
-    native: input('native').value,
+    native: nativeChosen ? input('native').value : '',
   };
 }
 
@@ -88,16 +90,18 @@ function selectAddress(value) {
 }
 
 /** Điền các trường được phép từ server hoặc nháp, email luôn lấy duy nhất từ server. */
-function fillValues(values, terms = false) {
+function fillValues(values, terms = false, explicitNative = false) {
   // Nháp hỏng từng trường được bỏ qua thay vì làm gián đoạn toàn bộ trang.
   for (const key of ['username', 'institute', 'bio']) {
     input(key).value = typeof values[key] === 'string' ? values[key] : '';
   }
   selectAddress(typeof values.address === 'string' ? values.address : '');
   avatarUrl = typeof values.avatar_url === 'string' ? values.avatar_url : '';
+  // Không nhận native mặc định của đăng ký hoặc nháp cũ chưa ghi nhận thao tác chọn tại trang này.
+  nativeChosen = explicitNative === true && Object.hasOwn(nativeLabels, values.native);
   // Gán checked cho từng radio vì RadioNodeList.value rỗng không tự bỏ chọn lựa chọn cũ.
   for (const radio of qsa('[name="native"]', form)) {
-    radio.checked = radio.value === values.native;
+    radio.checked = nativeChosen && radio.value === values.native;
   }
   input('terms').checked = terms === true;
 }
@@ -128,7 +132,7 @@ function restoreDraft() {
     if (!newer) {
       return;
     }
-    fillValues(draft.values, draft.terms);
+    fillValues(draft.values, draft.terms, draft.nativeChosen);
     showDraftTime(draft.timestamp);
   } catch {
     // JSON hỏng hoặc bộ nhớ bị chặn không ngăn người dùng sửa hồ sơ lấy từ server.
@@ -144,7 +148,8 @@ function saveDraft(manual = false) {
   // Tự lưu chỉ khi form khác dữ liệu trên máy chủ: nếu người dùng chưa sửa gì
   // thì không tạo nháp, để pill "Đã lưu nháp" không hiện sai ngay khi vừa mở trang.
   const current = readValues();
-  const unchanged = Object.keys(current).every((key) => current[key] === serverValues[key]);
+  // Native chưa chọn tương đương chưa sửa; lựa chọn rõ ràng vẫn phải được lưu dù trùng mặc định vi.
+  const unchanged = !nativeChosen && Object.keys(current).every((key) => key === 'native' || current[key] === serverValues[key]);
   if (!manual && unchanged) {
     return;
   }
@@ -157,6 +162,7 @@ function saveDraft(manual = false) {
       base: JSON.stringify(serverValues),
       values: readValues(),
       terms: input('terms').checked,
+      nativeChosen,
     }));
     showDraftTime(timestamp);
   } catch {
@@ -268,6 +274,10 @@ function setFieldError(name, message = '') {
   for (const control of controls) {
     control.setAttribute('aria-invalid', String(Boolean(message)));
   }
+  // Đánh dấu cả nhóm để thông báo lỗi ngôn ngữ gắn với fieldset và mọi radio bên trong.
+  if (name === 'native') {
+    qs('[data-native-group]').setAttribute('aria-invalid', String(Boolean(message)));
+  }
   hint.classList.toggle('field__hint--error', Boolean(message));
   hint.classList.remove('field__hint--success');
   if (name === 'terms') {
@@ -335,6 +345,7 @@ async function loadProfile() {
     ready = true;
     usernameConflict = false;
     setFieldError('username');
+    setFieldError('native');
     renderState();
   } catch (error) {
     if (error.status !== 401) {
@@ -353,7 +364,7 @@ function validateForm() {
   const errors = {
     username: validUsername(values.username) ? '' : 'Tên cần ít nhất 3 ký tự.',
     bio: input('bio').value.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.',
-    native: Object.hasOwn(nativeLabels, values.native) ? '' : 'Vui lòng chọn một ngôn ngữ mẹ đẻ.',
+    native: nativeChosen && Object.hasOwn(nativeLabels, values.native) ? '' : 'Vui lòng chọn ngôn ngữ mẹ đẻ.',
     terms: input('terms').checked ? '' : 'Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.',
   };
   // Gửi lại tên đã báo trùng chỉ sau khi người dùng sửa, tránh xoá mất gợi ý 409.
@@ -390,7 +401,7 @@ async function submitProfile(event) {
   const patch = {};
   // Trường rỗng khác dữ liệu gốc vẫn được gửi để thao tác xoá có tác dụng, nhất là avatar_url.
   for (const key of profileKeys) {
-    if (values[key] !== serverValues[key]) {
+    if (key === 'native' || values[key] !== serverValues[key]) {
       patch[key] = values[key];
     }
   }
@@ -439,6 +450,10 @@ function setPresetsOpen(open, restoreFocus = false) {
 function profileChanged(event) {
   if (!ready || busy || finished) {
     return;
+  }
+  // Cờ chỉ được bật bởi sự kiện trên radio thật, không từ native mặc định của máy chủ.
+  if (event?.target.name === 'native') {
+    nativeChosen = Object.hasOwn(nativeLabels, input('native').value);
   }
   if (event?.target.name === 'username') {
     usernameConflict = false;

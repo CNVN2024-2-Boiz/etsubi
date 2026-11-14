@@ -1,3 +1,6 @@
+/* Menu thông báo đi cùng CSS header để mọi trang hiện có tự nhận thành phần mới. */
+@import url('/components/notification-menu/notification-menu.css');
+
 /* Định dạng header cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
 
 /* ===== Khung header và thương hiệu ===== */
@@ -278,8 +281,8 @@
     background: var(--color-white-20);
   }
 
-  /* Ẩn ngôn ngữ và chuông trên mobile để logo, tìm kiếm và tài khoản không tràn ngang. */
-  .site-header__language, .site-header__bell {
+  /* Ẩn huy hiệu ngôn ngữ trên mobile, giữ chuông để vẫn đọc thông báo được. */
+  .site-header__language {
     display: none;
   }
 
@@ -320,10 +323,10 @@
   display: flex;
   flex: 0 1 var(--home-search-width);
   align-items: center;
-  gap: 10px;
+  gap: var(--header-search-gap);
   min-width: 80px;
   height: var(--home-search-height);
-  padding: 0 var(--space-4) 0 var(--home-search-padding-left);
+  padding: var(--header-search-padding-y) var(--header-search-padding-right) var(--header-search-padding-y) var(--home-search-padding-left);
   border: 1px solid var(--home-search-border);
   border-radius: var(--radius-pill);
   background: var(--home-search-bg);
@@ -340,6 +343,7 @@
 
 /* Ô nhập tự nhận chiều ngang còn lại, giữ nền trong suốt theo pill cha. */
 .site-header__home-search input {
+  flex: 1;
   width: 100%;
   min-width: 0;
   border: 0;
@@ -371,7 +375,7 @@
   opacity: 1;
 }
 
-/* Ẩn nút xoá mặc định vì pill chỉ gửi bằng Enter, không thêm điều khiển trùng. */
+/* Ẩn nút xoá mặc định để trình duyệt không thêm điều khiển ngoài thiết kế pill. */
 .site-header__home-search input::-webkit-search-cancel-button,
 .site-header__home-search input::-webkit-search-decoration,
 .site-header__home-search input::-ms-clear {
@@ -383,12 +387,12 @@
   display: none;
 }
 
-/* Chuông làm mốc cho chấm chưa đọc; slot luôn ẩn khi backend chưa có số thông báo. */
-.site-header--home-search .site-header__bell {
+/* Chuông làm mốc cho chấm chưa đọc trên tất cả các biến thể header. */
+.site-header__bell {
   position: relative;
 }
 
-/* Kích thước chấm không mang nghĩa số giả; chỉ hiển thị khi có API thật ở lần nối sau. */
+/* Chấm 8px chỉ hiện khi API trả số thông báo chưa đọc lớn hơn không. */
 .site-header__bell-dot {
   position: absolute;
   top: var(--space-1);
@@ -397,6 +401,47 @@
   height: 8px;
   border-radius: var(--radius-pill);
   background: var(--color-danger);
+}
+
+/* Nút gửi nền kem co vừa nhãn, cao 32px và không bị flex ép méo biểu tượng. */
+.site-header__home-search-submit {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--header-search-submit-gap);
+  height: var(--header-search-submit-height);
+  padding: 0 var(--header-search-submit-right) 0 var(--space-3);
+  border: 0;
+  border-radius: var(--header-search-submit-radius);
+  background: var(--color-cream);
+  color: var(--color-red);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Nền hồng khi rê chuột là phản hồi tĩnh, giữ nguyên vị trí và kích thước nút. */
+.site-header__home-search-submit:hover:not(:disabled) {
+  background: var(--color-sakura);
+}
+
+/* Từ khoá rỗng làm nút mờ và vô hiệu hoá đúng yêu cầu, kể cả chỉ có dấu cách. */
+.site-header__home-search-submit:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Vòng focus chung làm rõ nút gửi và chuông khi người dùng điều hướng bằng bàn phím. */
+.site-header__home-search-submit:focus-visible, .site-header__bell:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Bảo đảm chấm và menu ẩn không bị quy tắc display của component ghi đè. */
+.site-header [hidden] {
+  display: none;
 }
 
 /* Tablet chuyển form thành icon để dành chỗ cho logo và tài khoản. */

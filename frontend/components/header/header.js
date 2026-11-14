@@ -4,6 +4,8 @@ import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
 import { readStorage, writeStorage } from '/services/api/client.js';
 import { initials } from '/utils/format.js';
+import { getUnreadCount } from '/services/api/notifications.js';
+import { createNotificationMenu } from '/components/notification-menu/notification-menu.js';
 
 // Lưu bộ huỷ theo vùng gắn để dựng lại header không nhân đôi bộ lắng nghe.
 const mounts = new WeakMap();
@@ -64,6 +66,13 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   const hideAuthLink = options.hideAuthLink ?? [routes.login, routes.register].includes(location.pathname);
   const menuId = 'header-menu-' + (++headerCount);
   const profileId = 'header-profile-' + headerCount;
+  const notificationId = 'header-notifications-' + headerCount;
+  let notificationMenu = null;
+  let bellButton = null;
+  let sessionEvents = null;
+  let sessionIdentity;
+  // Huỷ cả listener của menu hiện tại khi header được dựng lại hoặc rời vòng đời gắn.
+  signal.addEventListener('abort', () => sessionEvents?.abort(), { once: true });
   target.classList.add('site-header');
   target.classList.toggle('site-header--search', variant === 'search');
   target.classList.toggle('site-header--home-search', searchForm);
@@ -130,7 +139,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   // SVG cố định không chứa dữ liệu người dùng, dùng currentColor để theo màu nút.
   menuButton.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
 
-  /** Đóng cả menu điều hướng lẫn tài khoản; Escape trả focus về nút đã mở menu. */
+  /** Đóng mọi menu; Escape hoặc click ngoài trả focus về nút đã mở bảng. */
   function closeMenus(restoreFocus = false) {
     const profile = qs('[data-profile-menu]', session);
     if (restoreFocus) {
@@ -138,6 +147,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
         menuButton.focus();
       } else if (profile && !profile.hidden) {
         qs('[data-avatar-button]', session)?.focus();
+      } else if (notificationMenu && !notificationMenu.element.hidden) {
+        bellButton?.focus();
       }
     }
     mobileNav.hidden = true;
@@ -147,6 +158,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       profile.hidden = true;
     }
     qs('[data-avatar-button]', session)?.setAttribute('aria-expanded', 'false');
+    notificationMenu?.close();
+    bellButton?.setAttribute('aria-expanded', 'false');
   }
 
   // Chỉ mở một menu mỗi lần và công bố trạng thái mới cho trình đọc màn hình.
@@ -160,6 +173,17 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
 
   /** Hiện liên kết đăng nhập hoặc chuông và avatar tuỳ hồ sơ của phiên hiện tại. */
   function renderSession(user) {
+    const identity = user ? JSON.stringify([user.id, user.username, user.avatarUrl]) : null;
+    // Cache và GET /my có thể trả cùng hồ sơ; không dựng lại menu hoặc gọi số chưa đọc hai lần.
+    if (identity === sessionIdentity) {
+      return;
+    }
+    sessionIdentity = identity;
+    closeMenus();
+    sessionEvents?.abort();
+    notificationMenu?.element.remove();
+    notificationMenu = null;
+    bellButton = null;
     session.replaceChildren();
     if (!user) {
       // Chưa đăng nhập: nút ngôn ngữ đứng ngay trước liên kết "Đăng nhập".
@@ -172,15 +196,60 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       }
       return;
     }
+    sessionEvents = new AbortController();
+    const sessionSignal = sessionEvents.signal;
     const bell = el('button', {
       type: 'button',
       className: 'site-header__icon site-header__bell',
       'aria-label': 'Thông báo',
-    }, icon('bell'));
-    // CẦN BACKEND: số thông báo chưa đọc; chấm 8px luôn ẩn cho tới khi có dữ liệu thật.
-    if (searchForm) {
-      bell.append(el('span', { className: 'site-header__bell-dot', hidden: true, 'aria-hidden': 'true' }));
+      'aria-haspopup': 'true',
+      'aria-expanded': 'false',
+      'aria-controls': notificationId,
+    });
+    // bell.svg cũ có chấm đỏ vẽ sẵn; dùng Lucide chuẩn để chấm chỉ xuất hiện theo số thật từ API.
+    bell.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+    bellButton = bell;
+    const dot = el('span', { className: 'site-header__bell-dot', hidden: true, 'aria-hidden': 'true' });
+    bell.append(dot);
+    let countVersion = 0;
+    const notifications = createNotificationMenu({ id: notificationId, signal: sessionSignal, onRead: refreshUnreadCount });
+    notificationMenu = notifications;
+    target.append(notifications.element);
+
+    /** Lấy số thật khi gắn, trở lại tab hoặc vừa đọc; lỗi mạng ẩn chấm và không tự lặp. */
+    async function refreshUnreadCount() {
+      const version = ++countVersion;
+      let count = 0;
+      try {
+        const result = await getUnreadCount();
+        count = Number.isFinite(result?.count) ? Math.max(0, result.count) : 0;
+      } catch {
+        // Header vẫn dùng được khi API thông báo lỗi; không ghi lỗi console hoặc tạo bộ hẹn giờ.
+      }
+      if (sessionSignal.aborted || version !== countVersion) {
+        return;
+      }
+      dot.hidden = count <= 0;
+      bell.setAttribute('aria-label', 'Thông báo' + (count > 0 ? ', ' + count + ' chưa đọc' : ''));
+      notifications.setUnreadCount(count);
     }
+
+    // Chuông đóng bảng đang mở trước khi mở thông báo để các menu không chồng lên nhau.
+    bell.addEventListener('click', () => {
+      const open = notifications.element.hidden;
+      closeMenus();
+      if (open) {
+        notifications.open();
+        bell.setAttribute('aria-expanded', 'true');
+      }
+    }, { signal: sessionSignal });
+    // Chỉ kiểm tra lại khi tab thực sự hiện; không polling hoặc gọi khi khách chưa đăng nhập.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        void refreshUnreadCount();
+      }
+    }, { signal: sessionSignal });
+    void refreshUnreadCount();
     const avatar = el('button', {
       type: 'button',
       className: 'avatar site-header__avatar',
@@ -208,6 +277,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       hidden: true,
     },
     el('a', { href: routes.profile, className: 'site-header__profile-action' }, 'Hồ sơ'),
+    el('a', { href: routes.profileEdit, className: 'site-header__profile-action' }, 'Chỉnh sửa hồ sơ'),
     signOut
     );
     // Menu tài khoản cũng đóng menu điều hướng trước khi mở để không chồng hai bảng.
@@ -228,23 +298,38 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   // Thứ tự nút và liên kết giữ nguyên theo thiết kế để tab bàn phím đi đúng thứ tự.
   utils.append(languageButton, session, menuButton);
   target.replaceChildren(brand);
-  // Home chỉ gửi từ khoá khi Enter; không lắng nghe input và không gọi gợi ý trực tiếp.
+  // Form chỉ chuyển trang khi gửi; input chỉ bật tắt nút, không gửi yêu cầu gợi ý.
   if (searchForm) {
     const input = el('input', {
       type: 'search', name: 'q', 'data-search-input': '',
       placeholder: 'Tìm kiếm bài viết, chủ đề...', 'aria-label': 'Tìm kiếm',
+      autocomplete: 'off', autocorrect: 'off', spellcheck: 'false',
     });
+    const submit = el('button', {
+      type: 'submit', className: 'site-header__home-search-submit', disabled: true,
+    });
+    // Lucide search có khung vuông 24 và nét tròn chuẩn, hiển thị ở 16px theo Figma 292:2401.
+    submit.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+    submit.append('Tìm kiếm');
     const form = el('form', {
       className: 'site-header__home-search', role: 'search', action: routes.search,
     }, el('label', { className: 'u-visually-hidden', for: 'home-search-' + headerCount }, 'Tìm kiếm'),
-    el('span', { className: 'site-header__home-search-icon', 'aria-hidden': 'true' }), input);
+    el('span', { className: 'site-header__home-search-icon', 'aria-hidden': 'true' }), input, submit);
     input.id = 'home-search-' + headerCount;
-    /** Chuẩn hoá URL bằng tiện ích dùng chung để từ khoá rỗng quay về trang tìm kiếm. */
+    /** Chỉ bật nút khi có chữ sau trim; không tải dữ liệu trong lúc đang gõ. */
+    function updateSearchSubmit() {
+      submit.disabled = !input.value.trim();
+    }
+    /** Enter và nút dùng cùng URL chuẩn hoá; từ khoá rỗng không chuyển trang. */
     function submitHomeSearch(event) {
       event.preventDefault();
+      if (!input.value.trim()) {
+        return;
+      }
       location.assign(searchUrl({ q: input.value }));
     }
     form.addEventListener('submit', submitHomeSearch, { signal });
+    input.addEventListener('input', updateSearchSubmit, { signal });
     target.append(form);
   }
   if (variant === 'search' && options.searchSlot) {
@@ -260,8 +345,12 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }
   });
   document.addEventListener('click', event => {
-    if (!target.contains(event.target)) {
-      closeMenus();
+    // Dùng đường đi sự kiện ban đầu vì nút Thử lại có thể đã bị thay bằng chữ tải trước khi nổi bọt.
+    const path = event.composedPath();
+    const outsideNotifications = notificationMenu && !notificationMenu.element.hidden
+      && !path.includes(notificationMenu.element) && !path.includes(bellButton);
+    if (!path.includes(target) || outsideNotifications) {
+      closeMenus(true);
     }
   }, { signal });
 

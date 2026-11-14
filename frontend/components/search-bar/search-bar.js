@@ -34,6 +34,7 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
     'aria-label': 'Tìm kiếm',
     'aria-describedby': id + '-error',
     autocomplete: 'off',
+    autocorrect: 'off',
     spellcheck: 'false',
   });
   input.value = initialQuery.slice(0, 200);
