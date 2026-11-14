@@ -115,6 +115,8 @@
   color: var(--color-white);
   font-size: 14px;
   font-weight: 700;
+  /* Hạ chữ viết tắt xuống ~1.5px cho cân, giống avatar trên header (font nhích chữ lên). */
+  padding-top: 3px;
 }
 
 /* Thông báo quản trị dùng vòng slate QT để phân biệt với người dùng thường. */

@@ -348,6 +348,10 @@
   min-width: 0;
   border: 0;
   outline: none;
+  /* Font Be Vietnam Pro có phần trên dòng cao hơn phần dưới, nên chữ nằm giữa
+     về hình học vẫn trông bị nhích lên. Đệm trên 4px, đệm dưới 0 đẩy chữ xuống 2px
+     cho cân với icon kính lúp và nút "Tìm kiếm". */
+  padding: 4px 0 0;
   background: var(--color-transparent);
   color: var(--color-white);
   font-size: 15px;
@@ -430,7 +434,7 @@
   width: 8px;
   height: 8px;
   border-radius: var(--radius-pill);
-  background: var(--color-danger);
+  background: var(--color-bell-dot);
 }
 
 /* Nút gửi nền kem co vừa nhãn, cao 32px và không bị flex ép méo biểu tượng. */

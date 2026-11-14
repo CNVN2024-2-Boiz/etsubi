@@ -175,6 +175,12 @@ select.input, .input--select {
   padding-right: calc(var(--space-9) + var(--space-4));
 }
 
+/* Dấu chấm che mật khẩu (•) của Be Vietnam Pro nằm hơi cao so với tâm ô,
+   nên riêng ô mật khẩu có đệm trên 4px: chiều cao ô giữ nguyên, các chấm hạ xuống 2px. */
+.input[type='password'] {
+  padding-top: 4px;
+}
+
 /* Ẩn nút hiện mật khẩu có sẵn của Edge/IE, vì trang đã có nút mắt riêng;
    nếu không ô mật khẩu sẽ hiện hai con mắt cạnh nhau. */
 .input-group .input::-ms-reveal,
@@ -403,6 +409,13 @@ select.input, .input--select {
 }
 
 /* Avatar nhỏ dùng khung 24px và chữ 10px để phù hợp với danh sách hoặc thẻ ngắn. */
+/* Chữ viết tắt trên avatar: font Be Vietnam Pro làm chữ trông nhích lên dù đã căn giữa,
+   nên avatar chỉ có chữ (không có ảnh) được đệm trên 3px để hạ chữ xuống ~1.5px.
+   Avatar có ảnh giữ nguyên để ảnh không bị lệch. */
+.avatar:not(:has(img)) {
+  padding-top: 3px;
+}
+
 .avatar--24, .avatar--sm {
   width: 24px;
   height: 24px;

@@ -372,6 +372,8 @@
   --color-sakura: #FCECF0;
   --color-sakura-100: #FAD6E1;
   --color-pink-border: #F5C0D0;
+  /* Chấm báo thông báo mới trên chuông: hồng sakura nhạt để nổi trên nền header đỏ (đỏ sẽ bị chìm). */
+  --color-bell-dot: var(--color-sakura-100);
   --color-text: #1F1A17;
   --color-text-secondary: #4A403B;
   --color-text-body: #59544D;
