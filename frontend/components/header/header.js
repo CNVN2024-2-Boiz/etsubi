@@ -5,7 +5,7 @@ import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
 import { readStorage, writeStorage } from '/services/api/client.js';
 import { initials } from '/utils/format.js';
 import { getUnreadCount } from '/services/api/notifications.js';
-import { createNotificationMenu } from '/components/notification-menu/notification-menu.js';
+import { createNotificationMenu, notificationIcon } from '/components/notification-menu/notification-menu.js';
 
 // Lưu bộ huỷ theo vùng gắn để dựng lại header không nhân đôi bộ lắng nghe.
 const mounts = new WeakMap();
@@ -57,6 +57,25 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   mounts.set(target, events);
   const { signal } = events;
   const variant = options.variant ?? target.dataset.variant ?? 'default';
+  // Trang thông báo dùng thanh tác vụ riêng trong cùng component, không sao chép header vào HTML.
+  if (variant === 'notifications') {
+    target.classList.add('site-header', 'site-header--notifications');
+    const back = el('button', { type: 'button', className: 'site-header__icon', 'aria-label': 'Quay lại' }, notificationIcon('back'));
+    // Chỉ quay lại lịch sử trong ứng dụng; truy cập trực tiếp thì về Trang chủ.
+    back.addEventListener('click', () => {
+      if (history.length > 1 && document.referrer.startsWith(location.origin + '/')) {
+        history.back();
+      } else {
+        location.assign(routes.home);
+      }
+    }, { signal });
+    const readAll = options.notificationReadAll;
+    readAll.textContent = 'Đọc hết';
+    readAll.classList.add('site-header__read-all');
+    target.replaceChildren(el('div', { className: 'site-header__notification-nav' }, back,
+      el('h1', { className: 'site-header__notification-title', id: 'notifications-title' }, 'Thông báo'), readAll));
+    return target;
+  }
   const searchForm = options.searchForm === true && variant !== 'search';
   // Trang tìm kiếm không có tab đang chọn; các trang khác nhận tab từ options hoặc HTML.
   let active = options.active !== undefined ? options.active : target.dataset.active || null;
@@ -160,6 +179,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     qs('[data-avatar-button]', session)?.setAttribute('aria-expanded', 'false');
     notificationMenu?.close();
     bellButton?.setAttribute('aria-expanded', 'false');
+    bellButton?.classList.remove('is-open');
   }
 
   // Chỉ mở một menu mỗi lần và công bố trạng thái mới cho trình đọc màn hình.
@@ -198,8 +218,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }
     sessionEvents = new AbortController();
     const sessionSignal = sessionEvents.signal;
-    const bell = el('button', {
-      type: 'button',
+    const bell = el('a', {
+      href: routes.notifications,
       className: 'site-header__icon site-header__bell',
       'aria-label': 'Thông báo',
       'aria-haspopup': 'true',
@@ -232,17 +252,48 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       dot.hidden = count <= 0;
       bell.setAttribute('aria-label', 'Thông báo' + (count > 0 ? ', ' + count + ' chưa đọc' : ''));
       notifications.setUnreadCount(count);
+      return count;
     }
 
     // Chuông đóng bảng đang mở trước khi mở thông báo để các menu không chồng lên nhau.
-    bell.addEventListener('click', () => {
+    bell.addEventListener('click', event => {
+      // Điện thoại dùng liên kết thật; tổ hợp mở tab mới trên desktop vẫn hoạt động như liên kết thường.
+      if (window.innerWidth <= 600 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      event.preventDefault();
       const open = notifications.element.hidden;
       closeMenus();
       if (open) {
         notifications.open();
         bell.setAttribute('aria-expanded', 'true');
+        bell.classList.add('is-open');
       }
     }, { signal: sessionSignal });
+    /** Trên mobile chuông là link trang, desktop công bố đầy đủ thuộc tính mở panel. */
+    function updateBellMode() {
+      if (window.innerWidth <= 600) {
+        closeMenus();
+        bell.removeAttribute('aria-haspopup');
+        bell.removeAttribute('aria-expanded');
+        bell.removeAttribute('aria-controls');
+        bell.removeAttribute('role');
+      } else {
+        bell.setAttribute('role', 'button');
+        bell.setAttribute('aria-haspopup', 'true');
+        bell.setAttribute('aria-expanded', String(!notifications.element.hidden));
+        bell.setAttribute('aria-controls', notificationId);
+      }
+    }
+    // Role button trên desktop hỗ trợ cả Space; Enter vẫn đi qua click của liên kết.
+    bell.addEventListener('keydown', event => {
+      if (event.key === ' ' && window.innerWidth > 600) {
+        event.preventDefault();
+        bell.click();
+      }
+    }, { signal: sessionSignal });
+    window.addEventListener('resize', updateBellMode, { signal: sessionSignal });
+    updateBellMode();
     // Chỉ kiểm tra lại khi tab thực sự hiện; không polling hoặc gọi khi khách chưa đăng nhập.
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {

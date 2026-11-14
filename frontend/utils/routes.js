@@ -14,6 +14,8 @@ export const routes = Object.freeze({
   // Mã thành viên được mã hoá để liên kết thông báo mở đúng hồ sơ công khai.
   userProfile: id => '/pages/profile/index.html?id=' + encodeURIComponent(id),
   search: '/pages/search.html',
+  // Trang thông báo riêng phục vụ điện thoại và liên kết truy cập trực tiếp.
+  notifications: '/pages/notifications.html',
   // Mã bài cần được mã hoá để không phá vỡ chuỗi tham số URL.
   post: id => '/pages/post.html?id=' + encodeURIComponent(id),
   newPost: '/pages/forum.html?compose=1',

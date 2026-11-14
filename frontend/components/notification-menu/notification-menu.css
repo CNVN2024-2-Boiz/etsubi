@@ -1,157 +1,280 @@
-/* Menu dùng cùng nền kem, viền và bóng với menu tài khoản; bám vào khung header. */
+/* Panel 400px nằm dưới thanh đỏ 8px, mép phải cùng lề với các tiện ích header. */
 .notification-menu {
   position: absolute;
   top: calc(100% + var(--space-2));
   right: var(--page-gutter);
-  width: var(--notification-menu-width);
+  width: var(--notif-panel-width);
   max-width: calc(100vw - var(--page-gutter) - var(--page-gutter));
   overflow: hidden;
   background: var(--color-cream);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sidebar);
+  border-radius: var(--notif-panel-radius);
+  box-shadow: var(--shadow-card);
 }
 
-/* Hàng tiêu đề chia chỗ cho nút đọc tất cả, không dùng bố cục toạ độ cố định. */
+/* Tiêu đề và chip đứng cùng hàng, nút đọc hết được đẩy về bên phải bằng spacer. */
 .notification-menu__heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Tiêu đề nhỏ dùng phông nội dung để đúng cỡ SemiBold 15 trong yêu cầu. */
+/* Heading dùng phông nội dung Bold 18 đúng Figma và nhận focus khi mở panel. */
 .notification-menu__heading h2 {
-  margin: 0;
+  flex: 0 0 auto;
   font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: normal;
 }
 
-/* Nút chữ đỏ và nền trong giúp thao tác phụ không lấn át nội dung thông báo. */
+/* Spacer co giãn để chip không xô lệch tiêu đề khi tổng chưa đọc thay đổi. */
+.notification-menu__spacer { flex: 1; }
+
+/* Chip chỉ chứa tổng thật từ API, bo pill và dùng nền hồng dịu. */
+.notification-menu__chip {
+  flex: 0 0 auto;
+  padding: var(--notif-chip-padding-y) var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+  color: var(--color-red);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+/* Nút chữ phụ giữ một dòng để hàng tiêu đề không tự tăng chiều cao. */
 .notification-menu__action {
-  padding: var(--space-1);
+  flex: 0 0 auto;
+  padding: 0;
   border: 0;
   border-radius: var(--radius-sm);
   background: var(--color-transparent);
   color: var(--color-red);
-  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
 }
 
-/* Chỉ đổi nền khi rê chuột, không thêm chuyển động vào menu. */
-.notification-menu__action:hover:not(:disabled), .notification-menu__item:hover {
-  background: var(--color-sakura);
-  text-decoration: none;
-}
+/* Không có mục chưa đọc thì nút dịu màu, giữ nguyên vị trí trong hàng. */
+.notification-menu__action:disabled { color: var(--color-muted); cursor: default; }
 
-/* Nút vô hiệu hoá giữ diện tích để tiêu đề không nhảy khi số chưa đọc thay đổi. */
-.notification-menu__action:disabled {
-  opacity: .4;
-  cursor: default;
-}
+/* Lúc tải vẫn giữ chữ đỏ như Figma nhưng thao tác đã bị vô hiệu hoá. */
+.notification-menu__action.is-loading:disabled { color: var(--color-red); }
 
-/* Danh sách cuộn trong phần còn lại của màn hình để mọi mục vẫn mở được trên laptop. */
+/* Danh sách cuộn nội bộ, chừa chỗ header và footer ở viewport thấp. */
 .notification-menu__list {
-  max-height: min(var(--notification-menu-max-height), calc(100dvh - var(--header-height) - var(--space-10)));
+  max-height: min(var(--notif-list-max-height), calc(100vh - var(--notif-viewport-reserve)));
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-/* Bỏ ký hiệu và lề mặc định của danh sách để mỗi mục phủ trọn chiều ngang thẻ. */
-.notification-menu__items {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+/* Danh sách bỏ ký hiệu và đệm mặc định để mỗi hàng trải hết panel. */
+.notification-menu__items { list-style: none; margin: 0; padding: 0; }
 
-/* Mục có cột chấm riêng; phần nội dung co được để không gây cuộn ngang. */
-.notification-menu__item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text);
-  border-bottom: 1px solid var(--color-border);
-}
-
-/* Nền hồng làm rõ thông báo chưa đọc bên cạnh chấm và nhãn cho trình đọc màn hình. */
-.notification-menu__item.is-unread {
-  background: var(--color-sakura);
-}
-
-/* Chấm 6px giữ chỗ ở mục đã đọc để các dòng chữ luôn thẳng cột. */
-.notification-menu__dot {
-  flex: 0 0 var(--notification-dot-size);
-  height: var(--notification-dot-size);
-  margin-top: var(--space-2);
-  border-radius: var(--radius-pill);
+/* Hàng có chiều cao tối thiểu, tự nở theo nội dung thay vì cắt chữ ở chiều cao cố định. */
+.notification-item {
+  position: relative;
+  min-height: var(--notif-row-min-height);
   background: var(--color-transparent);
 }
 
-/* Chỉ thông báo chưa đọc mới có chấm đỏ. */
-.notification-menu__item.is-unread .notification-menu__dot {
+/* Mục chưa đọc có nền hồng trong, mục đã đọc dùng nền kem của khung. */
+.notification-item.is-unread { background: var(--color-notif-unread); }
+
+/* Liên kết phủ toàn hàng, chừa cột cuối cho nút xoá độc lập với thẻ a. */
+.notification-item__link {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: var(--notif-row-min-height);
+  padding: var(--notif-row-padding-y) calc(var(--space-4) + var(--space-4) + var(--space-3)) var(--notif-row-padding-y) var(--space-4);
+  color: var(--color-text);
+}
+
+/* Hover và focus chỉ đổi nền, không tạo chuyển động hay gạch chân thông điệp. */
+.notification-item:hover, .notification-item:focus-within { background: var(--color-page); }
+.notification-item__link:hover { text-decoration: none; }
+
+/* Khung avatar giữ đúng 40px và cho badge nhô ra ngoài 4px như thiết kế. */
+.notification-item__avatar-wrap { position: relative; flex: 0 0 var(--space-8); width: var(--space-8); height: var(--space-8); }
+
+/* Avatar chữ có nền gradient thương hiệu và chữ trắng Bold 14. */
+.notification-item__avatar {
+  display: grid;
+  place-items: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Thông báo quản trị dùng vòng slate QT để phân biệt với người dùng thường. */
+.notification-item__avatar--system { background: var(--color-staff); }
+
+/* Ảnh thật lấp vòng avatar, giữ tỉ lệ tự nhiên bằng object-fit. */
+.notification-item__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Badge 20px ở vị trí 24/24, viền kem 2px và icon 12px nằm giữa. */
+.notification-item__badge {
+  position: absolute;
+  top: var(--notif-badge-offset);
+  left: var(--notif-badge-offset);
+  display: grid;
+  place-items: center;
+  width: var(--space-5);
+  height: var(--space-5);
+  border: 2px solid var(--color-cream);
+  border-radius: var(--radius-pill);
+  color: var(--color-white);
   background: var(--color-red);
 }
 
-/* Nội dung dùng lưới một cột để thời gian luôn nằm dưới thông điệp. */
-.notification-menu__content {
-  display: grid;
-  min-width: 0;
-  gap: var(--space-1);
-}
+/* Màu badge tương ứng phản ứng, bài mới và các thao tác của quản trị viên. */
+.notification-item__badge--reaction { background: var(--color-reaction); }
+.notification-item__badge--post_created { background: var(--color-red-dark); }
+.notification-item__badge--system { background: var(--color-staff); }
 
-/* Thông điệp giới hạn hai dòng nhưng vẫn giữ đầy đủ văn bản cho công cụ trợ năng. */
-.notification-menu__text {
+/* Cột chữ co được để nội dung dài không làm panel tràn ngang. */
+.notification-item__content { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: var(--space-1); }
+
+/* Thông điệp tối đa ba dòng, khoảng dòng 20px và cho phép ngắt chuỗi dài. */
+.notification-item__text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   overflow: hidden;
   overflow-wrap: anywhere;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 20px;
 }
 
-/* Thời gian nhỏ và dịu màu để thông điệp là phần được đọc trước. */
-.notification-menu__time {
-  color: var(--color-muted);
-  font-size: 12px;
+/* Chỉ phần tên trong thông điệp dùng SemiBold, giữ câu còn lại ở Regular. */
+.notification-item__text strong { font-weight: 600; }
+
+/* Thời gian đã đọc dùng màu muted, chưa đọc dùng đỏ và Medium. */
+.notification-item__time { font-size: 12px; font-weight: 400; color: var(--color-muted); }
+.notification-item.is-unread .notification-item__time { color: var(--color-red); font-weight: 500; }
+
+/* Cột cuối 16px giữ chấm và nút xoá cùng vị trí mà không đẩy cột chữ. */
+.notification-item__trailing { position: absolute; top: var(--notif-row-padding-y); right: var(--space-4); width: var(--space-4); height: var(--space-8); }
+
+/* Chấm 8px cách đỉnh cột 6px, chỉ có trên hàng chưa đọc. */
+.notification-item__dot {
+  position: absolute;
+  top: var(--notif-dot-top);
+  right: var(--space-1);
+  width: var(--space-2);
+  height: var(--space-2);
+  background: var(--color-red);
+  border-radius: var(--radius-pill);
 }
 
-/* Trạng thái tải, rỗng và lỗi đều là chữ tĩnh, căn giữa với khoảng đệm dễ đọc. */
-.notification-menu__placeholder, .notification-menu__status {
-  margin: 0;
-  padding: var(--space-5) var(--space-4);
+/* Nút xoá có thể nhận tab dù chưa rê chuột; focus-within sẽ làm nó hiện ra. */
+.notification-item__delete {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: var(--space-4);
+  height: var(--space-6);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
   color: var(--color-muted);
-  text-align: center;
+  opacity: 0;
+}
+
+/* Hover/focus thay chấm bằng nút xoá để không chồng hai biểu tượng. */
+.notification-item:hover .notification-item__delete, .notification-item:focus-within .notification-item__delete { opacity: 1; }
+.notification-item:hover .notification-item__dot, .notification-item:focus-within .notification-item__dot { visibility: hidden; }
+
+/* Các nút chữ phản hồi bằng màu và gạch chân, không dùng transition. */
+.notification-menu__action:hover:not(:disabled), .notification-menu__more:hover:not(:disabled) { color: var(--color-red-dark); text-decoration: underline; }
+
+/* Footer có đường phân cách và nút trải rộng để dễ bấm tải trang kế tiếp. */
+.notification-menu__footer { border-top: 1px solid var(--color-border); }
+.notification-menu__more {
+  display: block;
+  width: 100%;
+  padding: var(--space-3);
+  border: 0;
+  background: var(--color-transparent);
+  color: var(--color-red);
   font-size: 14px;
+  font-weight: 600;
+  text-align: center;
 }
 
-/* Vòng focus nằm trong mục để không bị phần overflow của card cắt mất. */
-.notification-menu a:focus-visible, .notification-menu button:focus-visible {
-  outline: 2px solid var(--color-red);
-  outline-offset: -2px;
-  box-shadow: var(--focus-ring);
-  position: relative;
-  z-index: 1;
-}
+/* Khi đang tải trang tiếp, nút giữ chữ tĩnh và mờ để tránh gửi trùng yêu cầu. */
+.notification-menu__more:disabled { opacity: .4; cursor: default; }
 
-/* Thuộc tính hidden luôn đóng menu và dòng trạng thái dù các lớp khác đặt display. */
-.notification-menu[hidden], .notification-menu [hidden] {
-  display: none;
-}
+/* Trạng thái rỗng căn giữa với đệm rộng và không giả dữ liệu thông báo. */
+.notification-menu__empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-8) var(--space-6); text-align: center; }
 
-/* Trên điện thoại, menu phủ ngang ngay dưới header để không ép thông báo vào cột hẹp. */
+/* Vòng 48px sakura bọc icon bell-off chuẩn 22px. */
+.notification-menu__empty-icon { display: grid; place-items: center; width: var(--space-9); height: var(--space-9); margin-bottom: var(--space-1); border-radius: var(--radius-pill); background: var(--color-sakura); color: var(--color-red); }
+
+/* Tiêu đề rỗng và hướng dẫn có thứ bậc chữ đúng Figma, nội dung không rộng quá 300px. */
+.notification-menu__empty-title { font-size: 14px; font-weight: 600; }
+.notification-menu__empty-copy { max-width: var(--notif-empty-copy-width); color: var(--color-muted); font-size: 12px; line-height: normal; }
+
+/* Lỗi tải có lời nhắc đỏ và nút thử lại dùng button chung của dự án. */
+.notification-menu__error { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); padding: var(--space-7) var(--space-6); text-align: center; color: var(--color-danger); font-size: 13px; line-height: normal; }
+
+/* Lỗi thao tác hiện riêng để không làm mất danh sách đã tải thành công. */
+.notification-menu__status { padding: var(--space-3) var(--space-4); color: var(--color-danger); font-size: 13px; }
+
+/* Mỗi hàng tải chỉ chứa vòng avatar và ba thanh tĩnh, không shimmer. */
+.notification-loading { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--notif-row-padding-y) var(--space-4); min-height: var(--notif-row-min-height); }
+.notification-loading__avatar { flex: 0 0 var(--space-8); height: var(--space-8); border-radius: var(--radius-pill); background: var(--color-placeholder-bar); }
+.notification-loading__bars { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: var(--space-2); padding-top: var(--space-1); }
+
+/* Thanh chờ có ba chiều dài cố định nhưng luôn co vừa cột trên điện thoại. */
+.notification-loading__bars .u-placeholder-bar { height: var(--notif-placeholder-line-height); max-width: 100%; }
+.notification-loading__bar { width: var(--notif-placeholder-width); }
+.notification-loading__bar--middle { width: var(--notif-placeholder-middle-width); }
+.notification-loading__bar--short { width: var(--notif-placeholder-short-width); }
+
+/* Thanh thời gian cuối thấp hơn hai dòng thông điệp để giữ đúng hàng chờ 76px của Figma. */
+.notification-loading__bars .notification-loading__bar--short { height: var(--space-2); }
+
+/* Vòng focus nằm trong khung để không bị overflow của panel cắt mất. */
+.notification-menu :focus-visible, .notification-feed :focus-visible { outline: 2px solid var(--color-red); outline-offset: -2px; box-shadow: var(--focus-ring); }
+
+/* Trang riêng dùng nút nhiều thao tác trên mọi thiết bị; không cần nút xoá chỉ hiện khi hover. */
+.notification-item--page .notification-item__link { padding-right: calc(var(--space-4) + var(--space-8) + var(--space-3)); }
+.notification-item--page .notification-item__trailing { width: var(--space-8); }
+.notification-item--page .notification-item__delete { display: none; }
+.notification-item--page:hover .notification-item__dot, .notification-item--page:focus-within .notification-item__dot { visibility: visible; }
+
+/* Nút ba chấm có vùng chạm 40px, không dựa vào hover để người dùng mobile tìm được thao tác. */
+.notification-item__more { display: grid; place-items: center; width: var(--space-8); height: var(--space-8); padding: var(--space-2); border: 0; border-radius: var(--radius-sm); background: var(--color-transparent); color: var(--color-muted); }
+
+/* Chấm ở góc trên bên phải, nằm ngoài đường nét ba chấm giữa nút. */
+.notification-item--page .notification-item__dot { top: 0; right: 0; }
+
+/* Bảng thao tác nhỏ bám mép phải hàng; dùng nút thường để giữ cách tab bàn phím tự nhiên. */
+.notification-item__actions { position: absolute; top: 100%; right: 0; z-index: 2; width: var(--notif-action-menu-width); padding: var(--space-1); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-cream); box-shadow: var(--shadow-sidebar); }
+
+/* Mục thao tác phủ ngang bảng, có đệm dễ chạm và màu đỏ thống nhất. */
+.notification-item__action { display: block; width: 100%; padding: var(--space-3) var(--space-2); border: 0; border-radius: var(--radius-sm); background: var(--color-transparent); color: var(--color-red); text-align: left; font-size: 13px; }
+.notification-item__action:hover, .notification-item__more:hover { background: var(--color-sakura); }
+
+/* Thuộc tính hidden phải thắng display của chip, trạng thái và các nút điều kiện. */
+.notification-menu[hidden], .notification-menu [hidden], .notification-feed [hidden] { display: none; }
+
+/* Mobile mở trang riêng; ẩn panel đang mở nếu người dùng thu cửa sổ xuống ngưỡng điện thoại. */
 @media (max-width: 600px) {
-  /* Bỏ lề hai bên và khe trên, giữ chiều rộng bên trong viewport. */
-  .notification-menu {
-    top: 100%;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-width: 100%;
-  }
+  /* Không đặt panel chật ngang trên điện thoại vì chuông đã dẫn tới trang thông báo. */
+  .notification-menu { display: none; }
 }

@@ -1,6 +1,7 @@
 /** Dịch vụ thông báo dùng hàng đợi API chung; các hàm định dạng bên dưới không gọi mạng. */
 import { request } from '/services/api/client.js';
 import { routes } from '/utils/routes.js';
+import { initials } from '/utils/format.js';
 
 /** Đọc số thông báo chưa đọc của tài khoản hiện tại để cập nhật chuông. */
 export function getUnreadCount() {
@@ -50,15 +51,15 @@ export function notificationHref(link) {
 
 /** Bảng câu tiếng Việt theo loại; chỗ trống được điền bằng các nhóm khớp từ thông điệp máy chủ. */
 export const notificationKindText = Object.freeze({
-  follow: '{actor} đã theo dõi bạn',
-  reaction: '{actor} đã bày tỏ {emoji} với bài viết của bạn',
+  follow: '{actor} đã bắt đầu theo dõi bạn',
+  reaction: '{actor} đã bày tỏ cảm xúc {emoji} với bài viết của bạn',
   comment: '{actor} đã bình luận bài viết của bạn',
   reply: '{actor} đã trả lời bình luận của bạn',
-  post_created: '{actor} vừa đăng bài: “{title}”',
-  muted: 'Tài khoản của bạn bị tạm khoá chức năng viết đến {date}',
-  banned: 'Tài khoản của bạn đã bị khoá',
-  post_locked: 'Bình luận trong bài viết của bạn đã bị khoá',
-  post_removed: 'Bài viết “{title}” của bạn đã bị gỡ',
+  post_created: '{actor} vừa đăng bài mới: “{title}”',
+  muted: '{actor} đã tạm khoá chức năng viết của bạn đến {date}',
+  banned: '{actor} đã khoá tài khoản của bạn',
+  post_locked: '{actor} đã khoá bình luận bài viết của bạn',
+  post_removed: '{actor} đã gỡ bài viết “{title}” của bạn',
 });
 
 // Biểu thức cố định bám theo câu tiếng Anh của API, không suy đoán tên hoặc tiêu đề khi câu không khớp.
@@ -74,25 +75,39 @@ const messagePatterns = Object.freeze({
   post_removed: /^Your post "(?<title>.*)" has been removed$/u,
 });
 
-/** Dịch câu theo kind và mẫu API; trả nguyên thông điệp khi không phân tích được để tránh mất nội dung. */
-export function notificationText(notification) {
+// CẦN BACKEND: GET /my/notifications chưa trả actor { id, username, avatar_url } và context { post_title, emoji, muted_until }; tạm tách tên từ câu tiếng Anh của máy chủ.
+/** Tách thông điệp thành văn bản và tên in đậm; không đoán tên hoặc tiêu đề khi câu không khớp. */
+export function formatNotification(notification) {
   const message = String(notification?.message ?? '');
   const kind = notification?.kind;
   const pattern = Object.hasOwn(messagePatterns, kind) ? messagePatterns[kind] : null;
   const match = pattern?.exec(message);
+  const isSystem = ['muted', 'banned', 'post_locked', 'post_removed'].includes(kind);
+  const fallback = { actorName: null, initials: '?', text: [{ text: message, strong: false }], isSystem, kind };
   if (!match) {
-    return message;
+    return fallback;
   }
   const values = { ...match.groups };
   // Thời hạn dùng múi giờ của trình duyệt và định dạng dd/mm/yyyy hh:mm quen thuộc tại Việt Nam.
   if (kind === 'muted') {
     const date = new Date(values.date);
     if (Number.isNaN(date.getTime())) {
-      return message;
+      return fallback;
     }
     values.date = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
       + ' ' + date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
-  // Mẫu và tên khoá do ứng dụng định nghĩa; dữ liệu trả về vẫn là văn bản, không phải HTML.
-  return notificationKindText[kind].replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder);
+  // Chỉ tên người thực hiện được in đậm; nội dung còn lại luôn là text node khi dựng giao diện.
+  const actorName = isSystem ? 'Quản trị viên' : values.actor;
+  values.actor = actorName;
+  const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder);
+  return {
+    actorName, initials: isSystem ? 'QT' : initials(actorName), isSystem, kind,
+    text: [{ text: actorName, strong: true }, { text: suffix, strong: false }],
+  };
+}
+
+/** Giữ giao diện trả chuỗi cho các nơi gọi cũ; bộ dựng mới dùng các đoạn có cờ strong. */
+export function notificationText(notification) {
+  return formatNotification(notification).text.map(part => part.text).join('');
 }

@@ -390,7 +390,37 @@
 /* Chuông làm mốc cho chấm chưa đọc trên tất cả các biến thể header. */
 .site-header__bell {
   position: relative;
+  width: var(--notif-bell-size);
+  height: var(--notif-bell-size);
+  padding: var(--space-1);
 }
+
+/* Chuông đang mở panel có vòng trắng 20% 36px, không dịch chuyển biểu tượng. */
+.site-header__bell.is-open { background: var(--color-white-20); }
+
+/* Liên kết chuông không cần gạch chân khi hover vì đã có nền trạng thái. */
+.site-header__bell:hover { text-decoration: none; }
+
+/* Thanh trang thông báo cao 64px, thay các tiện ích bằng hành động quay lại và đọc hết. */
+.site-header--notifications { height: var(--notif-topbar-height); min-height: var(--notif-topbar-height); padding: 0; }
+
+/* Nội dung thanh tác vụ cùng cột 640px với danh sách trên desktop, phủ ngang trên mobile. */
+.site-header__notification-nav { display: flex; align-items: center; gap: var(--space-1); width: 100%; max-width: var(--notif-page-width); height: 100%; margin-inline: auto; padding-inline: var(--space-4); }
+
+/* Vùng chạm 40px mở rộng quanh icon tại x=16, giữ tiêu đề tại x=52 như Figma Mobile. */
+.site-header__notification-nav > .site-header__icon { margin-left: calc(-1 * var(--space-2)); }
+
+/* Tiêu đề trang dùng Display Bold 18, tự chiếm khoảng còn lại giữa hai thao tác. */
+.site-header__notification-title { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--color-white); }
+
+/* Nút Đọc hết màu trắng, không dùng màu vô hiệu hoá của nút panel trên nền đỏ. */
+.site-header__read-all, .site-header__read-all:disabled, .site-header__read-all.is-loading:disabled { padding: var(--space-2) 0; color: var(--color-white); font-size: 13px; font-weight: 600; }
+
+/* Nút vô hiệu hoá giảm độ đậm để vẫn nhận ra vị trí thao tác trên thanh đỏ. */
+.site-header__read-all:disabled { opacity: .4; }
+
+/* Hover thanh tác vụ dùng trắng và underline, focus giữ vòng sáng chung của dự án. */
+.site-header__read-all:hover:not(:disabled) { color: var(--color-white); }
 
 /* Chấm 8px chỉ hiện khi API trả số thông báo chưa đọc lớn hơn không. */
 .site-header__bell-dot {

@@ -7,10 +7,31 @@
   --header-search-submit-radius: 16px;
   --header-search-submit-gap: 6px;
   --header-search-submit-right: 14px;
-  --notification-menu-width: 360px;
-  --notification-menu-max-height: 480px;
-  --notification-dot-size: 6px;
   --profile-skip-gap: 10px;
+}
+
+/* Thông báo: màu trạng thái và kích thước theo panel 299:2591, trang mobile 300:2518. */
+:root {
+  --color-reaction: #E1648C;
+  --color-notif-unread: rgba(252,236,240,.6);
+  --notif-panel-width: 400px;
+  --notif-panel-radius: 8px;
+  --notif-list-max-height: 560px;
+  --notif-viewport-reserve: 140px;
+  --notif-row-padding-y: 14px;
+  --notif-row-min-height: 72px;
+  --notif-dot-top: 6px;
+  --notif-chip-padding-y: 2px;
+  --notif-bell-size: 36px;
+  --notif-badge-offset: 24px;
+  --notif-empty-copy-width: 300px;
+  --notif-page-width: 640px;
+  --notif-topbar-height: 64px;
+  --notif-action-menu-width: 190px;
+  --notif-placeholder-width: 260px;
+  --notif-placeholder-middle-width: 180px;
+  --notif-placeholder-short-width: 70px;
+  --notif-placeholder-line-height: 10px;
 }
 
 /* Bộ giá trị thiết kế dùng chung cho toàn bộ giao diện Etsubi. */
@@ -647,4 +668,8 @@
   --profile-gradient-auth: linear-gradient(223deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --profile-container: 1680px;
   --profile-card-width: 1016px;
+
+  /* Trang Chỉnh sửa hồ sơ: nền hồng nhạt của vùng xoá tài khoản và lớp phủ tối sau hộp thoại xác nhận. */
+  --color-danger-zone-bg: #FFF5F6;
+  --edit-dialog-backdrop: rgba(31, 26, 23, .45);
 }
