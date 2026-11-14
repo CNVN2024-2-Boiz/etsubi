@@ -337,6 +337,12 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 - Search UX rules (agreed): **no live suggestions, no results while typing**. Results load only on Enter or the "Tìm kiếm" button. Submit is `opacity .4` + disabled while there is no query and no tag.
 - **Tag → search:** clicking a tag anywhere navigates to `/pages/search.html?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
 
+### Notifications (since 2026-11-15)
+
+- The back end stores notifications but **does not create them**. After a successful user action, the front end sends the second request through `services/api/notify-actions.js` (never from a page): follow → `follow`, reaction → `reaction` (+ `emoji`), comment → `comment`, reply → `reply`, new post → `POST /posts/{id}/notify-followers`, staff mute/ban/lock/hide/delete → `muted` / `banned` / `post_locked` / `post_removed`. Skip when the target is the actor; swallow failures (a missed notification must never undo the action). Any new action that should notify someone goes through the same helper.
+- The header bell's red dot shows only when the unread count is above 0; it is hidden at 0, when signed out (no request), and when the request fails. Read/read-all/delete refresh the count.
+- Server links are back-end style (`/posts/{id}`, `/users/{id}`); always open them through `notificationHref()`.
+
 ### RBAC summary
 
 - Roles: `admin > moderator > user`. Staff = moderator or admin. Nobody can act on an equal or higher role; nobody can assign `admin`.
