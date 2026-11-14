@@ -138,3 +138,16 @@ pub fn set_role_in_db(email: &str, role: &str) {
         .execute(&mut conn)
         .expect("set role in db failed");
 }
+
+pub fn set_status_in_db(email: &str, status: &str) {
+    use backend::infrastructure::database::schema::users;
+    use diesel::prelude::*;
+
+    let url = std::env::var("DATABASE_URL").expect("DATABASE_URL");
+    let pool = backend::bootstrap::pool::init(&url);
+    let mut conn = pool.get().unwrap();
+    diesel::update(users::table.filter(users::email.eq(email)))
+        .set(users::status.eq(status))
+        .execute(&mut conn)
+        .expect("set status in db failed");
+}

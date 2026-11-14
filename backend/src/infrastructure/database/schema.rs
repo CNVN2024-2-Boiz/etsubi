@@ -35,6 +35,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    notifications (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        kind -> Text,
+        message -> Text,
+        link -> Text,
+        is_readed -> Bool,
+        created_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     post_translation (original_post_id, language) {
         original_post_id -> Uuid,
         language -> Text,
@@ -123,6 +135,7 @@ diesel::joinable!(bookmarks -> users (user_id));
 diesel::joinable!(comment_translation -> comments (original_comment_id));
 diesel::joinable!(comments -> posts (post_id));
 diesel::joinable!(comments -> users (user_id));
+diesel::joinable!(notifications -> users (user_id));
 diesel::joinable!(post_translation -> posts (original_post_id));
 diesel::joinable!(posts -> users (author_id));
 diesel::joinable!(posts_tags -> posts (post_id));
@@ -134,6 +147,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
     comment_translation,
     comments,
+    notifications,
     post_translation,
     posts,
     posts_tags,

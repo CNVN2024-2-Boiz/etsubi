@@ -9,6 +9,7 @@ pub trait FollowRepository: Send + Sync {
     fn unfollow(&self, follower_id: Uuid, following_id: Uuid) -> Result<()>;
     fn list_followers(&self, user_id: Uuid) -> Result<Vec<User>>;
     fn list_following(&self, user_id: Uuid) -> Result<Vec<User>>;
+    fn list_follower_ids(&self, user_id: Uuid) -> Result<Vec<Uuid>>;
     fn follower_count(&self, user_id: Uuid) -> Result<i64>;
     fn following_count(&self, user_id: Uuid) -> Result<i64>;
 }
