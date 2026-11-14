@@ -95,6 +95,14 @@ impl FollowRepository for PostgresFollowRepo {
         Ok(ids.into_iter().filter_map(|id| map.remove(&id)).collect())
     }
 
+    fn list_follower_ids(&self, user_id: Uuid) -> Result<Vec<Uuid>> {
+        let mut conn = self.pool.get()?;
+        Ok(users_follows::table
+            .filter(users_follows::following_id.eq(user_id))
+            .select(users_follows::follower_id)
+            .load(&mut conn)?)
+    }
+
     fn follower_count(&self, user_id: Uuid) -> Result<i64> {
         let mut conn = self.pool.get()?;
         Ok(users_follows::table

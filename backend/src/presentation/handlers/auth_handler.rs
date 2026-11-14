@@ -31,7 +31,7 @@ pub async fn register(
             &body.username,
             &body.email,
             &body.native,
-            &body.native, // Language is the same as native for registering, remember this
+            &body.native,
             &body.password,
         )
     })

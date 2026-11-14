@@ -1,6 +1,8 @@
 pub mod bookmark;
 pub mod comment;
 pub mod follow;
+pub mod notification;
+pub mod notification_fanout;
 pub mod post;
 pub mod reaction;
 pub mod tag;

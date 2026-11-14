@@ -8,9 +8,14 @@ pub fn public(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::auth_handler::login);
 
     cfg.service(presentation::handlers::user_handler::get_user);
+
+    cfg.service(presentation::handlers::post_handler::list_newest_posts);
+    cfg.service(presentation::handlers::post_handler::list_popular_posts);
+    cfg.service(presentation::handlers::post_handler::list_question_and_answer_posts);
     cfg.service(presentation::handlers::post_handler::search_posts);
     cfg.service(presentation::handlers::post_handler::get_post);
     cfg.service(presentation::handlers::post_handler::list_user_posts);
+
     cfg.service(presentation::handlers::comment_handler::list_post_comments);
     cfg.service(presentation::handlers::comment_handler::get_comment);
 
@@ -52,6 +57,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::post_handler::create_post);
     cfg.service(presentation::handlers::post_handler::update_post);
     cfg.service(presentation::handlers::post_handler::delete_post);
+    cfg.service(presentation::handlers::post_handler::list_following_user_posts);
 
     cfg.service(presentation::handlers::comment_handler::create_comment);
     cfg.service(presentation::handlers::comment_handler::update_comment);
@@ -80,6 +86,14 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::manage_handler::get_comment_manage);
     cfg.service(presentation::handlers::manage_handler::update_comment_status);
     cfg.service(presentation::handlers::manage_handler::restore_comment);
+
+    cfg.service(presentation::handlers::notification_handler::create_notification);
+    cfg.service(presentation::handlers::notification_handler::notify_followers);
+    cfg.service(presentation::handlers::notification_handler::list_my_notifications);
+    cfg.service(presentation::handlers::notification_handler::unread_count);
+    cfg.service(presentation::handlers::notification_handler::mark_notification_read);
+    cfg.service(presentation::handlers::notification_handler::mark_all_read);
+    cfg.service(presentation::handlers::notification_handler::delete_notification);
 
     cfg.service(presentation::handlers::translation_handler::translate_post);
     cfg.service(presentation::handlers::translation_handler::translate_comment);

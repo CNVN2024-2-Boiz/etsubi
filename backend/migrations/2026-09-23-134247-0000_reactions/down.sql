@@ -1,1 +1,1 @@
--DROP TABLE IF EXISTS reactions;
+DROP TABLE IF EXISTS reactions;

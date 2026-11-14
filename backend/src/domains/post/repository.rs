@@ -24,4 +24,9 @@ pub trait PostRepository: Send + Sync {
         limit: i64,
         offset: i64,
     ) -> Result<Vec<Post>>;
+
+    fn list_newest_posts(&self) -> Result<Vec<Post>>;
+    fn list_popular_posts(&self) -> Result<Vec<Post>>;
+    fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>>;
+    fn list_question_and_answer_posts(&self) -> Result<Vec<Post>>;
 }
