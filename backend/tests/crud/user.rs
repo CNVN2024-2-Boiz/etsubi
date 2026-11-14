@@ -19,6 +19,7 @@ fn full_auth_flow() {
             "username": username,
             "email": email,
             "password": password,
+            "native": "vi",
             "language": "en",
         }))
         .send()
@@ -44,6 +45,8 @@ fn full_auth_flow() {
     assert_eq!(me["email"], email);
     assert_eq!(me["username"], username);
     assert_eq!(me["role"], "user");
+    assert_eq!(me["native"], "vi");
+    assert_eq!(me["language"], "vi");
 
     let r = client
         .post(server.url("/api/v1/auth/logout"))
@@ -62,17 +65,61 @@ fn full_auth_flow() {
     crate::common::cleanup_user(&email);
 }
 
+#[test]
+fn register_language_defaults_to_native() {
+    let server = TestServer::start();
+    let client = reqwest::blocking::Client::new();
+    let uid = Uuid::new_v4();
+    let username = format!("test_{}", uid);
+    let email = format!("test+{}@example.com", uid);
+    let password = "password123";
+
+    let r = client
+        .post(server.url("/api/v1/auth/register"))
+        .json(&json!({
+            "username": username,
+            "email": email,
+            "password": password,
+            "native": "ja",
+            "language": "en",
+        }))
+        .send()
+        .unwrap();
+    assert_eq!(r.status(), 201, "register: {:?}", r.text());
+
+    let r = client
+        .post(server.url("/api/v1/auth/login"))
+        .json(&json!({ "email": email, "password": password }))
+        .send()
+        .unwrap();
+    assert_eq!(r.status(), 200);
+    let token = r.json::<Value>().unwrap()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    let r = client
+        .get(server.url("/api/v1/my"))
+        .bearer_auth(&token)
+        .send()
+        .unwrap();
+    assert_eq!(r.status(), 200);
+    let me: Value = r.json().unwrap();
+    assert_eq!(me["native"], "ja");
+    assert_eq!(me["language"], "ja");
+
+    crate::common::cleanup_user(&email);
+}
+
 #[rstest]
-#[case::weak_password("test_user", "x.com", "short", "vi", "en", 400)]
-#[case::bad_language("test_user", "x.com", "password123", "vi", "xx", 400)]
-#[case::bad_native("test_user", "x.com", "password123", "xx", "en", 400)]
-#[case::short_username("ab", "x.com", "password123", "vi", "en", 400)]
+#[case::weak_password("test_user", "x.com", "short", "vi", 400)]
+#[case::bad_native("test_user", "x.com", "password123", "xx", 400)]
+#[case::short_username("ab", "x.com", "password123", "vi", 400)]
 fn register_rejects_invalid_input(
     #[case] username: &str,
     #[case] domain: &str,
     #[case] password: &str,
     #[case] native: &str,
-    #[case] language: &str,
     #[case] expected: u16,
 ) {
     let server = TestServer::start();
@@ -87,7 +134,7 @@ fn register_rejects_invalid_input(
             "email": email,
             "password": password,
             "native": native,
-            "language": language,
+            "language": native,
         }))
         .send()
         .unwrap();
@@ -137,13 +184,13 @@ fn update_my_profile() {
         .client
         .patch(server.url("/api/v1/my"))
         .bearer_auth(&user.token)
-        .json(&json!({"bio": "hello world", "institure": "UIT"}))
+        .json(&json!({"bio": "hello world", "institute": "UIT"}))
         .send()
         .unwrap();
     assert_eq!(r.status(), 200, "update: {:?}", r.text());
     let body: Value = r.json().unwrap();
     assert_eq!(body["bio"], "hello world");
-    assert_eq!(body["institure"], "UIT");
+    assert_eq!(body["institute"], "UIT");
 }
 
 #[test]

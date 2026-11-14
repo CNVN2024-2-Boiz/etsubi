@@ -12,6 +12,11 @@ use crate::presentation::{
             UpdateCommentStatusRequest,
         },
         follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
+        notification_dto::{
+            CreateNotificationRequest, ListNotificationsQuery, MarkAllReadResponse,
+            NotificationContextDto, NotificationResponse, NotifyFollowersResponse,
+            UnreadCountResponse,
+        },
         post_dto::{
             CreatePostRequest, PostResponse, SearchPostsQuery, UpdatePostRequest,
             UpdatePostStatusRequest,
@@ -26,8 +31,8 @@ use crate::presentation::{
     },
     handlers::{
         auth_handler, bookmark_handler, comment_handler, follow_handler, health_handler,
-        manage_handler, personal_handler, post_handler, reaction_handler, tag_handler,
-        translation_handler, user_handler,
+        manage_handler, notification_handler, personal_handler, post_handler, reaction_handler,
+        tag_handler, translation_handler, user_handler,
     },
 };
 
@@ -117,6 +122,14 @@ use crate::presentation::{
         tag_handler::list_post_tags,
         tag_handler::attach_tag,
         tag_handler::detach_tag,
+
+        notification_handler::create_notification,
+        notification_handler::notify_followers,
+        notification_handler::list_my_notifications,
+        notification_handler::unread_count,
+        notification_handler::mark_notification_read,
+        notification_handler::mark_all_read,
+        notification_handler::delete_notification,
     ),
     components(schemas(
         RegisterRequest, RegisterResponse,
@@ -142,6 +155,10 @@ use crate::presentation::{
 
         ReactionResponse, ReactionSummaryItem, UpsertReactionRequest,
 
+        CreateNotificationRequest, NotificationContextDto,
+        NotificationResponse, UnreadCountResponse, MarkAllReadResponse, ListNotificationsQuery,
+        NotifyFollowersResponse,
+
         PostTranslationResponse, CommentTranslationResponse,
     )),
     tags(
@@ -155,6 +172,7 @@ use crate::presentation::{
         (name = "follow",      description = "Follow relationships"),
         (name = "reaction",    description = "Post reactions (emoji)"),
         (name = "manage",      description = "Moderation endpoints"),
+        (name = "notification", description = "Notifications"),
         (name = "translation", description = "Automatic translation (DeepSeek)"),
     ),
     modifiers(&SecurityAddon),
