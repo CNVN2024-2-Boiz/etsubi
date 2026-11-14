@@ -37,3 +37,49 @@ export function getUser(id) {
   }
   return users.get(id);
 }
+
+/**
+ * Kiểm tra mật khẩu qua đăng nhập công khai trước thao tác nhạy cảm.
+ * Client chung coi 401 ở mọi request có Bearer là hết phiên, nên bước này giúp
+ * biểu mẫu hiện lỗi mật khẩu tại chỗ mà không sửa client hoặc làm mất JWT hiện tại.
+ * Token kiểm tra không được lưu; API đăng nhập không huỷ token đang dùng.
+ */
+async function verifyMyPassword(password) {
+  const user = await getMe();
+  await request('/auth/login', {
+    method: 'POST',
+    auth: false,
+    body: { email: user.email, password },
+  });
+}
+
+/**
+ * Đổi mật khẩu bằng hợp đồng PATCH /my/password, phản hồi thành công là 204.
+ * Endpoint tăng token_version, vì vậy trang gọi phải đăng nhập lại ngay sau đó.
+ * @param {object} values Mật khẩu hiện tại và mật khẩu mới, không lưu vào storage.
+ * @returns {Promise<null>} Không có nội dung khi đổi thành công.
+ */
+export async function changeMyPassword({ currentPassword, newPassword }) {
+  await verifyMyPassword(currentPassword);
+  return request('/my/password', {
+    method: 'PATCH',
+    body: { current_password: currentPassword, new_password: newPassword },
+  });
+}
+
+/**
+ * Xoá tài khoản đang đăng nhập, gửi mật khẩu trong JSON của DELETE /my.
+ * request() hiện có đã gửi body với mọi phương thức, bao gồm DELETE.
+ * @param {string} password Mật khẩu hiện tại chỉ dùng cho lần xác nhận này.
+ * @returns {Promise<null>} Phản hồi rỗng khi tài khoản đã được xoá.
+ */
+export async function deleteMyAccount(password) {
+  await verifyMyPassword(password);
+  return request('/my', { method: 'DELETE', body: { password } });
+}
+
+// CẦN BACKEND: GET /my bổ sung updated_at (ISO 8601) để trang chỉnh sửa hiện thời gian lưu thật trên mọi thiết bị.
+/** Đọc thời gian do API cung cấp; thiếu trường trả null để giao diện dùng lần lưu thật trong trình duyệt. */
+export function getProfileUpdatedAt(user) {
+  return user.updated_at ?? null;
+}
