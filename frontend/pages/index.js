@@ -3,7 +3,7 @@ import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featured-card/featured-card.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
-import { listPosts, getFeaturedPosts, getPostTags, getPostStats, listFollowingFeed } from '/services/api/posts.js';
+import { listPosts, getFeaturedPosts, getPostTags, getPostStats, listFollowingFeed, listQuestionPosts } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getMyRecommendations } from '/services/api/recommendations.js';
 import { getReactionSummary } from '/services/api/reactions.js';
@@ -367,7 +367,7 @@ async function enrichFeed(posts, version) {
   }
 }
 
-/** Tải đúng bảng tin người dùng chọn; không gửi yêu cầu sort hoặc feed khi cờ hỗ trợ còn tắt. */
+/** Tải bảng tin qua endpoint tương ứng; chỉ bảng tin theo dõi yêu cầu đăng nhập. */
 async function loadFeed() {
   const version = ++feedVersion;
   feedController?.abort();
@@ -377,44 +377,32 @@ async function loadFeed() {
   feedStatus.textContent = 'Đang tải bài viết…';
   feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
   try {
-    // Các trạng thái chưa có API là thông báo trong trang, không tạo request thất bại ở console.
-    if (selectedFeed === 'popular' && !backendSupports.popularSort) {
-      showFeedInfo('Sắp xếp theo độ phổ biến sẽ có khi máy chủ hỗ trợ.');
+    // Khách vẫn thấy lời mời đăng nhập, không gửi yêu cầu tới endpoint cần JWT.
+    if (selectedFeed === 'following' && !user) {
+      showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
       return;
     }
-    if (selectedFeed === 'following') {
-      if (!user) {
-        showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
-        return;
-      }
-      if (!backendSupports.followingFeed) {
-        showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
-        return;
-      }
-    }
-    let tagIds = [];
-    if (selectedFeed === 'question') {
-      tags = await listTags();
-      if (version !== feedVersion) {
-        return;
-      }
-      const questionTag = tags.find(tag => tag.name === 'question');
-      if (!questionTag) {
-        showFeedInfo('Chưa có bài viết nào.');
-        return;
-      }
-      tagIds = [questionTag.id];
-    }
     const viewerLanguage = getCachedUser()?.language || readStorage('etsubi_lang') || 'vi';
-    const posts = selectedFeed === 'following'
-      ? await listFollowingFeed({ limit: 5, offset: 0, signal })
-      : await listPosts({ limit: 5, tagIds, sort: selectedFeed === 'popular' ? 'popular' : 'newest',
+    // Các endpoint riêng chưa có limit; Home chỉ vẽ năm bài đầu của danh sách thật.
+    let posts;
+    if (selectedFeed === 'question') {
+      posts = await listQuestionPosts({ signal });
+    } else if (selectedFeed === 'following') {
+      posts = await listFollowingFeed({ signal });
+    } else {
+      posts = await listPosts({ limit: 5, sort: selectedFeed === 'popular' ? 'popular' : 'newest',
         lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
+    }
     if (version !== feedVersion) {
       return;
     }
+    // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
+    if (posts === null) {
+      showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
+      return;
+    }
     if (!posts?.length) {
-      showFeedInfo('Chưa có bài viết nào.');
+      showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.' : 'Chưa có bài viết nào.');
       return;
     }
     const visiblePosts = posts.slice(0, 5);

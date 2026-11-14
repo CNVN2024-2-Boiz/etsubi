@@ -3,7 +3,7 @@ import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
-import { listPosts, listFollowingFeed, getPostTags, getPostStats, createPost, addPostTag, uploadAttachment, supportsPolls } from '/services/api/posts.js';
+import { listPosts, listFollowingFeed, listQuestionPosts, getPostTags, getPostStats, createPost, uploadAttachment, supportsPolls } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getReactionSummary } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, getBookmarkState } from '/services/api/bookmarks.js';
@@ -20,7 +20,7 @@ import { routes, withRedirect } from '/utils/routes.js';
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
 mountFooter();
 
-// Mỗi lần tải 10 bài; nút "Tải thêm" lấy trang tiếp theo khi trang trước đủ 10 bài.
+// Tab Mới nhất tải từng trang 10 bài; các endpoint riêng chưa hỗ trợ phân trang nên hiện toàn bộ lần trả về.
 const PAGE_SIZE = 10;
 const feedList = qs('[data-feed-list]');
 const feedStatus = qs('[data-feed-status]');
@@ -35,7 +35,6 @@ let selectedTags = new Set();
 let selectedFeed = 'newest';
 let feedVersion = 0;
 let feedOffset = 0;
-let feedTagIds = [];
 let feedController = null;
 
 /* ===== Tiện ích ===== */
@@ -171,22 +170,25 @@ async function enrichFeed(posts, version) {
   }
 }
 
-/** Lấy một trang bài theo tab đang chọn; null nghĩa là tab này chưa có API. */
+/** Lấy bài theo endpoint của từng tab; chỉ tab Mới nhất gửi tham số phân trang. */
 async function fetchPage(offset, signal) {
   if (selectedFeed === 'following') {
-    return listFollowingFeed({ limit: PAGE_SIZE, offset, signal });
+    return listFollowingFeed({ signal });
+  }
+  // Hỏi đáp dùng endpoint mới thay cho việc tải danh mục và tìm mã tag question.
+  if (selectedFeed === 'question') {
+    return listQuestionPosts({ signal });
   }
   return listPosts({
     limit: PAGE_SIZE,
     offset,
-    tagIds: feedTagIds,
     sort: selectedFeed === 'popular' ? 'popular' : 'newest',
     lang: backendSupports.autoTranslateFeed ? viewerLanguage() : undefined,
     signal,
   });
 }
 
-/** Tải lại bảng tin từ đầu cho tab đang chọn; tab chưa có API hiện thông báo, không gửi yêu cầu lỗi. */
+/** Tải lại bảng tin từ đầu; khách xem tab theo dõi vẫn nhận lời mời đăng nhập. */
 async function loadFeed() {
   const version = ++feedVersion;
   feedController?.abort();
@@ -198,43 +200,31 @@ async function loadFeed() {
   feedStatus.textContent = 'Đang tải bài viết…';
   feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
   try {
-    if (selectedFeed === 'popular' && !backendSupports.popularSort) {
-      showFeedInfo('Sắp xếp theo độ phổ biến sẽ có khi máy chủ hỗ trợ.');
+    // Không gọi endpoint cần JWT nếu chưa có hồ sơ đăng nhập.
+    if (selectedFeed === 'following' && !user) {
+      showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
       return;
-    }
-    if (selectedFeed === 'following') {
-      if (!user) {
-        showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
-        return;
-      }
-      if (!backendSupports.followingFeed) {
-        showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
-        return;
-      }
-    }
-    // Tab Hỏi đáp lọc theo tag "question" có thật trong GET /tags.
-    feedTagIds = [];
-    if (selectedFeed === 'question') {
-      const questionTag = (tags.length ? tags : await listTags()).find(tag => tag.name === 'question');
-      if (!questionTag) {
-        showFeedInfo('Chưa có bài hỏi đáp nào.');
-        return;
-      }
-      feedTagIds = [questionTag.id];
     }
     const posts = await fetchPage(0, signal);
     if (version !== feedVersion) {
       return;
     }
+    // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
+    if (posts === null) {
+      showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
+      return;
+    }
     if (!posts?.length) {
-      showFeedInfo(selectedFeed === 'question' ? 'Chưa có bài hỏi đáp nào.' : 'Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!');
+      showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.'
+        : selectedFeed === 'question' ? 'Chưa có bài hỏi đáp nào.' : 'Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!');
       return;
     }
     feedOffset = posts.length;
     feedList.replaceChildren(...posts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
     feedStatus.textContent = 'Đã tải ' + posts.length + ' bài viết.';
-    moreBox.hidden = posts.length < PAGE_SIZE;
+    // Không giả trang tiếp theo cho endpoint chưa nhận offset, tránh tải lặp danh sách 20 bài.
+    moreBox.hidden = selectedFeed !== 'newest' || posts.length < PAGE_SIZE;
     await enrichFeed(posts, version);
   } catch (error) {
     if (version !== feedVersion || signal.aborted) {
@@ -251,6 +241,10 @@ async function loadFeed() {
 
 /** Nút "Tải thêm bài viết": nối trang tiếp theo vào cuối danh sách. */
 async function loadMore() {
+  // Các tab dùng endpoint riêng hiện chỉ có một danh sách, chưa thể yêu cầu trang kế tiếp.
+  if (selectedFeed !== 'newest') {
+    return;
+  }
   const version = feedVersion;
   moreButton.disabled = true;
   moreButton.textContent = 'Đang tải…';
@@ -449,16 +443,9 @@ async function submitCompose(event) {
   button.textContent = 'Đang đăng…';
   setComposeStatus('Đang đăng bài…');
   try {
-    const post = await createPost({ title, content });
-    // Gắn tag lần lượt để không vượt giới hạn tốc độ; tag lỗi không huỷ bài đã đăng.
-    let failedTags = 0;
-    for (const tagId of selectedTags) {
-      try {
-        await addPostTag(post.id, tagId);
-      } catch {
-        failedTags += 1;
-      }
-    }
+    // Service gắn từng tag rồi báo người theo dõi, trang chỉ hiển thị kết quả và lỗi tag nếu có.
+    const post = await createPost({ title, content }, { tagIds: [...selectedTags] });
+    const failedTags = post.failedTagIds.length;
     resetCompose();
     setComposeStatus(['Đã đăng bài viết. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
       failedTags ? ' (' + failedTags + ' chủ đề chưa gắn được.)' : ''], 'success');

@@ -4,6 +4,7 @@
  */
 import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
+import { getNotificationPost, notifyAfter, notifyPostFollowers } from '/services/api/notify-actions.js';
 
 /**
  * Tìm bài qua HTTP sau khi người dùng gửi biểu mẫu tìm kiếm.
@@ -26,15 +27,18 @@ export function getPostTags(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/tags');
 }
 
-// CẦN BACKEND: GET /posts?sort=popular xếp theo độ phổ biến; GET /posts?lang=vi trả title/content đã dịch, original_language và is_translated. Cờ tắt trả null cho tuỳ chọn chưa hỗ trợ, không gửi yêu cầu.
-/** Lấy bài mới hoặc hỏi đáp thật; chỉ thêm sort và lang khi backend đã hỗ trợ. */
+// CẦN BACKEND: GET /posts/popular hỗ trợ limit/offset và nhúng author, tags, các số đếm; GET /posts?lang=vi trả title/content đã dịch, original_language và is_translated.
+/** Lấy bài mới có phân trang hoặc 20 bài phổ biến qua endpoint riêng, không gửi sort= lên GET /posts. */
 export async function listPosts({ limit = 5, offset = 0, tagIds = [], sort = 'newest', lang, signal } = {}) {
-  if ((sort === 'popular' && !backendSupports.popularSort)
-    || (lang && !backendSupports.autoTranslateFeed)) {
+  if (lang && !backendSupports.autoTranslateFeed) {
     return null;
   }
+  // Endpoint phổ biến hiện trả tối đa 20 bài và không nhận tham số lọc hay phân trang.
+  if (sort === 'popular') {
+    return request('/posts/popular', { signal });
+  }
   return request('/posts', {
-    query: { limit, offset, tags: tagIds.join(','), sort: sort === 'popular' ? sort : undefined, lang },
+    query: { limit, offset, tags: tagIds.join(','), lang },
     signal,
   });
 }
@@ -62,13 +66,29 @@ export async function getPostStats(postId, post = null) {
   };
 }
 
-// CẦN BACKEND: GET /my/feed?limit=&offset= có xác thực trả danh sách bài từ người đang theo dõi, cùng cấu trúc GET /posts.
-/** Lấy bảng tin theo dõi khi backend hỗ trợ; không gửi yêu cầu tới đường dẫn chưa có. */
-export async function listFollowingFeed({ limit = 5, offset = 0, signal } = {}) {
+// CẦN BACKEND: GET /my/following/posts hiện luôn trả 404 "UUID parsing failed" vì route
+// GET /my/following/{user_id} được đăng ký trước và coi chữ "posts" là mã người dùng.
+// Backend cần đăng ký route /my/following/posts trước route có tham số (hoặc đổi đường dẫn),
+// rồi bổ sung limit/offset và nhúng author, tags, các số đếm. Khi sửa xong, đổi cờ
+// followingFeed trong capabilities.js thành true.
+/**
+ * Lấy bài của những người mình đang theo dõi (bảng tin "Đang theo dõi" ở Home và Diễn đàn).
+ * Khi cờ followingFeed còn false thì trả null và KHÔNG gửi request, để console không có
+ * request lỗi; trang nhận null sẽ hiện thông báo trung tính thay vì danh sách giả.
+ * @param {object} options Tín hiệu huỷ khi người dùng đổi tab.
+ * @returns {Promise<Array|null>} Danh sách bài, hoặc null khi máy chủ chưa hỗ trợ.
+ */
+export function listFollowingFeed({ signal } = {}) {
   if (!backendSupports.followingFeed) {
-    return null;
+    return Promise.resolve(null);
   }
-  return request('/my/feed', { query: { limit, offset }, signal });
+  return request('/my/following/posts', { signal });
+}
+
+// CẦN BACKEND: GET /posts/qa hỗ trợ limit/offset và nhúng author, tags, các số đếm; hiện chỉ trả danh sách PostResponse.
+/** Lấy bài hỏi đáp đã xuất bản qua endpoint riêng, không cần tải danh mục tag để tìm mã question. */
+export function listQuestionPosts({ signal } = {}) {
+  return request('/posts/qa', { signal });
 }
 
 /**
@@ -135,10 +155,23 @@ export function getPostPlace(post) {
 /**
  * Đăng bài mới từ ô viết bài của Diễn đàn (cần JWT); backend tự nhận diện ngôn ngữ.
  * @param {object} draft { title, content } người dùng nhập.
- * @returns {Promise<object>} PostResponse của bài vừa tạo (201).
+ * @param {object} options tagIds là các mã chủ đề cần gắn trước khi báo người theo dõi.
+ * @returns {Promise<object>} PostResponse kèm failedTagIds cục bộ để trang báo chủ đề chưa gắn được.
  */
-export function createPost({ title, content }) {
-  return request('/posts', { method: 'POST', body: { title, content } });
+export async function createPost({ title, content }, { tagIds = [] } = {}) {
+  const post = await request('/posts', { method: 'POST', body: { title, content } });
+  const failedTagIds = [];
+  // Gắn từng chủ đề trước khi thông báo; lỗi tag không được làm người dùng đăng lại một bài đã tạo.
+  for (const tagId of new Set(tagIds)) {
+    try {
+      await addPostTag(post.id, tagId);
+    } catch {
+      // Trả mã tag lỗi cho trang hiển thị cảnh báo thật, giữ nguyên bài đã đăng.
+      failedTagIds.push(tagId);
+    }
+  }
+  await notifyPostFollowers(post);
+  return { ...post, failedTagIds };
 }
 
 /**
@@ -154,10 +187,18 @@ export function updatePost(postId, { title, content, latitude = null, longitude 
 /**
  * Xoá mềm bài viết (tác giả hoặc staff); staff có thể khôi phục.
  * @param {string} postId Mã bài viết.
+ * @param {object} options authorId và title giúp báo tác giả sau khi bài đã bị xoá.
  * @returns {Promise<null>} Phản hồi rỗng (204).
  */
-export function deletePost(postId) {
-  return request('/posts/' + encodeURIComponent(postId), { method: 'DELETE' });
+export async function deletePost(postId, { authorId, title } = {}) {
+  // Lấy dữ liệu còn thiếu trước khi xoá vì GET công khai không đọc được bài đã xoá.
+  const details = await getNotificationPost(postId, { authorId, title }, true);
+  const result = await request('/posts/' + encodeURIComponent(postId), { method: 'DELETE' });
+  // Không đọc lại bài sau DELETE, kể cả lần bổ sung trước đó thất bại; helper tự bỏ qua khi thiếu tác giả.
+  await notifyAfter('post_removed', {
+    targetUserId: details.authorId, link: '/posts/' + encodeURIComponent(postId), context: { post_title: details.title },
+  });
+  return result;
 }
 
 /**

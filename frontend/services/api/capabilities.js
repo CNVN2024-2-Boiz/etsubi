@@ -4,7 +4,10 @@ export const backendSupports = {
   featuredPosts: false,
   recommendations: false,
   postStats: false,
-  popularSort: false,
+  // Backend đã phát hành GET /posts/popular ngày 2026-11-14 (chạy đúng).
+  popularSort: true,
+  // GET /my/following/posts cũng đã có nhưng đang trả 404 do trùng route /my/following/{user_id};
+  // tạm tắt để không gửi request lỗi, bật lại khi backend sửa (xem HANDOFF §5).
   followingFeed: false,
   bookmarkState: false,
   autoTranslateFeed: false,

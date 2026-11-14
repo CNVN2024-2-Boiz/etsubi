@@ -4,6 +4,7 @@
  */
 import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
+import { notifyAfter, notifyPostAfter } from '/services/api/notify-actions.js';
 
 /**
  * Cấm hoặc gỡ cấm tài khoản.
@@ -11,8 +12,13 @@ import { backendSupports } from '/services/api/capabilities.js';
  * @param {'active'|'banned'} status Trạng thái mới.
  * @returns {Promise<object>} Hồ sơ sau khi cập nhật (GetUserResponse).
  */
-export function setUserStatus(userId, status) {
-  return request('/manage/users/' + encodeURIComponent(userId) + '/status', { method: 'PATCH', body: { status } });
+export async function setUserStatus(userId, status) {
+  const result = await request('/manage/users/' + encodeURIComponent(userId) + '/status', { method: 'PATCH', body: { status } });
+  // Chỉ cấm tài khoản mới báo cho thành viên; gỡ cấm giữ nguyên luồng hiện tại.
+  if (status === 'banned') {
+    await notifyAfter('banned', { targetUserId: userId, link: '/users/' + encodeURIComponent(userId) });
+  }
+  return result;
 }
 
 /**
@@ -31,21 +37,35 @@ export function setUserRole(userId, role) {
  * @param {Date|null} until Thời điểm hết hạn; null để gỡ.
  * @returns {Promise<object>} Hồ sơ sau khi cập nhật (có muted_until).
  */
-export function setUserMute(userId, until) {
-  return request('/manage/users/' + encodeURIComponent(userId) + '/mute', {
+export async function setUserMute(userId, until) {
+  const mutedUntil = until ? until.toISOString() : null;
+  const result = await request('/manage/users/' + encodeURIComponent(userId) + '/mute', {
     method: 'PATCH',
-    body: { muted_until: until ? until.toISOString() : null },
+    body: { muted_until: mutedUntil },
   });
+  // Dùng cùng thời hạn đã lưu trong request chính; null là gỡ cấm viết nên không báo.
+  if (mutedUntil) {
+    await notifyAfter('muted', {
+      targetUserId: userId, link: '/users/' + encodeURIComponent(userId), context: { muted_until: mutedUntil },
+    });
+  }
+  return result;
 }
 
 /**
  * Ẩn hoặc hiện lại bài viết.
  * @param {string} postId Mã bài viết.
  * @param {'hidden'|'published'} status Trạng thái mới.
+ * @param {object} options authorId và title là tác giả, tiêu đề bài đang quản trị.
  * @returns {Promise<object>} Bài sau khi cập nhật (PostResponse).
  */
-export function setPostStatus(postId, status) {
-  return request('/manage/posts/' + encodeURIComponent(postId) + '/status', { method: 'PATCH', body: { status } });
+export async function setPostStatus(postId, status, { authorId, title } = {}) {
+  const result = await request('/manage/posts/' + encodeURIComponent(postId) + '/status', { method: 'PATCH', body: { status } });
+  // Phản hồi quản trị vẫn có tác giả và tiêu đề khi bài vừa bị ẩn, không cần GET bài đã ẩn.
+  if (status === 'hidden') {
+    await notifyPostAfter('post_removed', postId, { authorId: authorId ?? result?.author_id, title: title ?? result?.title });
+  }
+  return result;
 }
 
 /**

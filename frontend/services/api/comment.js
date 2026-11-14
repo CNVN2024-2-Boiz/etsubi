@@ -1,6 +1,7 @@
 /** Bình luận của bài viết: đọc, gửi, xoá và dịch, dùng cho trang đọc bài. */
 import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
+import { notifyAfter, notifyPostAfter } from '/services/api/notify-actions.js';
 
 /**
  * Lấy mọi bình luận đang hiện của bài (API chưa phân trang, sắp cũ trước).
@@ -16,13 +17,24 @@ export function listComments(postId) {
  * @param {string} postId Mã bài viết.
  * @param {string} content Nội dung người dùng nhập.
  * @param {string|null} parentId Bình luận cha, mặc định null.
+ * @param {object} options postAuthorId và parentAuthorId lấy từ dữ liệu trang để không tải lại.
  * @returns {Promise<object>} Bình luận vừa tạo.
  */
-export function createComment(postId, content, parentId = null) {
-  return request('/posts/' + encodeURIComponent(postId) + '/comments', {
+export async function createComment(postId, content, parentId = null, { postAuthorId, parentAuthorId } = {}) {
+  const result = await request('/posts/' + encodeURIComponent(postId) + '/comments', {
     method: 'POST',
     body: { content, parent_id: parentId },
   });
+  // Trả lời chỉ báo cho chủ bình luận cha; bình luận gốc chỉ báo cho tác giả bài.
+  if (parentId) {
+    await notifyAfter('reply', async () => {
+      const targetUserId = parentAuthorId ?? (await listComments(postId))?.find(comment => comment.id === parentId)?.user_id;
+      return { targetUserId, link: '/posts/' + encodeURIComponent(postId) };
+    });
+  } else {
+    await notifyPostAfter('comment', postId, { authorId: postAuthorId });
+  }
+  return result;
 }
 
 /**
@@ -47,10 +59,16 @@ export function translateComment(commentId) {
  * Khoá hoặc mở khoá bình luận của một bài (tác giả với bài của mình, staff với mọi bài).
  * @param {string} postId Mã bài viết.
  * @param {boolean} locked true để khoá.
+ * @param {object} options authorId là tác giả bài đã có trên trang.
  * @returns {Promise<object>} Bài sau khi cập nhật (có comments_locked).
  */
-export function setCommentsLocked(postId, locked) {
-  return request('/posts/' + encodeURIComponent(postId) + '/comments/lock', { method: 'PATCH', body: { locked } });
+export async function setCommentsLocked(postId, locked, { authorId } = {}) {
+  const result = await request('/posts/' + encodeURIComponent(postId) + '/comments/lock', { method: 'PATCH', body: { locked } });
+  // Helper chỉ gửi khi staff khoá bài của người khác; mở khoá không gửi thông báo.
+  if (locked) {
+    await notifyPostAfter('post_locked', postId, { authorId: authorId ?? result?.author_id });
+  }
+  return result;
 }
 
 // CẦN BACKEND: GET /posts/{id}/comments nhúng author { id, username, avatar_url, native } vào mỗi bình luận, để trang không phải gọi GET /users/{id} cho từng người.

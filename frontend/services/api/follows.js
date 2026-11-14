@@ -1,9 +1,13 @@
 /** Theo dõi thành viên qua API có sẵn, chỉ gọi sau khi trang kiểm tra phiên. */
 import { request } from '/services/api/client.js';
+import { notifyAfter } from '/services/api/notify-actions.js';
 
 /** Theo dõi thành viên được gợi ý và chỉ cập nhật nút khi máy chủ báo thành công. */
-export function followUser(userId) {
-  return request('/users/' + encodeURIComponent(userId) + '/follow', { method: 'POST' });
+export async function followUser(userId) {
+  const result = await request('/users/' + encodeURIComponent(userId) + '/follow', { method: 'POST' });
+  // Liên kết mở hồ sơ người vừa theo dõi, không phải hồ sơ người nhận.
+  await notifyAfter('follow', actor => ({ targetUserId: userId, link: '/users/' + encodeURIComponent(actor.id) }));
+  return result;
 }
 
 /** Bỏ theo dõi thành viên khi người dùng nhấn lại nút đang theo dõi. */

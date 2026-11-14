@@ -8,7 +8,7 @@ import {
   isStaff, canModerateUser, isMutedNow, formatUntil, formatUntilFull, createStaffTag, createStatusBadge, createStaffBox,
   createStaffButton, createMenu, createMoreButton, modIcon, openConfirmDialog, openMuteDialog,
 } from '/components/moderation/moderation.js';
-import { getReactionSummary, getMyReaction, reactToPost, removeReaction } from '/services/api/reactions.js';
+import { getReactionSummary, getMyReaction, reactToPost, removeReaction, LIKE_EMOJI } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, isPostBookmarked } from '/services/api/bookmarks.js';
 import { followUser, unfollowUser, isFollowing, listFollowers } from '/services/api/follows.js';
 import { getUser } from '/services/api/users.js';
@@ -318,7 +318,7 @@ function changePostStatus(status) {
     confirmLabel: hiding ? 'Ẩn bài viết' : 'Hiện lại',
     confirmIcon: hiding ? 'eyeOff' : 'eye',
     onConfirm: async () => {
-      state.post = { ...state.post, ...await setPostStatus(state.post.id, status) };
+      state.post = { ...state.post, ...await setPostStatus(state.post.id, status, { authorId: state.post.author_id, title: state.post.title }) };
       refreshPostState();
     },
   });
@@ -336,7 +336,7 @@ function toggleCommentsLock(locked) {
     confirmLabel: locked ? 'Khoá bình luận' : 'Mở khoá',
     confirmIcon: locked ? 'lock' : 'unlock',
     onConfirm: async () => {
-      state.post = { ...state.post, ...await setCommentsLocked(state.post.id, locked) };
+      state.post = { ...state.post, ...await setCommentsLocked(state.post.id, locked, { authorId: state.post.author_id }) };
       refreshPostState();
     },
   });
@@ -353,7 +353,7 @@ function confirmDeletePost() {
     confirmLabel: 'Xoá bài viết',
     confirmIcon: 'trash',
     onConfirm: async () => {
-      await deletePost(state.post.id);
+      await deletePost(state.post.id, { authorId: state.post.author_id, title: state.post.title });
       if (!staff) {
         location.assign(routes.forum);
         return;
@@ -522,7 +522,7 @@ async function toggleLike() {
       state.myEmoji = null;
       state.likeCount = Math.max(0, (state.likeCount ?? 1) - 1);
     } else {
-      const reaction = await reactToPost(state.post.id);
+      const reaction = await reactToPost(state.post.id, LIKE_EMOJI, { authorId: state.post.author_id, previousEmoji: state.myEmoji });
       state.myEmoji = reaction?.emoji || '❤️';
       state.likeCount = (state.likeCount ?? 0) + 1;
     }
@@ -789,7 +789,7 @@ async function submitComment(event) {
   button.classList.add('is-loading');
   button.textContent = 'Đang gửi…';
   try {
-    const comment = await createComment(state.post.id, content);
+    const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id });
     state.comments.push(comment);
     if (state.viewer && !state.commentAuthors.has(state.viewer.id)) {
       state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, avatar_url: state.viewer.avatarUrl });
