@@ -161,6 +161,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - Right, in Figma order: when signed in **notification bell → language badge (VI/JA/EN) → gradient avatar** with initials (38px, 2px white 70% ring); when signed out on content pages: language badge → "Đăng nhập" link. Login/Register show only the language badge (no search icon). Figma also draws a sun "theme toggle" before the bell; there is no dark theme yet, so it is not built (team to decide).
 - **Avatar menu** (Figma `319:2684`): 280px cream panel with avatar 44, username + native flag, email, then "Hồ sơ của tôi", "Cài đặt", "Đăng xuất" (red). There is no separate "Chỉnh sửa hồ sơ" entry: editing lives in Cài đặt (`routes.settings`). `routes.profileEdit` and `/pages/profile/edit.html` remain only as a redirect.
 - **Browser preferences** (interface language `etsubi_lang`, theme `etsubi_theme`) are read and written only through `utils/preferences.js`. It fires `etsubi:language-change` / `etsubi:theme-change`, and `onInterfaceLanguageChange()` also follows other tabs, so the header badge and Cài đặt › Giao diện stay in sync. Only the light theme exists; Tối/Theo máy stay disabled until a dark palette is designed.
+- **Leave guard** (`utils/leave-guard.js`): a page with unsaved edits registers `registerLeaveGuard(fn)` (async, resolves `true` to leave); the header calls `confirmLeave()` before Đăng xuất. Never import a page module from the header. Resolve dialog choices directly from the buttons; do not rely only on the `<dialog>` `close` event.
 - Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
@@ -233,6 +234,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 | Avatar menu (screen / panel / `ProfileMenuItem`) | `319:2589` / `319:2684` / `318:2623` |
 | Cài đặt (Settings, merges Edit Profile) | `323:2611` |
 | Diễn đàn floating "Đăng bài" (components `ForumComposeFab` / scrolled / dialog) | `344:2712` / `344:2714` / `344:2918` |
+| Cài đặt per-section save (`SectionSaveBar` board / set / leave dialog) | `354:2940` / `354:2961` / `354:2972` |
 | Register Advanced (4-step, superseded language block) | `126:2` |
 | Register Advanced 2 (3-step, native single choice) | `159:524` |
 | Search – empty, not submitted | `267:2576` |
