@@ -10,7 +10,10 @@ export const routes = Object.freeze({
   register: '/pages/profile/register.html',
   registerAdvanced: '/pages/profile/register-advanced.html',
   profile: '/pages/profile/index.html',
-  profileEdit: '/pages/profile/edit.html',
+  // Trang Cài đặt gộp Chỉnh sửa hồ sơ, Giao diện và Phiên đăng nhập.
+  settings: '/pages/settings.html',
+  // Trang cũ chỉ còn chuyển hướng sang Cài đặt; giữ khoá để liên kết cũ không gãy.
+  profileEdit: '/pages/settings.html',
   // Mã thành viên được mã hoá để liên kết thông báo mở đúng hồ sơ công khai.
   userProfile: id => '/pages/profile/index.html?id=' + encodeURIComponent(id),
   search: '/pages/search.html',

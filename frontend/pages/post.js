@@ -850,8 +850,8 @@ function renderSideAuthor() {
     el('div', { className: 'post-side-author__stat' }, el('dt', {}, 'Người theo dõi'), el('dd', { 'data-stat-followers': '' }, state.followerCount ?? '–')));
   let action;
   if (viewer && viewer.id === author.id) {
-    // Bài của chính mình: thay nút theo dõi bằng lối tắt tới hồ sơ.
-    action = el('a', { className: 'btn btn--secondary btn--block post-side-author__action', href: routes.profile }, 'Chỉnh sửa hồ sơ');
+    // Bài của chính mình: thay nút theo dõi bằng lối tắt tới Cài đặt để chỉnh sửa hồ sơ.
+    action = el('a', { className: 'btn btn--secondary btn--block post-side-author__action', href: routes.settings }, 'Chỉnh sửa hồ sơ');
   } else {
     action = el('button', {
       type: 'button',

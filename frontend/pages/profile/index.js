@@ -189,7 +189,7 @@ function renderProfile() {
   ].filter(Boolean);
   qs('[data-profile-meta]').replaceChildren(...meta.map(([name, text]) => el('li', {}, icon(name, 14), el('span', {}, wrapJapanese(text)))));
   qs('[data-camera]').hidden = !isOwn;
-  qs('[data-camera]').href = routes.profileEdit;
+  qs('[data-camera]').href = routes.settings;
   renderModeration();
 }
 

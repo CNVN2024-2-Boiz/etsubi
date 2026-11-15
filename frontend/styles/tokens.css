@@ -674,4 +674,9 @@
   /* Trang Chỉnh sửa hồ sơ: nền hồng nhạt của vùng xoá tài khoản và lớp phủ tối sau hộp thoại xác nhận. */
   --color-danger-zone-bg: #FFF5F6;
   --edit-dialog-backdrop: rgba(31, 26, 23, .45);
+
+  /* Trang Cài đặt 323:2611: khoảng cách riêng giữa icon, chữ và các lựa chọn trong pill. */
+  --settings-row-gap: 14px;
+  --settings-copy-gap: 2px;
+  --settings-option-gap: 6px;
 }

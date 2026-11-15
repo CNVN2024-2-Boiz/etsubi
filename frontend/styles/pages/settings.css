@@ -1,0 +1,182 @@
+/* Cài đặt dùng lại toàn bộ bố cục chỉnh sửa hồ sơ; chỉ bổ sung các khối giao diện và phiên. */
+.page--settings .settings-appearance {
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Khung trắng có viền chung; không cắt focus ring của các radio bên trong. */
+.settings-list {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+/* Mỗi hàng giữ icon 40px, phần chữ co giãn và điều khiển ở mép phải như Figma. */
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--settings-row-gap);
+  min-width: 0;
+  padding: var(--space-4) var(--space-5);
+}
+
+/* Đường phân cách thuộc hàng sau để giữ viền ngoài liền mạch. */
+.settings-row + .settings-row {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Ô icon nền sakura giữ tỷ lệ vuông, nét đỏ theo màu chữ thay vì ảnh xuất méo. */
+.settings-row__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--space-8);
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* Chữ luôn được xuống dòng khi thiếu chỗ, không ép cả trang tràn chiều ngang. */
+.settings-row__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Nhãn 15px và mô tả 13px bám số đo của khối Giao diện trong Figma. */
+.settings-row__copy h3 {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 19px;
+}
+
+/* Ghi chú có khoảng 2px bên dưới nhãn, dùng muted có sẵn trong bảng màu. */
+.settings-row__copy p {
+  margin-top: var(--settings-copy-gap);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* Fieldset thật tạo nền pill và giữ nhóm radio trên cùng hàng khi còn đủ chỗ. */
+.settings-segments {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--space-1);
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-1);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-page);
+}
+
+/* Nhãn bọc radio ẩn về thị giác; phần pill vẫn nhận nhấn chuột và phím mũi tên. */
+.settings-segments__option {
+  position: relative;
+  min-width: 0;
+  cursor: pointer;
+}
+
+/* Phần nhìn thấy của radio có vùng chạm và icon vuông theo đúng tỷ lệ Lucide. */
+.settings-segments__option > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--settings-option-gap);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+/* Icon không co theo chữ dài, luôn giữ chiều ngang bằng chiều cao. */
+.settings-segments__option svg {
+  flex-shrink: 0;
+}
+
+/* Lựa chọn bật được phân biệt bằng nền đỏ và chữ trắng, không thay kích thước. */
+.settings-segments__option input:checked + span {
+  background: var(--color-red);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Hover chỉ tô nền của lựa chọn khả dụng, không có hiệu ứng di chuyển. */
+.settings-segments__option input:not(:checked):not(:disabled) + span:hover {
+  background: var(--color-sakura);
+}
+
+/* Focus của input thật được thể hiện trên pill nhìn thấy để dùng bàn phím rõ ràng. */
+.settings-segments__option input:focus-visible + span {
+  box-shadow: var(--focus-ring);
+}
+
+/* Hai chế độ chờ thiết kế hiển thị tĩnh với con trỏ báo không thể chọn. */
+.settings-segments__option input:disabled + span {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* Gợi ý bổ sung đặt sát khung tuỳ chọn, tách khỏi dữ liệu và nút lưu hồ sơ. */
+.settings-hints {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* Gợi ý không cộng khoảng cách mặc định của field vì đã có gap trong khối cha. */
+.settings-hints .field__hint {
+  margin: 0;
+  font-size: 12px;
+}
+
+/* Divider độc lập giữ 40px hai phía từ gap của form, giống vạch ngăn trong Figma. */
+.settings-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--color-border);
+}
+
+/* Tablet đưa điều khiển xuống hàng riêng khi không đủ chỗ cạnh mô tả. */
+@media (max-width: 960px) {
+  /* Nhóm radio có thể co trong cột đơn, không tạo chiều rộng tối thiểu ngoài viewport. */
+  .settings-segments {
+    flex-shrink: 1;
+  }
+}
+
+/* Mobile đặt điều khiển bên dưới tiêu đề; ba lựa chọn vẫn vừa màn hình 375px. */
+@media (max-width: 600px) {
+  /* Giảm đệm hàng theo lề 16px, giữ phần chữ còn đủ chiều rộng để đọc. */
+  .settings-row {
+    padding: var(--space-4);
+    gap: var(--space-3);
+  }
+
+  /* Radio và nút đăng xuất phủ hết hàng tiếp theo, giữ thứ tự Tab khớp thứ tự nhìn. */
+  .settings-segments,
+  .settings-row > .btn {
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  /* Chia đều bề ngang pill, tránh chữ Theo máy đẩy nhóm khỏi khung trắng. */
+  .settings-segments__option {
+    flex: 1;
+  }
+
+  /* Đệm nhỏ trên mobile giữ đủ ba icon và nhãn trong khung form có lề. */
+  .settings-segments__option > span {
+    padding-inline: var(--space-1);
+    gap: var(--space-1);
+    font-size: 13px;
+  }
+}
