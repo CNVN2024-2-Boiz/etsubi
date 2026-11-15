@@ -29,6 +29,7 @@ frontend/
 ├── pages/                        # one HTML file per screen (+ its page module next to it)
 │   ├── index.html                # Home (placeholder, to be built)
 │   ├── search.html  search.js    # Search (empty + results states)
+│   ├── settings.html settings.js # Cài đặt: profile edit + appearance + session (profile/edit.html redirects here)
 │   └── profile/
 │       ├── login.html            login.js
 │       ├── register.html         register.js
@@ -45,7 +46,8 @@ frontend/
 │   ├── auth.js                   # session: login/logout/currentUser/requireAuth/safeRedirect
 │   ├── dom.js                    # escapeHtml, el(), qs()
 │   ├── format.js                 # relative time, initials, highlight
-│   └── routes.js                 # every page URL + searchUrl({q, tags})
+│   ├── routes.js                 # every page URL + searchUrl({q, tags})
+│   └── preferences.js            # interface language + theme saved in the browser (header + Cài đặt)
 ├── styles/
 │   ├── tokens.css                # ALL design tokens (colors, fonts, spacing, radius, shadows)
 │   ├── base.css                  # @font-face, reset, body, typography, focus ring, utilities
@@ -157,6 +159,8 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - Left: circular Etsubi logo with white ring (`assets/icons/etsubi-logo.svg`) + "Etsubi" in Etsubi Logo, white. Links to Home.
 - Tabs, in this order: **Trang chủ · Diễn đàn · Hỗ trợ · Giới thiệu** (17px, Medium, white 85%). Every tab has the same box (label + 3px underline slot), so labels always line up vertically. The active tab gets white text + visible pink underline. On the search page **no tab is active**.
 - Right, in Figma order: when signed in **notification bell → language badge (VI/JA/EN) → gradient avatar** with initials (38px, 2px white 70% ring); when signed out on content pages: language badge → "Đăng nhập" link. Login/Register show only the language badge (no search icon). Figma also draws a sun "theme toggle" before the bell; there is no dark theme yet, so it is not built (team to decide).
+- **Avatar menu** (Figma `319:2684`): 280px cream panel with avatar 44, username + native flag, email, then "Hồ sơ của tôi", "Cài đặt", "Đăng xuất" (red). There is no separate "Chỉnh sửa hồ sơ" entry: editing lives in Cài đặt (`routes.settings`). `routes.profileEdit` and `/pages/profile/edit.html` remain only as a redirect.
+- **Browser preferences** (interface language `etsubi_lang`, theme `etsubi_theme`) are read and written only through `utils/preferences.js`. It fires `etsubi:language-change` / `etsubi:theme-change`, and `onInterfaceLanguageChange()` also follows other tabs, so the header badge and Cài đặt › Giao diện stay in sync. Only the light theme exists; Tối/Theo máy stay disabled until a dark palette is designed.
 - Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
@@ -224,8 +228,10 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 
 | Screen / item | Frame ID (personal file) |
 |---|---|
-| Login 3a (no Google) | `256:2242` |
-| Register 1a (no Google) | `256:2355` |
+| Login 3a (with Google button since batch 4) | `256:2242` |
+| Register 1a (with Google button since batch 4) | `256:2355` |
+| Avatar menu (screen / panel / `ProfileMenuItem`) | `319:2589` / `319:2684` / `318:2623` |
+| Cài đặt (Settings, merges Edit Profile) | `323:2611` |
 | Register Advanced (4-step, superseded language block) | `126:2` |
 | Register Advanced 2 (3-step, native single choice) | `159:524` |
 | Search – empty, not submitted | `267:2576` |
