@@ -295,10 +295,10 @@ await check('đăng lỗi không gắn tag hoặc fan-out', async () => {
 });
 await check('endpoint mới không gửi tham số phân trang và Search giữ hợp đồng cũ', async () => {
   await posts.listPosts({ sort: 'popular', limit: 5, offset: 10 });
-  // Cờ followingFeed đang tắt vì backend lỗi route /my/following/posts (HANDOFF §5), nên không được gửi request.
-  assert.equal(await posts.listFollowingFeed({ limit: 5, offset: 10 }), null);
+  // Backend đã sửa route /my/following/posts (upstream 8fee464) nên bảng tin theo dõi gửi request thật, không kèm phân trang.
+  await posts.listFollowingFeed({ limit: 5, offset: 10 });
   await posts.listQuestionPosts();
-  assert.equal(calls.map(call => call.path).join(','), '/posts/popular,/posts/qa');
+  assert.equal(calls.map(call => call.path).join(','), '/posts/popular,/my/following/posts,/posts/qa');
   assert.ok(calls.every(call => call.query === undefined));
   await posts.searchPosts({ q: 'từ khoá', tagIds: ['tag'], limit: 10, offset: 20 });
   assert.equal(calls.at(-1).path, '/posts');
@@ -307,7 +307,7 @@ await check('endpoint mới không gửi tham số phân trang và Search giữ 
   assert.equal(calls.at(-1).query.offset, 20);
   assert.equal(calls.at(-1).query.sort, undefined);
   assert.equal(backendSupports.popularSort, true);
-  assert.equal(backendSupports.followingFeed, false);
+  assert.equal(backendSupports.followingFeed, true);
 });
 
 // Không có log lỗi trong bất kỳ ca nào; chỉ trình chạy kiểm tra in kết quả tổng hợp cuối cùng.
