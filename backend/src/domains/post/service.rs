@@ -274,11 +274,15 @@ impl PostService {
     }
 
     pub fn list_newest_posts(&self) -> Result<Vec<Post>, PostError> {
-        Ok(self.post_repo.list_newest_posts()?)
+        let mut posts = self.post_repo.list_newest_posts()?;
+        posts.truncate(3);
+        Ok(posts)
     }
 
     pub fn list_popular_posts(&self) -> Result<Vec<Post>, PostError> {
-        Ok(self.post_repo.list_popular_posts()?)
+        let mut posts = self.post_repo.list_popular_posts()?;
+        posts.truncate(3);
+        Ok(posts)
     }
 
     pub fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>, PostError> {
@@ -286,6 +290,8 @@ impl PostService {
     }
 
     pub fn list_question_and_answer_posts(&self) -> Result<Vec<Post>, PostError> {
-        Ok(self.post_repo.list_question_and_answer_posts()?)
+        let mut posts = self.post_repo.list_question_and_answer_posts()?;
+        posts.truncate(3);
+        Ok(posts)
     }
 }
