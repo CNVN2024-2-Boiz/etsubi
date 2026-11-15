@@ -97,7 +97,7 @@ impl NotificationService {
 
         Ok(self
             .notification_repo
-            .create(target_user_id, kind, &message, link)?)
+            .create(target_user_id, Some(actor_id), kind, &message, link)?)
     }
 
     pub fn fanout_post_created(
@@ -138,9 +138,13 @@ impl NotificationService {
         let message = format!("New post from {}: \"{}\"", author.username, preview);
         let link = format!("/posts/{}", post_id);
 
-        let n =
-            self.notification_repo
-                .create_bulk(&recipient_ids, "post_created", &message, &link)?;
+        let n = self.notification_repo.create_bulk(
+            &recipient_ids,
+            Some(requester_id),
+            "post_created",
+            &message,
+            &link,
+        )?;
         Ok(n as i64)
     }
 

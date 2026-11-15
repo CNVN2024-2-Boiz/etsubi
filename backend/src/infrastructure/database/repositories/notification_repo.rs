@@ -22,10 +22,18 @@ impl PostgresNotificationRepo {
 }
 
 impl NotificationRepository for PostgresNotificationRepo {
-    fn create(&self, user_id: Uuid, kind: &str, message: &str, link: &str) -> Result<Notification> {
+    fn create(
+        &self,
+        user_id: Uuid,
+        actor_id: Option<Uuid>,
+        kind: &str,
+        message: &str,
+        link: &str,
+    ) -> Result<Notification> {
         let mut conn = self.pool.get()?;
         let new = NewNotification {
             user_id,
+            actor_id,
             kind,
             message,
             link,
@@ -39,6 +47,7 @@ impl NotificationRepository for PostgresNotificationRepo {
     fn create_bulk(
         &self,
         user_ids: &[Uuid],
+        actor_id: Option<Uuid>,
         kind: &str,
         message: &str,
         link: &str,
@@ -52,6 +61,7 @@ impl NotificationRepository for PostgresNotificationRepo {
             .iter()
             .map(|uid| NewNotification {
                 user_id: *uid,
+                actor_id,
                 kind,
                 message,
                 link,

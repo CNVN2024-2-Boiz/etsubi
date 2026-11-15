@@ -49,6 +49,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::personal_handler::list_my_followers);
     cfg.service(presentation::handlers::personal_handler::list_my_following);
+    cfg.service(presentation::handlers::post_handler::list_following_user_posts);
     cfg.service(presentation::handlers::personal_handler::check_my_following);
     cfg.service(presentation::handlers::personal_handler::check_my_follower);
 
@@ -57,7 +58,6 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::post_handler::create_post);
     cfg.service(presentation::handlers::post_handler::update_post);
     cfg.service(presentation::handlers::post_handler::delete_post);
-    cfg.service(presentation::handlers::post_handler::list_following_user_posts);
 
     cfg.service(presentation::handlers::comment_handler::create_comment);
     cfg.service(presentation::handlers::comment_handler::update_comment);

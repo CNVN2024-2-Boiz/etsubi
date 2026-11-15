@@ -4,11 +4,19 @@ use uuid::Uuid;
 use crate::infrastructure::database::models::entities::Notification;
 
 pub trait NotificationRepository: Send + Sync {
-    fn create(&self, user_id: Uuid, kind: &str, message: &str, link: &str) -> Result<Notification>;
+    fn create(
+        &self,
+        user_id: Uuid,
+        actor_id: Option<Uuid>,
+        kind: &str,
+        message: &str,
+        link: &str,
+    ) -> Result<Notification>;
 
     fn create_bulk(
         &self,
         user_ids: &[Uuid],
+        actor_id: Option<Uuid>,
         kind: &str,
         message: &str,
         link: &str,
