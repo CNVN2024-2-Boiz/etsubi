@@ -2,7 +2,7 @@
 import { el, qs } from '/utils/dom.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
-import { readStorage, writeStorage } from '/services/api/client.js';
+import { getInterfaceLanguage, setInterfaceLanguage, onInterfaceLanguageChange } from '/utils/preferences.js';
 import { initials } from '/utils/format.js';
 import { getUnreadCount } from '/services/api/notifications.js';
 import { createNotificationMenu, notificationIcon } from '/components/notification-menu/notification-menu.js';
@@ -24,6 +24,55 @@ function icon(name) {
     alt: '',
     width: 24,
     height: 24,
+  });
+}
+
+/** Tạo icon Lucide cố định theo màu chữ để các mục tài khoản có trạng thái hover đồng nhất. */
+function profileIcon(name) {
+  const paths = {
+    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 1.72l-.12.85a2 2 0 0 1-1.18 1.52l-.26.12a2 2 0 0 1-1.9-.18l-.7-.54a2 2 0 0 0-2.62.72l-.22.38a2 2 0 0 0 .46 2.68l.72.55a2 2 0 0 1 .78 1.76v.28a2 2 0 0 1-.78 1.76l-.72.55a2 2 0 0 0-.46 2.68l.22.38a2 2 0 0 0 2.62.72l.7-.54a2 2 0 0 1 1.9-.18l.26.12a2 2 0 0 1 1.18 1.52l.12.85a2 2 0 0 0 2 1.72h.44a2 2 0 0 0 2-1.72l.12-.85a2 2 0 0 1 1.18-1.52l.26-.12a2 2 0 0 1 1.9.18l.7.54a2 2 0 0 0 2.62-.72l.22-.39a2 2 0 0 0-.46-2.68l-.72-.54a2 2 0 0 1-.78-1.76v-.28a2 2 0 0 1 .78-1.76l.72-.55a2 2 0 0 0 .46-2.68l-.22-.38a2 2 0 0 0-2.62-.72l-.7.54a2 2 0 0 1-1.9.18l-.26-.12a2 2 0 0 1-1.18-1.52l-.12-.85a2 2 0 0 0-2-1.72Z"/><circle cx="12" cy="12" r="3"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+  };
+  const holder = document.createElement('template');
+  // Chỉ chèn đường nét cố định nội bộ, không ghép dữ liệu API vào SVG.
+  holder.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths[name] + '</svg>';
+  return holder.content.firstElementChild;
+}
+
+/** Dùng cùng ảnh hoặc chữ viết tắt ở nút header và đầu panel, ảnh lỗi thì trả về chữ. */
+function fillAvatar(target, user, signal) {
+  const name = user.username || '–';
+  target.replaceChildren(initials(name));
+  if (user.avatarUrl) {
+    const image = el('img', { src: user.avatarUrl, alt: name });
+    // Gỡ ảnh hỏng một lần để không tạo yêu cầu lặp và vẫn nhận diện được tài khoản.
+    image.addEventListener('error', () => {
+      target.replaceChildren(initials(name));
+    }, { once: true, signal });
+    target.replaceChildren(image);
+  }
+}
+
+/** Chỉ hiện ngôn ngữ mẹ đẻ có dữ liệu; tiếng Anh dùng nhãn vì chưa có cờ phù hợp. */
+function nativeBadge(native) {
+  if (native === 'en') {
+    return el('span', { className: 'site-header__profile-native', 'aria-label': 'Ngôn ngữ mẹ đẻ: tiếng Anh' }, 'EN');
+  }
+  const flags = {
+    vi: ['flag-vn.svg', 'Ngôn ngữ mẹ đẻ: tiếng Việt'],
+    ja: ['flag-jp.svg', 'Ngôn ngữ mẹ đẻ: tiếng Nhật'],
+  };
+  // Giá trị thiếu hoặc không hợp lệ không được thay bằng một quốc kỳ phỏng đoán.
+  if (!flags[native]) {
+    return null;
+  }
+  return el('img', {
+    className: 'site-header__profile-flag',
+    src: '/assets/icons/' + flags[native][0],
+    alt: flags[native][1],
+    width: 20,
+    height: 14,
   });
 }
 
@@ -119,22 +168,22 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }, icon('search-white')));
   }
 
-  // Lưu lựa chọn ngôn ngữ để trang đăng ký gửi cùng hồ sơ mới.
+  // Dùng nguồn tuỳ chọn chung để header và Cài đặt đồng bộ cả trong trang lẫn giữa các tab.
   const languages = ['vi', 'ja', 'en'];
-  let language = readStorage('etsubi_lang') || 'vi';
-  if (!languages.includes(language)) {
-    language = 'vi';
-  }
+  let language = getInterfaceLanguage();
   const languageButton = el('button', {
     type: 'button',
     className: 'site-header__language',
     'aria-label': 'Đổi ngôn ngữ',
   }, language.toUpperCase());
-  languageButton.addEventListener('click', () => {
-    language = languages[(languages.indexOf(language) + 1) % languages.length];
-    writeStorage('etsubi_lang', language);
+  // Hàm đăng ký tự huỷ cùng header để việc dựng lại không nhân đôi lắng nghe.
+  onInterfaceLanguageChange(next => {
+    language = next;
     languageButton.textContent = language.toUpperCase();
-    // Chỉ lưu lựa chọn; bản dịch giao diện sẽ được nối khi có từ điển i18n.
+  }, signal);
+  // Bấm nút luân phiên VI, JA, EN qua API tuỳ chọn, chưa dịch nội dung khi thiếu từ điển.
+  languageButton.addEventListener('click', () => {
+    setInterfaceLanguage(languages[(languages.indexOf(language) + 1) % languages.length]);
   }, { signal });
 
   // Menu dùng id riêng cho mỗi header để aria-controls luôn trỏ đúng vùng.
@@ -177,6 +226,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       profile.hidden = true;
     }
     qs('[data-avatar-button]', session)?.setAttribute('aria-expanded', 'false');
+    qs('[data-avatar-button]', session)?.classList.remove('is-open');
     notificationMenu?.close();
     bellButton?.setAttribute('aria-expanded', 'false');
     bellButton?.classList.remove('is-open');
@@ -193,7 +243,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
 
   /** Hiện liên kết đăng nhập hoặc chuông và avatar tuỳ hồ sơ của phiên hiện tại. */
   function renderSession(user) {
-    const identity = user ? JSON.stringify([user.id, user.username, user.avatarUrl]) : null;
+    const identity = user ? JSON.stringify([user.id, user.username, user.email, user.native, user.avatarUrl]) : null;
     // Cache và GET /my có thể trả cùng hồ sơ; không dựng lại menu hoặc gọi số chưa đọc hai lần.
     if (identity === sessionIdentity) {
       return;
@@ -305,31 +355,41 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       type: 'button',
       className: 'avatar site-header__avatar',
       'data-avatar-button': '',
-      'aria-label': 'Tài khoản ' + user.username,
+      'aria-label': 'Tài khoản ' + (user.username || '–'),
       'aria-expanded': 'false',
       'aria-controls': profileId,
-    }, initials(user.username));
-    // Nếu ảnh lỗi, thay bằng chữ viết tắt để nút tài khoản vẫn nhận diện được.
-    if (user.avatarUrl) {
-      const image = el('img', { src: user.avatarUrl, alt: user.username });
-      image.addEventListener('error', () => {
-        avatar.replaceChildren(initials(user.username));
-      }, { once: true, signal });
-      avatar.replaceChildren(image);
-    }
+    });
+    fillAvatar(avatar, user, sessionSignal);
+    // Đầu panel dùng DOM văn bản an toàn, cờ mẹ đẻ tách khỏi ngôn ngữ giao diện.
+    const panelAvatar = el('span', { className: 'avatar site-header__profile-avatar' });
+    fillAvatar(panelAvatar, user, sessionSignal);
+    const heading = el('div', { className: 'site-header__profile-heading' },
+      panelAvatar,
+      el('div', { className: 'site-header__profile-details' },
+        el('div', { className: 'site-header__profile-name-row' },
+          el('span', { className: 'site-header__profile-name' }, user.username || '–'),
+          nativeBadge(user.native)
+        ),
+        el('p', { className: 'site-header__profile-email' }, user.email || '–')
+      )
+    );
+    // Đăng xuất là nút thật để khoá thao tác trong lúc API xử lý, các trang dùng liên kết thường.
     const signOut = el('button', {
       type: 'button',
-      className: 'site-header__profile-action',
-    }, 'Đăng xuất');
+      className: 'site-header__profile-action site-header__profile-action--logout',
+    }, profileIcon('logout'), 'Đăng xuất');
     const menu = el('div', {
       id: profileId,
       className: 'site-header__profile-menu',
       'data-profile-menu': '',
       hidden: true,
     },
-    el('a', { href: routes.profile, className: 'site-header__profile-action' }, 'Hồ sơ'),
-    el('a', { href: routes.profileEdit, className: 'site-header__profile-action' }, 'Chỉnh sửa hồ sơ'),
-    signOut
+    heading,
+    el('div', { className: 'site-header__profile-links' },
+      el('a', { href: routes.profile, className: 'site-header__profile-action' }, profileIcon('user'), 'Hồ sơ của tôi'),
+      el('a', { href: routes.settings, className: 'site-header__profile-action' }, profileIcon('settings'), 'Cài đặt')
+    ),
+    el('div', { className: 'site-header__profile-exit' }, signOut)
     );
     // Menu tài khoản cũng đóng menu điều hướng trước khi mở để không chồng hai bảng.
     avatar.addEventListener('click', () => {
@@ -337,11 +397,13 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       closeMenus();
       menu.hidden = !open;
       avatar.setAttribute('aria-expanded', String(open));
-    }, { signal });
+      avatar.classList.toggle('is-open', open);
+    }, { signal: sessionSignal });
+    // Chặn bấm lặp ngay khi nhận thao tác, logout dùng đúng luồng xoá phiên đã có.
     signOut.addEventListener('click', () => {
       signOut.disabled = true;
       void logout();
-    }, { signal });
+    }, { signal: sessionSignal });
     // Thứ tự đúng Figma Home 4: chuông, huy hiệu ngôn ngữ (VI/JA/EN), rồi avatar.
     session.append(bell, languageButton, avatar, menu);
   }
@@ -400,7 +462,10 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     const path = event.composedPath();
     const outsideNotifications = notificationMenu && !notificationMenu.element.hidden
       && !path.includes(notificationMenu.element) && !path.includes(bellButton);
-    if (!path.includes(target) || outsideNotifications) {
+    const profile = qs('[data-profile-menu]', session);
+    const outsideProfile = profile && !profile.hidden
+      && !path.includes(profile) && !path.includes(qs('[data-avatar-button]', session));
+    if (!path.includes(target) || outsideNotifications || outsideProfile) {
       closeMenus(true);
     }
   }, { signal });

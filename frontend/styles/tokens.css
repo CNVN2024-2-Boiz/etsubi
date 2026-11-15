@@ -675,6 +675,12 @@
   --color-danger-zone-bg: #FFF5F6;
   --edit-dialog-backdrop: rgba(31, 26, 23, .45);
 
+  /* Menu avatar 280px, ảnh đầu panel 44px và vòng mở 48px quanh avatar 38px. */
+  --header-avatar-size: 38px;
+  --header-profile-width: 280px;
+  --header-profile-avatar-size: 44px;
+  --shadow-header-avatar-open: 0 0 0 5px var(--color-white-20);
+
   /* Trang Cài đặt 323:2611: khoảng cách riêng giữa icon, chữ và các lựa chọn trong pill. */
   --settings-row-gap: 14px;
   --settings-copy-gap: 2px;

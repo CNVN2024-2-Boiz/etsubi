@@ -153,8 +153,26 @@
 
 /* Viền trắng trong 2px tách avatar khỏi nền đỏ, bỏ đệm để ảnh lấp đúng khung. */
 .site-header__avatar {
+  width: var(--header-avatar-size);
+  height: var(--header-avatar-size);
   border: 2px solid var(--color-white-70);
   padding: 0;
+}
+
+/* Vòng trắng trong mở rộng tới 48px, cùng màu nền trạng thái mở của chuông thông báo. */
+.site-header__avatar.is-open {
+  box-shadow: var(--shadow-header-avatar-open);
+}
+
+/* Bàn phím vẫn có vòng focus riêng khi avatar đang mở panel. */
+.site-header__avatar:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Giữ cả vòng mở panel và vòng focus để hai trạng thái không che nhau. */
+.site-header__avatar.is-open:focus-visible {
+  box-shadow: var(--shadow-header-avatar-open), var(--focus-ring);
 }
 
 /* Ẩn nút menu trên desktop vì đã có đủ chỗ hiển thị các tab. */
@@ -165,7 +183,7 @@
 /* ===== Menu nổi ===== */
 
 /* Menu nổi dưới header có nền kem, viền và bóng, căn phải để không làm thay đổi bố cục thanh đỏ. */
-.site-header__mobile-nav, .site-header__profile-menu {
+.site-header__mobile-nav {
   position: absolute;
   top: calc(100% + var(--space-2));
   right: var(--page-gutter);
@@ -178,29 +196,146 @@
   box-shadow: var(--shadow-sidebar);
 }
 
-/* Menu tài khoản đặt sát dưới nhóm phiên và căn theo mép avatar thay vì mép trang. */
+/* Panel 280px căn phải avatar, cách đáy header 8px và dùng cùng bóng với bảng thông báo. */
 .site-header__profile-menu {
-  top: calc(100% + var(--space-3));
+  position: absolute;
+  top: calc(100% + (var(--header-height) - var(--header-avatar-size)) / 2 + var(--space-2));
   right: 0;
+  width: var(--header-profile-width);
+  max-width: calc(100vw - var(--space-7));
+  background: var(--color-cream);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--notif-panel-radius);
+  box-shadow: var(--shadow-card);
 }
 
-/* Mỗi thao tác tài khoản phủ ngang menu, căn chữ trái và có đệm để dễ nhấn. */
+/* Đầu panel hiển thị avatar cùng tên và email, ngăn cách rõ với các thao tác bên dưới. */
+.site-header__profile-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Avatar đầu panel lớn hơn nút header để người dùng dễ nhận diện tài khoản. */
+.site-header__profile-avatar {
+  width: var(--header-profile-avatar-size);
+  height: var(--header-profile-avatar-size);
+}
+
+/* Cho cột chữ co lại khi tên hoặc email dài, không đẩy panel tràn màn hình. */
+.site-header__profile-details {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tên và cờ nằm cùng hàng, cờ giữ nguyên kích thước khi tên phải cắt bớt. */
+.site-header__profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Cắt một dòng bằng dấu ba chấm cho cả tên và email dài. */
+.site-header__profile-name,
+.site-header__profile-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tên tài khoản đậm 15px là thông tin chính ở đầu panel. */
+.site-header__profile-name {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Email nhỏ và dịu hơn để phân cấp với tên, vẫn giữ tương phản theo token chung. */
+.site-header__profile-email {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Cờ giữ đúng tỷ lệ gốc; nhãn EN thay cờ có nền hồng để dễ phân biệt với tên. */
+.site-header__profile-flag,
+.site-header__profile-native {
+  flex-shrink: 0;
+}
+
+/* Quốc kỳ Việt Nam hoặc Nhật Bản nằm gọn trong khung 20 × 14, không bị kéo méo. */
+.site-header__profile-flag {
+  object-fit: contain;
+}
+
+/* Tiếng Anh dùng nhãn chữ nhỏ vì dự án chưa có cờ cho ngôn ngữ này. */
+.site-header__profile-native {
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Lề ngang 8px giúp nền hover bo góc không dính vào viền panel. */
+.site-header__profile-links,
+.site-header__profile-exit {
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Vạch ngang tách thao tác kết thúc phiên khỏi các liên kết tài khoản. */
+.site-header__profile-exit {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Mỗi mục cao 44px, icon 20px theo màu chữ, toàn hàng là vùng nhấn cho chuột và bàn phím. */
 .site-header__profile-action {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   width: 100%;
+  min-height: var(--header-profile-avatar-size);
   padding: var(--space-2) var(--space-3);
   text-align: left;
   background: var(--color-transparent);
   border: 0;
-  border-radius: var(--radius-sm);
-  color: var(--color-red-dark);
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 500;
 }
 
-/* Nền hồng khi rê chuột làm rõ mục menu đang trỏ mà không cần hiệu ứng chuyển động. */
-.site-header__profile-action:hover {
+/* Icon giữ khung vuông khi nhãn dài để nét Lucide không bị ép méo. */
+.site-header__profile-action svg {
+  flex-shrink: 0;
+}
+
+/* Đăng xuất dùng đỏ thương hiệu để phân biệt thao tác kết thúc phiên. */
+.site-header__profile-action--logout {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* Hover và focus chỉ đổi màu, nền; không làm hàng nhảy vị trí hoặc kích thước. */
+.site-header__profile-action:hover:not(:disabled),
+.site-header__profile-action:focus-visible {
   background: var(--color-sakura);
+  color: var(--color-red);
   text-decoration: none;
+}
+
+/* Vòng focus chung giúp thấy mục đang chọn khi dùng Tab. */
+.site-header__profile-action:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Làm mờ nút đăng xuất trong lúc xử lý để ngăn thao tác lặp mà không cần spinner. */
+.site-header__profile-action:disabled {
+  opacity: .4;
 }
 
 /* Liên kết trong menu di động căn trái, chữ đỏ sẫm trên nền kem và có đệm riêng để dễ chạm. */
@@ -274,6 +409,11 @@
   /* Giảm khoảng cách nhóm điều hướng và công cụ theo token để còn đủ chỗ khi màn hình hẹp. */
   .site-header__utils, .site-header__session {
     gap: var(--space-2);
+  }
+
+  /* Trừ cả hamburger 40px và khe 8px bên phải avatar để panel vẫn cách mép trái 16px. */
+  .site-header__profile-menu {
+    max-width: calc(100vw - var(--space-7) - var(--space-8) - var(--space-2));
   }
 
   /* Nền trắng trong giúp nút tìm kiếm dễ nhận ra khi thanh điều hướng được thu gọn trên mobile. */
