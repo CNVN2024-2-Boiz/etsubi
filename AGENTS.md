@@ -232,6 +232,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 | Register 1a (with Google button since batch 4) | `256:2355` |
 | Avatar menu (screen / panel / `ProfileMenuItem`) | `319:2589` / `319:2684` / `318:2623` |
 | Cài đặt (Settings, merges Edit Profile) | `323:2611` |
+| Diễn đàn floating "Đăng bài" (components `ForumComposeFab` / scrolled / dialog) | `344:2712` / `344:2714` / `344:2918` |
 | Register Advanced (4-step, superseded language block) | `126:2` |
 | Register Advanced 2 (3-step, native single choice) | `159:524` |
 | Search – empty, not submitted | `267:2576` |
