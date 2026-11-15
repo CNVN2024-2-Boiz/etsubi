@@ -29,7 +29,7 @@ frontend/
 ├── pages/                        # one HTML file per screen (+ its page module next to it)
 │   ├── index.html                # Home (placeholder, to be built)
 │   ├── search.html  search.js    # Search (empty + results states)
-│   ├── settings.html settings.js # Cài đặt: profile edit + appearance + session (profile/edit.html redirects here)
+│   ├── settings.html settings.js # Cài đặt: profile edit + appearance (profile/edit.html redirects here)
 │   └── profile/
 │       ├── login.html            login.js
 │       ├── register.html         register.js
@@ -332,7 +332,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 
 ### Users
 
-`users`: `id, username (unique), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint**: `avatar_url` is a string (the front end stores a preset path or a small resized data URL).
+`users`: `id, username (the display name "Họ và tên"; the schema no longer has UNIQUE since PR #62, but register/update still return 409 for a taken name), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint**: `avatar_url` is a string (the front end stores a preset path or a small resized data URL).
 
 ### Search
 
