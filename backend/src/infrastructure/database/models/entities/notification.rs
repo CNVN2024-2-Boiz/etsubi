@@ -9,6 +9,7 @@ use uuid::Uuid;
 pub struct Notification {
     pub id: Uuid,
     pub user_id: Uuid,
+    pub actor_id: Option<Uuid>,
     pub kind: String,
     pub message: String,
     pub link: String,
@@ -20,6 +21,7 @@ pub struct Notification {
 #[diesel(table_name = notifications)]
 pub struct NewNotification<'a> {
     pub user_id: Uuid,
+    pub actor_id: Option<Uuid>,
     pub kind: &'a str,
     pub message: &'a str,
     pub link: &'a str,
