@@ -2,6 +2,8 @@
 import { el, qs } from '/utils/dom.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
+// Guard dùng chung cho các trang có dữ liệu chưa lưu, không import trực tiếp trang Cài đặt.
+import { confirmLeave } from '/utils/leave-guard.js';
 import { getInterfaceLanguage, setInterfaceLanguage, onInterfaceLanguageChange } from '/utils/preferences.js';
 import { initials } from '/utils/format.js';
 import { getUnreadCount } from '/services/api/notifications.js';
@@ -399,10 +401,19 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       avatar.setAttribute('aria-expanded', String(open));
       avatar.classList.toggle('is-open', open);
     }, { signal: sessionSignal });
-    // Chặn bấm lặp ngay khi nhận thao tác, logout dùng đúng luồng xoá phiên đã có.
-    signOut.addEventListener('click', () => {
+    // Hỏi trang đang sửa trước khi xoá phiên; khi ở lại phải bật lại nút và trả focus về menu.
+    signOut.addEventListener('click', async () => {
       signOut.disabled = true;
-      void logout();
+      try {
+        if (!(await confirmLeave())) {
+          signOut.disabled = false;
+          signOut.focus();
+          return;
+        }
+        await logout();
+      } finally {
+        signOut.disabled = false;
+      }
     }, { signal: sessionSignal });
     // Thứ tự đúng Figma Home 4: chuông, huy hiệu ngôn ngữ (VI/JA/EN), rồi avatar.
     session.append(bell, languageButton, avatar, menu);
