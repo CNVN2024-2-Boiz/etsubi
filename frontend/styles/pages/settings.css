@@ -179,3 +179,11 @@
     font-size: 13px;
   }
 }
+
+/* Thanh lưu của Cài đặt chỉ còn Huỷ và Lưu (Figma đã bỏ "Về trang hồ sơ" và vạch ngăn phía trên),
+   nên căn cả nhóm sang phải và bỏ viền trên; khoảng cách với mục trên lấy theo nhịp chung giữa các mục. */
+.settings-actions {
+  justify-content: flex-end;
+  padding-top: 0;
+  border-top: 0;
+}

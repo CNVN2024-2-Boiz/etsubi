@@ -547,17 +547,13 @@ async function submitDelete(event) {
   }
 }
 
-/** Đổi thứ tự DOM của các nút trên mobile để thứ tự Tab khớp thứ tự nhìn, nút lưu đứng đầu. */
+/** Đổi thứ tự DOM của hai nút trên mobile để thứ tự Tab khớp thứ tự nhìn, nút lưu đứng đầu. */
 function arrangeActions() {
-  const actions = qs('[data-actions]');
   const saveActions = qs('[data-save-actions]');
-  const backLink = qs('[data-back]');
   if (window.matchMedia('(max-width: 600px)').matches) {
     saveActions.prepend(submitButton);
-    actions.append(backLink);
   } else {
     saveActions.append(resetButton, submitButton);
-    actions.prepend(backLink);
   }
 }
 
