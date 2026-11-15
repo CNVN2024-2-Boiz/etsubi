@@ -16,9 +16,13 @@ initAuthPage({
 });
 
 // CẦN BACKEND: endpoint OAuth Google (ví dụ GET /auth/google chuyển hướng, callback trả token như POST /auth/login)
-// Chỉ báo trạng thái sắp có bằng vùng info sẵn có, không gửi form hoặc gọi API.
-qs('[data-google-auth]').addEventListener('click', () => {
-  const info = qs('[data-info-alert]');
-  info.textContent = 'Đăng nhập bằng Google sắp có.';
-  info.hidden = false;
+// Ghi vào vùng trạng thái riêng dưới nút để không xoá thông báo khác; không gửi form hoặc gọi API.
+// Dùng ?. vì HTML cũ còn trong bộ nhớ đệm có thể chưa có nút hoặc vùng ghi chú này.
+qs('[data-google-auth]')?.addEventListener('click', () => {
+  const note = qs('[data-google-note]');
+  if (!note) {
+    return;
+  }
+  note.textContent = 'Đăng nhập bằng Google sắp có.';
+  note.hidden = false;
 });
