@@ -5,6 +5,7 @@ import { getMe, updateMe, changeMyPassword, deleteMyAccount, getProfileUpdatedAt
 import { getToken, clearToken, readStorage, writeStorage } from '/services/api/client.js';
 import { requireAuth, login, logout, fetchCurrentUser } from '/utils/auth.js';
 import { toVietnameseMessage, fieldForError } from '/utils/errors.js';
+import { registerLeaveGuard, confirmLeave } from '/utils/leave-guard.js';
 import { initials } from '/utils/format.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { el, qs, qsa } from '/utils/dom.js';
@@ -26,8 +27,22 @@ const presetLabels = ['Cổng torii', 'Hoa anh đào', 'Núi Phú Sĩ', 'Đèn l
 const savedKey = 'etsubi_profile_saved_at';
 const form = qs('[data-profile-form]');
 const fields = qs('[data-profile-fields]');
-const submitButton = qs('[data-submit]');
-const resetButton = qs('[data-reset]');
+// Mỗi nhóm chỉ sở hữu các trường của mình; bản đã lưu dùng chung đối tượng nhưng cập nhật đúng nhóm.
+const sections = {
+  avatar: { label: 'Ảnh đại diện', keys: ['avatar_url'], hints: [] },
+  account: { label: 'Thông tin tài khoản', keys: ['username', 'email', 'institute', 'address', 'bio'], hints: ['username', 'email', 'bio'] },
+  native: { label: 'Ngôn ngữ mẹ đẻ', keys: ['native'], hints: ['native'] },
+  password: { label: 'Đổi mật khẩu', keys: [], hints: passwordNames },
+};
+const savingSections = new Set();
+const leaveDialog = qs('[data-leave-dialog]');
+const mobileLayout = window.matchMedia('(max-width: 600px)');
+let saveQueue = Promise.resolve();
+let avatarProcessing = false;
+let leaving = false;
+let leaveChoice = null;
+let leaveOrigin = null;
+let pendingLeave = null;
 const fileInput = qs('[data-avatar-file]');
 const avatarPreview = qs('[data-avatar-preview]');
 const presetsPanel = qs('[data-presets]');
@@ -59,14 +74,14 @@ const defaultHints = {
   'confirm-password': 'Nhập lại đúng mật khẩu mới',
 };
 
-/** Đọc dữ liệu hiện tại; trim văn bản hồ sơ nhưng giữ nguyên mọi ký tự của mật khẩu. */
+/** Đọc nguyên giá trị đang sửa để gõ thêm rồi xoá về đúng bản cũ sẽ xoá trạng thái chưa lưu. */
 function readValues() {
   return {
-    username: input('username').value.trim(),
-    email: input('email').value.trim(),
-    institute: input('institute').value.trim(),
-    address: input('address').value.trim(),
-    bio: input('bio').value.trim(),
+    username: input('username').value,
+    email: input('email').value,
+    institute: input('institute').value,
+    address: input('address').value,
+    bio: input('bio').value,
     avatar_url: avatarUrl,
     native: input('native').value,
   };
@@ -77,22 +92,39 @@ function normalizeProfile(user) {
   const values = {};
   // Chỉ lấy đúng bảy trường được phép cập nhật, không đưa vai trò hay trạng thái vào PATCH.
   for (const key of profileKeys) {
-    values[key] = typeof user[key] === 'string' ? user[key].trim() : '';
+    values[key] = typeof user[key] === 'string' ? user[key] : '';
   }
   return values;
 }
 
-/** Tạo patch tối thiểu; chuỗi rỗng vẫn được gửi nếu người dùng chủ động xoá giá trị cũ. */
-function changedFields() {
+/** Chỉ tạo patch của mục được bấm; trường rỗng vẫn gửi khi người dùng chủ động xoá dữ liệu cũ. */
+function changedFields(section) {
   const values = readValues();
   const patch = {};
-  // So sánh từng trường với bản đã được API chấp nhận, không so sánh với dữ liệu mặc định giả.
-  for (const key of profileKeys) {
+  // Không lấy trường của mục khác dù người dùng đang sửa nhiều mục cùng lúc.
+  for (const key of sections[section].keys) {
     if (values[key] !== serverValues[key]) {
-      patch[key] = values[key];
+      patch[key] = section === 'account' ? values[key].trim() : values[key];
     }
   }
   return patch;
+}
+
+/** So sánh giá trị thô với ảnh chụp riêng của mục; mật khẩu chỉ cần có một ô không rỗng. */
+function sectionIsDirty(section) {
+  if (!ready || !serverValues) {
+    return false;
+  }
+  if (section === 'password') {
+    return hasPasswordChanges();
+  }
+  const values = readValues();
+  return sections[section].keys.some(key => values[key] !== serverValues[key]);
+}
+
+/** Trả danh sách theo thứ tự trang để chấm điều hướng và câu hỏi rời trang dùng cùng một kết quả. */
+function dirtySections() {
+  return Object.keys(sections).filter(sectionIsDirty);
 }
 
 /** Bất kỳ ô mật khẩu có nội dung đều có nghĩa là người dùng muốn đổi mật khẩu. */
@@ -112,23 +144,31 @@ function clearPasswords() {
   }
 }
 
-/** Điền đúng bản đã tải hoặc vừa lưu, bao gồm ngôn ngữ mẹ đẻ đã chọn từ trước. */
-function fillValues(values) {
-  // Trường văn bản được gán value, tuyệt đối không chèn chuỗi API bằng innerHTML.
-  for (const key of ['username', 'email', 'institute', 'bio']) {
-    input(key).value = values[key];
+/** Điền lại đúng một mục, không chạm các mục đang sửa khác; chỉ lúc tải mới gọi cho cả bốn mục. */
+function fillSection(section) {
+  if (section === 'password') {
+    clearPasswords();
+  } else if (section === 'avatar') {
+    avatarUrl = serverValues.avatar_url;
+    fileInput.value = '';
+    fileInput.removeAttribute('aria-invalid');
+    qs('[data-avatar-hint]').hidden = true;
+  } else if (section === 'native') {
+    // Không tự chọn ngôn ngữ giả nếu API trả về giá trị lạ.
+    for (const radio of qsa('[name="native"]', form)) {
+      radio.checked = radio.value === serverValues.native;
+    }
+  } else {
+    // Địa chỉ dùng select có thể bổ sung giá trị cũ ngoài danh sách hiện tại.
+    for (const key of sections.account.keys) {
+      if (key === 'address') {
+        selectAddress(serverValues[key]);
+      } else {
+        input(key).value = serverValues[key];
+      }
+    }
   }
-  selectAddress(values.address);
-  avatarUrl = values.avatar_url;
-  // Bỏ chọn cả ba nếu API có giá trị lạ, để validate yêu cầu lựa chọn có nghĩa.
-  for (const radio of qsa('[name="native"]', form)) {
-    radio.checked = radio.value === values.native;
-  }
-  fileInput.value = '';
-  fileInput.removeAttribute('aria-invalid');
-  qs('[data-avatar-hint]').hidden = true;
-  clearPasswords();
-  clearErrors();
+  clearSectionErrors(section);
 }
 
 /** Gắn lỗi với ô thật và gợi ý tương ứng; 409 chỉ được xác định bởi phản hồi của máy chủ. */
@@ -148,13 +188,23 @@ function setFieldError(name, message = '') {
   hint.classList.remove('field__hint--success');
 }
 
-/** Khôi phục mọi gợi ý và bỏ lỗi form khi huỷ hoặc khi tải thành công. */
-function clearErrors() {
-  // Danh sách gợi ý bao phủ toàn bộ những trường có validation của trang.
-  for (const name of Object.keys(defaultHints)) {
+/** Huỷ hoặc sửa một mục chỉ xoá lỗi của chính mục đó. */
+function clearSectionErrors(section) {
+  for (const name of sections[section].hints) {
     setFieldError(name);
   }
-  alertBox.hidden = true;
+  qs('[data-section-error="' + section + '"]').hidden = true;
+  if (section === 'avatar') {
+    fileInput.removeAttribute('aria-invalid');
+    qs('[data-avatar-hint]').hidden = true;
+  }
+}
+
+/** Lỗi API của mục luôn nằm ngay trong mục; không dùng vùng lỗi chung của lần tải hồ sơ. */
+function showSectionError(section, message) {
+  const region = qs('[data-section-error="' + section + '"]');
+  region.textContent = message;
+  region.hidden = false;
 }
 
 /** Hiện thông báo trong trang, role status dành riêng cho lần lưu thành công. */
@@ -202,8 +252,8 @@ function markSaved() {
   renderSavedTime();
 }
 
-/** Đồng bộ phần trăm theo cùng sáu mục của Register Advanced và cập nhật tóm tắt khi nhập. */
-function renderState() {
+/** Đồng bộ tóm tắt và bộ đếm theo dữ liệu hiện tại, giữ phản hồi khi nhập của trang cũ. */
+function renderProfilePreview() {
   const values = readValues();
   const complete = [Boolean(avatarUrl), validUsername(values.username), Boolean(values.institute), Boolean(values.address), Boolean(values.bio), Object.hasOwn(nativeLabels, values.native)];
   const percent = Math.round(complete.filter(Boolean).length / 6 * 100);
@@ -222,25 +272,42 @@ function renderState() {
   }
   qs('[data-bio-counter]').textContent = input('bio').value.length + ' / 300';
   qs('[data-bio-counter]').classList.toggle('is-limit', input('bio').value.length >= 300);
-  // Chỉ hồ sơ và mật khẩu bật nút lưu/huỷ, tuỳ chọn giao diện không được tính vào đây.
-  const unchanged = !Object.keys(changedFields()).length && !hasPasswordChanges();
-  resetButton.disabled = busy || !ready || unchanged;
-  submitButton.disabled = busy || !ready || unchanged;
   renderAvatar();
 }
 
-/** Khoá form khi tải hoặc ghi, mọi trạng thái chờ chỉ có chữ tĩnh. */
-function setBusy(value, saving = false) {
+/** Cập nhật từng thanh lưu và chấm đỏ; khoá riêng mục đang gửi, những mục khác vẫn hoạt động. */
+function renderSectionStates() {
+  for (const section of Object.keys(sections)) {
+    const node = document.getElementById('section-' + section);
+    const saving = savingSections.has(section);
+    const dirty = sectionIsDirty(section);
+    const locked = busy || !ready || saving || (section === 'avatar' && avatarProcessing);
+    const bar = qs('[data-section-save-bar="' + section + '"]');
+    bar.hidden = !dirty && !saving;
+    bar.classList.toggle('is-saving', saving);
+    node.setAttribute('aria-busy', String(saving));
+    qs('[data-section-save-message]', bar).textContent = saving ? 'Đang lưu mục này…' : 'Mục này có thay đổi chưa lưu';
+    qs('[data-section-unsaved="' + section + '"]').hidden = !dirty;
+    // Đóng băng dữ liệu của đúng mục trong khi chờ để kết quả trả về không đè lên lần sửa tiếp theo.
+    for (const control of qsa('input, select, textarea, button', node)) {
+      control.disabled = locked;
+    }
+    qs('[data-section-save="' + section + '"]').textContent = saving ? 'Đang lưu…' : 'Lưu thay đổi';
+    qs('[data-section-save="' + section + '"]').disabled = locked || !dirty;
+    qs('[data-section-reset="' + section + '"]').disabled = locked || !dirty;
+  }
+  renderAvatar();
+}
+
+/** Khoá toàn bộ hồ sơ chỉ khi tải; lưu riêng không làm mờ hoặc khoá các mục khác. */
+function setBusy(value) {
   busy = value;
   fields.disabled = value || !ready;
-  submitButton.disabled = value || !ready;
-  qs('[data-delete-open]').disabled = value || !ready;
   form.setAttribute('aria-busy', String(value));
-  submitButton.textContent = saving ? 'Đang lưu…' : 'Lưu thay đổi';
+  renderSectionStates();
+  qs('[data-delete-open]').disabled = value || !ready || savingSections.size > 0;
   if (serverValues) {
-    renderState();
-  } else {
-    resetButton.disabled = true;
+    renderProfilePreview();
   }
 }
 
@@ -261,7 +328,9 @@ async function loadProfile() {
       return;
     }
     serverValues = normalizeProfile(serverUser);
-    fillValues(serverValues);
+    for (const section of Object.keys(sections)) {
+      fillSection(section);
+    }
     readSavedTime();
     renderSavedTime();
     // Tất cả liên kết hồ sơ đều dùng id từ GET /my, không giả định một tài khoản mẫu.
@@ -280,27 +349,30 @@ async function loadProfile() {
   }
 }
 
-/** Validate cả hồ sơ và mật khẩu tự chọn, rồi chuyển focus tới lỗi đầu tiên theo thứ tự form. */
-function validateForm() {
+/** Validate đúng mục vừa bấm lưu, không để lỗi ở mục khác chặn một thay đổi hợp lệ. */
+function validateSection(section) {
+  clearSectionErrors(section);
   const values = readValues();
-  const errors = {
-    username: validUsername(values.username) ? '' : 'Tên cần ít nhất 3 ký tự.',
-    email: values.email && input('email').validity.valid ? '' : 'Vui lòng nhập địa chỉ email hợp lệ.',
-    bio: input('bio').value.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.',
-    native: Object.hasOwn(nativeLabels, values.native) ? '' : 'Vui lòng chọn ngôn ngữ mẹ đẻ.',
-  };
-  const current = input('current-password').value;
-  const next = input('new-password').value;
-  const confirm = input('confirm-password').value;
-  // Chỉ kiểm tra ba mật khẩu khi ít nhất một ô được nhập; không trim mật khẩu.
-  errors['current-password'] = hasPasswordChanges() && !current ? 'Vui lòng nhập mật khẩu hiện tại.' : '';
-  errors['new-password'] = !hasPasswordChanges() ? '' : !next ? 'Vui lòng nhập mật khẩu mới.'
-    : Array.from(next).length < 8 ? 'Mật khẩu mới cần ít nhất 8 ký tự.'
-    : next === current ? 'Mật khẩu mới phải khác mật khẩu hiện tại.' : '';
-  errors['confirm-password'] = !hasPasswordChanges() ? '' : !confirm ? 'Vui lòng xác nhận mật khẩu mới.'
-    : confirm !== next ? 'Mật khẩu xác nhận không khớp.' : '';
+  const errors = {};
+  if (section === 'account') {
+    errors.username = validUsername(values.username) ? '' : 'Tên cần ít nhất 3 ký tự.';
+    errors.email = values.email.trim() && input('email').validity.valid ? '' : 'Vui lòng nhập địa chỉ email hợp lệ.';
+    errors.bio = values.bio.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.';
+  } else if (section === 'native') {
+    errors.native = Object.hasOwn(nativeLabels, values.native) ? '' : 'Vui lòng chọn ngôn ngữ mẹ đẻ.';
+  } else if (section === 'password') {
+    const current = input('current-password').value;
+    const next = input('new-password').value;
+    const confirm = input('confirm-password').value;
+    errors['current-password'] = current ? '' : 'Vui lòng nhập mật khẩu hiện tại.';
+    errors['new-password'] = !next ? 'Vui lòng nhập mật khẩu mới.'
+      : Array.from(next).length < 8 ? 'Mật khẩu mới cần ít nhất 8 ký tự.'
+      : next === current ? 'Mật khẩu mới phải khác mật khẩu hiện tại.' : '';
+    errors['confirm-password'] = !confirm ? 'Vui lòng xác nhận mật khẩu mới.'
+      : confirm !== next ? 'Mật khẩu xác nhận không khớp.' : '';
+  }
   let firstInvalid = null;
-  // Mỗi lỗi có aria-invalid và aria-describedby, nhóm radio chuyển focus tới lựa chọn đầu.
+  // Đặt lỗi cạnh ô và chuyển focus đến lỗi đầu tiên, radio dùng lựa chọn thật đầu nhóm.
   for (const [name, message] of Object.entries(errors)) {
     setFieldError(name, message);
     if (message && !firstInvalid) {
@@ -311,102 +383,110 @@ function validateForm() {
   return !firstInvalid;
 }
 
-/** Nhận bản cập nhật thật, giữ baseline mới kể cả khi bước đổi mật khẩu kế tiếp thất bại. */
-function acceptProfile(user, patch) {
-  serverUser = { ...serverUser, ...patch, ...(user || {}) };
-  serverValues = normalizeProfile(serverUser);
+/** Chỉ nhận các trường của mục vừa lưu, kể cả khi API trả toàn bộ hồ sơ có dữ liệu cũ của mục khác. */
+function acceptSection(section, user, patch) {
+  const values = normalizeProfile({ ...serverValues, ...patch, ...(user || {}) });
+  for (const key of sections[section].keys) {
+    serverValues[key] = values[key];
+    serverUser[key] = user && Object.hasOwn(user, key) ? user[key] : patch[key] ?? serverUser[key];
+  }
+  if (user && Object.hasOwn(user, 'updated_at')) {
+    serverUser.updated_at = user.updated_at;
+  }
+  fillSection(section);
   markSaved();
 }
 
-/** Gửi hồ sơ trước, đổi mật khẩu sau và cấp lại JWT ngay vì endpoint mật khẩu huỷ token cũ. */
-async function submitProfile(event) {
-  event.preventDefault();
-  if (!ready || busy || !validateForm()) {
+/** Lưu đúng mục đã chọn; xếp hàng các lần gửi để PATCH khác không dùng JWT cũ lúc đổi mật khẩu. */
+async function saveSection(section) {
+  if (!ready || busy || deleting || savingSections.has(section) || !sectionIsDirty(section) || !validateSection(section)) {
     return;
   }
-  const patch = changedFields();
-  const changingPassword = hasPasswordChanges();
-  if (!Object.keys(patch).length && !changingPassword) {
-    showAlert('Không có thay đổi để lưu.', { success: true });
-    return;
-  }
+  const patch = changedFields(section);
   const remember = Boolean(readStorage('etsubi_token'));
-  let stage = 'profile';
-  let profileSaved = false;
+  savingSections.add(section);
+  qs('[data-save-status]').textContent = '';
+  renderSectionStates();
+  qs('[data-delete-open]').disabled = true;
+  // Đặt chỗ ngay khi bấm, nhưng chỉ khoá mục này; các mục khác vẫn nhận sửa và nhận nút lưu.
+  const previous = saveQueue;
+  let release;
+  saveQueue = new Promise(function waitForSection(resolve) {
+    release = resolve;
+  });
   let passwordSaved = false;
-  alertBox.hidden = true;
-  setBusy(true, true);
   try {
-    if (Object.keys(patch).length) {
-      acceptProfile(await updateMe(patch), patch);
-      profileSaved = true;
+    await previous;
+    if (leaving) {
+      return;
     }
-    if (changingPassword) {
-      stage = 'password';
-      await changeMyPassword({ currentPassword: input('current-password').value, newPassword: input('new-password').value });
+    if (section === 'password') {
+      const newPassword = input('new-password').value;
+      await changeMyPassword({ currentPassword: input('current-password').value, newPassword });
       passwordSaved = true;
+      clearPasswords();
       markSaved();
-      stage = 'login';
-      // Đăng nhập ngay, trước mọi lần GET /my tiếp theo, bằng email vừa được lưu và lựa chọn ghi nhớ cũ.
-      await login(serverValues.email, input('new-password').value, { remember });
+      // Email lấy từ bản đã lưu, không dùng email đang sửa dở của mục Thông tin tài khoản.
+      await login(serverValues.email, newPassword, { remember });
     } else {
-      // Làm mới cache phiên để header nhận được tên và avatar mới sau PATCH /my.
+      acceptSection(section, await updateMe(patch), patch);
+      // Làm mới cache để header nhận đúng tên, cờ và ảnh đã được máy chủ chấp nhận.
       await fetchCurrentUser();
     }
-    fillValues(serverValues);
-    showAlert('Đã lưu thay đổi.', { success: true });
+    qs('[data-save-status]').textContent = 'Đã lưu mục “' + sections[section].label + '”.';
     mountHeader(qs('[data-component="header"]'), { active: null, searchForm: true });
   } catch (error) {
-    if (passwordSaved && stage === 'login') {
-      // Mật khẩu đã đổi thật dù đăng nhập lại lỗi, token cũ đã vô hiệu nên chuyển sang đăng nhập mới.
-      clearPasswords();
+    if (passwordSaved) {
+      // Mật khẩu đã đổi thật; phiên mới lỗi thì giữ luồng quay lại Login như trang cũ.
       clearToken();
+      leaving = true;
       location.assign(withRedirect(routes.login, routes.settings));
       return;
     }
     const name = fieldForError(error);
-    if (stage === 'password' && error.status === 401) {
+    if (section === 'password' && error.status === 401) {
       setFieldError('current-password', 'Mật khẩu hiện tại không đúng.');
-      input('current-password').focus();
-    } else if (stage === 'profile' && ['username', 'email'].includes(name)) {
+    } else if (section === 'account' && ['username', 'email'].includes(name)) {
       setFieldError(name, toVietnameseMessage(error));
-      input(name).focus();
-    } else if (stage === 'password' && name === 'password') {
+    } else if (section === 'password' && name === 'password') {
       setFieldError('new-password', toVietnameseMessage(error));
-      input('new-password').focus();
-    } else if (error.status !== 401) {
-      showAlert(toVietnameseMessage(error));
     }
-    if (profileSaved) {
-      // Không báo thất bại toàn bộ khi PATCH hồ sơ đã thành công, người dùng chỉ cần sửa phần mật khẩu.
-      showAlert('Thông tin hồ sơ đã được lưu. Phần đổi mật khẩu chưa hoàn tất. Vui lòng kiểm tra lại.');
-    }
+    showSectionError(section, toVietnameseMessage(error));
   } finally {
-    setBusy(false);
+    savingSections.delete(section);
+    renderProfilePreview();
+    renderSectionStates();
+    qs('[data-delete-open]').disabled = busy || !ready || savingSections.size > 0;
+    release();
   }
 }
 
-/** Huỷ thay đổi đưa cả avatar, radio và văn bản về baseline mới nhất, đồng thời xoá lỗi và mật khẩu. */
-function resetProfile() {
-  if (!ready || busy) {
+/** Huỷ chỉ khôi phục ảnh chụp và xoá lỗi của mục được bấm, mật khẩu được xoá trắng cả ba ô. */
+function resetSection(section) {
+  if (!ready || busy || savingSections.has(section)) {
     return;
   }
-  fillValues(serverValues);
-  setPresetsOpen(false);
-  renderState();
+  fillSection(section);
+  if (section === 'avatar') {
+    setPresetsOpen(false);
+  }
+  renderProfilePreview();
+  renderSectionStates();
 }
 
-/** Nhập liệu chỉ cập nhật tóm tắt và trạng thái nút huỷ, không tự lưu hoặc gọi API khi gõ. */
+/** Nhập liệu chỉ cập nhật bản xem trước và dấu chưa lưu, không gửi API hoặc xoá lỗi mục khác. */
 function profileChanged(event) {
   if (!ready || busy) {
     return;
   }
+  const section = event?.target.closest('[data-save-section]')?.dataset.saveSection || 'avatar';
   const name = event?.target.name;
   if (Object.hasOwn(defaultHints, name)) {
     setFieldError(name);
   }
-  alertBox.hidden = true;
-  renderState();
+  qs('[data-section-error="' + section + '"]').hidden = true;
+  renderProfilePreview();
+  renderSectionStates();
 }
 
 /** Đặt trạng thái mục hiện tại rõ ràng bằng aria-current, không phụ thuộc lớp CSS để tìm phần tử. */
@@ -523,6 +603,7 @@ async function submitDelete(event) {
   deleteSubmit.textContent = 'Đang xử lý…';
   try {
     await deleteMyAccount(deletePassword.value);
+    leaving = true;
     clearToken();
     deletePassword.value = '';
     // logout không gọi API lần nữa vì token đã được xoá trước, đồng thời xoá cache và về Home.
@@ -547,14 +628,181 @@ async function submitDelete(event) {
   }
 }
 
-/** Đổi thứ tự DOM của hai nút trên mobile để thứ tự Tab khớp thứ tự nhìn, nút lưu đứng đầu. */
-function arrangeActions() {
-  const saveActions = qs('[data-save-actions]');
-  if (window.matchMedia('(max-width: 600px)').matches) {
-    saveActions.prepend(submitButton);
-  } else {
-    saveActions.append(resetButton, submitButton);
+/** Đổi thứ tự DOM ở mobile để nút Lưu và Ở lại đứng trước, thứ tự Tab khớp với hình ảnh. */
+function arrangeSectionButtons() {
+  for (const section of Object.keys(sections)) {
+    const actions = qs('[data-section-save-actions]', document.getElementById('section-' + section));
+    const save = qs('[data-section-save="' + section + '"]');
+    const reset = qs('[data-section-reset="' + section + '"]');
+    actions.append(...(mobileLayout.matches ? [save, reset] : [reset, save]));
   }
+  const stay = qs('[data-leave-stay]');
+  const discard = qs('[data-leave-discard]');
+  qs('[data-leave-actions]').append(...(mobileLayout.matches ? [stay, discard] : [discard, stay]));
+}
+
+/** Form không có nút lưu chung; lần submit chỉ xét mục chứa focus hoặc nút phát sinh submit. */
+function submitCurrentSection(event) {
+  event.preventDefault();
+  const source = event.submitter || document.activeElement;
+  const section = source?.closest('[data-save-section]')?.dataset.saveSection;
+  if (section) {
+    void saveSection(section);
+  }
+}
+
+/** Giữ Enter trong ô một dòng tiện dụng, không chặn xuống dòng textarea hoặc bàn phím nhập tiếng Nhật. */
+function submitSectionOnEnter(event) {
+  if (event.key !== 'Enter' || event.isComposing || event.target.tagName !== 'INPUT'
+    || !['text', 'email', 'password'].includes(event.target.type)) {
+    return;
+  }
+  const section = event.target.closest('[data-save-section]')?.dataset.saveSection;
+  if (section) {
+    event.preventDefault();
+    void saveSection(section);
+  }
+}
+
+/** Mở một câu hỏi cho danh sách mục thực sự đang sửa, mặc định giữ dữ liệu và focus nút Ở lại. */
+function askToLeave() {
+  const dirty = dirtySections();
+  if (leaving || !dirty.length) {
+    return Promise.resolve(true);
+  }
+  if (pendingLeave) {
+    return pendingLeave;
+  }
+  const names = dirty.map(section => '“' + sections[section].label + '”').join(', ');
+  qs('[data-leave-description]').textContent = (dirty.length === 1 ? 'Mục ' : 'Các mục ')
+    + names + ' còn thay đổi chưa được lưu. Nếu rời trang bây giờ, những thay đổi này sẽ mất.';
+  leaveOrigin = document.activeElement;
+  pendingLeave = new Promise(function waitForLeaveChoice(resolve) {
+    leaveChoice = resolve;
+  });
+  leaveDialog.returnValue = 'stay';
+  leaveDialog.showModal();
+  qs('[data-leave-stay]').focus();
+  return pendingLeave;
+}
+
+/** Nếu lần lưu vừa dựng lại header, tìm link mới cùng đích hoặc avatar hiện tại thay vì focus nút đã bị tháo. */
+function restoreLeaveFocus() {
+  let target = leaveOrigin?.isConnected && !leaveOrigin.disabled ? leaveOrigin : null;
+  if (!target && leaveOrigin?.tagName === 'A') {
+    const header = qs('[data-component="header"]');
+    target = qsa('a[href]', header).find(link => link.href === leaveOrigin.href && link.getClientRects().length);
+  }
+  const fallback = qs('[data-avatar-button]') || qs('[data-route="home"]');
+  (target || fallback)?.focus({ preventScroll: true });
+}
+
+/** Chỉ lựa chọn bỏ thay đổi tắt beforeunload; đóng, Escape và nút Ở lại đều giữ guard hoạt động. */
+function finishLeaveChoice() {
+  // Chỉ xử lý một lần cho mỗi câu hỏi: nút bấm gọi trực tiếp, sự kiện close đến sau sẽ dừng ở đây.
+  if (!leaveChoice) {
+    return;
+  }
+  const allowed = leaveDialog.returnValue === 'discard';
+  if (allowed) {
+    leaving = true;
+  } else {
+    restoreLeaveFocus();
+  }
+  const resolve = leaveChoice;
+  pendingLeave = null;
+  leaveChoice = null;
+  leaveOrigin = null;
+  resolve?.(allowed);
+}
+
+/** Nút đóng và nút Ở lại dùng cùng kết quả, không để giá trị dialog của lần hỏi trước ảnh hưởng. */
+function stayOnPage() {
+  leaveDialog.close('stay');
+  // Không chờ sự kiện close: có trình duyệt phát close trễ hoặc không phát khi tab không vẽ,
+  // khiến Promise treo và nút Đăng xuất bị khoá; close vẫn được nghe làm đường dự phòng.
+  finishLeaveChoice();
+}
+
+/** Escape dùng hành vi ở lại rõ ràng, để sự kiện close xử lý Promise và trả focus một lần. */
+function cancelLeaveDialog(event) {
+  event.preventDefault();
+  stayOnPage();
+}
+
+/** Nút bỏ thay đổi chỉ đóng với kết quả cho phép; nơi gọi guard sẽ thực hiện điều hướng hoặc đăng xuất. */
+function discardAndLeave() {
+  leaveDialog.close('discard');
+  // Trả kết quả ngay như nút Ở lại, không phụ thuộc thời điểm sự kiện close.
+  finishLeaveChoice();
+}
+
+/** Bắt mọi link cùng nguồn ở pha capture; giữ nguyên thao tác mở tab mới, tải file và neo trong trang. */
+async function guardNavigationClick(event) {
+  const link = event.target.closest?.('a[href]');
+  if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey
+    || event.shiftKey || event.altKey || link.hasAttribute('download')
+    || (link.target && link.target.toLowerCase() !== '_self') || leaving || !dirtySections().length) {
+    return;
+  }
+  // Chuông desktop là nút mở panel tại chỗ; chỉ chuông mobile mới thực sự dẫn sang trang thông báo.
+  if (link.getAttribute('role') === 'button' && link.hasAttribute('aria-haspopup')) {
+    return;
+  }
+  let target;
+  try {
+    target = new URL(link.href, location.href);
+  } catch {
+    return;
+  }
+  if (target.origin !== location.origin || !['http:', 'https:'].includes(target.protocol)) {
+    return;
+  }
+  if (target.pathname === location.pathname && target.search === location.search
+    && (target.hash || location.hash || link.getAttribute('href').startsWith('#'))) {
+    return;
+  }
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  // Ghi nhận link kể cả khi chuột không tự focus nó trên một số trình duyệt.
+  const confirmation = confirmLeave();
+  leaveOrigin = link;
+  if (await confirmation) {
+    location.assign(target.href);
+  }
+}
+
+/** Trình duyệt tự hiển thị lời hỏi khi tải lại, đóng tab hoặc gõ URL và vẫn còn dữ liệu chưa lưu. */
+function guardBeforeUnload(event) {
+  if (!leaving && dirtySections().length) {
+    event.preventDefault();
+    event.returnValue = '';
+  }
+}
+
+/** Trang được khôi phục từ bộ nhớ điều hướng phải hỏi lại nếu người dùng tiếp tục sửa rồi rời đi. */
+function restoreLeaveGuard() {
+  leaving = false;
+}
+
+/** Thao tác trong modal không đóng menu avatar phía sau, để ở lại còn trả focus đúng link hoặc nút đăng xuất. */
+function isolateLeaveDialogEvent(event) {
+  event.stopPropagation();
+}
+
+/** Đăng ký chung cho header và link, cùng một dialog gốc; lựa chọn giao diện không tham gia trạng thái bẩn. */
+function initializeLeaveGuard() {
+  registerLeaveGuard(askToLeave);
+  qs('[data-leave-close]').addEventListener('click', stayOnPage);
+  qs('[data-leave-stay]').addEventListener('click', stayOnPage);
+  qs('[data-leave-discard]').addEventListener('click', discardAndLeave);
+  leaveDialog.addEventListener('cancel', cancelLeaveDialog);
+  leaveDialog.addEventListener('close', finishLeaveChoice);
+  leaveDialog.addEventListener('click', isolateLeaveDialogEvent);
+  leaveDialog.addEventListener('keydown', isolateLeaveDialogEvent);
+  document.addEventListener('click', guardNavigationClick, true);
+  window.addEventListener('beforeunload', guardBeforeUnload);
+  window.addEventListener('pageshow', restoreLeaveGuard);
 }
 
 /** Đồng bộ ngôn ngữ từ cùng storage mà header đang đọc, không đụng tới hồ sơ. */
@@ -606,7 +854,7 @@ function redirectLegacySessionAnchor() {
   document.getElementById(navigationSection).scrollIntoView({ behavior: 'instant' });
 }
 
-/** Gắn sự kiện một lần; không có beforeunload, autosave, hiệu ứng cuộn hoặc phụ thuộc thư viện. */
+/** Gắn sự kiện một lần; các mục tự lưu, guard điều hướng và cảnh báo tải lại dùng cùng trạng thái chưa lưu. */
 function initialize() {
   mountHeader(qs('[data-component="header"]'), { active: null, searchForm: true });
   mountFooter();
@@ -629,12 +877,22 @@ function initialize() {
   // Chỉ nghe phần hồ sơ để tuỳ chọn giao diện không xoá lỗi hoặc đánh dấu chưa lưu.
   fields.addEventListener('input', profileChanged);
   fields.addEventListener('change', profileChanged);
-  form.addEventListener('submit', submitProfile);
+  // Enter trong một ô chỉ lưu mục chứa ô đó, không biến thành lưu toàn bộ form.
+  form.addEventListener('submit', submitCurrentSection);
+  form.addEventListener('keydown', submitSectionOnEnter);
+  for (const section of Object.keys(sections)) {
+    document.getElementById('section-' + section).dataset.saveSection = section;
+    qs('[data-section-save="' + section + '"]').addEventListener('click', function saveClickedSection() {
+      void saveSection(section);
+    });
+    qs('[data-section-reset="' + section + '"]').addEventListener('click', function resetClickedSection() {
+      resetSection(section);
+    });
+  }
   fileInput.addEventListener('change', uploadAvatar);
   presetsToggle.addEventListener('click', togglePresets);
   qs('[data-presets-close]').addEventListener('click', closePresets);
   qs('[data-remove-avatar]').addEventListener('click', removeAvatar);
-  resetButton.addEventListener('click', resetProfile);
   qs('[data-retry]').addEventListener('click', loadProfile);
   qs('[data-delete-open]').addEventListener('click', openDeleteDialog);
   qs('[data-delete-cancel]').addEventListener('click', closeDeleteDialog);
@@ -647,8 +905,9 @@ function initialize() {
   document.addEventListener('keydown', handleEscape);
   window.addEventListener('scroll', updateActiveSection, { passive: true });
   window.addEventListener('resize', updateActiveSection);
-  window.matchMedia('(max-width: 600px)').addEventListener('change', arrangeActions);
-  arrangeActions();
+  mobileLayout.addEventListener('change', arrangeSectionButtons);
+  arrangeSectionButtons();
+  initializeLeaveGuard();
   redirectLegacySessionAnchor();
   void loadProfile();
 }
@@ -728,7 +987,7 @@ function renderAvatar() {
   } else {
     showAvatarFallback();
   }
-  qs('[data-remove-avatar]').disabled = busy || !avatarUrl;
+  qs('[data-remove-avatar]').disabled = busy || !ready || avatarProcessing || savingSections.has('avatar') || !avatarUrl;
   // Mẫu đang chọn có aria-pressed để trạng thái có ý nghĩa cả với bàn phím và trình đọc.
   for (const button of qsa('[data-preset]')) {
     button.setAttribute('aria-pressed', String(button.dataset.preset === avatarUrl));
@@ -799,7 +1058,7 @@ function decodeImage(url) {
 /** Chặn định dạng hoặc dung lượng sai; ảnh đúng được cắt vuông giữa và thu về JPEG 256px chất lượng 0,85. */
 async function uploadAvatar() {
   const file = fileInput.files[0];
-  if (!file || busy || !ready) {
+  if (!file || busy || !ready || avatarProcessing || savingSections.has('avatar')) {
     return;
   }
   const hint = qs('[data-avatar-hint]');
@@ -813,7 +1072,8 @@ async function uploadAvatar() {
     fileInput.setAttribute('aria-invalid', 'true');
     return;
   }
-  setBusy(true);
+  avatarProcessing = true;
+  renderSectionStates();
   const url = URL.createObjectURL(file);
   try {
     const image = await decodeImage(url);
@@ -837,7 +1097,7 @@ async function uploadAvatar() {
     fileInput.setAttribute('aria-invalid', 'true');
   } finally {
     URL.revokeObjectURL(url);
-    setBusy(false);
+    avatarProcessing = false;
     profileChanged();
   }
 }

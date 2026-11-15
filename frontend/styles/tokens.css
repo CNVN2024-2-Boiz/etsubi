@@ -693,4 +693,8 @@
   --settings-row-gap: 14px;
   --settings-copy-gap: 2px;
   --settings-option-gap: 6px;
+  /* Batch 6: chữ báo chưa lưu và chiều rộng dialog lấy từ component Figma 354:2961, 354:2972. */
+  --color-unsaved-text: #5A282D;
+  --settings-leave-dialog-width: 560px;
+  --settings-save-bar-height: 60px;
 }

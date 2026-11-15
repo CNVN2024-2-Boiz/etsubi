@@ -180,10 +180,175 @@
   }
 }
 
-/* Thanh lưu của Cài đặt chỉ còn Huỷ và Lưu (Figma đã bỏ "Về trang hồ sơ" và vạch ngăn phía trên),
-   nên căn cả nhóm sang phải và bỏ viền trên; khoảng cách với mục trên lấy theo nhịp chung giữa các mục. */
-.settings-actions {
+/* Giữ thanh desktop cao 60px theo ảnh; căn giữa tạo đệm dọc nhỏ vì nút mặc định đã cao hơn 50px. */
+.section-save-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--settings-save-bar-height);
+  padding: 0 var(--space-3) 0 var(--space-4);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+}
+
+/* Thuộc tính hidden phải thắng display flex để mục sạch không chừa chỗ cho thanh hoặc chấm. */
+.section-save-bar[hidden],
+.page--settings .settings-nav-unsaved[hidden] {
+  display: none;
+}
+
+/* Chấm và chữ nằm cùng hàng, phần chữ nhận bề ngang còn lại trước hai nút. */
+.section-save-bar__message {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-unsaved-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Hai nút dùng kích thước chung của dự án, tách 12px và không bị ép nhãn xuống dòng trên desktop. */
+.section-save-bar__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-3);
+}
+
+/* Trạng thái chờ dùng chữ tĩnh và độ mờ riêng của component, không dùng spinner. */
+.section-save-bar.is-saving .btn--secondary {
+  opacity: .5;
+}
+
+/* Nút lưu đang gửi đậm hơn mặc định disabled để khớp trạng thái Figma. */
+.section-save-bar.is-saving .btn--primary {
+  opacity: .6;
+}
+
+/* Chấm tròn 8px được dùng ở cả thanh lưu và điều hướng, không phụ thuộc màu chữ hiện tại. */
+.settings-unsaved-dot {
+  display: inline-block;
+  flex: 0 0 var(--space-2);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-red);
+}
+
+/* Chấm nav sát cạnh phải và thẳng hàng dòng tiêu đề; tránh quy tắc span của nav biến nó thành khối chữ. */
+.page--settings .settings-nav-unsaved {
+  display: flex;
+  flex: 0 0 var(--space-2);
+  align-self: flex-start;
+  align-items: center;
+  height: 18px;
+  margin-left: auto;
+}
+
+/* Dialog gốc giữ cùng chất liệu, viền và lớp phủ như dialog viết bài mà không cần sửa Diễn đàn. */
+.settings-leave-dialog {
+  width: calc(100% - var(--space-7));
+  max-width: var(--settings-leave-dialog-width);
+  max-height: calc(100% - var(--space-7));
+  margin: auto;
+  padding: var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-card-strong);
+}
+
+/* Lớp phủ tĩnh làm tối trang phía sau để người dùng tập trung vào lựa chọn giữ dữ liệu. */
+.settings-leave-dialog::backdrop {
+  background: var(--edit-dialog-backdrop);
+}
+
+/* Ba hàng của dialog cách 16px, giữ tiêu đề, mô tả và hành động theo thứ tự đọc. */
+.settings-leave-dialog__content {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Tiêu đề và nút đóng xếp ngang, chữ có thể xuống dòng khi cửa sổ nhỏ. */
+.settings-leave-dialog__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Tiêu đề display đỏ 24px giống dialog trong ảnh tham chiếu. */
+.settings-leave-dialog__heading h2 {
+  color: var(--color-red);
+  font-size: 24px;
+}
+
+/* Nút đóng có vùng chạm 40px và icon Lucide vuông 24px, giữ nét cân đối. */
+.settings-leave-dialog__close {
+  display: inline-flex;
+  flex: 0 0 var(--space-8);
+  align-items: center;
+  justify-content: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+/* Hover chỉ đổi nền, cùng kiểu phản hồi của nút đóng dialog Diễn đàn. */
+.settings-leave-dialog__close:hover {
+  background: var(--color-sakura);
+}
+
+/* Focus bàn phím luôn rõ kể cả với nút không dùng lớp btn chung. */
+.settings-leave-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Mô tả dùng màu chữ phụ gần số đo Figma, không tạo thêm màu gần như trùng nhau. */
+.settings-leave-dialog__description {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+/* Các nút ở desktop căn phải và dùng thứ tự bỏ thay đổi rồi ở lại. */
+.settings-leave-dialog__actions {
+  display: flex;
   justify-content: flex-end;
-  padding-top: 0;
-  border-top: 0;
+  gap: var(--space-3);
+}
+
+/* Điện thoại cho chữ và nút xuống hàng, không ép các nhãn dài thành cột hẹp. */
+@media (max-width: 600px) {
+  /* Thanh lưu giữ hàng thông báo trước, hàng nút sau; JS sắp Lưu trước Huỷ trong DOM. */
+  .section-save-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding-block: var(--space-3);
+  }
+
+  /* Hai nút xếp dọc và phủ hết bề ngang còn lại của thanh. */
+  .section-save-bar__actions,
+  .settings-leave-dialog__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  /* Nút nhận chiều rộng đầy đủ, thứ tự Tab theo đúng DOM đã đổi khi qua breakpoint. */
+  .section-save-bar__actions > .btn,
+  .settings-leave-dialog__actions > .btn {
+    width: 100%;
+  }
 }
