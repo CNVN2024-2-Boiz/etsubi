@@ -285,16 +285,11 @@ function setFieldError(name, message = '') {
     return;
   }
   const defaults = {
-    username: 'Tên cần ít nhất 3 ký tự.',
+    username: 'Tên hiển thị trên bài viết và bình luận · tối thiểu 3 ký tự',
     bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
     native: 'Có thể thay đổi bất cứ lúc nào trong Cài đặt',
   };
   hint.textContent = message || defaults[name];
-  if (name === 'username' && !message && validUsername(input(name).value)) {
-    // Câu chữ theo Figma; trạng thái này chỉ xác nhận độ dài UTF-8, trùng tên được API kiểm tra khi gửi.
-    hint.textContent = '✓ Tên người dùng khả dụng · tối thiểu 3 ký tự';
-    hint.classList.add('field__hint--success');
-  }
 }
 
 /** Hiện thông báo tiếng Việt tại form; nút thử lại chỉ xuất hiện khi việc tải hồ sơ thất bại. */
