@@ -2,6 +2,7 @@
 import { request } from '/services/api/client.js';
 import { routes } from '/utils/routes.js';
 import { initials } from '/utils/format.js';
+import { isAllowedReaction } from '/services/api/reaction-emojis.js';
 
 /** Đọc số thông báo chưa đọc của tài khoản hiện tại để cập nhật chuông. */
 export function getUnreadCount() {
@@ -97,10 +98,16 @@ export function formatNotification(notification) {
     values.date = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
       + ' ' + date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
+  // Emoji trong câu do người gửi tự khai nên chỉ hiện khi đúng danh sách cho phép, tránh chèn chữ lạ vào thông báo.
+  if (kind === 'reaction' && !isAllowedReaction(values.emoji)) {
+    values.emoji = '';
+  }
   // Chỉ tên người thực hiện được in đậm; nội dung còn lại luôn là text node khi dựng giao diện.
   const actorName = isSystem ? 'Quản trị viên' : values.actor;
   values.actor = actorName;
-  const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder);
+  const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder)
+    // Ô trống (như emoji bị loại) để lại hai khoảng trắng liền nhau, gộp lại cho câu gọn.
+    .replace(/ {2,}/gu, ' ');
   return {
     actorName, initials: isSystem ? 'QT' : initials(actorName), isSystem, kind,
     text: [{ text: actorName, strong: true }, { text: suffix, strong: false }],

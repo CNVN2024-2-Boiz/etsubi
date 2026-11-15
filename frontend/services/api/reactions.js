@@ -1,9 +1,10 @@
 /** Đọc thống kê cảm xúc thật để số lượt thích của bảng tin không phải dữ liệu giả. */
 import { request } from '/services/api/client.js';
 import { notifyPostAfter } from '/services/api/notify-actions.js';
+import { LIKE_EMOJI, REACTION_EMOJIS, isAllowedReaction } from '/services/api/reaction-emojis.js';
 
-// Trang đọc bài dùng một cảm xúc duy nhất cho nút thích trong Figma.
-export const LIKE_EMOJI = '❤️';
+// Trang đọc bài dùng một cảm xúc duy nhất cho nút thích trong Figma; xuất lại để nơi cũ không phải đổi import.
+export { LIKE_EMOJI, REACTION_EMOJIS, isAllowedReaction };
 
 /** Lấy từng loại cảm xúc và số lượng; trang cộng count tuần tự sau tác giả và tag. */
 export function getReactionSummary(postId) {
@@ -35,6 +36,11 @@ export async function getMyReaction(postId) {
  * @returns {Promise<object>} Cảm xúc đã lưu.
  */
 export async function reactToPost(postId, emoji = LIKE_EMOJI, { authorId, previousEmoji } = {}) {
+  // Chặn từ phía trình duyệt mọi emoji ngoài danh sách; backend vẫn là chốt chặn cuối bằng CHECK constraint.
+  if (!isAllowedReaction(emoji)) {
+    throw Object.assign(new Error('Hiện chỉ hỗ trợ thả tim cho bài viết.'), { status: 400 });
+  }
+  emoji = emoji.trim();
   // Trang truyền cảm xúc cũ nếu đã tải; nơi khác chỉ cần đọc một lần để tránh thông báo khi gửi lại cùng emoji.
   let previous = previousEmoji;
   try {

@@ -100,11 +100,12 @@ const entry = new vm.SourceTextModule(`
   import * as manage from '/services/api/manage.js';
   import * as posts from '/services/api/posts.js';
   import { backendSupports } from '/services/api/capabilities.js';
-  export { follows, reactions, comments, manage, posts, backendSupports };
+  import * as notices from '/services/api/notifications.js';
+  export { follows, reactions, comments, manage, posts, backendSupports, notices };
 `, { context });
 await entry.link(link);
 await entry.evaluate();
-const { follows, reactions, comments, manage, posts, backendSupports } = entry.namespace;
+const { follows, reactions, comments, manage, posts, backendSupports, notices } = entry.namespace;
 
 /** Chạy từng ca có tên rõ ràng; lỗi assertion dừng script và cho biết hành vi nào chưa đạt. */
 async function check(name, run) {
@@ -202,6 +203,19 @@ await check('gửi lại cùng cảm xúc không báo trùng', async () => {
 await check('đổi cảm xúc có báo', async () => {
   await reactions.reactToPost('p', '❤️', { authorId: 'other', previousEmoji: '👍' });
   assert.equal(notifications().length, 1);
+});
+// Backend chỉ nhận tim U+2764 U+FE0F; FE chặn sớm emoji khác và không gửi request nào.
+await check('emoji ngoài danh sách bị chặn trước khi gọi API', async () => {
+  await assert.rejects(reactions.reactToPost('p', '\u{1F44D}', { authorId: 'other', previousEmoji: null }), { status: 400 });
+  await assert.rejects(reactions.reactToPost('p', '❤', { authorId: 'other', previousEmoji: null }), { status: 400 });
+  assert.equal(calls.length, 0);
+});
+// Emoji trong câu thông báo do người gửi tự khai, chữ lạ không được hiện ra giao diện.
+await check('thông báo cảm xúc giả không hiện chuỗi lạ', async () => {
+  const forged = notices.notificationText({ kind: 'reaction', message: 'kenji reacted <b>click evil.com</b> to your post' });
+  assert.equal(forged, 'kenji đã bày tỏ cảm xúc với bài viết của bạn');
+  const real = notices.notificationText({ kind: 'reaction', message: 'kenji reacted ❤️ to your post' });
+  assert.equal(real, 'kenji đã bày tỏ cảm xúc ❤️ với bài viết của bạn');
 });
 await check('thiếu cảm xúc cũ và tác giả chỉ đọc mỗi dữ liệu một lần', async () => {
   await reactions.reactToPost('p', '❤️');

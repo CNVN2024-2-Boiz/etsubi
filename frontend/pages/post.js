@@ -523,7 +523,7 @@ async function toggleLike() {
       state.likeCount = Math.max(0, (state.likeCount ?? 1) - 1);
     } else {
       const reaction = await reactToPost(state.post.id, LIKE_EMOJI, { authorId: state.post.author_id, previousEmoji: state.myEmoji });
-      state.myEmoji = reaction?.emoji || '❤️';
+      state.myEmoji = reaction?.emoji || LIKE_EMOJI;
       state.likeCount = (state.likeCount ?? 0) + 1;
     }
     renderLike();
