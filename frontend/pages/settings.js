@@ -50,7 +50,7 @@ let navigationSection = location.hash.slice(1);
 
 // Gợi ý mặc định được khôi phục khi huỷ hoặc khi người dùng sửa ô đang có lỗi.
 const defaultHints = {
-  username: 'Tên cần ít nhất 3 ký tự.',
+  username: 'Tên hiển thị trên bài viết và bình luận · tối thiểu 3 ký tự',
   email: 'Dùng để đăng nhập · đổi email áp dụng từ lần đăng nhập sau',
   bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
   native: 'Hiển thị bằng lá cờ cạnh tên bạn trên bài viết và bình luận',
@@ -144,12 +144,8 @@ function setFieldError(name, message = '') {
   }
   hint.textContent = message || defaultHints[name];
   hint.classList.toggle('field__hint--error', Boolean(message));
-  const valid = name === 'username' && !message && validUsername(input(name).value);
-  hint.classList.toggle('field__hint--success', valid);
-  if (valid) {
-    // Câu chữ từ Figma chỉ xác nhận độ dài cục bộ; API kiểm tra trùng tên khi bấm lưu.
-    hint.textContent = '✓ Tên người dùng khả dụng · tối thiểu 3 ký tự';
-  }
+  // Gợi ý hợp lệ dùng màu muted, chỉ xác nhận độ dài; giữ nguyên lỗi từ máy chủ.
+  hint.classList.remove('field__hint--success');
 }
 
 /** Khôi phục mọi gợi ý và bỏ lỗi form khi huỷ hoặc khi tải thành công. */
@@ -239,7 +235,6 @@ function setBusy(value, saving = false) {
   fields.disabled = value || !ready;
   submitButton.disabled = value || !ready;
   qs('[data-delete-open]').disabled = value || !ready;
-  qs('[data-logout]').disabled = value || !ready;
   form.setAttribute('aria-busy', String(value));
   submitButton.textContent = saving ? 'Đang lưu…' : 'Lưu thay đổi';
   if (serverValues) {
@@ -426,7 +421,7 @@ function activateSection(id) {
   }
 }
 
-/** Mỗi lần cuộn chỉ đo bảy đề mục và chọn mục gần mép trên khả dụng nhất, không điều khiển chuyển động. */
+/** Mỗi lần cuộn chỉ đo sáu đề mục và chọn mục gần mép trên khả dụng nhất, không điều khiển chuyển động. */
 function updateActiveSection() {
   const top = qs('[data-component="header"]').getBoundingClientRect().bottom;
   let closest = null;
@@ -604,15 +599,15 @@ function initializePreferences() {
   }
 }
 
-/** Tiện ích đăng xuất tự xoá phiên và về routes.home kể cả khi lỗi mạng. */
-async function logoutSession() {
-  if (!ready || busy || deleting) {
+/** Liên kết phiên cũ chuyển tới Giao diện mà không thêm lịch sử hoặc cuộn mượt. */
+function redirectLegacySessionAnchor() {
+  if (location.hash !== '#section-session') {
     return;
   }
-  setBusy(true);
-  const button = qs('[data-logout]');
-  button.textContent = 'Đang đăng xuất…';
-  await logout();
+  history.replaceState(history.state, '', location.pathname + location.search + '#section-appearance');
+  navigationSection = 'section-appearance';
+  activateSection(navigationSection);
+  document.getElementById(navigationSection).scrollIntoView({ behavior: 'instant' });
 }
 
 /** Gắn sự kiện một lần; không có beforeunload, autosave, hiệu ứng cuộn hoặc phụ thuộc thư viện. */
@@ -645,7 +640,6 @@ function initialize() {
   qs('[data-remove-avatar]').addEventListener('click', removeAvatar);
   resetButton.addEventListener('click', resetProfile);
   qs('[data-retry]').addEventListener('click', loadProfile);
-  qs('[data-logout]').addEventListener('click', logoutSession);
   qs('[data-delete-open]').addEventListener('click', openDeleteDialog);
   qs('[data-delete-cancel]').addEventListener('click', closeDeleteDialog);
   deleteDialog.addEventListener('cancel', closeDeleteDialog);
@@ -659,6 +653,7 @@ function initialize() {
   window.addEventListener('resize', updateActiveSection);
   window.matchMedia('(max-width: 600px)').addEventListener('change', arrangeActions);
   arrangeActions();
+  redirectLegacySessionAnchor();
   void loadProfile();
 }
 

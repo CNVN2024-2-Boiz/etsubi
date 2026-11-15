@@ -1,4 +1,4 @@
-/* Cài đặt dùng lại toàn bộ bố cục chỉnh sửa hồ sơ; chỉ bổ sung các khối giao diện và phiên. */
+/* Cài đặt dùng lại bố cục chỉnh sửa hồ sơ; chỉ bổ sung khối Giao diện lưu riêng trên trình duyệt. */
 .page--settings .settings-appearance {
   padding-top: var(--space-8);
   border-top: 1px solid var(--color-border);
@@ -161,9 +161,8 @@
     gap: var(--space-3);
   }
 
-  /* Radio và nút đăng xuất phủ hết hàng tiếp theo, giữ thứ tự Tab khớp thứ tự nhìn. */
-  .settings-segments,
-  .settings-row > .btn {
+  /* Radio phủ hết hàng tiếp theo, giữ thứ tự Tab khớp thứ tự nhìn. */
+  .settings-segments {
     flex-basis: 100%;
     width: 100%;
   }

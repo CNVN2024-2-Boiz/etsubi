@@ -35,7 +35,7 @@
             </nav>
             <span class="profile-heading__accent" aria-hidden="true"></span>
             <h1 class="t-display">Cài đặt</h1>
-            <p>Cập nhật hồ sơ, mật khẩu, giao diện và phiên đăng nhập của bạn tại một nơi.</p>
+            <p>Cập nhật hồ sơ, mật khẩu và giao diện của bạn tại một nơi.</p>
           </div>
           <p class="profile-draft" role="status" data-saved-pill>
             <img src="/assets/icons/saved-tick.svg" width="16" height="16" alt="" />
@@ -62,13 +62,6 @@
                   <a class="edit-settings__link" href="#section-appearance" data-settings-link="section-appearance">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
                     <span><strong>Giao diện</strong><small>Chế độ hiển thị · Ngôn ngữ</small></span>
-                  </a>
-                </li>
-                <!-- Mục phiên đăng nhập: neo tới khối tương ứng, dùng icon Lucide vuông theo màu chữ. -->
-                <li>
-                  <a class="edit-settings__link" href="#section-session" data-settings-link="section-session">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9" /></svg>
-                    <span><strong>Phiên đăng nhập</strong><small>Đăng xuất khỏi thiết bị này</small></span>
                   </a>
                 </li>
                 <!-- Mục xoá tài khoản: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
@@ -126,7 +119,7 @@
                     <div class="field">
                       <label class="field__label" for="username">Tên người dùng <span class="field__required">*</span></label>
                       <input class="input" id="username" name="username" autocomplete="username" aria-describedby="username-hint" required />
-                      <p class="field__hint" id="username-hint" data-username-hint>Tên cần ít nhất 3 ký tự.</p>
+                      <p class="field__hint" id="username-hint" data-username-hint>Tên hiển thị trên bài viết và bình luận · tối thiểu 3 ký tự</p>
                     </div>
                     <div class="field">
                       <label class="field__label" for="email">Email <span class="field__required">*</span></label>
@@ -251,24 +244,7 @@
                   <p class="field__hint" id="interface-language-hint">Bản dịch JA/EN của giao diện sắp có.</p>
                 </div>
               </section>
-              <!-- Phiên hiện tại có thao tác riêng, không gửi hoặc lưu biểu mẫu hồ sơ. -->
-              <section class="profile-section" id="section-session" tabindex="-1" aria-labelledby="session-title">
-                <div class="profile-section__heading">
-                  <h2 class="t-display" id="session-title">Phiên đăng nhập</h2>
-                  <p>Bạn đang đăng nhập trên trình duyệt này.</p>
-                </div>
-                <div class="settings-list">
-                  <div class="settings-row">
-                    <span class="settings-row__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 5a1 1 0 0 1 1 1v8H5V6a1 1 0 0 1 1-1Zm-16 14h20l-3-5H5Z" /></svg></span>
-                    <div class="settings-row__copy">
-                      <h3>Đăng xuất khỏi thiết bị này</h3>
-                      <p>Bạn sẽ cần đăng nhập lại để đăng bài và bình luận</p>
-                    </div>
-                    <button class="btn btn--secondary" type="button" data-logout disabled>Đăng xuất</button>
-                  </div>
-                </div>
-              </section>
-              <!-- Vạch ngăn tách hành động xoá vĩnh viễn khỏi quản lý phiên. -->
+              <!-- Một vạch ngăn tách Giao diện khỏi hành động xoá tài khoản vĩnh viễn. -->
               <hr class="settings-divider" />
               <!-- Vùng nguy hiểm cần xác nhận riêng bằng mật khẩu và không tự gửi form hồ sơ. -->
               <section class="edit-danger" id="section-delete" tabindex="-1" aria-labelledby="delete-title">
