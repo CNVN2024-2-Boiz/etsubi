@@ -362,10 +362,16 @@ function closeComposeDialog() {
   if (composeDialog.open) {
     composeDialog.close();
   }
+  // Trả form ngay, không chờ sự kiện close (có trình duyệt phát trễ khi tab không vẽ); close vẫn là dự phòng.
+  restoreCompose();
 }
 
 /** Trả form về chỗ cũ, giữ bản nháp khi đóng bằng Escape/Đóng và trả focus mà không cuộn tới đầu trang. */
 function restoreCompose() {
+  // Gọi được nhiều lần: nếu form đã nằm ở neo gốc thì không làm gì, tránh focus hai lần.
+  if (compose.parentElement === composeSlot) {
+    return;
+  }
   composeSlot.append(compose);
   compose.classList.remove('is-in-dialog');
   composeSlot.classList.remove('is-holding');
