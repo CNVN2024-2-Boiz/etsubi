@@ -28,6 +28,13 @@ const errorBox = qs('[data-forum-error]');
 const moreBox = qs('[data-feed-more]');
 const moreButton = qs('[data-feed-more-button]');
 const compose = qs('[data-compose]');
+// Giữ một form duy nhất và neo gốc để bản nháp, ID cùng các listener không bị nhân đôi trong dialog.
+const composeSlot = qs('[data-compose-slot]');
+const composeFab = qs('[data-compose-fab]');
+const composeDialog = qs('[data-compose-dialog]');
+let composeObserver = null;
+let composeMuted = false;
+let composeAboveViewport = false;
 const bookmarkStates = new Map();
 let user = getCachedUser();
 let tags = [];
@@ -309,6 +316,65 @@ function handleTabKey(event) {
 
 /* ===== Ô viết bài ===== */
 
+/** Chỉ đổi hidden, không hiệu ứng; nút nổi không cạnh tranh với ô gốc, dialog hoặc trạng thái tạm khoá viết. */
+function syncComposeFab() {
+  composeFab.hidden = !composeAboveViewport || composeDialog.open || composeMuted;
+}
+
+/** Quan sát neo gốc với mép trên trừ header sticky để phân biệt khuất phía trên với chưa tới ở phía dưới. */
+function observeComposeSlot() {
+  const header = qs('[data-component="header"]');
+  const headerPosition = getComputedStyle(header).position;
+  const headerHeight = ['sticky', 'fixed'].includes(headerPosition) ? header.getBoundingClientRect().height : 0;
+  composeObserver?.disconnect();
+  composeAboveViewport = composeSlot.getBoundingClientRect().bottom < headerHeight;
+  syncComposeFab();
+  // Dùng rootBounds thay vì số đo cũ để kiểm tra đúng mép nhìn thấy trong callback của observer.
+  composeObserver = new IntersectionObserver(([entry]) => {
+    composeAboveViewport = !entry.isIntersecting && entry.boundingClientRect.bottom < (entry.rootBounds?.top ?? headerHeight);
+    syncComposeFab();
+  }, { rootMargin: '-' + headerHeight + 'px 0px 0px 0px', threshold: 0 });
+  composeObserver.observe(composeSlot);
+}
+
+/** Di chuyển form thật để giữ bản nháp và công cụ; giữ chiều cao neo để bảng tin không nhảy khi mở dialog. */
+function openComposeDialog() {
+  if (composeMuted || composeDialog.open) {
+    return;
+  }
+  if (!user) {
+    goToLogin();
+    return;
+  }
+  composeSlot.style.setProperty('--compose-slot-height', composeSlot.getBoundingClientRect().height + 'px');
+  composeSlot.classList.add('is-holding');
+  compose.classList.add('is-in-dialog');
+  composeDialog.append(compose);
+  // showModal ghi nhớ nút mở trước khi hidden để việc mở không kéo trang tới form gốc.
+  composeDialog.showModal();
+  syncComposeFab();
+  openCompose();
+  qs('[data-compose-content]').focus({ preventScroll: true });
+}
+
+/** Đóng bằng nút, Huỷ hoặc sau khi đăng; Escape cũng đi qua sự kiện close để trả cùng form về đúng neo. */
+function closeComposeDialog() {
+  if (composeDialog.open) {
+    composeDialog.close();
+  }
+}
+
+/** Trả form về chỗ cũ, giữ bản nháp khi đóng bằng Escape/Đóng và trả focus mà không cuộn tới đầu trang. */
+function restoreCompose() {
+  composeSlot.append(compose);
+  compose.classList.remove('is-in-dialog');
+  composeSlot.classList.remove('is-holding');
+  composeSlot.style.removeProperty('--compose-slot-height');
+  observeComposeSlot();
+  const focusTarget = composeFab.hidden ? qs('[data-feed-tab][aria-selected="true"]') : composeFab;
+  focusTarget.focus({ preventScroll: true });
+}
+
 /** Hiện thông báo dưới ô viết bài; kind là '', 'error' hoặc 'success'. */
 function setComposeStatus(content, kind = '') {
   const status = qs('[data-compose-status]');
@@ -449,6 +515,8 @@ async function submitCompose(event) {
     resetCompose();
     setComposeStatus(['Đã đăng bài viết. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
       failedTags ? ' (' + failedTags + ' chủ đề chưa gắn được.)' : ''], 'success');
+    // Chỉ thành công mới đóng dialog; khi lỗi, vùng trạng thái và bản nháp vẫn nằm trước người viết.
+    closeComposeDialog();
     // Bài mới nằm ở tab Mới nhất nên chuyển về tab đó để người viết thấy ngay.
     activateTab(qs('[data-feed-tab="newest"]'));
   } catch (error) {
@@ -470,6 +538,9 @@ function applyMute() {
   notice.textContent = muted ? 'Tài khoản đang bị tạm khoá chức năng viết đến ' + until.toLocaleString('vi-VN') + '. Bạn vẫn có thể đọc bài viết.' : '';
   compose.classList.toggle('is-disabled', muted);
   compose.setAttribute('aria-disabled', String(muted));
+  // Nút nổi cũng phải theo trạng thái khoá viết như form gốc, kể cả lúc form đang ở dialog.
+  composeMuted = muted;
+  syncComposeFab();
 }
 
 /* ===== Khởi tạo ===== */
@@ -503,6 +574,9 @@ function leavePage(event) {
   if (!event.persisted) {
     feedVersion += 1;
     feedController?.abort();
+    // Ngừng quan sát khi rời hẳn trang; trang trong bộ nhớ quay lại vẫn giữ observer đang dùng.
+    composeObserver?.disconnect();
+    composeHeaderObserver.disconnect();
   }
 }
 
@@ -510,6 +584,13 @@ function leavePage(event) {
 qs('[data-feed-tabs]').addEventListener('click', handleTabClick);
 qs('[data-feed-tabs]').addEventListener('keydown', handleTabKey);
 moreButton.addEventListener('click', loadMore);
+// Figma 344:2714 / 344:2918: dialog dùng một form; cập nhật ngưỡng khi header đổi chiều cao ở mobile.
+composeFab.addEventListener('click', openComposeDialog);
+qs('[data-compose-dialog-close]').addEventListener('click', closeComposeDialog);
+composeDialog.addEventListener('close', restoreCompose);
+const composeHeaderObserver = new ResizeObserver(observeComposeSlot);
+composeHeaderObserver.observe(qs('[data-component="header"]'));
+observeComposeSlot();
 qs('[data-compose-content]').addEventListener('focus', openCompose);
 qs('[data-compose-content]').addEventListener('input', syncComposeSubmit);
 qs('[data-compose-title]').addEventListener('input', syncComposeSubmit);
@@ -524,10 +605,11 @@ function handleSignedOutCompose(event) {
 qs('[data-compose-content]').addEventListener('click', handleSignedOutCompose);
 qs('[data-compose-content]').addEventListener('keydown', handleSignedOutCompose);
 
-/** Nút Huỷ: thu gọn ô viết, xoá bản nháp và thông báo cũ. */
+/** Nút Huỷ: thu gọn ô viết, xoá bản nháp và thông báo cũ; đóng dialog nếu đang viết từ nút nổi. */
 function cancelCompose() {
   resetCompose();
   setComposeStatus('');
+  closeComposeDialog();
 }
 qs('[data-compose-cancel]').addEventListener('click', cancelCompose);
 compose.addEventListener('click', handleComposeTool);

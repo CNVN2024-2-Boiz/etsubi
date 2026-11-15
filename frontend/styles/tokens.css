@@ -238,6 +238,10 @@
 :root {
   /* Cột bảng tin rộng 880px ở giữa trang, cách header 48px, khe giữa các khối 20px. */
   --forum-width: 880px;
+  /* Nút viết nổi ở Diễn đàn (Figma ForumComposeFab 344:2712): thấp hơn header/menu (30), dialog ở lớp trên cùng của trình duyệt. */
+  --z-compose-fab: 20;
+  --forum-compose-fab-height: 52px;
+  --forum-compose-fab-mobile-size: 56px;
   --forum-top: 48px;
   --forum-bottom: 96px;
   --forum-gap: 20px;

@@ -371,6 +371,121 @@
   pointer-events: none;
 }
 
+/* ===== Nút nổi (Figma ForumComposeFab 344:2712) và dialog Viết bài mới (Figma 344:2918), dùng token và mẫu .edit-dialog sẵn có ===== */
+
+/* Neo giữ nguyên chiều cao khi chuyển form vào dialog, tránh làm bảng tin bên dưới dồn lên. */
+.forum-compose-slot.is-holding {
+  height: var(--compose-slot-height);
+}
+
+/* Nút nổi cố định dưới header/menu: cao 52px, dạng viên thuốc, không có transition xuất hiện.
+   Màu hồng sakura (nền sakura-100, viền pink-border, chữ đỏ đậm) theo yêu cầu người dùng, để nút nổi
+   nhẹ nhàng hơn nút Đăng đỏ của ô viết và không tranh chú ý với các nút "Xem chi tiết" trong bảng tin. */
+.forum-compose-fab {
+  position: fixed;
+  right: var(--space-8);
+  bottom: var(--space-8);
+  z-index: var(--z-compose-fab);
+  height: var(--forum-compose-fab-height);
+  padding: 0 var(--space-6);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura-100);
+  color: var(--color-red-dark);
+  box-shadow: var(--shadow-sidebar);
+  font-size: 16px;
+  font-weight: 700;
+  transition: none;
+}
+
+/* hidden phải thắng inline-flex của nút dùng chung để không có hai chỗ viết cùng lúc. */
+.forum-compose-fab[hidden] {
+  display: none;
+}
+
+/* Rê chuột chỉ đậm nền hồng lên một bậc, không dịch chuyển. */
+.forum-compose-fab:hover {
+  background: var(--color-pink-border);
+}
+
+/* Vòng focus chung làm rõ điều khiển bàn phím trên cả nút nổi và nút Đóng. */
+.forum-compose-fab:focus-visible,
+.forum-compose-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Icon Lucide giữ đúng tỉ lệ khi nhãn hoặc màn hình co lại. */
+.forum-compose-fab svg,
+.forum-compose-dialog__close svg {
+  flex-shrink: 0;
+}
+
+/* Dialog gốc ở lớp trên cùng, rộng tối đa như ô viết, cuộn nội bộ khi màn hình thấp. */
+.forum-compose-dialog {
+  width: calc(100% - var(--page-gutter) * 2);
+  max-width: var(--forum-width);
+  max-height: calc(100% - var(--page-gutter) * 2);
+  margin: auto;
+  padding: var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card-strong);
+}
+
+/* Lớp phủ giống dialog chỉnh sửa hồ sơ, không có hiệu ứng mở hoặc đóng. */
+.forum-compose-dialog::backdrop {
+  background: var(--edit-dialog-backdrop);
+}
+
+/* Tiêu đề và nút Đóng cùng hàng, không dùng vị trí tuyệt đối để tránh chồng chữ trên mobile. */
+.forum-compose-dialog__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+/* Tiêu đề dùng phông display 24px theo kiểu dialog sẵn có. */
+.forum-compose-dialog__title {
+  color: var(--color-red);
+  font-size: 24px;
+}
+
+/* Nút Đóng có vùng chạm 40px, nền nhẹ để phân biệt với thao tác đăng. */
+.forum-compose-dialog__close {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-transparent);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+/* Nền hồng nhạt phản hồi rê chuột như các công cụ trong form. */
+.forum-compose-dialog__close:hover {
+  background: var(--color-sakura);
+}
+
+/* Form thật dùng khung của dialog thay vì lồng thêm viền, bóng và đệm. */
+.forum-compose.is-in-dialog {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
 /* ===== Bảng tin ===== */
 
 /* Danh sách thẻ cách nhau 20px như Figma. */
@@ -421,6 +536,34 @@
 
 /* ===== Mobile ≤ 600px ===== */
 @media (max-width: 600px) {
+  /* Nút nổi tròn 56px, chừa 16px mỗi cạnh để dễ chạm và không tạo cuộn ngang. */
+  .forum-compose-fab {
+    right: var(--space-4);
+    bottom: var(--space-4);
+    width: var(--forum-compose-fab-mobile-size);
+    height: var(--forum-compose-fab-mobile-size);
+    padding: 0;
+  }
+
+  /* Nhãn dùng cách ẩn của u-visually-hidden: vẫn đọc được tên Đăng bài khi mobile chỉ hiện icon. */
+  .forum-compose-fab__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Dialog gần đầy màn hình, chừa đúng 16px và giảm đệm để nội dung không bị ép. */
+  .forum-compose-dialog {
+    width: calc(100% - var(--space-4) * 2);
+    max-height: calc(100% - var(--space-4) * 2);
+    padding: var(--space-4);
+  }
+
   /* Đệm trên/dưới nhỏ lại; lề ngang 16px lấy từ --page-gutter. */
   .forum {
     padding-block: var(--space-6) var(--space-9);
