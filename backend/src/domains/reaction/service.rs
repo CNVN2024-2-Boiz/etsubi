@@ -64,10 +64,13 @@ impl ReactionService {
         Ok(self.reaction_repo.delete(user_id, post_id)?)
     }
 
-    pub fn get_mine(&self, user_id: Uuid, post_id: Uuid) -> Result<Reaction, ReactionError> {
-        self.reaction_repo
-            .find_by_user_and_post(user_id, post_id)?
-            .ok_or(ReactionError::NotFound)
+    pub fn get_mine(
+        &self,
+        user_id: Uuid,
+        post_id: Uuid,
+    ) -> Result<Option<Reaction>, ReactionError> {
+        self.ensure_post_available(post_id)?;
+        Ok(self.reaction_repo.find_by_user_and_post(user_id, post_id)?)
     }
 
     pub fn list_by_post(&self, post_id: Uuid) -> Result<Vec<Reaction>, ReactionError> {

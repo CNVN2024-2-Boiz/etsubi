@@ -38,6 +38,7 @@ diesel::table! {
     notifications (id) {
         id -> Uuid,
         user_id -> Uuid,
+        actor_id -> Nullable<Uuid>,
         kind -> Text,
         message -> Text,
         link -> Text,
@@ -135,7 +136,6 @@ diesel::joinable!(bookmarks -> users (user_id));
 diesel::joinable!(comment_translation -> comments (original_comment_id));
 diesel::joinable!(comments -> posts (post_id));
 diesel::joinable!(comments -> users (user_id));
-diesel::joinable!(notifications -> users (user_id));
 diesel::joinable!(post_translation -> posts (original_post_id));
 diesel::joinable!(posts -> users (author_id));
 diesel::joinable!(posts_tags -> posts (post_id));
