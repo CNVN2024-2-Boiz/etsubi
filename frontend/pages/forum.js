@@ -20,7 +20,7 @@ import { routes, withRedirect } from '/utils/routes.js';
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
 mountFooter();
 
-// Tab Mới nhất tải từng trang 10 bài; các endpoint riêng chưa hỗ trợ phân trang nên hiện toàn bộ lần trả về.
+// Tab Mới nhất tải từng trang 10 bài; các endpoint riêng phục vụ Diễn đàn không phân trang, hiện backend tạm cắt 3 bài.
 const PAGE_SIZE = 10;
 const feedList = qs('[data-feed-list]');
 const feedStatus = qs('[data-feed-status]');
@@ -223,7 +223,7 @@ async function loadFeed() {
     feedList.replaceChildren(...posts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
     feedStatus.textContent = 'Đã tải ' + posts.length + ' bài viết.';
-    // Không giả trang tiếp theo cho endpoint chưa nhận offset, tránh tải lặp danh sách 20 bài.
+    // Endpoint riêng trả toàn bộ danh sách cho Diễn đàn; chỉ tab Mới nhất có nút tải thêm.
     moreBox.hidden = selectedFeed !== 'newest' || posts.length < PAGE_SIZE;
     await enrichFeed(posts, version);
   } catch (error) {
@@ -241,7 +241,7 @@ async function loadFeed() {
 
 /** Nút "Tải thêm bài viết": nối trang tiếp theo vào cuối danh sách. */
 async function loadMore() {
-  // Các tab dùng endpoint riêng hiện chỉ có một danh sách, chưa thể yêu cầu trang kế tiếp.
+  // Các tab dùng endpoint riêng không phân trang nên không yêu cầu trang kế tiếp.
   if (selectedFeed !== 'newest') {
     return;
   }

@@ -3,7 +3,7 @@ import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featured-card/featured-card.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
-import { listPosts, getFeaturedPosts, getPostTags, getPostStats, listFollowingFeed, listQuestionPosts } from '/services/api/posts.js';
+import { listHomeFeed, getFeaturedPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getMyRecommendations } from '/services/api/recommendations.js';
 import { getReactionSummary } from '/services/api/reactions.js';
@@ -18,6 +18,9 @@ import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
+
+// Figma Home 4 (140:135): mỗi tab của "Bài viết mới" chỉ hiện 3 bài, phần còn lại xem ở Diễn đàn qua "Xem thêm →".
+const HOME_LATEST_LIMIT = 3;
 
 // Header có form riêng của Home, còn footer tái dùng biến thể đầy đủ của trang nội dung.
 mountHeader(qs('[data-component="header"]'), { active: 'home', searchForm: true });
@@ -375,7 +378,8 @@ async function loadFeed() {
   const { signal } = feedController;
   feedList.setAttribute('aria-busy', 'true');
   feedStatus.textContent = 'Đang tải bài viết…';
-  feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
+  // Số khung chờ bằng giới hạn bài thật để giữ bố cục nhất quán khi tải.
+  feedList.replaceChildren(...Array.from({ length: HOME_LATEST_LIMIT }, () => createFeedPlaceholder()));
   try {
     // Khách vẫn thấy lời mời đăng nhập, không gửi yêu cầu tới endpoint cần JWT.
     if (selectedFeed === 'following' && !user) {
@@ -383,16 +387,9 @@ async function loadFeed() {
       return;
     }
     const viewerLanguage = getCachedUser()?.language || readStorage('etsubi_lang') || 'vi';
-    // Các endpoint riêng chưa có limit; Home chỉ vẽ năm bài đầu của danh sách thật.
-    let posts;
-    if (selectedFeed === 'question') {
-      posts = await listQuestionPosts({ signal });
-    } else if (selectedFeed === 'following') {
-      posts = await listFollowingFeed({ signal });
-    } else {
-      posts = await listPosts({ limit: 5, sort: selectedFeed === 'popular' ? 'popular' : 'newest',
-        lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
-    }
+    // Cả bốn tab dùng chung service Trang chủ để đổi endpoint tại một chỗ.
+    const posts = await listHomeFeed(selectedFeed, { limit: HOME_LATEST_LIMIT,
+      lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
     if (version !== feedVersion) {
       return;
     }
@@ -405,7 +402,8 @@ async function loadFeed() {
       showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.' : 'Chưa có bài viết nào.');
       return;
     }
-    const visiblePosts = posts.slice(0, 5);
+    // Tự giới hạn trong lúc chờ endpoint riêng của Trang chủ nhận limit.
+    const visiblePosts = posts.slice(0, HOME_LATEST_LIMIT);
     feedList.replaceChildren(...visiblePosts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
     feedStatus.textContent = 'Đã tải ' + visiblePosts.length + ' bài viết.';

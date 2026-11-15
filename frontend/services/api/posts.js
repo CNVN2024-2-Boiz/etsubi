@@ -27,13 +27,36 @@ export function getPostTags(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/tags');
 }
 
-// CẦN BACKEND: GET /posts/popular hỗ trợ limit/offset và nhúng author, tags, các số đếm; GET /posts?lang=vi trả title/content đã dịch, original_language và is_translated.
-/** Lấy bài mới có phân trang hoặc 20 bài phổ biến qua endpoint riêng, không gửi sort= lên GET /posts. */
+// Gom các đường dẫn của Trang chủ để đổi sang endpoint riêng khi backend hoàn tất.
+const HOME_FEED_ENDPOINTS = Object.freeze({
+  newest: '/posts',
+  popular: '/posts/popular',
+  question: '/posts/qa',
+  following: '/my/following/posts',
+});
+
+// CẦN BACKEND: endpoint riêng cho trang chủ (BE đang làm), nhận limit; khi có route mới chỉ cần đổi HOME_FEED_ENDPOINTS và hàm này.
+/** Lấy bảng tin Trang chủ; tab theo dõi cần JWT và chỉ gọi khi máy chủ hỗ trợ. */
+export function listHomeFeed(tab, { limit, lang, signal } = {}) {
+  // Giữ trạng thái trung tính và không gửi request theo dõi khi cờ hỗ trợ đang tắt.
+  if (tab === 'following' && !backendSupports.followingFeed) {
+    return Promise.resolve(null);
+  }
+  // Bài mới dùng GET /posts có limit sẵn; trang chỉ truyền lang khi cờ autoTranslateFeed đã bật.
+  if (tab === 'newest') {
+    return request(HOME_FEED_ENDPOINTS.newest, { query: { limit, lang }, signal, auth: false });
+  }
+  // Các route tạm còn lại chưa nhận limit; chỉ tab theo dõi gửi JWT.
+  return request(HOME_FEED_ENDPOINTS[tab], { signal, auth: tab === 'following' });
+}
+
+// CẦN BACKEND: GET /posts?lang=vi trả title/content đã dịch, original_language và is_translated.
+/** Lấy bài mới có phân trang hoặc danh sách phổ biến qua endpoint riêng phục vụ Diễn đàn. */
 export async function listPosts({ limit = 5, offset = 0, tagIds = [], sort = 'newest', lang, signal } = {}) {
   if (lang && !backendSupports.autoTranslateFeed) {
     return null;
   }
-  // Endpoint phổ biến hiện trả tối đa 20 bài và không nhận tham số lọc hay phân trang.
+  // CẦN BACKEND: /posts/popular phục vụ Diễn đàn, không phân trang; hiện backend tạm cắt còn 3 bài (truncate(3)), chờ BE trả danh sách đầy đủ, kèm author, tags và số đếm.
   if (sort === 'popular') {
     return request('/posts/popular', { signal });
   }
@@ -66,15 +89,10 @@ export async function getPostStats(postId, post = null) {
   };
 }
 
-// CẦN BACKEND: GET /my/following/posts hiện luôn trả 404 "UUID parsing failed" vì route
-// GET /my/following/{user_id} được đăng ký trước và coi chữ "posts" là mã người dùng.
-// Backend cần đăng ký route /my/following/posts trước route có tham số (hoặc đổi đường dẫn),
-// rồi bổ sung limit/offset và nhúng author, tags, các số đếm. Khi sửa xong, đổi cờ
-// followingFeed trong capabilities.js thành true.
+// CẦN BACKEND: /my/following/posts phục vụ Diễn đàn, cần JWT, không phân trang; hiện backend tạm cắt còn 3 bài (truncate(3)), chờ BE trả danh sách đầy đủ, kèm author, tags và số đếm.
 /**
- * Lấy bài của những người mình đang theo dõi (bảng tin "Đang theo dõi" ở Home và Diễn đàn).
- * Khi cờ followingFeed còn false thì trả null và KHÔNG gửi request, để console không có
- * request lỗi; trang nhận null sẽ hiện thông báo trung tính thay vì danh sách giả.
+ * Lấy bài của những người mình đang theo dõi cho Diễn đàn.
+ * Route đã hoạt động với cờ followingFeed bật; chỉ trả null nếu cấu hình tắt hỗ trợ.
  * @param {object} options Tín hiệu huỷ khi người dùng đổi tab.
  * @returns {Promise<Array|null>} Danh sách bài, hoặc null khi máy chủ chưa hỗ trợ.
  */
@@ -85,7 +103,7 @@ export function listFollowingFeed({ signal } = {}) {
   return request('/my/following/posts', { signal });
 }
 
-// CẦN BACKEND: GET /posts/qa hỗ trợ limit/offset và nhúng author, tags, các số đếm; hiện chỉ trả danh sách PostResponse.
+// CẦN BACKEND: /posts/qa phục vụ Diễn đàn, không phân trang; hiện backend tạm cắt còn 3 bài (truncate(3)), chờ BE trả danh sách đầy đủ, kèm author, tags và số đếm.
 /** Lấy bài hỏi đáp đã xuất bản qua endpoint riêng, không cần tải danh mục tag để tìm mã question. */
 export function listQuestionPosts({ signal } = {}) {
   return request('/posts/qa', { signal });
