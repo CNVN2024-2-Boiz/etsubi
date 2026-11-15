@@ -186,9 +186,9 @@
   min-height: var(--auth-card-register-height);
 }
 
-/* Đệm bốn phía theo token để nội dung cách viền và chừa chỗ cho sóng cuối thẻ. */
+/* Đệm theo token, bớt 4px cuối thẻ để phần Google mới vẫn giữ chiều cao Login 684px. */
 .auth-card__body {
-  padding: var(--auth-body-top) var(--auth-body-side) var(--auth-switch-bottom);
+  padding: var(--auth-body-top) var(--auth-body-side) calc(var(--auth-switch-bottom) - var(--space-1));
 }
 
 /* Tiêu đề biểu mẫu dùng cỡ chữ và chiều cao dòng riêng để khớp thẻ xác thực. */
@@ -236,6 +236,7 @@
 
 /* Căn ô chọn theo đầu dòng để nhãn điều khoản nhiều dòng vẫn thẳng hàng. */
 .auth-card__terms .checkbox {
+  display: flex;
   align-items: flex-start;
 }
 
@@ -248,11 +249,77 @@
   box-shadow: none;
 }
 
+/* Chữ hoặc căn giữa hai vạch mảnh để tách cách xác thực bằng mật khẩu và Google. */
+.auth-card__or {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Hai vạch tự giãn theo bề rộng thẻ, không cần ảnh hay kích thước tuyệt đối. */
+.auth-card__or::before,
+.auth-card__or::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Nút trắng cao bằng ô nhập, lùi nhẹ hai bên trên desktop đúng ảnh tham chiếu. */
+.auth-card__google {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-9);
+  width: var(--auth-google-width);
+  max-width: calc(100% - 2 * var(--auth-google-inset));
+  min-height: var(--auth-input-height);
+  margin: var(--space-3) auto 0;
+  padding: var(--space-3) calc(var(--space-9) + var(--space-1));
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+/* Logo luôn vuông 20px, không bị flex bóp méo khi nhãn dài. */
+.auth-card__google img {
+  flex-shrink: 0;
+}
+
+/* Hover chỉ đổi nền và viền để nút không dịch chuyển. */
+.auth-card__google:hover {
+  background: var(--color-input-bg);
+  border-color: var(--color-muted);
+}
+
+/* Dùng vòng focus chung để thao tác Google luôn nhận ra được bằng bàn phím. */
+.auth-card__google:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 /* Đường phân cách mảnh phủ ngang nội dung và cách nút gửi theo token. */
 .auth-card__divider {
   width: 100%;
   height: 1px;
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
+}
+
+/* Đăng ký có nhiều trường hơn, giảm đệm cuối để thẻ Google vẫn khớp chiều cao 866px của Figma. */
+.auth-card--register .auth-card__body {
+  padding-bottom: var(--space-8);
+}
+
+/* Vạch sau nút Google ở thẻ đăng ký cách nút 16px như ảnh tham chiếu. */
+.auth-card--register .auth-card__divider {
+  margin-top: var(--space-4);
 }
 
 /* Dòng đổi biểu mẫu căn giữa, màu dịu và có khoảng cách rõ sau đường phân cách. */
@@ -608,6 +675,16 @@
   /* Bỏ độ dịch tĩnh của desktop để thẻ login nằm đúng trong luồng dọc trên mobile. */
   .auth-card--login {
     transform: none;
+  }
+
+  /* Nút Google phủ hết cột form, khoảng icon nhỏ hơn để nhãn vừa màn hình 375px. */
+  .auth-card__google {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    gap: var(--space-4);
+    justify-content: center;
+    padding-inline: var(--space-4);
   }
 
   /* Cho ghi nhớ và quên mật khẩu xuống hàng khi cần để màn hình nhỏ không tràn ngang. */

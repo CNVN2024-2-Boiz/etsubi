@@ -3,6 +3,7 @@ import { initAuthPage } from '/utils/auth-page.js';
 import { registerAndLogin, login, safeRedirect } from '/utils/auth.js';
 import { readStorage } from '/services/api/client.js';
 import { routes, withRedirect } from '/utils/routes.js';
+import { qs } from '/utils/dom.js';
 
 // Ghi nhớ email đã tạo trong lần gửi này để lỗi đăng nhập không dẫn đến đăng ký trùng.
 let createdEmail = null;
@@ -39,4 +40,12 @@ initAuthPage({
     }
     location.assign(withRedirect(routes.registerAdvanced, redirect ? safeRedirect(redirect) : null));
   },
+});
+
+// CẦN BACKEND: endpoint OAuth Google (ví dụ GET /auth/google chuyển hướng, callback trả token như POST /auth/login)
+// Chỉ báo trạng thái sắp có bằng vùng info sẵn có, không gửi form hoặc gọi API.
+qs('[data-google-auth]').addEventListener('click', () => {
+  const info = qs('[data-info-alert]');
+  info.textContent = 'Đăng ký bằng Google sắp có.';
+  info.hidden = false;
 });

@@ -2,6 +2,7 @@
 import { initAuthPage } from '/utils/auth-page.js';
 import { login, safeRedirect } from '/utils/auth.js';
 import { routes } from '/utils/routes.js';
+import { qs } from '/utils/dom.js';
 
 // Nội dung lời chào riêng của trang; cảnh và tương tác biểu mẫu được dùng chung.
 initAuthPage({
@@ -12,4 +13,12 @@ initAuthPage({
     await login(values.email, values.password, { remember: values.remember === 'on' });
     location.assign(safeRedirect(redirect, routes.home));
   },
+});
+
+// CẦN BACKEND: endpoint OAuth Google (ví dụ GET /auth/google chuyển hướng, callback trả token như POST /auth/login)
+// Chỉ báo trạng thái sắp có bằng vùng info sẵn có, không gửi form hoặc gọi API.
+qs('[data-google-auth]').addEventListener('click', () => {
+  const info = qs('[data-info-alert]');
+  info.textContent = 'Đăng nhập bằng Google sắp có.';
+  info.hidden = false;
 });

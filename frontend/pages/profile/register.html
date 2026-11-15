@@ -96,6 +96,13 @@
             <div class="alert alert--error auth-card__message" role="alert" data-form-alert hidden></div>
             <!-- Nút gửi có nhãn gốc để module phục hồi sau trạng thái chờ tĩnh. -->
             <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit>Đăng ký</button>
+            <!-- Phân cách hai cách đăng ký bằng chữ và hai vạch tĩnh theo bản tham chiếu. -->
+            <div class="auth-card__or"><span>hoặc</span></div>
+            <!-- Nút Google chưa gửi API, chỉ hiện thông báo sắp có trong vùng trạng thái của form. -->
+            <button class="auth-card__google" type="button" data-google-auth>
+              <img src="/assets/icons/google-g.svg" alt="" width="20" height="20" />
+              <span>Đăng ký với Google</span>
+            </button>
           </form>
           <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
           <img class="auth-card__divider" src="/assets/illustrations/card-divider.svg" alt="" aria-hidden="true" />

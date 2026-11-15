@@ -471,8 +471,8 @@
 
   /* Kích thước và khoảng cách biểu mẫu xác thực để giữ nguyên khung Figma. */
   --auth-card-width: 504px;
-  --auth-card-login-height: 584px;
-  --auth-card-register-height: 766px;
+  --auth-card-login-height: 684px;
+  --auth-card-register-height: 866px;
   --auth-body-top: 23px;
   --auth-body-side: 39.2px;
   --auth-field-gap: 17px;
@@ -680,6 +680,10 @@
   --header-profile-width: 280px;
   --header-profile-avatar-size: 44px;
   --shadow-header-avatar-open: 0 0 0 5px var(--color-white-20);
+
+  /* Nút Google ở Login/Register: lùi 10px mỗi bên so với form, rộng 398.4px như Figma. */
+  --auth-google-inset: 10px;
+  --auth-google-width: 398.4px;
 
   /* Trang Cài đặt 323:2611: khoảng cách riêng giữa icon, chữ và các lựa chọn trong pill. */
   --settings-row-gap: 14px;
