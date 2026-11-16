@@ -8,6 +8,8 @@ erDiagram
         uuid id PK
         text username UK
         text email UK
+        text institute 
+        text address
         text native
         text language
         text password
@@ -76,6 +78,12 @@ erDiagram
         text content
         timestamptz deleted_at
     }
+    NOTIFICATION {
+        uuid id PK
+        bool is_readed 
+        text link
+        uuid user_id FK
+    }
 
     USERS ||--o{ POSTS : author
     USERS ||--o{ COMMENTS : writes
@@ -83,6 +91,7 @@ erDiagram
     USERS ||--o{ BOOKMARKS : saves
     USERS ||--o{ USER_FOLLOWS : follower
     USERS ||--o{ USER_FOLLOWS : following
+    USERS ||--o{ NOTIFICATION : notify
     POSTS ||--o{ COMMENTS : has
     POSTS ||--o{ REACTIONS : has
     POSTS ||--o{ BOOKMARKS : has

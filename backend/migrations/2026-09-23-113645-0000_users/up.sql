@@ -1,12 +1,13 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username TEXT NOT NULL,
+    displayname TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     institute TEXT,
     address TEXT,
     native TEXT NOT NULL DEFAULT 'vi' CHECK (native IN ('vi', 'en', 'ja')),
     language TEXT NOT NULL DEFAULT 'vi' CHECK (language IN ('vi', 'en', 'ja')),
-    password TEXT NOT NULL,
+    password TEXT,
     avatar_url TEXT,
     bio TEXT,
     role TEXT NOT NULL DEFAULT 'user'
