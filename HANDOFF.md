@@ -80,7 +80,15 @@ Open `http://localhost:12321/pages/profile/login.html?api=http://localhost:21432
 
 Pages: `/pages/profile/login.html`, `/pages/profile/register.html`, `/pages/profile/register-advanced.html` (needs login), `/pages/search.html`, e.g. `/pages/search.html?q=onsen&tag=question&tag=general`.
 
-Contract test (no dependencies): `node frontend/dev/tests/auth-foundation.mjs`.
+Tests (no dependencies). They load the front-end modules with `vm.SourceTextModule`/`vm.SyntheticModule`, so Node 24 needs the `--experimental-vm-modules` flag (without it: "vm.SyntheticModule is not a constructor"):
+
+```bash
+node --experimental-vm-modules frontend/dev/tests/auth-foundation.mjs
+node --experimental-vm-modules frontend/dev/tests/leave-guard.mjs
+node --experimental-vm-modules frontend/dev/tests/notification-actions.mjs
+node --experimental-vm-modules frontend/dev/tests/profile-identity.mjs
+node --experimental-vm-modules frontend/dev/tests/username.mjs
+```
 
 ## 4. Known issues and decisions
 
