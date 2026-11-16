@@ -66,9 +66,6 @@ impl AuthService {
         if self.user_repo.find_by_email(email)?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
         }
-        if self.user_repo.find_by_username(username)?.is_some() {
-            return Err(AuthError::UsernameAlreadyTaken);
-        }
 
         let hashed = hash_password(password)?;
         let now = Utc::now();
