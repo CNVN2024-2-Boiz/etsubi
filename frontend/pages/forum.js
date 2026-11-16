@@ -1,4 +1,5 @@
 /** Trang Diễn đàn (Figma 1:1587): ô viết bài, bốn tab bảng tin và danh sách PostCard dùng chung với Trang chủ. */
+import { getAuthorLabel } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
@@ -402,17 +403,17 @@ function renderComposeIdentity() {
     return;
   }
   avatar.className = 'forum-compose__avatar';
-  avatar.replaceChildren(initials(user.username));
+  avatar.replaceChildren(initials(user.displayname || user.username));
   if (user.avatarUrl) {
     const image = el('img', { src: user.avatarUrl, alt: '' });
     /** Ảnh lỗi thì quay về chữ đầu tên. */
     function useInitials() {
-      avatar.replaceChildren(initials(user.username));
+      avatar.replaceChildren(initials(user.displayname || user.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
   }
-  content.placeholder = user.username + ' ơi, bạn đang nghĩ gì?';
+  content.placeholder = getAuthorLabel(user) + ' ơi, bạn đang nghĩ gì?';
 }
 
 /** Dựng các chip chủ đề có thể bật/tắt từ danh sách tag thật. */

@@ -3,6 +3,7 @@
  * nhãn trạng thái, nhãn "Chỉ Mod/Admin thấy", khối viền đứt, menu thả xuống và hộp thoại xác nhận.
  * Trang Hồ sơ và trang Đọc bài dùng chung module này.
  */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { el } from '/utils/dom.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 
@@ -399,8 +400,8 @@ export function openMuteDialog(user, onConfirm, extend = false) {
   const promise = openConfirmDialog({
     icon: 'mute',
     tone: 'amber',
-    title: (extend ? 'Gia hạn tắt tiếng ' : 'Tắt tiếng ') + user.username,
-    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · @' + user.username,
+    title: (extend ? 'Gia hạn tắt tiếng ' : 'Tắt tiếng ') + getAuthorLabel(user),
+    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · ' + getAuthorHandle(user),
     body: [
       el('p', { className: 'mod-dialog__text' }, 'Thành viên vẫn đọc được nội dung nhưng không thể đăng bài, bình luận hay thả cảm xúc cho đến khi hết hạn.'),
       el('p', { className: 'mod-dialog__label' }, 'Thời hạn'),
@@ -429,8 +430,8 @@ export function openBanDialog(user, onConfirm) {
   ];
   return openConfirmDialog({
     icon: 'ban',
-    title: 'Cấm tài khoản ' + user.username + '?',
-    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · @' + user.username,
+    title: 'Cấm tài khoản ' + getAuthorLabel(user) + '?',
+    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · ' + getAuthorHandle(user),
     body: [
       el('ul', { className: 'mod-dialog__list' }, consequences.map(text => el('li', {}, modIcon('alert', 16), el('span', {}, text)))),
       el('label', { className: 'mod-dialog__label' }, 'Nhập “' + user.username + '” để xác nhận', input),
@@ -461,7 +462,7 @@ export function openRoleDialog(user, onConfirm) {
   const selected = () => fieldset.querySelector('input:checked')?.value;
   return openConfirmDialog({
     icon: 'userCog',
-    title: 'Đổi vai trò ' + user.username,
+    title: 'Đổi vai trò ' + getAuthorLabel(user),
     subtitle: 'Hiện tại: ' + (ROLE_LABELS[user.role] || 'Thành viên'),
     body: [fieldset],
     confirmLabel: 'Lưu thay đổi',

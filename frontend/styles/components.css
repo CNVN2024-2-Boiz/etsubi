@@ -449,3 +449,26 @@ select.input, .input--select {
     transition: none;
   }
 }
+
+/* Handle có @ cố định nằm trong ô, tách khỏi value để kiểm tra và gửi API đúng dữ liệu. */
+.username-input {
+  position: relative;
+  min-width: 0;
+}
+
+/* Tiền tố căn giữa với chữ nhập, không bắt chuột để nhấn vào vẫn tới ô thật. */
+.username-input__prefix {
+  position: absolute;
+  inset-block: 0;
+  left: var(--control-padding);
+  display: flex;
+  align-items: center;
+  color: var(--color-muted);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Chừa chỗ cho @ và giữ nguyên focus ring, viền lỗi của input dùng chung. */
+.username-input .input {
+  padding-left: calc(var(--control-padding) + var(--space-5));
+}

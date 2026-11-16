@@ -5,7 +5,7 @@ import { initials, relativeTime } from '/utils/format.js';
 import { highlight, wrapJapanese, makeExcerpt } from '/utils/text.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
 import { backendSupports } from '/services/api/capabilities.js';
-import { getAuthorDisplayName } from '/services/api/posts.js';
+import { getAuthorLabel, getAuthorHandle, getAuthorDisplayName } from '/services/api/posts.js';
 
 /** Tạo văn bản có đánh dấu khớp và gắn ngôn ngữ Nhật cho cả chữ trong mark. */
 function markedText(text, query, variant) {
@@ -26,19 +26,20 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
   const article = el('article', { className: 'postcard postcard--result', 'data-post-id': post.id });
   const authorRow = el('div', { className: 'postcard__author', 'data-post-author': '' });
   if (author) {
-    const name = author.username || 'Thành viên';
-    const avatar = el('span', { className: 'postcard__avatar', 'aria-hidden': 'true' }, initials(name));
+    const name = getAuthorLabel(author) || '–';
+    const avatar = el('span', { className: 'postcard__avatar', 'aria-hidden': 'true' }, initials(getAuthorDisplayName(author)));
     if (author.avatar_url) {
       const image = el('img', { src: author.avatar_url, alt: name, width: 24, height: 24, loading: 'lazy' });
       /** Trả về chữ viết tắt khi ảnh lỗi để không hiển thị biểu tượng ảnh hỏng. */
       function useInitials() {
-        avatar.replaceChildren(initials(name));
+        avatar.replaceChildren(initials(getAuthorDisplayName(author)));
       }
       image.addEventListener('error', useInitials, { once: true });
       avatar.removeAttribute('aria-hidden');
       avatar.replaceChildren(image);
     }
-    authorRow.append(avatar, el('span', { className: 'postcard__author-name' }, wrapJapanese(name)));
+    authorRow.append(avatar, el('span', { className: 'postcard__author-name' }, wrapJapanese(name)),
+      el('span', { className: 'postcard__time' }, getAuthorHandle(author)));
   } else {
     authorRow.append(el('span', {
       className: 'postcard__author-placeholder', 'aria-label': 'Đang tải tác giả',
@@ -125,8 +126,8 @@ function feedIcon(name, size = 18) {
 
 /** Dựng avatar 44px bằng dữ liệu tác giả thật hoặc hình giữ chỗ trung tính. */
 function createFeedAvatar(author) {
-  const name = getAuthorDisplayName(author);
-  const avatar = el('span', { className: 'avatar postcard-feed__avatar' }, initials(name));
+  const name = getAuthorLabel(author);
+  const avatar = el('span', { className: 'avatar postcard-feed__avatar' }, initials(getAuthorDisplayName(author)));
   if (!author) {
     avatar.classList.add('postcard-feed__avatar--placeholder');
   }
@@ -134,7 +135,7 @@ function createFeedAvatar(author) {
     const image = el('img', { src: author.avatar_url, alt: name || '', width: 44, height: 44, loading: 'lazy' });
     /** Dùng chữ đầu của tác giả thật khi ảnh không tải được. */
     function useInitials() {
-      avatar.replaceChildren(initials(name));
+      avatar.replaceChildren(initials(getAuthorDisplayName(author)));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -262,7 +263,7 @@ export function createFeedPostCard(post, {
     feedMenuEventsMounted = true;
   }
   const identity = el('div', { className: 'postcard-feed__identity' });
-  const name = getAuthorDisplayName(author);
+  const name = getAuthorLabel(author);
   if (name) {
     identity.append(el('span', { className: 'postcard-feed__name' }, wrapJapanese(name)));
   } else {
@@ -270,7 +271,7 @@ export function createFeedPostCard(post, {
   }
   const sub = el('p', { className: 'postcard-feed__sub' });
   if (author?.username) {
-    sub.append(wrapJapanese('@' + author.username), ' · ');
+    sub.append(wrapJapanese(getAuthorHandle(author)), ' · ');
   }
   sub.append(el('time', { datetime: post.created_at }, relativeTime(post.created_at)));
   identity.append(sub);

@@ -1193,3 +1193,13 @@
   width: 28px;
   height: 28px;
 }
+
+/* Handle dùng chữ phụ dưới tên bình luận và trong thẻ tác giả, không làm hẹp nội dung chính. */
+.post-comment__handle,
+.post-side-author__handle {
+  display: block;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}

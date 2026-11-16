@@ -476,8 +476,11 @@
   /* Kích thước và khoảng cách biểu mẫu xác thực để giữ nguyên khung Figma. */
   --auth-card-width: 504px;
   --auth-card-login-height: 684px;
-  --auth-card-register-height: 866px;
+  /* Register 1a (256:2425) cao 888px từ batch 7 vì hàng Tên hiển thị + @tên người dùng có thêm dòng gợi ý. */
+  --auth-card-register-height: 888px;
   --auth-body-top: 23px;
+  /* Thẻ đăng ký bắt đầu nội dung thấp hơn thẻ đăng nhập 2px theo Figma 256:2425 (tiêu đề ở y 121). */
+  --auth-register-body-top: 25px;
   --auth-body-side: 39.2px;
   --auth-field-gap: 17px;
   --auth-input-height: 52.8px;

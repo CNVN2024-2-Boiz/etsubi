@@ -7,6 +7,7 @@ import { qs, qsa, el } from '/utils/dom.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { fieldForError, toVietnameseMessage } from '/utils/errors.js';
 import { authFieldMessage } from '/utils/validation.js';
+import { bindUsernameInput, normalizeUsername, normalizeUsernameInput, formatHandle } from '/utils/username.js';
 
 /**
  * Khởi tạo header, footer, cảnh và kiểm tra biểu mẫu trên trang login hoặc register.
@@ -37,6 +38,10 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
   let submitted = false;
   let busy = false;
   const fields = qsa('[data-field]', form);
+  // Tiền tố @ ở ngoài value; chuẩn hoá trước các bước kiểm tra và gửi đăng ký.
+  if (mode === 'register') {
+    bindUsernameInput(form.elements.namedItem('username'));
+  }
 
   /** Tìm điều khiển theo tên biểu mẫu thay vì dùng lớp trang trí CSS. */
   function inputFor(name) {
@@ -60,8 +65,9 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
     input.classList.toggle('is-invalid', Boolean(message));
     field.classList.toggle('is-invalid', Boolean(message));
     input.setAttribute('aria-invalid', String(Boolean(message)));
-    hint.textContent = message || '';
-    hint.hidden = !message;
+    hint.textContent = message || hint.dataset.defaultHint || '';
+    hint.classList.toggle('field__hint--error', Boolean(message));
+    hint.hidden = !hint.textContent;
   }
 
   /** Kiểm tra một trường với cùng quy tắc trước khi gửi và khi người dùng rời trường. */
@@ -133,7 +139,7 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
       signOut.disabled = true;
       void logout();
     });
-    notice.replaceChildren('Bạn đang đăng nhập với tên ' + user.username + '. Tiếp tục hoặc ', signOut, '.');
+    notice.replaceChildren('Bạn đang đăng nhập với tên ' + (user.displayname || formatHandle(user.username)) + '. Tiếp tục hoặc ', signOut, '.');
     notice.hidden = false;
   });
 
@@ -142,6 +148,10 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
     event.preventDefault();
     if (busy) {
       return;
+    }
+    // Autofill có thể không phát input, nên chuẩn hoá lại trước khi kiểm tra gửi.
+    if (mode === 'register') {
+      normalizeUsernameInput(inputFor('username'));
     }
     submitted = true;
     formAlert.hidden = true;
@@ -161,12 +171,15 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
       const values = Object.fromEntries(new FormData(form));
       values.email = values.email.trim();
       if (values.username) {
-        values.username = values.username.trim();
+        values.username = normalizeUsername(values.username);
+        values.displayname = values.displayname.trim();
       }
       await onSubmit(values, { redirect, showInfo });
     } catch (error) {
       const field = fieldForError(error);
-      const message = toVietnameseMessage(error);
+      // 409 không chỉ rõ trường phải nằm ở lỗi chung; lỗi rõ email/username vẫn vào đúng ô.
+      const message = error.status === 409 && !field
+        ? 'Email hoặc @tên người dùng đã được dùng.' : toVietnameseMessage(error);
       if (field && inputFor(field)) {
         markField(field, message);
         inputFor(field).focus();

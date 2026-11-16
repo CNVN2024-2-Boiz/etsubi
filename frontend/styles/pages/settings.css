@@ -352,3 +352,9 @@
     width: 100%;
   }
 }
+
+/* Ghi chú máy chủ chỉ chiếm chỗ khi tên hiển thị chưa được lưu, giữ màu gợi ý nhẹ. */
+.settings-account-note {
+  margin-top: var(--space-3);
+  color: var(--color-muted);
+}

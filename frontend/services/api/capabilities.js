@@ -10,7 +10,8 @@ export const backendSupports = {
   followingFeed: true,
   bookmarkState: false,
   autoTranslateFeed: false,
-  userHandle: false,
+  // users đã tách displayname và username duy nhất từ upstream 65c7acd.
+  userHandle: true,
   // Trang đọc bài: bài liên quan, thông tin địa điểm và tác giả nhúng trong bình luận.
   relatedPosts: false,
   postPlace: false,

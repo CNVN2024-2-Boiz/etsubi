@@ -184,6 +184,8 @@
 /* Thẻ đăng ký cao hơn để đủ chỗ cho tên, xác nhận mật khẩu và điều khoản. */
 .auth-card--register {
   min-height: var(--auth-card-register-height);
+  /* Thẻ cao 888px được căn giữa sẽ nằm ở y 109; dịch xuống 8px để đỉnh thẻ ở y 117 như Figma 256:2425. */
+  transform: translateY(var(--space-2));
 }
 
 /* Đệm theo token, bớt 4px cuối thẻ để phần Google mới vẫn giữ chiều cao Login 684px. */
@@ -210,6 +212,19 @@
   flex-direction: column;
   gap: var(--auth-field-gap);
   margin-top: var(--space-5);
+}
+
+/* Hai ô tên chia đều hàng đầu, khoảng cách 12px theo thẻ Register trong Figma. */
+.auth-card__names {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+/* Gợi ý ngắn 12px dưới tên giữ chiều cao hàng sát bản thiết kế. */
+.auth-card__names .field__hint {
+  font-size: 12px;
+  line-height: 16px;
 }
 
 /* Ghi nhớ và quên mật khẩu nằm hai đầu hàng, căn giữa dọc với khoảng cách tối thiểu. */
@@ -312,9 +327,10 @@
   margin-top: var(--space-5);
 }
 
-/* Đăng ký có nhiều trường hơn, giảm đệm cuối để thẻ Google vẫn khớp chiều cao 866px của Figma. */
+/* Đăng ký có nhiều trường hơn: đệm trên riêng 25px và giảm đệm cuối, thẻ khớp chiều cao 888px của Figma. */
 .auth-card--register .auth-card__body {
-  padding-bottom: var(--space-8);
+  padding-top: var(--auth-register-body-top);
+  padding-bottom: var(--space-5);
 }
 
 /* Vạch sau nút Google ở thẻ đăng ký cách nút 16px như ảnh tham chiếu. */
@@ -623,6 +639,12 @@
 
 /* Điều chỉnh theo màn hình hoặc giảm chuyển động để giữ nội dung dễ đọc và thao tác được. */
 @media (max-width: 600px) {
+  /* Hai ô tên xếp dọc trên mobile để nhãn và gợi ý luôn đủ chỗ. */
+  .auth-card__names {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--auth-field-gap);
+  }
+
   /* Giảm đệm dọc trên mobile để biểu mẫu tận dụng chiều cao màn hình. */
   .auth, .page--login .auth {
     padding-block: var(--space-6);
@@ -674,6 +696,11 @@
 
   /* Bỏ độ dịch tĩnh của desktop để thẻ login nằm đúng trong luồng dọc trên mobile. */
   .auth-card--login {
+    transform: none;
+  }
+
+  /* Thẻ đăng ký cũng bỏ độ dịch của desktop để nằm đúng trong luồng dọc trên mobile. */
+  .auth-card--register {
     transform: none;
   }
 

@@ -3,7 +3,7 @@ import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
 import { initials, relativeTime } from '/utils/format.js';
 import { makeExcerpt, wrapJapanese } from '/utils/text.js';
-import { getAuthorDisplayName } from '/services/api/posts.js';
+import { getAuthorLabel, getAuthorHandle, getAuthorDisplayName } from '/services/api/posts.js';
 
 /** Tạo icon cố định đúng kích thước thật; tên thao tác do phần tử cha cung cấp. */
 function icon(name) {
@@ -30,13 +30,13 @@ function createDetail(postId) {
 
 /** Hiển thị avatar thật, dự phòng chữ đầu khi ảnh hỏng để không có ô ảnh lỗi. */
 function createAvatar(author) {
-  const name = getAuthorDisplayName(author) || '';
-  const avatar = el('span', { className: 'avatar featured-card__avatar' }, initials(name));
+  const name = getAuthorLabel(author) || '';
+  const avatar = el('span', { className: 'avatar featured-card__avatar' }, initials(getAuthorDisplayName(author)));
   if (author?.avatar_url) {
     const image = el('img', { src: author.avatar_url, alt: name, loading: 'lazy', width: 28, height: 28 });
     /** Dùng tên viết tắt thật khi máy chủ ảnh không cung cấp được avatar. */
     function useInitials() {
-      avatar.replaceChildren(initials(name));
+      avatar.replaceChildren(initials(getAuthorDisplayName(author)));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -57,11 +57,14 @@ export function createFeaturedCard({ post, rank, author = post.author, tags = po
   for (const tag of tags) {
     tagRow.append(el('a', { className: 'featured-card__chip', href: searchUrl({ tags: [tag.name] }) }, wrapJapanese(tag.name)));
   }
-  const name = getAuthorDisplayName(author);
-  const meta = el('div', { className: 'featured-card__meta' }, createAvatar(author),
+  const name = getAuthorLabel(author);
+  // Tên và handle tách thành hai dòng, thời gian giữ trong dòng phụ.
+  const identity = el('div', { className: 'featured-card__identity' },
     name ? el('span', { className: 'featured-card__name' }, wrapJapanese(name))
       : el('span', { className: 'u-placeholder-bar u-placeholder-bar--short', 'aria-label': 'Chưa có tác giả' }),
-    el('time', { datetime: post.created_at }, '· ' + relativeTime(post.created_at)));
+    el('p', { className: 'featured-card__sub' }, getAuthorHandle(author), ' · ',
+      el('time', { datetime: post.created_at }, relativeTime(post.created_at))));
+  const meta = el('div', { className: 'featured-card__meta' }, createAvatar(author), identity);
   const actions = el('div', { className: 'featured-card__actions' },
     el('span', { className: 'featured-card__comments' }, icon('comment'),
       (Number.isFinite(commentCount) ? commentCount : '–') + ' bình luận'), createDetail(post.id));

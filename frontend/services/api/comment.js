@@ -71,7 +71,7 @@ export async function setCommentsLocked(postId, locked, { authorId } = {}) {
   return result;
 }
 
-// CẦN BACKEND: GET /posts/{id}/comments nhúng author { id, username, avatar_url, native } vào mỗi bình luận, để trang không phải gọi GET /users/{id} cho từng người.
+// CẦN BACKEND: GET /posts/{id}/comments nhúng author { id, displayname, username, avatar_url, native } vào mỗi bình luận, để trang không phải gọi GET /users/{id} cho từng người.
 /**
  * Lấy tác giả đã nhúng trong bình luận nếu backend hỗ trợ; null thì trang tự tải hồ sơ.
  * @param {object} comment Bình luận từ API.

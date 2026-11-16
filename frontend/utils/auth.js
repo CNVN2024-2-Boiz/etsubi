@@ -19,6 +19,7 @@ function normalize(user) {
   return {
     id: user.id,
     username: user.username,
+    displayname: user.displayname,
     email: user.email,
     role: user.role,
     status: user.status,

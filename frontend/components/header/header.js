@@ -1,4 +1,5 @@
 /** Thanh điều hướng dùng chung cho mọi trang; quản lý menu, phiên và phím tắt tìm kiếm. */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { el, qs } from '/utils/dom.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
@@ -44,13 +45,13 @@ function profileIcon(name) {
 
 /** Dùng cùng ảnh hoặc chữ viết tắt ở nút header và đầu panel, ảnh lỗi thì trả về chữ. */
 function fillAvatar(target, user, signal) {
-  const name = user.username || '–';
-  target.replaceChildren(initials(name));
+  const name = getAuthorLabel(user) || '–';
+  target.replaceChildren(initials(user.displayname || user.username));
   if (user.avatarUrl) {
     const image = el('img', { src: user.avatarUrl, alt: name });
     // Gỡ ảnh hỏng một lần để không tạo yêu cầu lặp và vẫn nhận diện được tài khoản.
     image.addEventListener('error', () => {
-      target.replaceChildren(initials(name));
+      target.replaceChildren(initials(user.displayname || user.username));
     }, { once: true, signal });
     target.replaceChildren(image);
   }
@@ -245,7 +246,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
 
   /** Hiện liên kết đăng nhập hoặc chuông và avatar tuỳ hồ sơ của phiên hiện tại. */
   function renderSession(user) {
-    const identity = user ? JSON.stringify([user.id, user.username, user.email, user.native, user.avatarUrl]) : null;
+    const identity = user ? JSON.stringify([user.id, user.displayname, user.username, user.email, user.native, user.avatarUrl]) : null;
     // Cache và GET /my có thể trả cùng hồ sơ; không dựng lại menu hoặc gọi số chưa đọc hai lần.
     if (identity === sessionIdentity) {
       return;
@@ -357,7 +358,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       type: 'button',
       className: 'avatar site-header__avatar',
       'data-avatar-button': '',
-      'aria-label': 'Tài khoản ' + (user.username || '–'),
+      'aria-label': 'Tài khoản ' + (getAuthorLabel(user) || '–'),
       'aria-expanded': 'false',
       'aria-controls': profileId,
     });
@@ -369,9 +370,11 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       panelAvatar,
       el('div', { className: 'site-header__profile-details' },
         el('div', { className: 'site-header__profile-name-row' },
-          el('span', { className: 'site-header__profile-name' }, user.username || '–'),
+          el('span', { className: 'site-header__profile-name' }, getAuthorLabel(user) || '–'),
           nativeBadge(user.native)
         ),
+        // Giữ email và thêm handle ở giữa để không nhầm hai loại tên.
+        el('p', { className: 'site-header__profile-email' }, getAuthorHandle(user)),
         el('p', { className: 'site-header__profile-email' }, user.email || '–')
       )
     );

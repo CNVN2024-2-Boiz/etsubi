@@ -415,14 +415,20 @@
   border-radius: var(--radius-pill);
 }
 
-/* Hai cột dữ liệu bằng nhau, mục giới thiệu được trải hết cả hàng. */
+/* Hai cột dữ liệu bằng nhau: tên hiển thị và handle, rồi email và trường; nơi ở và giới thiệu trải hết hàng. */
 .profile-fields-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-6);
+  /* Figma 159:524 (batch 7): mỗi hàng ô cao 102px (nhãn, ô 53px, gợi ý 15px) và cách nhau 20px; hai cột cách 24px. */
+  gap: var(--space-5) var(--space-6);
 }
 
-/* Mục giới thiệu chiếm toàn bộ chiều rộng để có đủ chỗ đọc đoạn văn. */
+/* Gợi ý trong lưới thông tin cao 15px như frame để mỗi hàng đúng 102px, không bị dồn xuống dần. */
+.profile-fields-grid .field__hint {
+  line-height: 15px;
+}
+
+/* Nơi ở và giới thiệu chiếm toàn bộ chiều rộng để địa chỉ và đoạn văn không bị bó hẹp. */
 .profile-fields-grid__wide {
   grid-column: 1 / -1;
 }

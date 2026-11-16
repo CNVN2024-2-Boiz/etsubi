@@ -22,14 +22,18 @@ export function toVietnameseMessage(error) {
   if (/account (?:is|has been) banned/i.test(message)) {
     return 'Tài khoản của bạn đã bị khoá.';
   }
+  // Máy chủ nói cả email và username thì không suy đoán trường trùng.
+  if (error?.status === 409 && /email/i.test(message) && /username/i.test(message)) {
+    return 'Email hoặc @tên người dùng đã được dùng.';
+  }
   if (/email already (?:exists|taken)/i.test(message)) {
     return 'Email này đã được sử dụng.';
   }
   if (/username already taken/i.test(message)) {
-    return 'Tên này đã có người dùng.';
+    return '@tên người dùng này đã có người dùng, hãy chọn tên khác.';
   }
   if (/username too short/i.test(message)) {
-    return 'Tên cần ít nhất 3 ký tự.';
+    return 'Tên người dùng cần ít nhất 3 ký tự.';
   }
   if (/password too weak|weak password|password.*(?:8|short)/i.test(message)) {
     return 'Mật khẩu cần ít nhất 8 ký tự.';
@@ -90,6 +94,13 @@ export function fieldForError(error) {
   // Sai thông tin đăng nhập không tiết lộ riêng email hay mật khẩu bị sai.
   if (/invalid credentials/i.test(message)) {
     return null;
+  }
+  // Lỗi gộp không được gán riêng vào email hoặc handle.
+  if (/email/i.test(message) && /username/i.test(message)) {
+    return null;
+  }
+  if (/displayname/i.test(message)) {
+    return 'displayname';
   }
   if (/email/i.test(message)) {
     return 'email';

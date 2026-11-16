@@ -7,6 +7,7 @@ import { requireAuth, login, logout, fetchCurrentUser } from '/utils/auth.js';
 import { toVietnameseMessage, fieldForError } from '/utils/errors.js';
 import { registerLeaveGuard, confirmLeave } from '/utils/leave-guard.js';
 import { initials } from '/utils/format.js';
+import { bindUsernameInput, normalizeUsername, isValidUsername, validateUsername, validateDisplayName, formatHandle } from '/utils/username.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { vietnamPlaces, japanPlaces } from '/utils/places.js';
@@ -20,7 +21,7 @@ import {
 } from '/utils/preferences.js';
 
 // Chỉ các trường cho phép được so sánh và gửi; mật khẩu luôn tách riêng, không ghi xuống storage.
-const profileKeys = ['username', 'email', 'institute', 'address', 'bio', 'avatar_url', 'native'];
+const profileKeys = ['displayname', 'username', 'email', 'institute', 'address', 'bio', 'avatar_url', 'native'];
 const passwordNames = ['current-password', 'new-password', 'confirm-password'];
 const nativeLabels = { vi: 'Tiếng Việt', ja: '日本語', en: 'English' };
 const presetLabels = ['Cổng torii', 'Hoa anh đào', 'Núi Phú Sĩ', 'Đèn lồng', 'Quạt giấy', 'Sóng biển'];
@@ -30,7 +31,7 @@ const fields = qs('[data-profile-fields]');
 // Mỗi nhóm chỉ sở hữu các trường của mình; bản đã lưu dùng chung đối tượng nhưng cập nhật đúng nhóm.
 const sections = {
   avatar: { label: 'Ảnh đại diện', keys: ['avatar_url'], hints: [] },
-  account: { label: 'Thông tin tài khoản', keys: ['username', 'email', 'institute', 'address', 'bio'], hints: ['username', 'email', 'bio'] },
+  account: { label: 'Thông tin tài khoản', keys: ['displayname', 'username', 'email', 'institute', 'address', 'bio'], hints: ['displayname', 'username', 'email', 'bio'] },
   native: { label: 'Ngôn ngữ mẹ đẻ', keys: ['native'], hints: ['native'] },
   password: { label: 'Đổi mật khẩu', keys: [], hints: passwordNames },
 };
@@ -65,7 +66,8 @@ let navigationSection = location.hash.slice(1);
 
 // Gợi ý mặc định được khôi phục khi huỷ hoặc khi người dùng sửa ô đang có lỗi.
 const defaultHints = {
-  username: 'Tên hiển thị trên bài viết và bình luận · tối thiểu 3 ký tự',
+  displayname: 'Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào',
+  username: 'Duy nhất · chữ thường, số, dấu . và _ · tối thiểu 3 ký tự',
   email: 'Dùng để đăng nhập · đổi email áp dụng từ lần đăng nhập sau',
   bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
   native: 'Hiển thị bằng lá cờ cạnh tên bạn trên bài viết và bình luận',
@@ -77,6 +79,7 @@ const defaultHints = {
 /** Đọc nguyên giá trị đang sửa để gõ thêm rồi xoá về đúng bản cũ sẽ xoá trạng thái chưa lưu. */
 function readValues() {
   return {
+    displayname: input('displayname').value,
     username: input('username').value,
     email: input('email').value,
     institute: input('institute').value,
@@ -90,7 +93,7 @@ function readValues() {
 /** Đổi null thành chuỗi rỗng để việc so sánh không gửi lại các trường không thay đổi. */
 function normalizeProfile(user) {
   const values = {};
-  // Chỉ lấy đúng bảy trường được phép cập nhật, không đưa vai trò hay trạng thái vào PATCH.
+  // Chỉ lấy các trường được phép cập nhật, không đưa vai trò hay trạng thái vào PATCH.
   for (const key of profileKeys) {
     values[key] = typeof user[key] === 'string' ? user[key] : '';
   }
@@ -104,7 +107,8 @@ function changedFields(section) {
   // Không lấy trường của mục khác dù người dùng đang sửa nhiều mục cùng lúc.
   for (const key of sections[section].keys) {
     if (values[key] !== serverValues[key]) {
-      patch[key] = section === 'account' ? values[key].trim() : values[key];
+      patch[key] = key === 'username' ? normalizeUsername(values[key])
+        : section === 'account' ? values[key].trim() : values[key];
     }
   }
   return patch;
@@ -255,13 +259,13 @@ function markSaved() {
 /** Đồng bộ tóm tắt và bộ đếm theo dữ liệu hiện tại, giữ phản hồi khi nhập của trang cũ. */
 function renderProfilePreview() {
   const values = readValues();
-  const complete = [Boolean(avatarUrl), validUsername(values.username), Boolean(values.institute), Boolean(values.address), Boolean(values.bio), Object.hasOwn(nativeLabels, values.native)];
+  const complete = [Boolean(avatarUrl), isValidUsername(values.username) && !validateDisplayName(values.displayname), Boolean(values.institute), Boolean(values.address), Boolean(values.bio), Object.hasOwn(nativeLabels, values.native)];
   const percent = Math.round(complete.filter(Boolean).length / 6 * 100);
   const meter = qs('[data-progress]');
   meter.style.setProperty('--progress', percent + '%');
   meter.setAttribute('aria-valuenow', String(percent));
   qs('[data-percent]').textContent = String(percent);
-  const summary = { ...values, address: values.address.split(',')[0], native: nativeLabels[values.native] || '' };
+  const summary = { ...values, username: formatHandle(values.username), address: values.address.split(',')[0], native: nativeLabels[values.native] || '' };
   // Dữ liệu dài có title để đọc đầy đủ; textContent ngăn API text trở thành HTML.
   for (const node of qsa('[data-summary]')) {
     const value = summary[node.dataset.summary];
@@ -355,7 +359,8 @@ function validateSection(section) {
   const values = readValues();
   const errors = {};
   if (section === 'account') {
-    errors.username = validUsername(values.username) ? '' : 'Tên cần ít nhất 3 ký tự.';
+    errors.displayname = validateDisplayName(values.displayname);
+    errors.username = validateUsername(normalizeUsername(values.username));
     errors.email = values.email.trim() && input('email').validity.valid ? '' : 'Vui lòng nhập địa chỉ email hợp lệ.';
     errors.bio = values.bio.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.';
   } else if (section === 'native') {
@@ -385,10 +390,12 @@ function validateSection(section) {
 
 /** Chỉ nhận các trường của mục vừa lưu, kể cả khi API trả toàn bộ hồ sơ có dữ liệu cũ của mục khác. */
 function acceptSection(section, user, patch) {
-  const values = normalizeProfile({ ...serverValues, ...patch, ...(user || {}) });
+  // CẦN BACKEND: PATCH /my chưa lưu displayname; không dùng patch để giả tên đã được máy chủ nhận.
+  const values = normalizeProfile({ ...serverValues, ...patch, ...(user || {}),
+    displayname: user && Object.hasOwn(user, 'displayname') ? user.displayname : serverValues.displayname });
   for (const key of sections[section].keys) {
     serverValues[key] = values[key];
-    serverUser[key] = user && Object.hasOwn(user, key) ? user[key] : patch[key] ?? serverUser[key];
+    serverUser[key] = values[key];
   }
   if (user && Object.hasOwn(user, 'updated_at')) {
     serverUser.updated_at = user.updated_at;
@@ -415,6 +422,7 @@ async function saveSection(section) {
     release = resolve;
   });
   let passwordSaved = false;
+  let displaynameUnsupported = false;
   try {
     await previous;
     if (leaving) {
@@ -429,11 +437,22 @@ async function saveSection(section) {
       // Email lấy từ bản đã lưu, không dùng email đang sửa dở của mục Thông tin tài khoản.
       await login(serverValues.email, newPassword, { remember });
     } else {
-      acceptSection(section, await updateMe(patch), patch);
+      const savedUser = await updateMe(patch);
+      displaynameUnsupported = section === 'account' && Object.hasOwn(patch, 'displayname')
+        && savedUser?.displayname !== patch.displayname;
+      acceptSection(section, savedUser, patch);
+      // Ghi chú nhẹ nằm trong mục, sau khi form đã nhận lại tên thật từ phản hồi.
+      if (section === 'account') {
+        const note = qs('[data-displayname-note]');
+        note.textContent = displaynameUnsupported ? 'Máy chủ chưa lưu được tên hiển thị.' : '';
+        note.hidden = !displaynameUnsupported;
+      }
       // Làm mới cache để header nhận đúng tên, cờ và ảnh đã được máy chủ chấp nhận.
       await fetchCurrentUser();
     }
-    qs('[data-save-status]').textContent = 'Đã lưu mục “' + sections[section].label + '”.';
+    qs('[data-save-status]').textContent = displaynameUnsupported
+      ? 'Máy chủ chưa lưu được tên hiển thị. Các trường khác đã được cập nhật theo phản hồi.'
+      : 'Đã lưu mục “' + sections[section].label + '”.';
     mountHeader(qs('[data-component="header"]'), { active: null, searchForm: true });
   } catch (error) {
     if (passwordSaved) {
@@ -446,7 +465,7 @@ async function saveSection(section) {
     const name = fieldForError(error);
     if (section === 'password' && error.status === 401) {
       setFieldError('current-password', 'Mật khẩu hiện tại không đúng.');
-    } else if (section === 'account' && ['username', 'email'].includes(name)) {
+    } else if (section === 'account' && ['displayname', 'username', 'email'].includes(name)) {
       setFieldError(name, toVietnameseMessage(error));
     } else if (section === 'password' && name === 'password') {
       setFieldError('new-password', toVietnameseMessage(error));
@@ -859,6 +878,8 @@ function initialize() {
   mountHeader(qs('[data-component="header"]'), { active: null, searchForm: true });
   mountFooter();
   initializePreferences();
+  // Chuẩn hoá handle trước listener của form để nháp, tóm tắt và trạng thái chưa lưu nhận đúng giá trị.
+  bindUsernameInput(input('username'));
   buildPlaces();
   buildPresets();
   // Chỉ dùng routes chung cho các đường dẫn, giữ HTML có href dự phòng dễ hiểu.
@@ -920,11 +941,6 @@ function input(name) {
   return form.elements.namedItem(name);
 }
 
-/** Đo độ dài UTF-8 giống String::len của Rust; tên được trim trước khi kiểm tra và gửi. */
-function validUsername(value) {
-  return new TextEncoder().encode(value.trim()).length >= 3;
-}
-
 /** Tạo hai nhóm select bằng DOM an toàn; tên lưu kèm quốc gia để tránh trùng tỉnh giữa hai nước. */
 function buildPlaces() {
   // Mỗi nhóm có tên dễ đọc bằng trình đọc màn hình, không thay bằng dropdown tự chế.
@@ -962,7 +978,7 @@ function safeAvatarSource(value) {
 
 /** Khi ảnh không tải được, vẫn hiển thị chữ viết tắt để vùng ảnh không bị trống. */
 function showAvatarFallback() {
-  avatarPreview.replaceChildren(initials(input('username').value) || 'E');
+  avatarPreview.replaceChildren(initials(input('displayname').value) || 'E');
 }
 
 /** Chỉ thay ảnh khi nguồn đổi, tránh tải lại data URL ở mỗi lần gõ tên người dùng. */
@@ -974,7 +990,7 @@ function renderAvatar() {
     previewSource = avatarUrl;
     const source = safeAvatarSource(avatarUrl);
     if (source) {
-      const image = el('img', { src: source, alt: input('username').value || 'Ảnh đại diện của bạn', width: 90, height: 90 });
+      const image = el('img', { src: source, alt: input('displayname').value || 'Ảnh đại diện của bạn', width: 90, height: 90 });
       image.addEventListener('error', showAvatarFallback, { once: true });
       avatarPreview.replaceChildren(image);
     } else {
@@ -983,7 +999,7 @@ function renderAvatar() {
   }
   const image = qs('img', avatarPreview);
   if (image) {
-    image.alt = input('username').value || 'Ảnh đại diện của bạn';
+    image.alt = input('displayname').value || 'Ảnh đại diện của bạn';
   } else {
     showAvatarFallback();
   }

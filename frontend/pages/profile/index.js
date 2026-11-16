@@ -2,6 +2,7 @@
  * Trang Hồ sơ (Figma 1:3896). Không có ?id thì là hồ sơ của mình (cần đăng nhập),
  * có ?id thì là hồ sơ người khác; ?tab=followers|following chọn danh sách.
  */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { getUser } from '/services/api/users.js';
@@ -64,12 +65,12 @@ function icon(name, size) {
 
 /** Điền avatar: ảnh thật nếu có (lỗi ảnh thì quay về chữ đầu tên), không thì chữ đầu tên. */
 function fillAvatar(node, user) {
-  node.replaceChildren(initials(user.username));
+  node.replaceChildren(initials(user.displayname || user.username));
   if (user.avatar_url) {
     const image = el('img', { src: user.avatar_url, alt: '', loading: 'lazy' });
     /** Ảnh hỏng thì hiện lại chữ đầu tên. */
     function useInitials() {
-      node.replaceChildren(initials(user.username));
+      node.replaceChildren(initials(user.displayname || user.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     node.replaceChildren(image);
@@ -121,7 +122,7 @@ function createFollowButton(user, size = 'sm', fresh = false) {
     type: 'button',
     className: 'follow-btn' + (size === 'md' ? ' follow-btn--md' : '') + (following ? ' is-following' : '') + (fresh ? ' is-fresh' : ''),
     'aria-pressed': String(following),
-    'aria-label': following ? 'Bỏ theo dõi ' + user.username : (relation === 'back' ? 'Theo dõi lại ' : 'Theo dõi ') + user.username,
+    'aria-label': following ? 'Bỏ theo dõi ' + getAuthorLabel(user) : (relation === 'back' ? 'Theo dõi lại ' : 'Theo dõi ') + getAuthorLabel(user),
   },
   icon(following ? 'check' : 'plus', 14),
   el('span', { className: 'follow-btn__label' }, following ? 'Đang theo dõi' : relation === 'back' ? 'Theo dõi lại' : 'Theo dõi'),
@@ -169,12 +170,13 @@ async function toggleFollow(user, button, size) {
 /** Điền tên, vai trò, giới thiệu, thông tin phụ và nút theo dõi (chỉ với hồ sơ người khác). */
 function renderProfile() {
   const { profile, isOwn } = state;
-  document.title = profile.username + ' · Etsubi';
+  document.title = getAuthorLabel(profile) + ' · Etsubi';
   qs('[data-profile-card]').setAttribute('aria-busy', 'false');
   const avatar = qs('[data-profile-avatar]');
   avatar.classList.remove('profile-card__avatar--placeholder');
   fillAvatar(avatar, profile);
-  qs('[data-profile-name]').replaceChildren(wrapJapanese(profile.username));
+  qs('[data-profile-name]').replaceChildren(wrapJapanese(getAuthorLabel(profile)));
+  qs('[data-profile-handle]').textContent = getAuthorHandle(profile);
   const role = qs('[data-profile-role]');
   role.hidden = !ROLE_LABELS[profile.role];
   role.textContent = ROLE_LABELS[profile.role] || '';
@@ -274,7 +276,7 @@ function createAdminMenu(outline) {
   items.push(viewer.role === 'admin'
     ? { icon: 'userCog', label: 'Đổi vai trò…', onSelect: changeRole }
     : { icon: 'userCog', label: 'Đổi vai trò…', sub: 'Chỉ Quản trị viên', disabled: true });
-  return createMenu(trigger, { header: { icon: 'shield', text: 'Quản trị · ' + profile.username }, items });
+  return createMenu(trigger, { header: { icon: 'shield', text: 'Quản trị · ' + getAuthorLabel(profile) }, items });
 }
 
 /** Cập nhật hồ sơ từ phản hồi của API quản trị rồi vẽ lại thẻ (giữ nguyên danh sách theo dõi). */
@@ -292,7 +294,7 @@ function muteProfile(extend) {
 function confirmUnmute() {
   openConfirmDialog({
     icon: 'mute', tone: 'amber',
-    title: 'Gỡ tắt tiếng ' + state.profile.username + '?',
+    title: 'Gỡ tắt tiếng ' + getAuthorLabel(state.profile) + '?',
     subtitle: 'Đang tắt tiếng đến ' + formatUntilFull(state.profile.muted_until),
     body: [el('p', { className: 'mod-dialog__text' }, 'Thành viên sẽ đăng bài, bình luận và thả cảm xúc lại được ngay.')],
     confirmLabel: 'Gỡ tắt tiếng', confirmIcon: 'check',
@@ -309,8 +311,8 @@ function banProfile() {
 function confirmUnban() {
   openConfirmDialog({
     icon: 'restore',
-    title: 'Gỡ cấm ' + state.profile.username + '?',
-    subtitle: (MOD_ROLE_LABELS[state.profile.role] || 'Thành viên') + ' · @' + state.profile.username,
+    title: 'Gỡ cấm ' + getAuthorLabel(state.profile) + '?',
+    subtitle: (MOD_ROLE_LABELS[state.profile.role] || 'Thành viên') + ' · ' + getAuthorHandle(state.profile),
     body: [el('p', { className: 'mod-dialog__text' }, 'Tài khoản đăng nhập và dùng lại mọi chức năng được ngay.')],
     confirmLabel: 'Gỡ cấm', confirmIcon: 'check',
     onConfirm: async () => applyProfileUpdate(await setUserStatus(state.profile.id, 'active')),
@@ -338,13 +340,14 @@ function renderCounts() {
 function createRow(user) {
   const isViewer = state.viewer && user.id === state.viewer.id;
   const nameRow = el('div', { className: 'profile-row__name-row' },
-    el('a', { className: 'profile-row__name', href: profileUrl(user) }, wrapJapanese(highlight(user.username, state.filter))));
+    el('a', { className: 'profile-row__name', href: profileUrl(user) }, wrapJapanese(highlight(getAuthorLabel(user), state.filter))));
   if (isViewer) {
     nameRow.append(el('span', { className: 'profile-row__you' }, 'Bạn'));
   }
   return el('li', { className: 'profile-row' },
     fillAvatar(el('a', { className: 'profile-row__avatar', href: profileUrl(user), 'aria-hidden': 'true', tabindex: '-1' }), user),
     el('div', { className: 'profile-row__text' }, nameRow,
+      el('p', { className: 'profile-row__handle' }, wrapJapanese(highlight(getAuthorHandle(user), state.filter))),
       el('p', { className: 'profile-row__bio' }, user.bio ? wrapJapanese(user.bio) : 'Chưa có giới thiệu')),
     isViewer ? null : createFollowButton(user));
 }
@@ -359,7 +362,7 @@ function createEmpty(iconName, title, hint) {
 
 /** Câu thông báo khi danh sách rỗng, khác nhau giữa hồ sơ của mình và người khác. */
 function emptyText() {
-  const name = state.profile.username;
+  const name = getAuthorLabel(state.profile);
   if (state.tab === 'following') {
     return state.isOwn
       ? ['Bạn chưa theo dõi ai', 'Theo dõi người khác để không bỏ lỡ bài viết mới của họ.']
@@ -379,7 +382,8 @@ function renderList() {
     return;
   }
   const needle = state.filter.trim().toLocaleLowerCase('vi');
-  const items = needle ? list.filter(user => user.username.toLocaleLowerCase('vi').includes(needle)) : list;
+  const items = needle ? list.filter(user => [user.displayname, user.username, getAuthorHandle(user)]
+    .some(value => String(value || '').toLocaleLowerCase('vi').includes(needle))) : list;
   const status = qs('[data-list-status]');
   if (!list.length) {
     box.replaceChildren(createEmpty('users', ...emptyText()));

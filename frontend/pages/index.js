@@ -1,4 +1,5 @@
 /** Trang chủ Home 4: dữ liệu thật, khung chờ trung tính và thao tác tường minh. */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featured-card/featured-card.js';
@@ -138,12 +139,12 @@ function resizeFeatured(event) {
 
 /** Dựng avatar thành viên thật, dùng chữ đầu khi không có ảnh hoặc ảnh hỏng. */
 function memberAvatar(member) {
-  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.username));
+  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.displayname || member.username));
   if (member.avatar_url) {
-    const image = el('img', { src: member.avatar_url, alt: member.username, width: 40, height: 40, loading: 'lazy' });
+    const image = el('img', { src: member.avatar_url, alt: getAuthorLabel(member), width: 40, height: 40, loading: 'lazy' });
     /** Đổi ảnh hỏng về chữ đầu tên thật để không hiện icon ảnh lỗi. */
     function useInitials() {
-      avatar.replaceChildren(initials(member.username));
+      avatar.replaceChildren(initials(member.displayname || member.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -207,8 +208,8 @@ function createSuggestedPost(post) {
 function createSuggestedMember(member) {
   const text = el('div', { className: 'home-member__text' });
   if (member) {
-    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(member.username)),
-      el('p', { className: 'home-member__sub' }, wrapJapanese('@' + member.username
+    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(getAuthorLabel(member))),
+      el('p', { className: 'home-member__sub' }, wrapJapanese(getAuthorHandle(member)
         + (member.address ? ' · ' + member.address : member.institute ? ' · ' + member.institute : ''))));
   } else {
     text.append(placeholder(false, true), placeholder(true));
@@ -254,7 +255,7 @@ function renderRecommendations(data = null) {
   qs('[data-recommendations]').replaceChildren(
     el('div', { className: 'home-recommendations__band' },
       el('img', { src: '/assets/icons/torii-mini.svg', alt: '', width: 58, height: 48, 'aria-hidden': 'true' }),
-      el('p', {}, wrapJapanese(user ? 'Dành riêng cho ' + user.username : 'Gợi ý cho bạn'))), body);
+      el('p', {}, wrapJapanese(user ? 'Dành riêng cho ' + getAuthorLabel(user) : 'Gợi ý cho bạn'))), body);
 }
 
 /** Thẻ tải tĩnh giữ chiều cao bảng tin mà không có spinner hoặc shimmer. */

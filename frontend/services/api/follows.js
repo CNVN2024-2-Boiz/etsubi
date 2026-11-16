@@ -37,7 +37,7 @@ export function listFollowers(userId) {
 /**
  * Lấy danh sách người mà một thành viên đang theo dõi (tab "Đang theo dõi" ở trang Hồ sơ).
  * @param {string} userId Mã thành viên.
- * @returns {Promise<Array>} Mỗi phần tử { id, username, avatar_url, bio }.
+ * @returns {Promise<Array>} Mỗi phần tử { id, displayname, username, avatar_url, bio }.
  */
 export function listFollowing(userId) {
   return request('/users/' + encodeURIComponent(userId) + '/following');
@@ -45,7 +45,7 @@ export function listFollowing(userId) {
 
 /**
  * Người đang theo dõi chính mình (cần JWT); trang Hồ sơ dùng để biết ai cần nút "Theo dõi lại".
- * @returns {Promise<Array>} Mỗi phần tử { id, username, avatar_url, bio }.
+ * @returns {Promise<Array>} Mỗi phần tử { id, displayname, username, avatar_url, bio }.
  */
 export function listMyFollowers() {
   return request('/my/followers');
@@ -53,8 +53,10 @@ export function listMyFollowers() {
 
 /**
  * Người mình đang theo dõi (cần JWT); dùng để vẽ đúng trạng thái nút ở mọi dòng chỉ bằng một yêu cầu.
- * @returns {Promise<Array>} Mỗi phần tử { id, username, avatar_url, bio }.
+ * @returns {Promise<Array>} Mỗi phần tử { id, displayname, username, avatar_url, bio }.
  */
 export function listMyFollowing() {
   return request('/my/following');
 }
+
+// CẦN BACKEND: danh sách followers/following cần trả displayname cùng username; khi thiếu tên hiển thị dùng @username.

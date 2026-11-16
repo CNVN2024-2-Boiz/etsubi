@@ -50,6 +50,8 @@
               <!-- Nhãn trạng thái: "Đã bị cấm" (mọi người) hoặc "Tắt tiếng đến…" (staff và chính người đó). -->
               <span class="profile-card__status" data-profile-status></span>
             </div>
+            <!-- Handle giữ riêng dưới tên hiển thị, không tạo từ họ tên. -->
+            <p class="profile-card__handle" data-profile-handle>–</p>
             <p class="profile-card__bio" data-profile-bio><span class="u-placeholder-bar" aria-hidden="true"></span></p>
             <ul class="profile-card__meta" data-profile-meta></ul>
             <p class="profile-card__stats">
@@ -84,8 +86,8 @@
           <!-- Ô lọc: chỉ lọc danh sách đang hiện, không gửi yêu cầu lên máy chủ. -->
           <div class="profile-filter" data-filter>
             <svg class="profile-filter__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <label class="u-visually-hidden" for="filter-input">Tìm theo tên người dùng</label>
-            <input id="filter-input" class="profile-filter__input" type="search" autocomplete="off" maxlength="50" placeholder="Tìm theo tên người dùng" data-filter-input />
+            <label class="u-visually-hidden" for="filter-input">Tìm theo tên hoặc @tên người dùng</label>
+            <input id="filter-input" class="profile-filter__input" type="search" autocomplete="off" maxlength="50" placeholder="Tìm theo tên hoặc @tên người dùng" data-filter-input />
             <button type="button" class="profile-filter__clear" aria-label="Xoá từ khoá" data-filter-clear hidden>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>

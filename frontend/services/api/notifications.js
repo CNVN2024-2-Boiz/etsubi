@@ -1,6 +1,7 @@
 /** Dịch vụ thông báo dùng hàng đợi API chung; các hàm định dạng bên dưới không gọi mạng. */
 import { request } from '/services/api/client.js';
 import { routes } from '/utils/routes.js';
+import { formatHandle } from '/utils/username.js';
 import { initials } from '/utils/format.js';
 import { isAllowedReaction } from '/services/api/reaction-emojis.js';
 
@@ -76,7 +77,7 @@ const messagePatterns = Object.freeze({
   post_removed: /^Your post "(?<title>.*)" has been removed$/u,
 });
 
-// CẦN BACKEND: GET /my/notifications chưa trả actor { id, username, avatar_url } và context { post_title, emoji, muted_until }; tạm tách tên từ câu tiếng Anh của máy chủ.
+// CẦN BACKEND: GET /my/notifications chưa trả actor { id, displayname, username, avatar_url } và context { post_title, emoji, muted_until }; tạm tách tên từ câu tiếng Anh của máy chủ.
 /** Tách thông điệp thành văn bản và tên in đậm; không đoán tên hoặc tiêu đề khi câu không khớp. */
 export function formatNotification(notification) {
   const message = String(notification?.message ?? '');
@@ -103,13 +104,15 @@ export function formatNotification(notification) {
     values.emoji = '';
   }
   // Chỉ tên người thực hiện được in đậm; nội dung còn lại luôn là text node khi dựng giao diện.
-  const actorName = isSystem ? 'Quản trị viên' : values.actor;
+  const actorName = isSystem ? 'Quản trị viên'
+    : notification.actor?.displayname
+      || (notification.actor?.username ? formatHandle(notification.actor.username) : values.actor);
   values.actor = actorName;
   const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder)
     // Ô trống (như emoji bị loại) để lại hai khoảng trắng liền nhau, gộp lại cho câu gọn.
     .replace(/ {2,}/gu, ' ');
   return {
-    actorName, initials: isSystem ? 'QT' : initials(actorName), isSystem, kind,
+    actorName, initials: isSystem ? 'QT' : initials(notification.actor?.displayname || notification.actor?.username || actorName), isSystem, kind,
     text: [{ text: actorName, strong: true }, { text: suffix, strong: false }],
   };
 }

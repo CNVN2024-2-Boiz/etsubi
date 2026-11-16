@@ -21,6 +21,7 @@ initAuthPage({
         await login(values.email, values.password, { remember: true });
       } else {
         await registerAndLogin({
+          displayname: values.displayname,
           username: values.username,
           email: values.email,
           password: values.password,

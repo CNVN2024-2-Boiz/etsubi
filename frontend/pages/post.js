@@ -1,4 +1,5 @@
 /** Trang đọc bài (Figma Reading Page): tải bài, tác giả, thảo luận và sidebar từ API thật. */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { getPost, getPostTags, listUserPosts, translatePost, getRelatedPosts, getPostPlace, updatePost, deletePost } from '/services/api/posts.js';
@@ -116,12 +117,12 @@ function createFlag(native, small = false) {
 
 /** Avatar tròn: ảnh thật nếu có, hỏng ảnh thì quay về chữ đầu tên. */
 function fillAvatar(avatar, user) {
-  avatar.replaceChildren(initials(user.username));
+  avatar.replaceChildren(initials(user.displayname || user.username));
   if (user.avatar_url) {
     const image = el('img', { src: user.avatar_url, alt: '', loading: 'lazy' });
     /** Ảnh lỗi thì hiện lại chữ đầu tên để không còn khung trống. */
     function useInitials() {
-      avatar.replaceChildren(initials(user.username));
+      avatar.replaceChildren(initials(user.displayname || user.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -162,7 +163,7 @@ function renderAuthorRow() {
     fillAvatar(avatar, author);
     info.append(el('div', { className: 'post-author__name-row' },
       el('a', { className: 'post-author__name', href: routes.profile + '?id=' + encodeURIComponent(author.id) },
-        wrapJapanese(author.username), createFlag(author.native)),
+        wrapJapanese(getAuthorLabel(author)), createFlag(author.native)),
       // Nhãn "Đã ẩn" / "Đã xoá" chỉ staff thấy (người thường không mở được bài này).
       state.deletedAt ? createStatusBadge('deleted') : post.status === 'hidden' ? createStatusBadge('hidden') : null));
   } else {
@@ -170,7 +171,7 @@ function renderAuthorRow() {
     info.append(placeholder('u-placeholder-bar--title post-author__bar'));
   }
   info.append(el('p', { className: 'post-author__meta' },
-    formatDate(post.created_at) + ' · ' + readingMinutes(post.content) + ' phút đọc'));
+    (author ? getAuthorHandle(author) + ' · ' : '') + formatDate(post.created_at) + ' · ' + readingMinutes(post.content) + ' phút đọc'));
   row.replaceChildren(avatar, info, createPostMenu() || '');
 }
 
@@ -311,7 +312,7 @@ function changePostStatus(status) {
   openConfirmDialog({
     icon: hiding ? 'eyeOff' : 'eye',
     title: hiding ? 'Ẩn bài viết này?' : 'Hiện lại bài viết này?',
-    subtitle: '“' + state.post.title + '” · ' + (state.author?.username || ''),
+    subtitle: '“' + state.post.title + '” · ' + (getAuthorLabel(state.author) || ''),
     body: [el('p', { className: 'mod-dialog__text' }, hiding
       ? 'Thành viên thường mở liên kết sẽ gặp trang không tìm thấy. Điều hành viên và Quản trị viên vẫn thấy bài và có thể hiện lại.'
       : 'Bài viết sẽ hiện lại với mọi người như trước khi bị ẩn.')],
@@ -348,7 +349,7 @@ function confirmDeletePost() {
   openConfirmDialog({
     icon: 'trash',
     title: 'Xoá bài viết này?',
-    subtitle: '“' + state.post.title + '” · ' + (state.author?.username || ''),
+    subtitle: '“' + state.post.title + '” · ' + (getAuthorLabel(state.author) || ''),
     body: [el('p', { className: 'mod-dialog__text' }, 'Bài viết và toàn bộ bình luận sẽ không còn hiển thị với mọi người. Điều hành viên và Quản trị viên vẫn có thể khôi phục trong trang quản lý.')],
     confirmLabel: 'Xoá bài viết',
     confirmIcon: 'trash',
@@ -471,7 +472,7 @@ function moderateComment(comment, action) {
   openConfirmDialog({
     icon: iconName,
     title,
-    subtitle: (author ? author.username + ' · ' : '') + '“' + String(comment.content).slice(0, 60) + (comment.content.length > 60 ? '…' : '') + '”',
+    subtitle: (author ? getAuthorLabel(author) + ' · ' : '') + '“' + String(comment.content).slice(0, 60) + (comment.content.length > 60 ? '…' : '') + '”',
     body: [el('p', { className: 'mod-dialog__text' }, text)],
     confirmLabel: label,
     confirmIcon: iconName,
@@ -496,7 +497,7 @@ function muteAuthor(author) {
   openMuteDialog(author, async until => {
     const updated = await setUserMute(author.id, until);
     state.commentAuthors.set(author.id, { ...author, ...updated });
-    showActionStatus(author.username + ' bị tắt tiếng đến ' + formatUntil(updated.muted_until) + '.');
+    showActionStatus(getAuthorLabel(author) + ' bị tắt tiếng đến ' + formatUntil(updated.muted_until) + '.');
   });
 }
 
@@ -653,7 +654,8 @@ function createCommentNode(comment, replies = []) {
     avatar.classList.add('post-comment__avatar--placeholder');
   }
   const who = el('div', { className: 'post-comment__who' },
-    author ? el('span', { className: 'post-comment__name' }, wrapJapanese(author.username))
+    author ? el('span', { className: 'post-comment__name' }, wrapJapanese(getAuthorLabel(author)),
+      el('span', { className: 'post-comment__handle' }, getAuthorHandle(author)))
       : placeholder('post-comment__name-bar'),
     el('time', { className: 'post-comment__time', datetime: comment.created_at }, formatCommentTime(comment.created_at)));
   const staff = isStaff(state.viewer);
@@ -792,7 +794,7 @@ async function submitComment(event) {
     const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id });
     state.comments.push(comment);
     if (state.viewer && !state.commentAuthors.has(state.viewer.id)) {
-      state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, avatar_url: state.viewer.avatarUrl });
+      state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, displayname: state.viewer.displayname, avatar_url: state.viewer.avatarUrl });
     }
     input.value = '';
     renderComments();
@@ -862,7 +864,8 @@ function renderSideAuthor() {
     action.addEventListener('click', toggleFollow);
   }
   body.replaceChildren(
-    el('p', { className: 'post-side-author__name' }, wrapJapanese(author.username), createFlag(author.native, true)),
+    el('p', { className: 'post-side-author__name' }, wrapJapanese(getAuthorLabel(author)), createFlag(author.native, true)),
+    el('p', { className: 'post-side-author__handle' }, getAuthorHandle(author)),
     author.bio
       ? el('p', { className: 'post-side-author__bio' }, wrapJapanese(author.bio))
       : el('p', { className: 'post-side-author__bio post-side-author__bio--empty' }, 'Tác giả chưa viết giới thiệu.'),

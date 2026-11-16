@@ -49,7 +49,7 @@
               <p class="profile-eyebrow">TIẾN TRÌNH</p>
               <ol class="profile-steps">
                 <li data-step="avatar"><button class="profile-step" type="button" data-section-target="avatar-section"><span class="profile-step__dot" data-step-dot>1</span><span><strong>Ảnh đại diện</strong><small>Hiển thị công khai</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
-                <li data-step="account"><button class="profile-step" type="button" data-section-target="account-section"><span class="profile-step__dot" data-step-dot>2</span><span><strong>Thông tin tài khoản</strong><small>Email · Trường · Nơi ở</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
+                <li data-step="account"><button class="profile-step" type="button" data-section-target="account-section"><span class="profile-step__dot" data-step-dot>2</span><span><strong>Thông tin tài khoản</strong><small>Tên · @tên người dùng · Email</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
                 <li data-step="native"><button class="profile-step" type="button" data-section-target="native-section"><span class="profile-step__dot" data-step-dot>3</span><span><strong>Ngôn ngữ mẹ đẻ</strong><small>Chọn 1 ngôn ngữ</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
               </ol>
             </div>
@@ -101,12 +101,21 @@
                 </section>
                 <!-- Tài khoản có email chỉ đọc; tên, trường, địa chỉ và giới thiệu được phép cập nhật. -->
                 <section class="profile-section" id="account-section" tabindex="-1" aria-labelledby="account-title">
-                  <div class="profile-section__heading"><h2 class="t-display" id="account-title">Thông tin tài khoản</h2><p>Dùng để đăng nhập vào Etsubi</p></div>
+                  <div class="profile-section__heading"><h2 class="t-display" id="account-title">Thông tin tài khoản</h2><p>Tên hiển thị và @tên người dùng giúp mọi người nhận ra bạn · email dùng để đăng nhập</p></div>
                   <div class="profile-fields-grid">
+                    <!-- Tên hiển thị nhận tên tự do; username là handle duy nhất, @ không nằm trong value. -->
+                    <div class="field">
+                      <label class="field__label" for="displayname">Tên hiển thị <span class="field__required">*</span></label>
+                      <input class="input" id="displayname" name="displayname" autocomplete="name" aria-describedby="displayname-hint" required />
+                      <p class="field__hint" id="displayname-hint" data-displayname-hint>Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào</p>
+                    </div>
                     <div class="field">
                       <label class="field__label" for="username">Tên người dùng <span class="field__required">*</span></label>
-                      <input class="input" id="username" name="username" autocomplete="username" aria-describedby="username-hint" required />
-                      <p class="field__hint" id="username-hint" data-username-hint>Tên hiển thị trên bài viết và bình luận · tối thiểu 3 ký tự</p>
+                      <div class="username-input">
+                        <span class="username-input__prefix" aria-hidden="true">@</span>
+                        <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-hint" required />
+                      </div>
+                      <p class="field__hint" id="username-hint" data-username-hint>Duy nhất · chữ thường, số, dấu . và _ · tối thiểu 3 ký tự</p>
                     </div>
                     <div class="field">
                       <label class="field__label" for="email">Email <span class="field__required">*</span></label>
@@ -118,7 +127,8 @@
                       <input class="input" id="institute" name="institute" autocomplete="organization" placeholder="Ví dụ: Trường ĐH Công nghệ Thông tin – ĐHQG-HCM" aria-describedby="institute-hint" />
                       <p class="field__hint" id="institute-hint">Hiển thị trên trang hồ sơ, có thể để trống</p>
                     </div>
-                    <div class="field">
+                    <!-- Nơi ở trải hết hàng sau cặp Email và Trường / Tổ chức. -->
+                    <div class="field profile-fields-grid__wide">
                       <label class="field__label" for="address">Nơi ở</label>
                       <select class="input profile-select" id="address" name="address" aria-describedby="address-hint"><option value="">Chọn nơi ở…</option></select>
                       <p class="field__hint" id="address-hint">Chọn tỉnh/thành · dùng cho bản đồ địa điểm văn hoá Việt – Nhật</p>
@@ -174,6 +184,8 @@
               <div class="profile-summary__body">
                 <p class="profile-eyebrow">DỮ LIỆU ĐÃ NHẬP</p>
                 <dl class="profile-summary__rows">
+                  <!-- Hai loại tên tách riêng để tránh nhầm handle với tên hiển thị. -->
+                  <div><dt>Tên hiển thị</dt><dd data-summary="displayname">–</dd></div>
                   <div><dt>Tên người dùng</dt><dd data-summary="username">–</dd></div>
                   <div><dt>Email</dt><dd data-summary="email">–</dd></div>
                   <div><dt>Trường</dt><dd data-summary="institute">–</dd></div>

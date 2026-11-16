@@ -3,6 +3,7 @@
  * Khi có WebSocket, chỉ cần đổi lớp vận chuyển tại đây thay vì sửa trang.
  */
 import { request } from '/services/api/client.js';
+import { formatHandle } from '/utils/username.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getNotificationPost, notifyAfter, notifyPostFollowers } from '/services/api/notify-actions.js';
 
@@ -66,7 +67,7 @@ export async function listPosts({ limit = 5, offset = 0, tagIds = [], sort = 'ne
   });
 }
 
-// CẦN BACKEND: GET /posts/featured?limit=9 trả bài theo thứ hạng tuần, kèm author{id,username,avatar_url,native}, tags[{id,name}] và comment_count.
+// CẦN BACKEND: GET /posts/featured?limit=9 trả bài theo thứ hạng tuần, kèm author{id,displayname,username,avatar_url,native}, tags[{id,name}] và comment_count.
 /** Đọc bài nổi bật theo thứ hạng; chưa hỗ trợ thì giữ khung chờ dữ liệu trung tính. */
 export async function getFeaturedPosts({ limit = 9 } = {}) {
   if (!backendSupports.featuredPosts) {
@@ -254,8 +255,20 @@ export function supportsPolls() {
   return backendSupports.postPolls;
 }
 
-// CẦN BACKEND: users có display_name riêng với username là @handle duy nhất; tác giả nhúng cũng cần display_name. Chưa có thì dùng username thật ở cả hai vị trí.
+// CẦN BACKEND: users đã có displayname và username duy nhất; GET /posts và comments cần nhúng author { id, displayname, username, avatar_url, native } để bớt gọi GET /users/{id}.
 /** Chọn tên hiển thị thật từ hồ sơ đã tải, không phát sinh yêu cầu hồ sơ bổ sung. */
 export function getAuthorDisplayName(author) {
-  return backendSupports.userHandle ? author?.display_name || author?.username : author?.username;
+  return author?.displayname || author?.username;
+}
+
+/** Handle luôn lấy username duy nhất, không tạo @ từ tên hiển thị. */
+export function getAuthorHandle(author) {
+  return formatHandle(author?.username);
+}
+
+// CẦN BACKEND: các danh sách chưa trả displayname (theo dõi, gợi ý, tác giả nhúng) tạm hiện @username thật.
+/** Nhãn trên giao diện phân biệt tên tự do với handle dự phòng; thiếu cả hai thì giữ chỗ. */
+export function getAuthorLabel(author) {
+  return author?.displayname ? getAuthorDisplayName(author)
+    : author?.username ? getAuthorHandle(author) : undefined;
 }
