@@ -27,9 +27,10 @@ impl AuthRepository for PostgresAuthRepo {
         let mut conn = self.pool.get()?;
 
         let new_user = NewUser {
+            displayname: &user.displayname,
             username: &user.username,
             email: &user.email,
-            password: &user.password,
+            password: user.password.as_deref(),
             native: &user.native,
             language: &user.language,
             role: &user.role,
@@ -47,7 +48,7 @@ impl AuthRepository for PostgresAuthRepo {
 
         Ok(diesel::update(users::table.find(id))
             .set((
-                users::password.eq(hashed_password),
+                users::password.eq(Some(hashed_password)),
                 users::updated_at.eq(Utc::now()),
             ))
             .returning(User::as_select())
