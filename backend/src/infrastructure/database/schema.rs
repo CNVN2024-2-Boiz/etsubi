@@ -105,13 +105,14 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Uuid,
+        displayname -> Text,
         username -> Text,
         email -> Text,
         institute -> Nullable<Text>,
         address -> Nullable<Text>,
         native -> Text,
         language -> Text,
-        password -> Text,
+        password -> Nullable<Text>,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
         role -> Text,

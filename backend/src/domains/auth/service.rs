@@ -66,16 +66,20 @@ impl AuthService {
         if self.user_repo.find_by_email(email)?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
         }
+        if self.user_repo.find_by_username(username)?.is_some() {
+            return Err(AuthError::UsernameAlreadyTaken);
+        }
 
         let hashed = hash_password(password)?;
         let now = Utc::now();
         let user = User {
             id: Uuid::nil(),
+            displayname: username.to_string(),
             username: username.into(),
             email: email.into(),
             institute: None,
             address: None,
-            password: hashed,
+            password: Some(hashed),
             native: native.into(),
             language: language.into(),
             avatar_url: None,
@@ -97,7 +101,12 @@ impl AuthService {
             .find_by_email(email)?
             .ok_or(AuthError::InvalidCredentials)?;
 
-        if !verify_password(password, &user.password) {
+        let stored = user
+            .password
+            .as_deref()
+            .ok_or(AuthError::InvalidCredentials)?;
+
+        if !verify_password(password, stored) {
             return Err(AuthError::InvalidCredentials);
         }
 
@@ -156,7 +165,12 @@ impl AuthService {
             .find_by_id(user_id)?
             .ok_or(AuthError::UserNotFound)?;
 
-        if !verify_password(current_password, &user.password) {
+        let stored = user
+            .password
+            .as_deref()
+            .ok_or(AuthError::InvalidCredentials)?;
+
+        if !verify_password(current_password, stored) {
             return Err(AuthError::InvalidCredentials);
         }
 
@@ -176,7 +190,12 @@ impl AuthService {
             .find_by_id(user_id)?
             .ok_or(AuthError::UserNotFound)?;
 
-        if !verify_password(password, &user.password) {
+        let stored = user
+            .password
+            .as_deref()
+            .ok_or(AuthError::InvalidCredentials)?;
+
+        if !verify_password(password, stored) {
             return Err(AuthError::InvalidCredentials);
         }
 
