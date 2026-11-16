@@ -321,11 +321,11 @@ Base URL: `http://localhost:11432/api/v1` (local `cargo run`) or `http://localho
 
 | Call | Body | Success | Errors |
 |---|---|---|---|
-| `POST /auth/register` | `{ username, email, password, native, language }` | `201 { user_id }` (no token) | `400` username < 3 bytes / password < 8 / bad language; `409` email or username taken |
+| `POST /auth/register` | `{ displayname, username, email, password, native, language }` (`displayname` not stored yet, HANDOFF §5) | `201 { user_id }` (no token) | `400` username < 3 bytes / password < 8 / bad language; `409` email or username taken |
 | `POST /auth/login` | `{ email, password }` (**email only**, no username login) | `200 { user_id, token }` | `401` invalid credentials; `403` banned |
 | `POST /auth/logout` 🔒 | – | `204`, bumps `token_version` (all tokens die) | `401` |
 | `GET /my` 🔒 | – | user profile | `401`, `403` banned |
-| `PATCH /my` 🔒 | any of `{ username, email, institute, address, bio, avatar_url, native, language }` | `200` updated profile | `400`, `409` |
+| `PATCH /my` 🔒 | any of `{ displayname, username, email, institute, address, bio, avatar_url, native, language }` (`displayname` not stored yet) | `200` updated profile | `400`, `409` |
 
 🔒 = `Authorization: Bearer <token>`. Write calls from a muted user return `403 "Your account is muted until …"`.
 
@@ -335,7 +335,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 
 ### Users
 
-`users`: `id, username (the display name "Họ và tên"; the schema no longer has UNIQUE since PR #62, but register/update still return 409 for a taken name), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint**: `avatar_url` is a string (the front end stores a preset path or a small resized data URL).
+`users`: `id, username (unique @handle, e.g. `minhanh`; the front end allows `^[a-z0-9._]{3,30}$`, lower-cases and strips spaces while typing; 409 when taken), displayname (full name "Họ và tên", editable, shown everywhere a person appears; fall back to `@username` only when an API omits it), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint**: `avatar_url` is a string (the front end stores a preset path or a small resized data URL).
 
 ### Search
 
