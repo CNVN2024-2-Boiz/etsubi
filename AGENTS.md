@@ -174,7 +174,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 
 ### Shared footer (`components/footer`)
 
-- `data-variant="slim"` (auth pages): 57.6px bar `--color-red-dark`, centred line "© 2025 Etsubi · 越日 | IE104 – UIT | Cầu nối văn hoá Việt – Nhật".
+- `data-variant="slim"` (auth pages): 57.6px bar `--color-red-dark`, centred line "© 2026 Etsubi · 越日 | IE104 – UIT | Cầu nối văn hoá Việt – Nhật".
 - `data-variant="full"` (content pages): 4 columns (brand + social icons, Liên kết, Tài nguyên, Liên hệ), divider, copyright "© 2026 Etsubi · 越日 – All rights reserved.".
 - Mobile: single centred line "© 2026 Etsubi".
 
