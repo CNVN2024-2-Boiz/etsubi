@@ -12,6 +12,7 @@ Etsubi (越日) is a Vietnam–Japan student forum, the IE104 (UIT) course proje
   - Allowed: ES modules (`<script type="module">`), `fetch`, native `WebSocket`, `URLSearchParams`, `FormData`, `<template>`, CSS custom properties, CSS grid/flex, `@font-face`.
   - Forbidden: React/Vue/Svelte/Lit/Alpine/jQuery or any UI framework, Tailwind/Bootstrap or any CSS framework, TypeScript, Sass/Less, bundlers (Vite/Webpack/esbuild), transpilers, any build step, npm runtime dependencies.
   - `frontend/package.json` only holds the dev server (`live-server`). Do not add packages.
+  - **Approved exception (2026-11-17):** `frontend/vendor/leaflet/` contains unmodified Leaflet 1.9.4, vendored locally with its license (no CDN, no npm). Load the ES module lazily only for maps. Leaflet internally positions tiles/markers with runtime styles; application code keeps the no-inline-style rule. Disable map animations; keep OpenStreetMap attribution visible.
 - Every page must work when the `frontend/` folder is served as static files from its root (`/` = `frontend/`). Use **root-absolute paths** (`/styles/…`, `/assets/…`, `/services/…`).
 - No inline `style="…"` attributes and no `<style>` blocks in pages. The only exceptions: a CSS custom property set from JS for a dynamic value (e.g. `el.style.setProperty('--progress', '67%')`).
 - No inline event handlers (`onclick="…"`). Attach listeners in the page module.
@@ -19,7 +20,7 @@ Etsubi (越日) is a Vietnam–Japan student forum, the IE104 (UIT) course proje
 - **Keep animation to a minimum.** No `@keyframes`, no JS-driven animation, no scroll effects, parallax, animated loaders/skeleton shimmer, or page transitions. Allowed: hover/focus highlight (colour, background, border, underline, shadow change on `:hover` / `:focus-visible`), optionally with one short simple `transition` on those properties. Loading states are static (text "Đang tải…", disabled button, grey placeholder bars). Reason: the team must be able to explain every line to the lecturer; animation code adds complexity for no grade.
 - **Comment every code block in Vietnamese.** Every HTML section, every CSS rule group and every JS function/block gets a comment explaining *what it does and why*, in plain language the team can present (e.g. `/* Thẻ đăng nhập: nền kem, viền đỏ 2px, căn giữa màn hình */`). Prefer simple, readable code over clever code.
 - **Figma generated code is a starting point only.** You may start from Figma's design-to-code / Figma-to-HTML output (e.g. MCP `get_design_context`), but rewrite it to these rules: plain HTML/CSS/JS, tokens, the shared header/footer, semantic markup, flex/grid layout instead of absolute-positioned soup, no inline styles, no Tailwind/React that the generator emits, no temporary Figma asset URLs.
-- **Never use the em dash (Unicode U+2014, the long dash)** anywhere: UI copy, HTML, CSS/JS comments, docs, commit messages. Use the en dash (U+2013, `–`) or a hyphen (`-`) instead. This overrides Figma text that contains an em dash (e.g. footer "IE104 – UIT"). Check before committing: `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md` must return nothing (older team files such as README.md and docs/ are out of scope).
+- **Never use the em dash (Unicode U+2014, the long dash)** anywhere: UI copy, HTML, CSS/JS comments, docs, commit messages. Use the en dash (U+2013, `–`) or a hyphen (`-`) instead. This overrides Figma text that contains an em dash (e.g. footer "IE104 – UIT"). Check before committing: `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md ":!frontend/vendor"` must return nothing (older team files such as README.md and docs/ are out of scope; unmodified Leaflet vendor sources contain U+2014 and are excluded).
 
 ## 2. Folder layout and naming
 
@@ -38,6 +39,8 @@ frontend/
 │   ├── header/header.js  header.css
 │   ├── footer/footer.js  footer.css
 │   ├── tag-chip/tag-chip.js  tag-chip.css
+│   ├── rich-editor/rich-editor.js  rich-editor.css  media-preview.js
+│   ├── place-picker/place-picker.js  place-picker.css  place-map.js
 │   └── postcard/PostCard.js  PostCard.css
 ├── services/api/                 # talking to the back end, nothing else
 │   ├── client.js                 # API_BASE, request(), token storage, ApiError, rate limit queue
@@ -46,6 +49,8 @@ frontend/
 │   ├── auth.js                   # session: login/logout/currentUser/requireAuth/safeRedirect
 │   ├── dom.js                    # escapeHtml, el(), qs()
 │   ├── format.js                 # relative time, initials, highlight
+│   ├── rich-text.js              # sanitized HTML, safe DOM rendering, plain text and counters
+│   ├── html-entities.js          # HTML5 entity table for the pure sanitizer
 │   ├── routes.js                 # every page URL + searchUrl({q, tags})
 │   └── preferences.js            # interface language + theme saved in the browser (header + Cài đặt)
 ├── styles/
@@ -59,6 +64,7 @@ frontend/
 │   ├── icons/                    # single-colour UI icons exported from Figma (SVG)
 │   ├── illustrations/            # sun, clouds, waves, sakura petals (SVG)
 │   └── avatars/                  # preset avatars
+├── vendor/leaflet/               # approved unmodified Leaflet 1.9.4 and license
 └── public/                       # favicon etc.
 ```
 
@@ -208,6 +214,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - Build DOM with `document.createElement` / `<template>` or with template strings **only after** `escapeHtml()` on every dynamic value. Never inject API text with `innerHTML` unescaped.
 - Redirects after login use `safeRedirect()` (same-origin paths only).
 - Keep state in the URL when it is shareable (search `q`, `tag`).
+- Post and comment content is a sanitized HTML subset: always render it with `renderRichContent()` and convert to text with `richToPlainText()`.
 
 ## 6. Accessibility basics
 
@@ -296,7 +303,7 @@ The reviewer (the person or agent who did not write the code) runs every step an
 9. **Check icons at real size.** Zoom in on every icon. If one looks squashed, replace it with the Lucide original (§4 Icons). A browser-native control (Edge password eye, search clear ×) must not duplicate ours.
 10. **Keep the console clean.** There must be no errors and no failed requests other than the expected 401/409 network lines.
 11. **Run the rule checks.** These must all pass:
-    - `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md` returns nothing (no em dash).
+    - `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md ":!frontend/vendor"` returns nothing (no em dash).
     - No `@keyframes` or JS animation.
     - No inline styles.
     - Every new block has a Vietnamese comment.

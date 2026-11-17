@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="/components/header/header.css" />
     <link rel="stylesheet" href="/components/footer/footer.css" />
     <link rel="stylesheet" href="/components/moderation/moderation.css" />
+    <!-- Bộ soạn thảo dùng chung và bản đồ vendored, chỉ trang có bản đồ mới nạp CSS Leaflet. -->
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="/components/rich-editor/rich-editor.css" />
+    <link rel="stylesheet" href="/components/place-picker/place-picker.css" />
     <link rel="stylesheet" href="/styles/pages/post.css" />
     <script type="module" src="/pages/post.js"></script>
   </head>
@@ -122,9 +126,11 @@
               <!-- Ô viết bình luận: chưa đăng nhập thì nút Gửi đưa tới trang đăng nhập. -->
               <form class="post-comment-form" data-comment-form novalidate>
                 <label class="u-visually-hidden" for="comment-input">Viết bình luận</label>
-                <input id="comment-input" class="input post-comment-form__input" name="content" type="text" maxlength="2000" autocomplete="off" placeholder="Chia sẻ cảm nhận của bạn…" aria-describedby="comment-hint" data-comment-input />
+                <input id="comment-input" class="input post-comment-form__input" name="content" type="text"  autocomplete="off" placeholder="Chia sẻ cảm nhận của bạn…" aria-describedby="comment-hint" data-comment-input />
+                <!-- Editor mở rộng được dựng một lần; cùng nút gửi chuyển vào thanh footer khi mở. -->
+                <div class="post-comment-form__expanded" data-comment-expanded hidden></div>
                 <button type="submit" class="btn btn--primary post-comment-form__submit" data-comment-submit disabled>Gửi</button>
-                <p id="comment-hint" class="field__hint post-comment-form__hint" data-comment-hint></p>
+                <p id="comment-hint" class="field__hint post-comment-form__hint" data-comment-hint role="alert"></p>
               </form>
               <p class="alert alert--info post-discussion__notice" role="status" data-comment-notice hidden></p>
             </section>
@@ -145,7 +151,7 @@
               </div>
             </section>
 
-            <!-- Địa điểm văn hoá: chỉ hiện khi bài có toạ độ; bản đồ là hình minh hoạ tĩnh. -->
+            <!-- Địa điểm văn hoá: chỉ hiện khi bài có toạ độ; bản đồ Leaflet không tương tác và giữ attribution. -->
             <section class="post-side-card" aria-labelledby="side-place-title" data-side-place-card hidden>
               <h2 id="side-place-title" class="post-side-card__band">
                 <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />

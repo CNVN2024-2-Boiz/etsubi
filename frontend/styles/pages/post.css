@@ -670,6 +670,34 @@
   display: none;
 }
 
+/* Editor mở rộng trải cả hai cột, cùng nút Gửi chuyển vào footer thay vì nhân đôi form. */
+.post-comment-form__expanded { min-width: 0; grid-column: 1 / -1; }
+.post-comment-form[hidden], .post-comment-form__expanded[hidden], .post-comment-form__input[hidden] { display: none; }
+.post-comment-form.is-open { display: block; }
+
+/* Bình luận có body thấp hơn bài viết; phần media nằm trong vùng body và bộ đếm sát footer. */
+.post-comment-form__expanded .rich-editor { border-width: 2px; }
+.post-comment-form__expanded .rich-editor__body { min-height: var(--comment-body-height); }
+.post-comment-form__expanded .rich-editor__area { font-size: 14px; padding-block: var(--space-3); }
+.post-comment-form__expanded .rich-editor__counter { min-height: var(--comment-counter-height); padding-top: 0; }
+.post-comment-form__expanded .place-chip { font-size: var(--rich-counter-size); padding-block: 0; }
+
+/* Thanh gửi nền trang nhạt, checkbox thật ở trái và Huỷ/Đăng ở phải, có thể xuống hàng. */
+.post-comment-editor__footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-height: var(--comment-footer-height); padding: var(--space-2) var(--space-4); border-top: 1px solid var(--color-border); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--color-page); }
+.post-comment-editor__spoiler { display: inline-flex; flex: 1; align-items: center; gap: var(--space-2); min-width: 0; color: var(--color-text-body); font-size: var(--rich-chip-size); cursor: pointer; }
+.post-comment-editor__footer .btn { padding: var(--space-3) var(--space-4); }
+
+/* Map Leaflet nằm dưới nút mở Maps và có chiều cao đồng bộ khung đã có. */
+.post-map__leaflet { height: 100%; }
+.post-map__open { z-index: 1000; }
+
+/* Mobile cho footer thở đủ chỗ và các nút gửi/huỷ rộng cả hàng để dễ chạm. */
+@media (max-width: 600px) {
+  .post-comment-editor__spoiler { flex-basis: 100%; }
+  .post-comment-editor__footer .btn { width: 100%; }
+  .post-comment-editor__footer { padding: var(--space-3); }
+}
+
 /* Thông báo khoá bình luận hoặc bị cấm viết. */
 .post-discussion__notice {
   font-size: 14px;

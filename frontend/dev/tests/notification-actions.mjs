@@ -269,6 +269,28 @@ await check('ẩn và khoá dùng phản hồi chính khi thiếu tác giả', a
 });
 
 // Kiểm tra xuất bản luôn gắn tag tuần tự trước một request fan-out, kể cả không chọn tag hay lỗi phụ.
+// Batch 9 gửi HTML và toạ độ thật; ảnh/tên địa điểm chưa hỗ trợ phải nằm ngoài request.
+await check('bài rich gửi nội dung và cặp toạ độ, bỏ trường chưa hỗ trợ', async () => {
+  await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung <b>đậm</b></p>', latitude: 35.0003, longitude: 135.7795,
+    place_name: 'Tên chỉ ở nháp', attachments: ['blob:preview'] });
+  assert.equal(calls[0].body.content, '<p>Nội dung <b>đậm</b></p>');
+  assert.equal(calls[0].body.latitude, 35.0003);
+  assert.equal(calls[0].body.longitude, 135.7795);
+  assert.equal(Object.hasOwn(calls[0].body, 'place_name'), false);
+  assert.equal(Object.hasOwn(calls[0].body, 'attachments'), false);
+});
+await check('bài không có điểm không gửi toạ độ rỗng', async () => {
+  await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung</p>' });
+  assert.equal(Object.hasOwn(calls[0].body, 'latitude'), false);
+  assert.equal(Object.hasOwn(calls[0].body, 'longitude'), false);
+});
+await check('bình luận rich chỉ gửi content và parent_id theo hợp đồng hiện có', async () => {
+  const content = '<p><a href="https://example.com/">Link</a></p>';
+  await comments.createComment('p', content, null, { postAuthorId: 'other', attachments: ['blob:preview'], latitude: 35, longitude: 135, is_spoiler: true });
+  assert.equal(calls[0].body.content, content);
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,parent_id');
+});
+
 for (const tagIds of [[], ['one', 'two']]) {
   await check('đăng bài rồi gắn tag trước fan-out', async () => {
     const post = await posts.createPost({ title: 'Bài mới', content: 'Nội dung' }, { tagIds });

@@ -228,21 +228,24 @@
   box-shadow: var(--focus-ring);
 }
 
-/* Khi ô viết đang mở: ô nội dung cao 120px, bo nhỏ lại và cho kéo giãn theo chiều dọc. */
+/* Khi mở, pill trở thành tiêu đề đậm cùng chiều cao avatar; nội dung nằm trong editor bên dưới. */
 .forum-compose.is-open .forum-compose__content {
-  height: 120px;
-  overflow: auto;
+  height: var(--forum-avatar-size);
+  font-weight: 600;
   border-radius: var(--radius-md);
-  resize: vertical;
 }
 
-/* Phần mở rộng (tiêu đề, chủ đề) lùi vào ngang với ô nội dung (48 + 14px). */
+/* Chủ đề, editor và đính kèm lùi ngang ô tiêu đề (48 + 14px), đúng thứ tự Figma. */
 .forum-compose__extra {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding-left: calc(var(--forum-avatar-size) + 14px);
+  gap: var(--space-3);
+  padding-left: calc(var(--forum-avatar-size) + var(--rich-body-padding));
 }
+
+/* Bản đồ đang gắn có nền hồng và icon đỏ như Figma, không dùng màu để biểu đạt một mình. */
+.forum-compose__tool[aria-pressed='true'] { background: var(--color-sakura); }
+.forum-compose__tool svg { color: var(--color-red); flex-shrink: 0; }
 
 /* Thuộc tính hidden phải thắng display:flex. */
 .forum-compose__extra[hidden] {
@@ -262,10 +265,21 @@
   border: 0;
 }
 
+/* Legend 14px SemiBold màu chữ phụ, không dấu bắt buộc, theo Figma 394:3090 / 397:3355. */
+.forum-compose__tag-label {
+  padding: 0;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
 /* Chip chủ đề xuống dòng tự do, khe 8px, cách nhãn 8px. */
 .forum-compose__tag-list {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
 }

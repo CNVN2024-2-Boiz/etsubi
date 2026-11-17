@@ -20,6 +20,9 @@ export function listComments(postId) {
  * @param {object} options postAuthorId và parentAuthorId lấy từ dữ liệu trang để không tải lại.
  * @returns {Promise<object>} Bình luận vừa tạo.
  */
+// CẦN BACKEND: CreateCommentRequest cần attachments từ POST /uploads; hiện ảnh chỉ xem trước, không gửi.
+// CẦN BACKEND: bình luận cần latitude/longitude/place_name; hiện chip địa điểm chỉ nằm trong nháp.
+// CẦN BACKEND: thêm is_spoiler vào POST/GET comments; khi có dữ liệu, FE sẽ che chữ và có nút Hiện spoiler.
 export async function createComment(postId, content, parentId = null, { postAuthorId, parentAuthorId } = {}) {
   const result = await request('/posts/' + encodeURIComponent(postId) + '/comments', {
     method: 'POST',

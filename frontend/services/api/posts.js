@@ -161,14 +161,15 @@ export async function getRelatedPosts(post, postTags = []) {
     .map(item => ({ ...item, comment_count: item.comment_count ?? null, tag }));
 }
 
-// CẦN BACKEND: GET /posts/{id} trả place: { name, address, opening_hours, phone } cho bài có toạ độ (latitude/longitude đã có sẵn).
+// CẦN BACKEND: POST/PATCH/GET posts cần place_name (tên địa điểm); GET /posts/{id} trả place: { name, address, opening_hours, phone } cho bài có toạ độ (latitude/longitude đã có sẵn).
 /**
  * Đọc thông tin địa điểm văn hoá của bài; null nghĩa là chưa biết, trang hiện thanh xám.
  * @param {object} post Bài đang đọc.
  * @returns {object|null} Thông tin địa điểm hoặc null khi backend chưa hỗ trợ.
  */
 export function getPostPlace(post) {
-  return backendSupports.postPlace && post?.place ? post.place : null;
+  return post?.place_name ? { name: post.place_name, address: post.place?.address || '' }
+    : backendSupports.postPlace && post?.place ? post.place : null;
 }
 
 /**
@@ -177,8 +178,10 @@ export function getPostPlace(post) {
  * @param {object} options tagIds là các mã chủ đề cần gắn trước khi báo người theo dõi.
  * @returns {Promise<object>} PostResponse kèm failedTagIds cục bộ để trang báo chủ đề chưa gắn được.
  */
-export async function createPost({ title, content }, { tagIds = [] } = {}) {
-  const post = await request('/posts', { method: 'POST', body: { title, content } });
+export async function createPost({ title, content, latitude, longitude }, { tagIds = [] } = {}) {
+  // CẦN BACKEND: POST/PATCH/GET posts cần thêm place_name; hiện chỉ gửi toạ độ có trong hợp đồng.
+  const coordinates = Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : {};
+  const post = await request('/posts', { method: 'POST', body: { title, content, ...coordinates } });
   const failedTagIds = [];
   // Gắn từng chủ đề trước khi thông báo; lỗi tag không được làm người dùng đăng lại một bài đã tạo.
   for (const tagId of new Set(tagIds)) {

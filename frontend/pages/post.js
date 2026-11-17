@@ -17,6 +17,12 @@ import { fetchCurrentUser, getCachedUser, requireAuth } from '/utils/auth.js';
 import { el, qs } from '/utils/dom.js';
 import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
+import { renderRichContent, richToPlainText, validateRichBytes } from '/utils/rich-text.js';
+import { createRichEditor } from '/components/rich-editor/rich-editor.js';
+import { createPlaceChip, createImagePreviews } from '/components/rich-editor/media-preview.js';
+import { pickPlace } from '/components/place-picker/place-picker.js';
+import { createPlaceMap } from '/components/place-picker/place-map.js';
+import { reversePlace } from '/services/geo/nominatim.js';
 import { toVietnameseMessage, translationErrorMessage } from '/utils/errors.js';
 import { routes, searchUrl } from '/utils/routes.js';
 
@@ -90,7 +96,7 @@ function formatCommentTime(value) {
 
 /** Ước lượng thời gian đọc từ nội dung thật: 200 từ mỗi phút, chữ Nhật tính 500 ký tự mỗi phút. */
 function readingMinutes(content) {
-  const text = String(content || '');
+  const text = richToPlainText(content);
   const japanese = (text.match(/[぀-ヿ㐀-鿿]/gu) || []).length;
   const words = text.replace(/[぀-ヿ㐀-鿿]/gu, ' ').split(/\s+/u).filter(Boolean).length;
   return Math.max(1, Math.round(words / 200 + japanese / 500));
@@ -175,24 +181,12 @@ function renderAuthorRow() {
   row.replaceChildren(avatar, info, createPostMenu() || '');
 }
 
-/** Tách nội dung thành đoạn văn; đoạn mà mọi dòng bắt đầu bằng ">" thành khối trích dẫn. */
+/** Nội dung bài và bản dịch luôn qua bộ dựng HTML an toàn, bài cũ vẫn giữ cách chia đoạn. */
 function renderBody(content, language) {
   const body = qs('[data-body]');
-  const blocks = String(content || '').replace(/\r\n/g, '\n').split(/\n\s*\n/u).map(block => block.trim()).filter(Boolean);
-  if (!blocks.length) {
-    body.replaceChildren(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
-    return;
-  }
-  const nodes = blocks.map(block => {
-    const lines = block.split('\n');
-    if (lines.every(line => line.trim().startsWith('>'))) {
-      const text = lines.map(line => line.trim().replace(/^>\s?/u, '')).join('\n');
-      return el('blockquote', { className: 'post-body__quote' }, wrapJapanese(text));
-    }
-    return el('p', { className: 'post-body__paragraph' }, wrapJapanese(block));
-  });
-  body.lang = language === 'ja' ? 'ja' : language === 'en' ? 'en' : 'vi';
-  body.replaceChildren(...nodes);
+  body.lang = ['ja', 'en'].includes(language) ? language : 'vi';
+  renderRichContent(body, content);
+  if (!richToPlainText(content)) body.append(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
 }
 
 /** Hiện tiêu đề và thân bài theo bản gốc hoặc bản dịch đang chọn. */
@@ -201,7 +195,7 @@ function renderContent() {
   const useTranslation = showTranslation && translated;
   const title = useTranslation ? translated.title : post.title;
   const titleNode = qs('[data-title]');
-  titleNode.replaceChildren(wrapJapanese(title));
+  titleNode.replaceChildren(wrapJapanese(richToPlainText(title)));
   titleNode.lang = useTranslation ? translated.language : post.language === 'ja' ? 'ja' : '';
   if (!titleNode.lang) {
     titleNode.removeAttribute('lang');
@@ -388,19 +382,22 @@ function startEdit() {
   if (qs('[data-edit-form]', article)) {
     return;
   }
-  const titleInput = el('input', { id: 'edit-title', className: 'input', type: 'text', maxlength: '255', value: state.post.title });
-  const contentInput = el('textarea', { id: 'edit-content', className: 'input post-edit__content', rows: '10' }, state.post.content || '');
-  const status = el('p', { className: 'field__hint', role: 'status' });
+  const titleInput = el('input', { id: 'edit-title', className: 'input', type: 'text', maxlength: '255', value: state.post.title, 'aria-describedby': 'post-edit-status' });
+  const editEditor = createRichEditor({ label: 'Nội dung bài viết' });
+  editEditor.setHtml(state.post.content || '');
+  editEditor.area.setAttribute('aria-describedby', 'post-edit-status');
+  const status = el('p', { id: 'post-edit-status', className: 'field__hint', role: 'alert' });
   const save = el('button', { type: 'submit', className: 'btn btn--primary' }, 'Lưu thay đổi');
   const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Huỷ');
   const form = el('form', { className: 'post-edit', 'data-edit-form': '', novalidate: true },
     el('div', { className: 'field' }, el('label', { className: 'field__label', for: 'edit-title' }, 'Tiêu đề'), titleInput),
-    el('div', { className: 'field' }, el('label', { className: 'field__label', for: 'edit-content' }, 'Nội dung'), contentInput),
+    el('div', { className: 'field' }, el('span', { className: 'field__label' }, 'Nội dung'), editEditor.root),
     status, el('div', { className: 'post-edit__actions' }, cancel, save));
   const parts = ['[data-title]', '.post-translate', '[data-body]'].map(selector => qs(selector, article));
 
   /** Đóng biểu mẫu sửa và hiện lại bài. */
   function close() {
+    editEditor.destroy();
     form.remove();
     parts.forEach(part => {
       part.hidden = false;
@@ -410,19 +407,27 @@ function startEdit() {
   /** Lưu: gửi tiêu đề, nội dung và toạ độ cũ; thành công thì vẽ lại bài. */
   async function submit(event) {
     event.preventDefault();
+    const validation = validateRichBytes(titleInput.value.trim(), 255, 'Tiêu đề') || validateRichBytes(editEditor.getHtml(), 100000);
+    if (!titleInput.value.trim() || editEditor.isEmpty() || validation) {
+      // Gắn lỗi với vùng nhập để trình đọc màn hình đọc được thông báo giới hạn byte hoặc thiếu chữ.
+      titleInput.setAttribute('aria-invalid', String(!titleInput.value.trim() || Boolean(validateRichBytes(titleInput.value.trim(), 255))));
+      editEditor.area.setAttribute('aria-invalid', String(editEditor.isEmpty() || Boolean(validateRichBytes(editEditor.getHtml(), 100000))));
+      status.textContent = validation || 'Vui lòng nhập tiêu đề và nội dung.'; return;
+    }
     save.disabled = true;
     save.textContent = 'Đang lưu…';
     try {
       const updated = await updatePost(state.post.id, {
-        title: titleInput.value.trim(), content: contentInput.value, latitude: state.post.latitude, longitude: state.post.longitude,
+        title: titleInput.value.trim(), content: editEditor.getHtml(), latitude: state.post.latitude, longitude: state.post.longitude,
       });
       state.post = { ...state.post, ...updated };
       state.translated = null;
       state.showTranslation = false;
       close();
       renderContent();
+      void renderPlace();
       qs('[data-breadcrumb-title]').replaceChildren(wrapJapanese(state.post.title));
-      document.title = state.post.title + ' · Etsubi';
+      document.title = richToPlainText(state.post.title) + ' · Etsubi';
     } catch (error) {
       status.textContent = toVietnameseMessage(error);
       status.classList.add('field__hint--error');
@@ -472,7 +477,7 @@ function moderateComment(comment, action) {
   openConfirmDialog({
     icon: iconName,
     title,
-    subtitle: (author ? getAuthorLabel(author) + ' · ' : '') + '“' + String(comment.content).slice(0, 60) + (comment.content.length > 60 ? '…' : '') + '”',
+    subtitle: (author ? getAuthorLabel(author) + ' · ' : '') + '“' + richToPlainText(comment.content).slice(0, 60) + (richToPlainText(comment.content).length > 60 ? '…' : '') + '”',
     body: [el('p', { className: 'mod-dialog__text' }, text)],
     confirmLabel: label,
     confirmIcon: iconName,
@@ -570,7 +575,7 @@ async function sharePost() {
   const url = location.origin + routes.post(state.post.id);
   try {
     if (navigator.share) {
-      await navigator.share({ title: state.post.title, url });
+      await navigator.share({ title: richToPlainText(state.post.title), text: richToPlainText(state.post.content).slice(0, 200), url });
       return;
     }
     await navigator.clipboard.writeText(url);
@@ -596,7 +601,7 @@ function renderCommentCount() {
 async function toggleCommentTranslation(comment, button, textNode, note) {
   if (comment.showTranslation) {
     comment.showTranslation = false;
-    textNode.replaceChildren(wrapJapanese(comment.content));
+    renderRichContent(textNode, comment.content, { allowLinks: true });
     button.textContent = 'Dịch';
     note.textContent = '';
     return;
@@ -619,7 +624,7 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
     }
   }
   comment.showTranslation = true;
-  textNode.replaceChildren(wrapJapanese(comment.translation.content));
+  renderRichContent(textNode, comment.translation.content, { allowLinks: true });
   button.textContent = 'Bản gốc';
   note.classList.remove('is-error');
   note.textContent = comment.translation.translated ? 'Đang xem bản dịch.' : 'Bình luận đã ở ngôn ngữ của bạn.';
@@ -659,8 +664,9 @@ function createCommentNode(comment, replies = []) {
       : placeholder('post-comment__name-bar'),
     el('time', { className: 'post-comment__time', datetime: comment.created_at }, formatCommentTime(comment.created_at)));
   const staff = isStaff(state.viewer);
-  const text = el('p', { className: 'post-comment__text' + (comment.is_deleted ? ' post-comment__text--deleted' : '') },
-    comment.is_deleted ? 'Bình luận này đã bị xoá.' : wrapJapanese(comment.showTranslation ? comment.translation.content : comment.content));
+  const text = el('div', { className: 'post-comment__text' + (comment.is_deleted ? ' post-comment__text--deleted' : '') });
+  if (comment.is_deleted) text.textContent = 'Bình luận này đã bị xoá.';
+  else renderRichContent(text, comment.showTranslation ? comment.translation.content : comment.content, { allowLinks: true });
   const note = el('p', { className: 'post-comment__note', role: 'status' });
   const tools = el('div', { className: 'post-comment__tools' });
   if (!comment.is_deleted) {
@@ -766,48 +772,151 @@ async function loadComments() {
   }
 }
 
-/** Bật nút Gửi khi ô nhập có chữ, và xoá gợi ý lỗi cũ khi người dùng gõ lại. */
+// Editor bình luận có cùng bộ lọc với bài viết; ảnh/địa điểm/spoiler chỉ lưu trong nháp.
+let commentOpen = false;
+let commentSending = false;
+let restoringCommentFocus = false;
+let commentPlace = null;
+const commentForm = qs('[data-comment-form]');
+const commentInput = qs('[data-comment-input]');
+const commentSubmit = qs('[data-comment-submit]');
+const expandedComment = qs('[data-comment-expanded]');
+const commentEditor = createRichEditor({ label: 'Viết bình luận', placeholder: 'Chia sẻ cảm nhận của bạn…', allowLinks: true, counter: 'comment',
+  tools: ['emoji', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'link', 'image', 'pin', '|', 'removeFormat'],
+  onChange: commentContentChanged, onTool: handleCommentTool });
+commentEditor.area.setAttribute('aria-describedby', 'comment-hint');
+const commentImagesBox = el('div', { className: 'rich-media' });
+const commentPlaceBox = el('div', { className: 'rich-media' });
+const commentImageNote = el('p', { className: 'rich-media-note', hidden: true }, 'Ảnh chưa được gửi kèm bình luận (máy chủ chưa hỗ trợ).');
+commentEditor.media.append(commentImagesBox, commentPlaceBox);
+const commentImages = createImagePreviews(commentImagesBox, {
+  onChange: () => { commentImageNote.hidden = !commentImages.hasImages(); },
+  onError: message => { qs('[data-comment-hint]').textContent = message; },
+});
+const spoiler = el('input', { type: 'checkbox', className: 'checkbox', 'data-comment-spoiler': '' });
+const cancelComment = el('button', { type: 'button', className: 'btn btn--ghost', 'data-comment-cancel': '' }, 'Huỷ');
+const commentFooter = el('div', { className: 'post-comment-editor__footer' },
+  el('label', { className: 'post-comment-editor__spoiler' }, spoiler, 'Bình luận này chứa spoiler'), cancelComment);
+commentEditor.root.append(commentFooter);
+expandedComment.append(commentEditor.root, commentImageNote);
+
+/** Mở editor từ ô gọn và chuyển con trỏ vào body, không cần nhập hai lần. */
+function openCommentEditor() {
+  if (restoringCommentFocus || commentOpen || commentSending || commentInput.disabled || !state.post) return;
+  commentOpen = true;
+  commentForm.classList.add('is-open');
+  commentInput.hidden = true;
+  expandedComment.hidden = false;
+  commentFooter.append(commentSubmit);
+  commentSubmit.textContent = 'Đăng bình luận';
+  if (commentInput.value) { commentEditor.setHtml(commentInput.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')); commentInput.value = ''; }
+  syncCommentForm();
+  commentEditor.focus();
+}
+
+/** Huỷ hoặc thành công xoá mọi nháp, thu hồi ảnh và trả nút Gửi về vị trí cũ. */
+function resetCommentEditor() {
+  commentOpen = false;
+  commentEditor.clear(); commentImages.clear();
+  commentPlace = null; spoiler.checked = false;
+  renderCommentPlace();
+  commentInput.value = '';
+  commentInput.hidden = false;
+  expandedComment.hidden = true;
+  commentForm.classList.remove('is-open');
+  expandedComment.after(commentSubmit);
+  commentSubmit.textContent = 'Gửi';
+  syncCommentForm();
+}
+
+/** Chip nhỏ nằm dưới chữ trong vùng body, không được gửi lẫn trong HTML bình luận. */
+function renderCommentPlace() {
+  commentPlaceBox.replaceChildren(...(commentPlace ? [createPlaceChip(commentPlace, () => { commentPlace = null; renderCommentPlace(); })] : []));
+  commentEditor.setToolPressed('pin', Boolean(commentPlace));
+}
+
+/** Ảnh và địa điểm ở bình luận chỉ xem trước, mọi dữ liệu chưa hỗ trợ đều không gửi. */
+async function handleCommentTool(tool) {
+  if (commentSending) return;
+  if (tool === 'image') commentImages.open();
+  else if (tool === 'pin') {
+    const place = await pickPlace(commentPlace);
+    if (place) { commentPlace = place; renderCommentPlace(); }
+  }
+}
+
+/** Nút chỉ bật khi có chữ thật, giữ khoá trong thời gian đang gửi hoặc bị mute. */
 function syncCommentForm() {
-  const input = qs('[data-comment-input]');
-  qs('[data-comment-submit]').disabled = !input.value.trim();
-  input.removeAttribute('aria-invalid');
+  const text = commentOpen ? commentEditor.getPlainText() : commentInput.value;
+  commentSubmit.disabled = commentSending || commentInput.disabled || !text.trim();
+}
+
+/** Chỉ gõ lại mới xoá lỗi cũ; việc bật/tắt nút sau request không được xoá aria-invalid. */
+function commentContentChanged() {
+  commentInput.removeAttribute('aria-invalid');
+  commentEditor.area.removeAttribute('aria-invalid');
   const hint = qs('[data-comment-hint]');
   hint.textContent = '';
   hint.classList.remove('field__hint--error');
+  syncCommentForm();
 }
 
-/** Gửi bình luận: kiểm tra phiên, gọi API, thêm bình luận mới vào danh sách khi thành công. */
+/** Gửi HTML đã lọc với link an toàn; không gửi ảnh, địa điểm hoặc spoiler khi API chưa hỗ trợ. */
 async function submitComment(event) {
   event.preventDefault();
-  const input = qs('[data-comment-input]');
-  const button = qs('[data-comment-submit]');
+  if (!commentOpen) { openCommentEditor(); return; }
+  if (commentSending || state.post.comments_locked || commentInput.disabled || commentEditor.isEmpty() || !await ensureSignedIn()) return;
   const hint = qs('[data-comment-hint]');
-  const content = input.value.trim();
-  if (!content || !await ensureSignedIn()) {
-    return;
-  }
+  const content = commentEditor.getHtml();
+  const validation = validateRichBytes(content, 10000, 'Bình luận');
+  if (validation) { hint.textContent = validation; commentEditor.area.setAttribute('aria-invalid', 'true'); return; }
   state.viewer = getCachedUser();
-  button.disabled = true;
-  button.classList.add('is-loading');
-  button.textContent = 'Đang gửi…';
+  commentSending = true;
+  commentForm.inert = true;
+  commentSubmit.disabled = true;
+  commentSubmit.classList.add('is-loading');
+  commentSubmit.textContent = 'Đang đăng...';
+  const omitted = commentImages.hasImages() || commentPlace || spoiler.checked;
   try {
     const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id });
     state.comments.push(comment);
     if (state.viewer && !state.commentAuthors.has(state.viewer.id)) {
       state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, displayname: state.viewer.displayname, avatar_url: state.viewer.avatarUrl });
     }
-    input.value = '';
+    resetCommentEditor();
+    hint.textContent = omitted ? 'Đã đăng bình luận. Ảnh, địa điểm và spoiler chưa được gửi vì máy chủ chưa hỗ trợ.' : 'Đã đăng bình luận.';
     renderComments();
   } catch (error) {
-    input.setAttribute('aria-invalid', 'true');
+    commentEditor.area.setAttribute('aria-invalid', 'true');
     hint.textContent = toVietnameseMessage(error);
     hint.classList.add('field__hint--error');
   } finally {
-    button.classList.remove('is-loading');
-    button.textContent = 'Gửi';
-    button.disabled = !input.value.trim();
+    commentSending = false;
+    commentForm.inert = false;
+    commentSubmit.classList.remove('is-loading');
+    commentSubmit.textContent = commentOpen ? 'Đăng bình luận' : 'Gửi';
+    syncCommentForm();
   }
 }
+
+/** Trả focus về ô gọn sau Huỷ/Escape mà không kích hoạt listener mở editor trở lại. */
+function focusCollapsedComment() {
+  restoringCommentFocus = true;
+  commentInput.focus({ preventScroll: true });
+  restoringCommentFocus = false;
+}
+
+// Escape chỉ thu gọn nháp trống; picker và các popover xử lý Escape riêng trước form.
+commentForm.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && commentOpen && commentEditor.isEmpty() && !commentPlace && !commentImages.hasImages() && !spoiler.checked) {
+    event.preventDefault(); resetCommentEditor(); focusCollapsedComment();
+  }
+});
+cancelComment.addEventListener('click', () => { resetCommentEditor(); qs('[data-comment-hint]').textContent = ''; focusCollapsedComment(); });
+commentInput.addEventListener('focus', openCommentEditor);
+commentInput.addEventListener('click', openCommentEditor);
+// Sau Huỷ ô gọn vẫn có focus, gõ ngay sẽ mở lại editor và giữ ký tự vừa nhập.
+commentInput.addEventListener('input', openCommentEditor);
 
 /** Khoá bình luận hoặc người xem đang bị cấm viết thì ẩn ô viết và nói rõ lý do. */
 function applyCommentPermissions() {
@@ -829,8 +938,10 @@ function applyCommentPermissions() {
   }
   form.hidden = locked;
   form.classList.toggle('is-disabled', muted);
-  qs('[data-comment-input]').disabled = muted;
-  qs('[data-comment-submit]').disabled = muted || !qs('[data-comment-input]').value.trim();
+  commentInput.disabled = muted;
+  commentEditor.area.contentEditable = String(!muted);
+  expandedComment.inert = muted;
+  syncCommentForm();
   // Người bị tắt tiếng cũng không thả cảm xúc được (mọi thao tác ghi bị chặn).
   if (state.viewer) {
     qs('[data-like]').disabled = muted;
@@ -900,35 +1011,43 @@ async function toggleFollow(event) {
   }
 }
 
-/** Thẻ "Địa điểm văn hoá": chỉ hiện khi bài có toạ độ; tên, địa chỉ, giờ mở cửa chờ backend. */
-function renderPlace() {
+// Giữ tham chiếu map để dọn khi renderPlace được gọi lại sau thay đổi bài.
+let readingMap = null;
+let placeVersion = 0;
+
+/** Bản đồ thật không tương tác; không bịa giờ mở cửa hoặc số điện thoại. */
+async function renderPlace() {
+  const current = ++placeVersion;
+  readingMap?.destroy(); readingMap = null;
   const { post } = state;
   const card = qs('[data-side-place-card]');
   const hasLocation = Number.isFinite(post.latitude) && Number.isFinite(post.longitude);
   card.hidden = !hasLocation;
-  if (!hasLocation) {
-    return;
-  }
-  const coords = post.latitude.toFixed(4) + ', ' + post.longitude.toFixed(4);
+  if (!hasLocation) return;
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(post.latitude + ',' + post.longitude);
   const place = getPostPlace(post);
-  const info = el('div', { className: 'post-place' });
-  if (place) {
-    info.append(el('p', { className: 'post-place__name' }, wrapJapanese(place.name || '')),
-      el('p', { className: 'post-place__line' }, wrapJapanese(place.address || '–')),
-      el('p', { className: 'post-place__line post-place__line--small' },
-        [place.opening_hours, place.phone].filter(Boolean).join(' · ') || '–'));
-  } else {
-    info.append(placeholder('u-placeholder-bar--title'), placeholder(), placeholder('u-placeholder-bar--short'));
-  }
+  const name = el('p', { className: 'post-place__name' }, place?.name ? wrapJapanese(place.name) : placeholder('u-placeholder-bar--title'));
+  const address = el('p', { className: 'post-place__line' }, place?.address ? wrapJapanese(place.address) : placeholder());
+  const map = el('div', { className: 'place-map post-map__leaflet', 'aria-label': 'Bản đồ địa điểm văn hóa' });
   qs('[data-side-place]').replaceChildren(
-    el('div', { className: 'post-map' },
-      el('img', { className: 'post-map__image', src: '/assets/illustrations/culture-map.svg', alt: '', width: 355, height: 182 }),
-      el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener' },
-        'Mở trong Maps', el('img', { src: '/assets/icons/external-link.svg', alt: '', width: 14, height: 14 })),
-      el('span', { className: 'post-map__label' }, coords)),
-    info,
-    el('a', { className: 'post-place__link', href: mapsUrl, target: '_blank', rel: 'noopener' }, 'Xem trên Google Maps  ↗'));
+    el('div', { className: 'post-map' }, map,
+      el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Mở trong Maps ↗')),
+    el('div', { className: 'post-place' }, name, address),
+    el('a', { className: 'post-place__link', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Xem trên Google Maps ↗'));
+  // Map và reverse độc lập; lỗi dịch vụ ngoài chỉ giữ placeholder và liên kết Maps.
+  void createPlaceMap(map, { latitude: post.latitude, longitude: post.longitude, zoom: 16, interactive: false }).then(view => {
+    if (current !== placeVersion) { view.destroy(); return; }
+    readingMap = view;
+    view.map.invalidateSize({ animate: false });
+  }).catch(() => { map.textContent = 'Không tải được bản đồ.'; });
+  try {
+    const reverse = await reversePlace(post.latitude, post.longitude);
+    if (current !== placeVersion || !reverse) return;
+    if (!place?.name) name.replaceChildren(wrapJapanese(reverse.name));
+    if (!place?.address && reverse.address) address.replaceChildren(wrapJapanese(reverse.address));
+  } catch {
+    // Giữ thanh xám trung tính nếu không tra được tên hoặc địa chỉ.
+  }
 }
 
 /** Một dòng bài liên quan: ô kanji theo tag, tiêu đề hai dòng và dòng phụ số bình luận · chủ đề. */
@@ -1047,7 +1166,7 @@ async function initialize() {
     }
   }
   const { post } = state;
-  document.title = post.title + ' · Etsubi';
+  document.title = richToPlainText(post.title) + ' · Etsubi';
   qs('[data-breadcrumb-title]').replaceChildren(wrapJapanese(post.title));
   qs('[data-article]').setAttribute('aria-busy', 'false');
   renderContent();

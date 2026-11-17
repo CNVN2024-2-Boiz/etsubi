@@ -15,6 +15,10 @@
     <link rel="stylesheet" href="/components/tag-chip/tag-chip.css" />
     <link rel="stylesheet" href="/components/featured-card/featured-card.css" />
     <link rel="stylesheet" href="/components/postcard/PostCard.css" />
+    <!-- Bộ soạn thảo dùng chung và bản đồ vendored, chỉ trang có bản đồ mới nạp CSS Leaflet. -->
+    <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="/components/rich-editor/rich-editor.css" />
+    <link rel="stylesheet" href="/components/place-picker/place-picker.css" />
     <link rel="stylesheet" href="/styles/pages/forum.css" />
     <script type="module" src="/pages/forum.js"></script>
   </head>
@@ -53,36 +57,36 @@
             <h2 id="compose-label" class="u-visually-hidden">Viết bài mới</h2>
             <div class="forum-compose__top">
               <span class="forum-compose__avatar forum-compose__avatar--placeholder" aria-hidden="true" data-compose-avatar></span>
-              <label class="u-visually-hidden" for="compose-content">Nội dung bài viết</label>
-              <textarea id="compose-content" class="forum-compose__content" rows="1" maxlength="20000" placeholder="Bạn đang nghĩ gì?" data-compose-content></textarea>
+              <label class="u-visually-hidden" for="compose-title">Tiêu đề bài viết</label>
+              <input id="compose-title" class="forum-compose__content forum-compose__title" type="text" autocomplete="off" placeholder="Bạn đang nghĩ gì?" aria-describedby="compose-hint" data-compose-title />
             </div>
 
-            <!-- Phần mở rộng: tiêu đề bắt buộc và chọn chủ đề (tag thật từ GET /tags). -->
+            <!-- Nội dung giàu định dạng nằm dưới tiêu đề, thụt theo cột bên phải avatar. -->
             <div class="forum-compose__extra" data-compose-extra hidden>
-              <div class="field">
-                <label class="field__label" for="compose-title">Tiêu đề <span class="field__required" aria-hidden="true">*</span></label>
-                <input id="compose-title" class="input forum-compose__title" type="text" maxlength="255" autocomplete="off" placeholder="Tóm tắt nội dung trong một câu" aria-describedby="compose-hint" data-compose-title />
-              </div>
+              <!-- Chủ đề theo Figma 394:3090 / 397:3355, chọn nhiều chip trước khi nhập nội dung. -->
               <fieldset class="forum-compose__tags">
-                <legend class="field__label">Chủ đề</legend>
-                <div class="forum-compose__tag-list" data-compose-tags>
-                  <span class="u-placeholder-bar u-placeholder-bar--short"></span>
-                </div>
+                <legend class="forum-compose__tag-label">Chủ đề</legend>
+                <div class="forum-compose__tag-list" data-compose-tags></div>
               </fieldset>
+              <!-- Editor luôn nằm sau chủ đề và trước hàng ảnh, địa điểm của cùng bản nháp. -->
+              <div data-compose-editor></div>
+              <!-- Ảnh chỉ xem trước; địa điểm lưu toạ độ, tên đang chờ backend hỗ trợ. -->
+              <div class="rich-media" data-compose-media>
+                <div class="rich-media" data-compose-images></div>
+                <div class="rich-media" data-compose-place></div>
+              </div>
+              <p class="rich-media-note" data-compose-image-note hidden>Ảnh chỉ xem trước, chưa được đăng kèm bài (máy chủ chưa hỗ trợ).</p>
             </div>
 
             <hr class="forum-compose__divider" />
 
-            <!-- Hàng thao tác: Ảnh, Tệp, Thăm dò (chờ backend) bên trái; Huỷ và Đăng bên phải. -->
+            <!-- Chỉ hai công cụ Ảnh và Bản đồ; Huỷ xoá nháp, Đăng gửi nội dung đã lọc. -->
             <div class="forum-compose__actions">
               <button type="button" class="forum-compose__tool" data-compose-tool="image">
                 <img src="/assets/icons/compose-camera.svg" width="20" height="20" alt="" />Ảnh
               </button>
-              <button type="button" class="forum-compose__tool" data-compose-tool="file">
-                <img src="/assets/icons/compose-attachment.svg" width="20" height="20" alt="" />Tệp
-              </button>
-              <button type="button" class="forum-compose__tool" data-compose-tool="poll">
-                <img src="/assets/icons/compose-poll.svg" width="20" height="20" alt="" />Thăm dò
+              <button type="button" class="forum-compose__tool" data-compose-tool="place" aria-pressed="false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Bản đồ
               </button>
               <span class="forum-compose__spacer"></span>
               <button type="button" class="btn btn--ghost forum-compose__cancel" data-compose-cancel hidden>Huỷ</button>

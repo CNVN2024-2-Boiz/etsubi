@@ -1,3 +1,4 @@
+import { richToPlainText } from '/utils/rich-text.js';
 /** Dịch vụ thông báo dùng hàng đợi API chung; các hàm định dạng bên dưới không gọi mạng. */
 import { request } from '/services/api/client.js';
 import { routes } from '/utils/routes.js';
@@ -90,6 +91,8 @@ export function formatNotification(notification) {
     return fallback;
   }
   const values = { ...match.groups };
+  // Tiêu đề trong thông báo luôn là chữ thuần, kể cả khi client khác gửi HTML.
+  if (values.title) values.title = richToPlainText(values.title);
   // Thời hạn dùng múi giờ của trình duyệt và định dạng dd/mm/yyyy hh:mm quen thuộc tại Việt Nam.
   if (kind === 'muted') {
     const date = new Date(values.date);

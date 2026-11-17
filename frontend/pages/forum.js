@@ -4,7 +4,11 @@ import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
-import { listPosts, listFollowingFeed, listQuestionPosts, getPostTags, getPostStats, createPost, uploadAttachment, supportsPolls } from '/services/api/posts.js';
+import { createRichEditor } from '/components/rich-editor/rich-editor.js';
+import { createPlaceChip, createImagePreviews } from '/components/rich-editor/media-preview.js';
+import { pickPlace } from '/components/place-picker/place-picker.js';
+import { validateRichBytes } from '/utils/rich-text.js';
+import { listPosts, listFollowingFeed, listQuestionPosts, getPostTags, getPostStats, createPost } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getReactionSummary } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, getBookmarkState } from '/services/api/bookmarks.js';
@@ -44,6 +48,22 @@ let selectedFeed = 'newest';
 let feedVersion = 0;
 let feedOffset = 0;
 let feedController = null;
+
+// Editor và media thuộc cùng một form, vì vậy chuyển vào dialog không làm mất nháp.
+let composePlace = null;
+let composeSending = false;
+const composeEditor = createRichEditor({ label: 'Nội dung bài viết', onChange: () => {
+  // Người viết đã sửa nội dung, bỏ dấu lỗi cũ nhưng vẫn tính lại trạng thái nút Đăng.
+  composeEditor.area.removeAttribute('aria-invalid');
+  syncComposeSubmit();
+} });
+composeEditor.area.setAttribute('aria-describedby', 'compose-hint');
+qs('[data-compose-editor]').append(composeEditor.root);
+// CẦN BACKEND: ảnh chỉ xem trước; hợp đồng POST /uploads + attachments nằm trong posts.js.
+const composeImages = createImagePreviews(qs('[data-compose-images]'), {
+  onChange: () => { qs('[data-compose-image-note]').hidden = !composeImages.hasImages(); },
+  onError: message => setComposeStatus(message, 'error'),
+});
 
 /* ===== Tiện ích ===== */
 
@@ -355,7 +375,7 @@ function openComposeDialog() {
   composeDialog.showModal();
   syncComposeFab();
   openCompose();
-  qs('[data-compose-content]').focus({ preventScroll: true });
+  composeEditor.focus();
 }
 
 /** Đóng bằng nút, Huỷ hoặc sau khi đăng; Escape cũng đi qua sự kiện close để trả cùng form về đúng neo. */
@@ -387,63 +407,64 @@ function setComposeStatus(content, kind = '') {
   const status = qs('[data-compose-status]');
   status.classList.toggle('is-error', kind === 'error');
   status.classList.toggle('is-success', kind === 'success');
+  status.setAttribute('role', kind === 'error' ? 'alert' : 'status');
   status.replaceChildren(...[].concat(content));
 }
 
 /** Avatar và lời mời theo người đang đăng nhập (Figma: "Mạnh Phú ơi, bạn đang nghĩ gì?"). */
 function renderComposeIdentity() {
   const avatar = qs('[data-compose-avatar]');
-  const content = qs('[data-compose-content]');
-  // Chưa đăng nhập: ô chỉ đọc, bấm vào sẽ dẫn tới trang đăng nhập.
-  content.readOnly = !user;
+  const title = qs('[data-compose-title]');
+  title.readOnly = !user;
   if (!user) {
     avatar.className = 'forum-compose__avatar forum-compose__avatar--placeholder';
     avatar.replaceChildren();
-    content.placeholder = 'Đăng nhập để chia sẻ…';
-    return;
-  }
-  avatar.className = 'forum-compose__avatar';
-  avatar.replaceChildren(initials(user.displayname || user.username));
-  if (user.avatarUrl) {
-    const image = el('img', { src: user.avatarUrl, alt: '' });
-    /** Ảnh lỗi thì quay về chữ đầu tên. */
-    function useInitials() {
-      avatar.replaceChildren(initials(user.displayname || user.username));
+  } else {
+    avatar.className = 'forum-compose__avatar';
+    avatar.replaceChildren(initials(user.displayname || user.username));
+    if (user.avatarUrl) {
+      const image = el('img', { src: user.avatarUrl, alt: getAuthorLabel(user) });
+      // Ảnh hỏng quay về tên viết tắt thật, không để biểu tượng ảnh lỗi.
+      image.addEventListener('error', () => avatar.replaceChildren(initials(user.displayname || user.username)), { once: true });
+      avatar.replaceChildren(image);
     }
-    image.addEventListener('error', useInitials, { once: true });
-    avatar.replaceChildren(image);
   }
-  content.placeholder = getAuthorLabel(user) + ' ơi, bạn đang nghĩ gì?';
+  title.placeholder = compose.classList.contains('is-open') ? 'Tiêu đề bài viết'
+    : user ? getAuthorLabel(user) + ' ơi, bạn đang nghĩ gì?' : 'Đăng nhập để chia sẻ…';
 }
 
-/** Dựng các chip chủ đề có thể bật/tắt từ danh sách tag thật. */
+/** Dựng chip Chủ đề theo Figma 394:3090 / 397:3355 từ danh mục GET /tags, không hiện số bài. */
 function renderComposeTags() {
   const box = qs('[data-compose-tags]');
   if (!tags.length) {
     box.replaceChildren(el('p', { className: 'field__hint' }, 'Chưa tải được danh sách chủ đề.'));
     return;
   }
-  box.replaceChildren(...tags.map(tag => createTagChip({
-    name: tag.name,
-    state: selectedTags.has(tag.id) ? 'selected' : 'default',
-    onClick: () => {
-      // Bấm chip thì đổi trạng thái chọn rồi vẽ lại, giữ focus trên đúng chip vừa bấm.
-      if (selectedTags.has(tag.id)) {
-        selectedTags.delete(tag.id);
-      } else {
-        selectedTags.add(tag.id);
-      }
-      renderComposeTags();
-      qs('[data-tag-name="' + CSS.escape(tag.name) + '"]', box)?.focus();
-    },
-  })));
+  box.replaceChildren(...tags.map(tag => {
+    // Nút thật hỗ trợ chuột, Space và Enter; aria-pressed diễn đạt từng lựa chọn độc lập.
+    return createTagChip({
+      name: tag.name,
+      state: selectedTags.has(tag.id) ? 'selected' : 'default',
+      onClick: event => {
+        // Cập nhật ngay nút đang dùng để giữ focus bàn phím và mã tag gửi qua createPost.
+        if (selectedTags.has(tag.id)) selectedTags.delete(tag.id);
+        else selectedTags.add(tag.id);
+        const selected = selectedTags.has(tag.id);
+        const updated = createTagChip({ name: tag.name, state: selected ? 'selected' : 'default' });
+        const button = event.currentTarget;
+        button.className = updated.className;
+        button.setAttribute('aria-pressed', String(selected));
+        button.replaceChildren(...updated.childNodes);
+      },
+    });
+  }));
 }
 
 /** Nút Đăng chỉ bật khi đã có cả tiêu đề và nội dung (backend bắt buộc tiêu đề). */
 function syncComposeSubmit() {
   const title = qs('[data-compose-title]').value.trim();
-  const content = qs('[data-compose-content]').value.trim();
-  qs('[data-compose-submit]').disabled = !title || !content;
+  const content = composeEditor.getPlainText().trim();
+  qs('[data-compose-submit]').disabled = composeSending || composeMuted || !title || !content;
 }
 
 /** Chưa đăng nhập mà bấm vào ô viết: sang trang đăng nhập, xong quay lại với ô viết mở sẵn (?compose=1). */
@@ -453,52 +474,62 @@ function goToLogin() {
 
 /** Ô nội dung nhận focus: mở rộng ô viết (chỉ khi đã đăng nhập, để phím Tab không gây chuyển trang). */
 function openCompose() {
-  if (!user || compose.classList.contains('is-open')) {
+  if (!user || composeMuted || compose.classList.contains('is-open')) {
     return;
   }
   compose.classList.add('is-open');
   qs('[data-compose-extra]').hidden = false;
   qs('[data-compose-cancel]').hidden = false;
+  renderComposeIdentity();
   renderComposeTags();
 }
 
 /** Thu gọn và xoá bản nháp (nút Huỷ hoặc sau khi đăng thành công). */
 function resetCompose() {
   compose.reset();
+  composeEditor.clear();
+  composeImages.clear();
+  composePlace = null;
+  renderComposePlace();
   selectedTags = new Set();
+  renderComposeTags();
   compose.classList.remove('is-open');
   qs('[data-compose-extra]').hidden = true;
   qs('[data-compose-cancel]').hidden = true;
   qs('[data-compose-title]').removeAttribute('aria-invalid');
+  composeEditor.area.removeAttribute('aria-invalid');
+  renderComposeIdentity();
   syncComposeSubmit();
 }
 
-/** Ảnh, Tệp, Thăm dò: backend chưa có API nên chỉ báo rõ, không gửi yêu cầu. */
+/** Vẽ chip địa điểm và phản ánh trạng thái Bản đồ cho người dùng bàn phím. */
+function renderComposePlace() {
+  qs('[data-compose-place]').replaceChildren(...(composePlace ? [createPlaceChip(composePlace, () => {
+    composePlace = null;
+    renderComposePlace();
+  })] : []));
+  qs('[data-compose-tool="place"]').setAttribute('aria-pressed', String(Boolean(composePlace)));
+}
+
+/** Ảnh mở picker cục bộ; Bản đồ dùng dialog chung và giữ nháp khi Huỷ. */
 async function handleComposeTool(event) {
   const tool = event.target.closest('[data-compose-tool]')?.dataset.composeTool;
-  if (!tool) {
-    return;
+  if (!tool || composeMuted || composeSending) return;
+  if (!user) { goToLogin(); return; }
+  openCompose();
+  if (tool === 'image') composeImages.open();
+  if (tool === 'place') {
+    const place = await pickPlace(composePlace);
+    if (place) { composePlace = place; renderComposePlace(); }
   }
-  const messages = {
-    image: 'Đính kèm ảnh sẽ có khi máy chủ hỗ trợ tải tệp lên.',
-    file: 'Đính kèm tệp sẽ có khi máy chủ hỗ trợ tải tệp lên.',
-    poll: 'Tạo thăm dò sẽ có khi máy chủ hỗ trợ.',
-  };
-  const supported = tool === 'poll' ? supportsPolls() : backendSupports.postAttachments;
-  if (!supported) {
-    setComposeStatus(messages[tool]);
-    return;
-  }
-  // Khi backend hỗ trợ: mở hộp chọn tệp và tải lên (thăm dò sẽ có biểu mẫu riêng).
-  if (tool !== 'poll') {
-    const picker = el('input', { type: 'file', accept: tool === 'image' ? 'image/*' : null });
-    picker.addEventListener('change', async () => {
-      if (picker.files?.[0]) {
-        await uploadAttachment(picker.files[0]);
-      }
-    }, { once: true });
-    picker.click();
-  }
+}
+
+/** Nháp hoàn toàn trống mới được tự thu gọn, không bỏ nội dung khi bấm bên ngoài. */
+function collapseEmptyCompose(event) {
+  if (composeDialog.open || document.querySelector('[data-place-picker]') || !compose.classList.contains('is-open')) return;
+  if (event.type === 'keydown' && event.key !== 'Escape') return;
+  if (event.type === 'pointerdown' && compose.contains(event.target)) return;
+  if (!qs('[data-compose-title]').value.trim() && composeEditor.isEmpty() && !composeImages.hasImages() && !composePlace && !selectedTags.size) resetCompose();
 }
 
 /** Đăng bài: tạo bài, gắn từng tag đã chọn, thu gọn ô viết và tải lại tab Mới nhất. */
@@ -506,21 +537,30 @@ async function submitCompose(event) {
   event.preventDefault();
   const titleInput = qs('[data-compose-title]');
   const title = titleInput.value.trim();
-  const content = qs('[data-compose-content]').value.trim();
-  if (!title || !content || !await requireAuth()) {
+  const content = composeEditor.getHtml();
+  if (composeMuted || composeSending || !title || composeEditor.isEmpty() || !await requireAuth()) {
     return;
   }
+  const titleError = validateRichBytes(title, 255, 'Tiêu đề');
+  const validation = titleError || validateRichBytes(content, 100000);
+  if (validation) {
+    (titleError ? titleInput : composeEditor.area).setAttribute('aria-invalid', 'true');
+    setComposeStatus(validation, 'error'); return;
+  }
+  const hadImages = composeImages.hasImages();
+  composeSending = true;
   const button = qs('[data-compose-submit]');
+  compose.inert = true;
   button.disabled = true;
   button.classList.add('is-loading');
   button.textContent = 'Đang đăng…';
   setComposeStatus('Đang đăng bài…');
   try {
     // Service gắn từng tag rồi báo người theo dõi, trang chỉ hiển thị kết quả và lỗi tag nếu có.
-    const post = await createPost({ title, content }, { tagIds: [...selectedTags] });
+    const post = await createPost({ title, content, ...(composePlace ? { latitude: composePlace.latitude, longitude: composePlace.longitude } : {}) }, { tagIds: [...selectedTags] });
     const failedTags = post.failedTagIds.length;
     resetCompose();
-    setComposeStatus(['Đã đăng bài viết. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
+    setComposeStatus([hadImages ? 'Đã đăng bài. Ảnh chưa được gửi vì máy chủ chưa hỗ trợ. ' : 'Đã đăng bài. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
       failedTags ? ' (' + failedTags + ' chủ đề chưa gắn được.)' : ''], 'success');
     // Chỉ thành công mới đóng dialog; khi lỗi, vùng trạng thái và bản nháp vẫn nằm trước người viết.
     closeComposeDialog();
@@ -528,8 +568,11 @@ async function submitCompose(event) {
     activateTab(qs('[data-feed-tab="newest"]'));
   } catch (error) {
     titleInput.setAttribute('aria-invalid', /title/i.test(error.message || '') ? 'true' : 'false');
+    if (!/title/i.test(error.message || '')) composeEditor.area.setAttribute('aria-invalid', 'true');
     setComposeStatus(toVietnameseMessage(error), 'error');
   } finally {
+    composeSending = false;
+    compose.inert = false;
     button.classList.remove('is-loading');
     button.textContent = 'Đăng';
     syncComposeSubmit();
@@ -547,6 +590,10 @@ function applyMute() {
   compose.setAttribute('aria-disabled', String(muted));
   // Nút nổi cũng phải theo trạng thái khoá viết như form gốc, kể cả lúc form đang ở dialog.
   composeMuted = muted;
+  qs('[data-compose-title]').disabled = muted;
+  composeEditor.area.contentEditable = String(!muted);
+  composeEditor.toolbar.inert = muted;
+  syncComposeSubmit();
   syncComposeFab();
 }
 
@@ -563,11 +610,13 @@ async function initialize() {
   } catch (error) {
     showError(error);
   }
+  // Danh mục tải xong phải cập nhật cả form đã được người dùng mở trong lúc chờ API.
+  renderComposeTags();
   if (new URLSearchParams(location.search).get('compose') === '1') {
     if (user) {
       // Mở trực tiếp vì sự kiện focus không chạy khi cửa sổ trình duyệt chưa được chọn.
       openCompose();
-      qs('[data-compose-content]').focus();
+      composeEditor.focus();
     } else {
       goToLogin();
       return;
@@ -598,8 +647,7 @@ composeDialog.addEventListener('close', restoreCompose);
 const composeHeaderObserver = new ResizeObserver(observeComposeSlot);
 composeHeaderObserver.observe(qs('[data-component="header"]'));
 observeComposeSlot();
-qs('[data-compose-content]').addEventListener('focus', openCompose);
-qs('[data-compose-content]').addEventListener('input', syncComposeSubmit);
+qs('[data-compose-title]').addEventListener('focus', openCompose);
 qs('[data-compose-title]').addEventListener('input', syncComposeSubmit);
 
 /** Bấm hoặc nhấn Enter vào ô viết khi chưa đăng nhập thì dẫn tới trang đăng nhập. */
@@ -609,8 +657,8 @@ function handleSignedOutCompose(event) {
     goToLogin();
   }
 }
-qs('[data-compose-content]').addEventListener('click', handleSignedOutCompose);
-qs('[data-compose-content]').addEventListener('keydown', handleSignedOutCompose);
+qs('[data-compose-title]').addEventListener('click', handleSignedOutCompose);
+qs('[data-compose-title]').addEventListener('keydown', handleSignedOutCompose);
 
 /** Nút Huỷ: thu gọn ô viết, xoá bản nháp và thông báo cũ; đóng dialog nếu đang viết từ nút nổi. */
 function cancelCompose() {
@@ -621,5 +669,7 @@ function cancelCompose() {
 qs('[data-compose-cancel]').addEventListener('click', cancelCompose);
 compose.addEventListener('click', handleComposeTool);
 compose.addEventListener('submit', submitCompose);
+document.addEventListener('pointerdown', collapseEmptyCompose);
+document.addEventListener('keydown', collapseEmptyCompose);
 window.addEventListener('pagehide', leavePage);
 void initialize();

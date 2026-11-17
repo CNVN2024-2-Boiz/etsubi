@@ -700,4 +700,26 @@
   --color-unsaved-text: #5A282D;
   --settings-leave-dialog-width: 560px;
   --settings-save-bar-height: 60px;
+  /* Batch 9: kích thước editor, ảnh xem trước, popover và bản đồ theo Figma. */
+  --rich-tool-gap: 2px;
+  --rich-toolbar-padding: 6px;
+  --rich-toolbar-height: 43px;
+  --rich-tool-size: 30px;
+  --rich-body-height: 150px;
+  --rich-body-padding: 14px;
+  --rich-font-size: 16px;
+  --rich-counter-size: 12px;
+  --rich-chip-size: 13px;
+  --rich-thumbnail-width: 96px;
+  --rich-thumbnail-height: 72px;
+  --rich-remove-bg: rgba(31, 26, 23, .65);
+  --z-rich-popover: 20;
+  --place-dialog-width: 560px;
+  --place-map-height: 182px;
+  --place-search-height: 44px;
+  --place-pin-width: 36px;
+  --place-pin-height: 46px;
+  --comment-body-height: 96px;
+  --comment-counter-height: 23px;
+  --comment-footer-height: 71px;
 }

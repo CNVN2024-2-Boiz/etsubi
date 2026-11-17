@@ -153,6 +153,23 @@ assert.equal(received.options.headers.Authorization, 'Bearer fixture-header');
 assert.equal(received.options.body, '{"language":"ja"}');
 assert.equal(received.url.searchParams.get('tags'), 'a,b');
 
+// Dịch vụ địa điểm bên ngoài không nhận Bearer token, cookie hoặc API_BASE của backend.
+env.context.fetch = async (url, options) => {
+  received = { url, options };
+  return new Response('{"name":"Địa điểm"}', { status: 200 });
+};
+const external = await api.requestExternal('https://nominatim.openstreetmap.org/search?format=jsonv2&q=test');
+assert.equal(external.name, 'Địa điểm');
+assert.equal(String(received.url).startsWith('https://nominatim.openstreetmap.org/'), true);
+assert.equal(received.options.method, 'GET');
+assert.equal(received.options.headers.Authorization, undefined);
+assert.equal(received.options.credentials, 'omit');
+env.context.fetch = async () => new Response('{}', { status: 429 });
+await assert.rejects(api.requestExternal('https://nominatim.openstreetmap.org/search'), error => error.status === 429);
+env.context.fetch = async () => { throw Error('Offline'); };
+await assert.rejects(api.requestExternal('https://nominatim.openstreetmap.org/search'), error => error.status === 0);
+assert.equal(api.getToken(), 'fixture-header');
+
 // Kiểm tra URL chia sẻ, tham số quay lại và chặn chuyển hướng ra ngoài ứng dụng.
 const routes = await env.use('/utils/routes.js');
 assert.equal(routes.searchUrl({ q: ' onsen ', tags: ['question','general'] }), '/pages/search.html?q=onsen&tag=question&tag=general');
