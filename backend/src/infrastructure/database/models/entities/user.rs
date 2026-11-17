@@ -9,13 +9,14 @@ use crate::infrastructure::database::schema::users;
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub id: Uuid,
+    pub displayname: String,
     pub username: String,
     pub email: String,
     pub institute: Option<String>,
     pub address: Option<String>,
     pub native: String,
     pub language: String,
-    pub password: String,
+    pub password: Option<String>,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
     pub role: String,
@@ -24,16 +25,23 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub muted_until: Option<DateTime<Utc>>,
     pub token_version: i32,
+    pub oauth_provider: Option<String>,
+    pub oauth_subject: Option<String>,
+    pub profile_completed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Insertable)]
-#[diesel(table_name = users)]
+#[diesel(table_name = crate::infrastructure::database::schema::users)]
 pub struct NewUser<'a> {
+    pub displayname: &'a str,
     pub username: &'a str,
     pub email: &'a str,
-    pub password: &'a str,
+    pub password: Option<&'a str>,
     pub native: &'a str,
     pub language: &'a str,
     pub role: &'a str,
     pub status: &'a str,
+    pub oauth_provider: Option<&'a str>,
+    pub oauth_subject: Option<&'a str>,
+    pub profile_completed_at: Option<DateTime<Utc>>,
 }

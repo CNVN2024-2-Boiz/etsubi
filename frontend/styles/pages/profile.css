@@ -1,0 +1,827 @@
+/* Trang Hồ sơ (Figma "Profile - Màn hình áp dụng" 1:3896): thẻ hồ sơ và thẻ Kết nối trong cột 960px. */
+
+/* ===== Khung trang ===== */
+
+/* Nền trang sáng như các trang nội dung khác. */
+.page--profile {
+  background: var(--color-page);
+}
+
+/* Cột 960px ở giữa, cách header 56px và footer 80px; hai thẻ cách nhau 24px. */
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: min(100% - 2 * var(--page-gutter), var(--profile-page-width));
+  margin: 0 auto;
+  padding: var(--profile-page-top) 0 var(--profile-page-bottom);
+}
+
+/* Thẻ bị ẩn khi không tìm thấy người dùng: hidden phải thắng display:flex của thẻ Kết nối. */
+.profile-card[hidden], .profile-connect[hidden] {
+  display: none;
+}
+
+/* ===== Thẻ hồ sơ ===== */
+
+/* Thẻ: nền kem, viền đỏ 2px, bo 4px, bóng hồng nhẹ; làm mốc cho avatar nằm đè lên dải đỏ.
+   Không dùng overflow: hidden để menu Quản trị được phép thò ra dưới mép thẻ. */
+.profile-card {
+  position: relative;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Dải đỏ cao 96px chứa cánh hoa và cổng torii mờ; tự bo 2 góc trên (4px trừ viền 2px)
+   vì thẻ cha không còn cắt phần tràn. */
+.profile-card__cover {
+  position: relative;
+  height: var(--profile-cover-height);
+  overflow: hidden;
+  border-radius: calc(var(--radius-sm) - 2px) calc(var(--radius-sm) - 2px) 0 0;
+  background: var(--color-red);
+}
+
+/* Cổng torii hồng mờ 25% ở góc phải dải đỏ (x 859, y 18, 73 × 60). */
+.profile-card__torii {
+  position: absolute;
+  top: 17.76px;
+  left: 858.92px;
+  width: 73.08px;
+  height: 60.48px;
+  opacity: .25;
+}
+
+/* Cánh hoa trong dải đỏ: vị trí từ góc trái dải (theo Figma), góc xoay tĩnh. */
+.profile-petal {
+  position: absolute;
+  left: var(--petal-x);
+  top: var(--petal-y);
+  transform: rotate(var(--petal-rotate));
+  opacity: .8;
+}
+
+/* Vị trí sáu cánh hoa trong dải đỏ. */
+.profile-petal--1 { --petal-x: 620px; --petal-y: 14px; --petal-rotate: 0deg; }
+.profile-petal--2 { --petal-x: 707.9px; --petal-y: 41.3px; --petal-rotate: -40deg; }
+.profile-petal--3 { --petal-x: 764.7px; --petal-y: 4px; --petal-rotate: -80deg; }
+.profile-petal--4 { --petal-x: 828.1px; --petal-y: 28.1px; --petal-rotate: -120deg; }
+.profile-petal--5 { --petal-x: 871.4px; --petal-y: 6.5px; --petal-rotate: -160deg; }
+.profile-petal--6 { --petal-x: 510.6px; --petal-y: 29.2px; --petal-rotate: 160deg; }
+
+/* Khối avatar 112px cách mép trái 22px, cách đỉnh 38px, nằm đè lên dải đỏ. */
+.profile-card__avatar-box {
+  position: absolute;
+  top: 38px;
+  left: 22px;
+  width: var(--profile-ring-size);
+  height: var(--profile-ring-size);
+}
+
+/* Vòng kem 112px quanh avatar, bóng hồng. */
+.profile-card__ring {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-profile-ring);
+}
+
+/* Avatar 104px nền chuyển sắc, chữ đầu tên 35px phông display. */
+.profile-card__avatar {
+  display: grid;
+  place-items: center;
+  width: var(--profile-avatar-size);
+  height: var(--profile-avatar-size);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-size: 35px;
+  font-weight: 700;
+}
+
+/* Ảnh đại diện thật phủ kín khung tròn. */
+.profile-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Avatar chờ là hình tròn xám. */
+.profile-card__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Nút camera 30px: nền trắng, viền đỏ 2px, icon đỏ 16px, đặt ở góc dưới phải avatar. */
+.profile-card__camera {
+  position: absolute;
+  top: 76px;
+  left: 76px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-pill);
+  background: var(--color-white);
+  color: var(--color-red);
+  transition: background-color .15s;
+}
+
+/* Hover nền hồng nhạt. */
+.profile-card__camera:hover {
+  background: var(--color-sakura);
+}
+
+/* Vòng sáng bàn phím. */
+.profile-card__camera:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Hidden phải thắng display:grid. */
+.profile-card__camera[hidden] {
+  display: none;
+}
+
+/* Hàng thông tin: lùi trái 156px để chừa chỗ avatar, đệm 18/28/26. */
+.profile-card__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-height: 72px;
+  padding: 18px 28px 26px 156px;
+}
+
+/* Khối chữ: tên, giới thiệu, thông tin, số theo dõi; khe 6px. */
+.profile-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Tên và nhãn vai trò cùng hàng, khe 8px. */
+.profile-card__name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Tên 24px phông display, giãn dòng 32px. */
+.profile-card__name {
+  color: var(--color-text);
+  font-size: 24px;
+  letter-spacing: -.24px;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh chờ tên. */
+.profile-card__name-bar {
+  display: inline-block;
+  width: 140px;
+}
+
+/* Nhãn vai trò (Điều hành viên / Quản trị viên): nền hồng nhạt, chữ đỏ 12px. */
+.profile-card__role {
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+  color: var(--color-red);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Giới thiệu 14px màu chữ phụ. */
+.profile-card__bio {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* Chữ Nhật (phông Noto Sans JP) căn theo đỉnh dòng để không làm dòng cao thêm 1px so với Figma. */
+.profile-card__bio [lang='ja'], .profile-card__meta [lang='ja'], .profile-row__bio [lang='ja'] {
+  vertical-align: top;
+}
+
+/* Chưa có giới thiệu: chữ muted. */
+.profile-card__bio--empty {
+  color: var(--color-muted);
+}
+
+/* Hàng thông tin phụ (trường, địa chỉ, tiếng mẹ đẻ), khe 12px, xuống dòng khi hẹp. */
+.profile-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Hàng thông tin rỗng không chiếm chỗ. */
+.profile-card__meta:empty {
+  display: none;
+}
+
+/* Một mục: icon 14px và chữ 12px muted, khe 4px. */
+.profile-card__meta li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Số theo dõi: 14px, số đậm vừa màu chữ chính, nhãn muted, khe 8px; cách trên thêm 6px. */
+.profile-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: 6px;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Con số trong thống kê. */
+.profile-card__stats strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Vùng nút theo dõi ở góc phải hàng thông tin; rỗng thì không chiếm chỗ. */
+.profile-card__action:empty {
+  display: none;
+}
+
+/* ===== Nút theo dõi ===== */
+
+/* Nút theo dõi cỡ Sm cao 32px: icon 14px, chữ 13px đậm vừa, bo 6px. */
+.follow-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px 0 var(--space-3);
+  border: 1px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-red);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+
+/* Cỡ Md cho đầu hồ sơ: cao 36px, đệm phải 16px. */
+.follow-btn--md {
+  height: 36px;
+  padding-right: var(--space-4);
+}
+
+/* Hover nút đỏ: đỏ đậm hơn. */
+.follow-btn:hover {
+  background: var(--color-red-hover);
+}
+
+/* Đang theo dõi: nền kem, viền nhạt, chữ màu phụ, icon dấu tích. */
+.follow-btn.is-following {
+  border-color: var(--color-border);
+  background: var(--color-cream);
+  color: var(--color-text-secondary);
+}
+
+/* Nhãn "Bỏ theo dõi" ẩn mặc định, chỉ hiện khi rê chuột vào nút đang theo dõi. */
+.follow-btn__unfollow {
+  display: none;
+}
+
+/* Rê chuột vào nút đang theo dõi (trừ lúc vừa bấm theo dõi): đổi thành "Bỏ theo dõi" màu đỏ. */
+.follow-btn.is-following:not(.is-fresh):hover {
+  border-color: var(--color-red-40);
+  color: var(--color-red);
+}
+
+/* Ẩn nhãn "Đang theo dõi" khi đang rê chuột. */
+.follow-btn.is-following:not(.is-fresh):hover .follow-btn__label {
+  display: none;
+}
+
+/* Hiện nhãn "Bỏ theo dõi" khi đang rê chuột. */
+.follow-btn.is-following:not(.is-fresh):hover .follow-btn__unfollow {
+  display: inline;
+}
+
+/* Vòng sáng bàn phím. */
+.follow-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đang gửi yêu cầu: mờ đi và không nhận nhấn. */
+.follow-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* ===== Thẻ Kết nối ===== */
+
+/* Thẻ: nền kem, viền đỏ 2px, bo 4px, bóng hồng; dải đỏ cách thân 16px, đệm dưới 20px. */
+.profile-connect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: 20px;
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Dải đỏ đầu thẻ: torii nhỏ và tiêu đề 14px đậm vừa màu kem. */
+.profile-connect__band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 18px;
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Thân thẻ: đệm ngang 20px, các khối cách nhau 14px. */
+.profile-connect__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-inline: 20px;
+}
+
+/* Hai tab cách nhau 8px. */
+.profile-tabs {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Tab chưa chọn: nền hồng nhạt, viền hồng, chữ đỏ 13px; số đếm trong huy hiệu đỏ. */
+.profile-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px var(--space-3);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+  color: var(--color-red);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+/* Hover tab chưa chọn: viền đỏ. */
+.profile-tab:hover {
+  border-color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím. */
+.profile-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Huy hiệu số 20px: nền đỏ chữ trắng 12px. */
+.profile-tab__badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--color-red);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Tab đang chọn: nền đỏ chữ trắng, huy hiệu nền kem chữ đỏ. */
+.profile-tab.is-active {
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+/* Huy hiệu của tab đang chọn. */
+.profile-tab.is-active .profile-tab__badge {
+  background: var(--color-cream);
+  color: var(--color-red);
+}
+
+/* Ô lọc cao 44px bo tròn: nền kem, viền nhạt; icon, ô nhập và nút xoá cách nhau 10px. */
+.profile-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 6px 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: var(--color-cream);
+  transition: border-color .15s, box-shadow .15s;
+}
+
+/* Đang nhập hoặc đang có từ khoá: viền đỏ và vòng sáng hồng như trạng thái "Đang lọc" trong Figma. */
+.profile-filter:focus-within, .profile-filter.is-filled {
+  border-color: var(--color-red);
+  box-shadow: var(--shadow-profile-search);
+}
+
+/* Icon kính lúp 20px màu muted. */
+.profile-filter__icon {
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+/* Ô nhập không viền, chữ 15px; gợi ý muted. */
+.profile-filter__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  outline: none;
+}
+
+/* Gợi ý dùng màu muted. */
+.profile-filter__input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Ẩn nút xoá có sẵn của trình duyệt vì trang đã có nút × riêng. */
+.profile-filter__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Nút xoá tròn 28px nền be nhạt, icon × 16px. */
+.profile-filter__clear {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+/* Hidden phải thắng display:grid. */
+.profile-filter__clear[hidden] {
+  display: none;
+}
+
+/* Hover đổi icon sang đỏ. */
+.profile-filter__clear:hover {
+  color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím. */
+.profile-filter__clear:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Danh sách người dùng: bỏ kiểu danh sách mặc định. */
+.profile-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Bỏ khung focus mặc định của tabpanel. */
+.profile-list:focus {
+  outline: none;
+}
+
+/* Chữ chờ tải. */
+.profile-list__note {
+  padding: var(--space-3) var(--space-2);
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+/* Một dòng: avatar 44px, chữ và nút, khe 12px, đệm 12/8, bo 6px; hover nền hồng rất nhạt. */
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background-color .15s;
+}
+
+/* Hover dòng: nền hồng rất nhạt, không dịch chuyển. */
+.profile-row:hover {
+  background: var(--color-support-faq-open);
+}
+
+/* Avatar 44px là liên kết tới hồ sơ người đó. */
+.profile-row__avatar {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  box-shadow: var(--shadow-profile-avatar-sm);
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Ảnh thật phủ kín khung tròn. */
+.profile-row__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Vòng sáng bàn phím cho avatar. */
+.profile-row__avatar:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Khối chữ: tên (kèm nhãn "Bạn") và giới thiệu, khe 2px, co được. */
+.profile-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Hàng tên và nhãn "Bạn", khe 6px. */
+.profile-row__name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Tên 14px đậm vừa, là liên kết tới hồ sơ. */
+.profile-row__name {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover tên: gạch chân. */
+.profile-row__name:hover {
+  text-decoration: underline;
+}
+
+/* Phần khớp với từ khoá lọc được tô đỏ như Figma. */
+.profile-row__name mark {
+  background: none;
+  color: var(--color-red);
+}
+
+/* Nhãn "Bạn" cho dòng của chính mình: nền be nhạt, chữ muted 12px. */
+.profile-row__you {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Giới thiệu 12px muted, cắt bằng dấu ba chấm trên một dòng. */
+.profile-row__bio {
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Trạng thái rỗng: icon tròn hồng, tiêu đề và gợi ý, căn giữa. */
+.profile-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px var(--space-4) 20px;
+  text-align: center;
+}
+
+/* Icon tròn 48px nền hồng nhạt, icon đỏ 20px; cách tiêu đề thêm 6px. */
+.profile-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* Tiêu đề 14px đậm vừa. */
+.profile-empty__title {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+/* Gợi ý 12px muted. */
+.profile-empty__hint {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* ===== Laptop ≤ 1280px ===== */
+@media (max-width: 1280px) {
+  /* Ẩn bớt trang trí bên phải dải đỏ vì thẻ có thể hẹp hơn 960px. */
+  .profile-card__torii {
+    left: auto;
+    right: 26px;
+  }
+}
+
+/* ===== Mobile ≤ 600px (Figma "Mobile – Hồ sơ · Theo dõi") ===== */
+@media (max-width: 600px) {
+  /* Khoảng cách tới header và giữa hai thẻ nhỏ lại. */
+  .profile {
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-8);
+  }
+
+  /* Dải đỏ còn 64px. */
+  .profile-card__cover {
+    height: var(--profile-cover-mobile);
+  }
+
+  /* Ẩn torii vì dải đỏ thấp. */
+  .profile-card__torii {
+    display: none;
+  }
+
+  /* Avatar 76px trong vòng 82px, cách mép 15px, đỉnh 23px. */
+  .profile-card__avatar-box {
+    top: 23px;
+    left: 15px;
+    width: 82px;
+    height: 82px;
+  }
+
+  /* Avatar nhỏ lại. */
+  .profile-card__avatar {
+    width: 76px;
+    height: 76px;
+    font-size: 26px;
+  }
+
+  /* Nút camera dịch theo avatar nhỏ. */
+  .profile-card__camera {
+    top: 54px;
+    left: 54px;
+  }
+
+  /* Hàng thông tin xếp dọc, không lùi trái; chừa 52px phía trên cho avatar. */
+  .profile-card__row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 52px var(--space-4) var(--space-4);
+  }
+
+  /* Nút theo dõi rộng hết khung. */
+  .profile-card__action .follow-btn {
+    width: 100%;
+  }
+
+  /* Thân thẻ Kết nối đệm 16px. */
+  .profile-connect__body {
+    padding-inline: var(--space-4);
+  }
+
+  /* Hai tab chia đều chiều ngang. */
+  .profile-tab {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* ===== Góc nhìn Mod/Admin trên thẻ hồ sơ (Figma 1:2435) ===== */
+
+/* Hàng nút đầu hồ sơ: Theo dõi và Quản trị cách nhau 8px. */
+.profile-card__action {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Ô chứa nhãn trạng thái cạnh tên; rỗng thì không chiếm chỗ. */
+.profile-card__status:empty {
+  display: none;
+}
+
+/* Khối chỉ staff thấy nằm dưới số theo dõi, cách trên thêm 6px; rỗng thì không chiếm chỗ. */
+.profile-card__staff {
+  margin-top: 6px;
+}
+
+/* Khối staff rỗng không chiếm chỗ. */
+.profile-card__staff:empty {
+  display: none;
+}
+
+/* Hồ sơ bị cấm: dải trên màu xám nâu, avatar xám, tên màu muted. */
+.profile-card.is-banned .profile-card__cover {
+  background: var(--color-banned-cover);
+}
+
+/* Avatar xám của hồ sơ bị cấm (bỏ ảnh thật cho thống nhất trạng thái). */
+.profile-card.is-banned .profile-card__avatar {
+  background: var(--color-banned-avatar);
+}
+
+/* Ảnh đại diện của tài khoản bị cấm hiển thị đen trắng. */
+.profile-card.is-banned .profile-card__avatar img {
+  filter: grayscale(1);
+}
+
+/* Tên của tài khoản bị cấm màu muted. */
+.profile-card.is-banned .profile-card__name {
+  color: var(--color-muted);
+}
+
+/* Mobile: hàng nút Theo dõi + Quản trị chia đều bề ngang. */
+@media (max-width: 600px) {
+  /* Hai nút chia đều. */
+  .profile-card__action > * {
+    flex: 1;
+  }
+
+  /* Nút Quản trị rộng hết phần của nó. */
+  .profile-card__action .staff-trigger, .profile-card__action .mod-menu-wrap {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/* Handle tách khỏi tên tự do ở thẻ hồ sơ và danh sách kết nối, chuỗi dài vẫn xuống dòng. */
+.profile-card__handle,
+.profile-row__handle {
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}

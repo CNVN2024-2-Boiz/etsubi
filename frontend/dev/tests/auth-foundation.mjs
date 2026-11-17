@@ -153,6 +153,23 @@ assert.equal(received.options.headers.Authorization, 'Bearer fixture-header');
 assert.equal(received.options.body, '{"language":"ja"}');
 assert.equal(received.url.searchParams.get('tags'), 'a,b');
 
+// Dịch vụ địa điểm bên ngoài không nhận Bearer token, cookie hoặc API_BASE của backend.
+env.context.fetch = async (url, options) => {
+  received = { url, options };
+  return new Response('{"name":"Địa điểm"}', { status: 200 });
+};
+const external = await api.requestExternal('https://nominatim.openstreetmap.org/search?format=jsonv2&q=test');
+assert.equal(external.name, 'Địa điểm');
+assert.equal(String(received.url).startsWith('https://nominatim.openstreetmap.org/'), true);
+assert.equal(received.options.method, 'GET');
+assert.equal(received.options.headers.Authorization, undefined);
+assert.equal(received.options.credentials, 'omit');
+env.context.fetch = async () => new Response('{}', { status: 429 });
+await assert.rejects(api.requestExternal('https://nominatim.openstreetmap.org/search'), error => error.status === 429);
+env.context.fetch = async () => { throw Error('Offline'); };
+await assert.rejects(api.requestExternal('https://nominatim.openstreetmap.org/search'), error => error.status === 0);
+assert.equal(api.getToken(), 'fixture-header');
+
 // Kiểm tra URL chia sẻ, tham số quay lại và chặn chuyển hướng ra ngoài ứng dụng.
 const routes = await env.use('/utils/routes.js');
 assert.equal(routes.searchUrl({ q: ' onsen ', tags: ['question','general'] }), '/pages/search.html?q=onsen&tag=question&tag=general');
@@ -170,15 +187,18 @@ env.context.fetch = async (url, options) => {
   if (url.pathname.endsWith('/auth/login')) {
     return new Response('{"token":"fixture-login"}', { status: 200 });
   }
-  return new Response(JSON.stringify({ id: 'fixture', username: 'Nguyễn Văn An', role: 'moderator', status: 'active', native: 'vi', language: 'ja', avatar_url: '/assets/avatars/preset.svg', muted_until: '2030-01-01T00:00:00Z' }));
+  return new Response(JSON.stringify({ id: 'fixture', username: 'nguyenvanan', displayname: 'Nguyễn Văn An', role: 'moderator', status: 'active', native: 'vi', language: 'ja', avatar_url: '/assets/avatars/preset.svg', muted_until: '2030-01-01T00:00:00Z' }));
 };
-const user = await auth.registerAndLogin({ username: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'vi', language: 'ja' });
+const user = await auth.registerAndLogin({ username: 'nguyenvanan', displayname: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'vi', language: 'ja' });
 assert.deepEqual(calls.map(call => call.pathname.split('/').at(-1)), ['register','login','my']);
 assert.equal(calls[0].body.native, 'vi');
 assert.equal(user.avatarUrl, '/assets/avatars/preset.svg');
 assert.equal(user.isStaff, true);
 assert.equal(user.isAdmin, false);
-assert.equal(auth.getCachedUser().username, 'Nguyễn Văn An');
+assert.equal(auth.getCachedUser().username, 'nguyenvanan');
+assert.equal(auth.getCachedUser().displayname, 'Nguyễn Văn An');
+assert.equal(calls[0].body.displayname, 'Nguyễn Văn An');
+assert.equal(calls[0].body.username, 'nguyenvanan');
 // Hồ sơ công khai chia sẻ yêu cầu đang chờ và bỏ kết quả lỗi để lần sau thử lại.
 const users = await env.use('/services/api/users.js');
 let userRequests = 0;
@@ -195,11 +215,15 @@ env.context.fetch = async () => new Response('{"error":"expired"}', { status: 40
 await api.request('/my').catch(() => {});
 assert.equal(env.redirects.at(-1), '/pages/profile/login.html?redirect=%2Fpages%2Fforum.html%3Fpage%3D2');
 assert.equal(auth.getCachedUser(), null);
-// Kiểm tra quy tắc byte UTF-8, email, mật khẩu và chấp thuận điều khoản.
+// Tên tự do nhận chữ Nhật; handle chỉ nhận chữ Latin thường, số, dấu chấm và gạch dưới.
 const validation = await env.use('/utils/validation.js');
 const hint = validation.authFieldMessage;
 assert.ok(hint('username', { value: '  ab  ' }));
-assert.equal(hint('username', { value: '  あ  ' }), '');
+assert.ok(hint('username', { value: '  あ  ' }));
+assert.equal(hint('displayname', { value: '  あ  ' }), '');
+assert.equal(hint('username', { value: 'nguyen.van_an' }), '');
+assert.ok(hint('displayname', { value: '   ' }));
+assert.ok(hint('displayname', { value: 'あ'.repeat(61) }));
 assert.ok(hint('email', { value: 'wrong@' }));
 assert.equal(hint('email', { value: ' fixture@example.invalid ' }), '');
 assert.ok(hint('password', { value: '1234567', register: true }));
@@ -263,7 +287,7 @@ for (const mode of ['login','register']) {
   const expectedLabels = {
     email: 'Email',
     password: 'Mật khẩu',
-    ...(mode === 'register' ? { username: 'Họ và tên', confirm: 'Xác nhận mật khẩu' } : {}),
+    ...(mode === 'register' ? { displayname: 'Tên hiển thị', username: 'Tên người dùng', confirm: 'Xác nhận mật khẩu' } : {}),
   };
   for (const [id, label] of Object.entries(expectedLabels)) {
     assert.ok(text.includes('for="' + id + '">' + label + '</label>'));

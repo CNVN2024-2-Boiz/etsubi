@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <!-- Tài nguyên tĩnh và phông chung giữ nhận diện đồng nhất với các trang đã làm. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giới thiệu · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+JP:wght@350;400;500;700&display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/about.css" />
+    <script type="module" src="/pages/about.js"></script>
+  </head>
+  <body class="page page--about">
+    <!-- Header dùng chung: tab Giới thiệu đang chọn, ô tìm kiếm trong suốt như Figma. -->
+    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header" data-active="about"></header>
+
+    <main id="main">
+      <!-- Banner: ảnh chùa và cầu đỏ mùa thu, lớp phủ đỏ đậm bên trái để chữ trắng dễ đọc. -->
+      <section class="about-hero" aria-labelledby="about-title">
+        <img class="about-hero__photo" src="/assets/images/about-hero.jpg" alt="" aria-hidden="true" fetchpriority="high" />
+        <div class="about-hero__petals" data-hero-petals aria-hidden="true"></div>
+        <div class="container about-hero__content">
+          <span class="about-hero__accent" aria-hidden="true"></span>
+          <p class="about-hero__kicker"><span lang="ja">越日</span> · <span class="brand-word">Etsubi</span></p>
+          <h1 id="about-title" class="t-display about-hero__title">Về <span class="brand-word">Etsubi</span></h1>
+          <p class="about-hero__desc">Diễn đàn giao lưu văn hoá Việt – Nhật: nơi kết nối, chia sẻ kiến thức và cùng nhau học ngôn ngữ của nhau.</p>
+        </div>
+      </section>
+
+      <div class="about-main">
+        <!-- Cánh hoa trang trí hai bên lề phần nội dung. -->
+        <div class="about-main__petals" data-petals aria-hidden="true"></div>
+
+        <div class="container about-main__inner">
+          <!-- Câu chuyện tên gọi: ba đoạn văn bên trái, phương trình 越 + 日 = Etsubi bên phải. -->
+          <section class="about-story" aria-labelledby="story-title">
+            <div class="about-story__text">
+              <h2 id="story-title" class="t-display about-heading__title">Câu chuyện tên gọi</h2>
+              <p>Etsubi là diễn đàn trực tuyến tạo không gian mở cho cộng đồng người Việt và người Nhật giao lưu văn hoá, học hỏi ngôn ngữ và chia sẻ trải nghiệm đời sống.</p>
+              <p>Tên gọi được nhóm tự ghép từ Etsu (<span lang="ja">越</span> – Việt) và bi (lấy từ <span lang="ja">日</span> – Nhật), như một cây cầu nhỏ nối hai nền văn hoá.</p>
+              <p>Etsubi là đồ án kết thúc môn Internet và Công nghệ web (IE104). Frontend là trọng tâm của môn học, đồng thời nhóm đầu tư thêm vào toàn bộ hệ thống, từ trải nghiệm người dùng đến backend.</p>
+            </div>
+            <div class="about-equation" role="img" aria-label="Etsu (越, Việt Nam) cộng bi (日, Nhật Bản) bằng Etsubi">
+              <div class="about-glyph" aria-hidden="true">
+                <span class="about-glyph__band">Etsu</span>
+                <span class="about-glyph__body"><span class="about-glyph__char" lang="ja">越</span><span class="about-glyph__caption">Việt Nam</span></span>
+              </div>
+              <span class="about-equation__sign" aria-hidden="true">+</span>
+              <div class="about-glyph" aria-hidden="true">
+                <span class="about-glyph__band">bi</span>
+                <span class="about-glyph__body"><span class="about-glyph__char" lang="ja">日</span><span class="about-glyph__caption">Nhật Bản</span></span>
+              </div>
+              <span class="about-equation__sign" aria-hidden="true">=</span>
+              <div class="about-equation__result" aria-hidden="true">
+                <img src="/assets/icons/etsubi-logo.svg" width="83" height="83" alt="" />
+                <span class="brand-word">Etsubi</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Bốn điều Etsubi mang lại, mỗi thẻ có liên kết tới nơi dùng tính năng hoặc hướng dẫn. -->
+          <section class="about-section" aria-labelledby="offer-title">
+            <header class="about-heading">
+              <h2 id="offer-title" class="t-display about-heading__title">Điều Etsubi mang lại</h2>
+              <p class="about-heading__desc">Những trải nghiệm nhóm đầu tư để việc giao lưu Việt – Nhật trở nên dễ dàng hơn.</p>
+            </header>
+            <div class="about-features">
+              <article class="about-feature">
+                <span class="about-feature__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg></span>
+                <h3 class="about-feature__title">Dịch bài viết tự động</h3>
+                <p class="about-feature__desc">Bài viết và bình luận được dịch giữa tiếng Việt, tiếng Nhật và tiếng Anh chỉ với một nút bấm.</p>
+                <a class="about-feature__link" href="/pages/support.html?topic=translate">Xem cách dịch bài  →</a>
+              </article>
+              <article class="about-feature">
+                <span class="about-feature__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span>
+                <h3 class="about-feature__title">Địa điểm văn hoá</h3>
+                <p class="about-feature__desc">Bài viết có gắn toạ độ hiện thẻ bản đồ, mở nhanh vị trí và chỉ đường trên Google Maps.</p>
+                <a class="about-feature__link" href="/pages/support.html?topic=places">Xem hướng dẫn  →</a>
+              </article>
+              <article class="about-feature">
+                <span class="about-feature__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <h3 class="about-feature__title">Cộng đồng Việt – Nhật</h3>
+                <p class="about-feature__desc">Theo dõi thành viên, trao đổi kinh nghiệm học tập, du học và việc làm.</p>
+                <a class="about-feature__link" href="/pages/forum.html">Vào Diễn đàn  →</a>
+              </article>
+              <article class="about-feature">
+                <span class="about-feature__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span>
+                <h3 class="about-feature__title">Kiểm duyệt rõ ràng</h3>
+                <p class="about-feature__desc">Phân quyền Khách, Thành viên, Điều hành viên và Quản trị viên để giữ diễn đàn lành mạnh.</p>
+                <a class="about-feature__link" href="/pages/support.html?topic=rules">Quy tắc cộng đồng  →</a>
+              </article>
+            </div>
+          </section>
+
+          <!-- Công nghệ phía sau: thẻ có dải đỏ, ba cột ngăn bằng đường kẻ dọc. -->
+          <section class="about-tech" aria-labelledby="tech-title">
+            <h2 id="tech-title" class="about-tech__band">
+              <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
+              Công nghệ phía sau
+            </h2>
+            <div class="about-tech__body">
+              <div class="about-tech__item">
+                <span class="about-tech__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg></span>
+                <div class="about-tech__text">
+                  <h3 class="about-tech__title">Frontend thuần</h3>
+                  <p class="about-tech__desc">HTML, CSS và JavaScript thuần (vanilla) định nghĩa toàn bộ logic, giúp website vẫn hoạt động khi chuyển sang framework khác.</p>
+                </div>
+              </div>
+              <div class="about-tech__item">
+                <span class="about-tech__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><path d="M6 6h.01"/><path d="M6 18h.01"/></svg></span>
+                <div class="about-tech__text">
+                  <h3 class="about-tech__title">Backend viết bằng Rust</h3>
+                  <p class="about-tech__desc">Tận dụng hệ thống kiểu và cơ chế ownership của Rust để xử lý phân quyền và dữ liệu an toàn.</p>
+                </div>
+              </div>
+              <div class="about-tech__item">
+                <span class="about-tech__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></span>
+                <div class="about-tech__text">
+                  <h3 class="about-tech__title">Kiến trúc phân tầng</h3>
+                  <p class="about-tech__desc">Tách bạch ba tầng Presentation – Business Logic – Infrastructure, dễ bảo trì và mở rộng.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Đội ngũ phát triển: năm thẻ thành viên, avatar chữ đầu tên nằm trên dải đỏ có cánh hoa. -->
+          <section class="about-section" aria-labelledby="team-title">
+            <header class="about-heading">
+              <h2 id="team-title" class="t-display about-heading__title">Đội ngũ phát triển</h2>
+              <p class="about-heading__desc">Nhóm CNVN2024-2-Boiz · 5 thành viên cùng xây dựng Etsubi.</p>
+            </header>
+            <ul class="about-team">
+              <li class="about-member">
+                <span class="about-member__cover" data-member-cover aria-hidden="true"></span>
+                <span class="about-member__ring" aria-hidden="true"><span class="about-member__avatar">MP</span></span>
+                <h3 class="about-member__name">Đỗ Mạnh Phú</h3>
+                <span class="about-member__role">Thiết kế giao diện</span>
+                <span class="about-member__id">MSSV 24521350</span>
+              </li>
+              <li class="about-member">
+                <span class="about-member__cover" data-member-cover aria-hidden="true"></span>
+                <span class="about-member__ring" aria-hidden="true"><span class="about-member__avatar">TN</span></span>
+                <h3 class="about-member__name">Vũ Thiện Nhân</h3>
+                <span class="about-member__role">Xây dựng giao diện</span>
+                <span class="about-member__id">MSSV 24521246</span>
+              </li>
+              <li class="about-member">
+                <span class="about-member__cover" data-member-cover aria-hidden="true"></span>
+                <span class="about-member__ring" aria-hidden="true"><span class="about-member__avatar">AT</span></span>
+                <h3 class="about-member__name">Võ Khắc Anh Tài</h3>
+                <span class="about-member__role">Thiết kế chức năng cho FE</span>
+                <span class="about-member__id">MSSV 24521561</span>
+              </li>
+              <li class="about-member">
+                <span class="about-member__cover" data-member-cover aria-hidden="true"></span>
+                <span class="about-member__ring" aria-hidden="true"><span class="about-member__avatar">NP</span></span>
+                <h3 class="about-member__name">Nguyễn Nam Phong</h3>
+                <span class="about-member__role">Xây dựng backend</span>
+                <span class="about-member__id">MSSV 24521340</span>
+              </li>
+              <li class="about-member">
+                <span class="about-member__cover" data-member-cover aria-hidden="true"></span>
+                <span class="about-member__ring" aria-hidden="true"><span class="about-member__avatar">HQ</span></span>
+                <h3 class="about-member__name">Nguyễn Lê Hoàng Quân</h3>
+                <span class="about-member__role">Xây dựng yêu cầu người dùng</span>
+                <span class="about-member__id">MSSV 24521441</span>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Lời mời cuối trang: liên kết mã nguồn và tài liệu của repo nhóm trên GitHub. -->
+          <section class="about-cta" aria-labelledby="cta-title">
+            <img class="about-cta__torii" src="/assets/icons/torii-mini.svg" alt="" aria-hidden="true" />
+            <div class="about-cta__text">
+              <h2 id="cta-title" class="t-display about-cta__title">Theo dõi quá trình phát triển Etsubi</h2>
+              <p class="about-cta__desc">Xem mã nguồn, tài liệu kỹ thuật (thực thể, phân quyền, cấu trúc) và bản thiết kế Figma của dự án.</p>
+            </div>
+            <a class="about-cta__button about-cta__button--solid" href="https://github.com/CNVN2024-2-Boiz/etsubi" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+              Mã nguồn trên GitHub
+            </a>
+            <a class="about-cta__button about-cta__button--outline" href="https://github.com/CNVN2024-2-Boiz/etsubi/tree/main/docs/src" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Tài liệu dự án
+            </a>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer đầy đủ dùng chung cho trang nội dung. -->
+    <footer class="site-footer" data-component="footer" data-variant="full"></footer>
+  </body>
+</html>

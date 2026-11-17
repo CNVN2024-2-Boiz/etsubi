@@ -108,6 +108,28 @@ export class ApiError extends Error {
   }
 }
 
+/** GET JSON công khai bên ngoài API, không gửi token hoặc dùng hàng đợi backend. */
+export async function requestExternal(url, { signal } = {}) {
+  const controller = new AbortController();
+  // Huỷ theo caller hoặc hết 15 giây; luôn dọn timer và listener khi hoàn tất.
+  const abort = () => controller.abort(signal?.reason);
+  if (signal?.aborted) abort();
+  signal?.addEventListener('abort', abort, { once: true });
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' }, credentials: 'omit', signal: controller.signal });
+    if (!response.ok) throw new ApiError(response.status, 'Không tải được thông tin địa điểm. Vui lòng thử lại.');
+    return await response.json();
+  } catch (error) {
+    if (signal?.aborted) throw signal.reason || error;
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(0, 'Không kết nối được dịch vụ địa điểm. Vui lòng thử lại.');
+  } finally {
+    clearTimeout(timeout);
+    signal?.removeEventListener('abort', abort);
+  }
+}
+
 // Tách xử lý hết phiên khỏi lớp mạng để client không phụ thuộc giao diện trang.
 const unauthorizedListeners = new Set();
 

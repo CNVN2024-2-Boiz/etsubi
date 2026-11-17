@@ -12,6 +12,16 @@ export function unbookmarkPost(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/bookmark', { method: 'DELETE' });
 }
 
+/**
+ * Hỏi trạng thái lưu của một bài cụ thể (trang đọc bài chỉ có một bài nên gọi một lần là đủ).
+ * @param {string} postId Mã bài viết.
+ * @returns {Promise<boolean>} true nếu người đang đăng nhập đã lưu bài.
+ */
+export async function isPostBookmarked(postId) {
+  const result = await request('/my/bookmarks/' + encodeURIComponent(postId));
+  return Boolean(result?.bookmarked);
+}
+
 // CẦN BACKEND: GET /posts trả is_bookmarked theo người xem có JWT; chưa hỗ trợ thì null, không gọi thêm endpoint để đoán trạng thái.
 /** Đọc trạng thái từ bài đã tải; null nghĩa là chưa biết, không phải chưa lưu. */
 export async function getBookmarkState(post) {

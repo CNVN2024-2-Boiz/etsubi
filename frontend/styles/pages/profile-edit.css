@@ -1,0 +1,388 @@
+/* Kích thước riêng của trang Chỉnh sửa hồ sơ (frame 285:2323); màu sắc đã nằm trong styles/tokens.css. */
+:root {
+  --edit-nav-padding-x: 14px;
+  --edit-nav-text-gap: 2px;
+  --edit-copy-gap: 6px;
+  --edit-page-top: 31px;
+  --edit-avatar-actions-gap: 14px;
+}
+
+/* Trang dùng lại nền, khung ba cột, avatar và tóm tắt của Register Advanced qua stylesheet chung đó. */
+.page--profile-edit {
+  scroll-behavior: auto;
+}
+
+/* Header của frame cao 77px, main bắt đầu sau 31px để breadcrumb gần toạ độ y108. */
+.page--profile-edit .profile-setup {
+  padding-top: var(--edit-page-top);
+}
+
+/* Tiêu đề cao 57px giống Figma, giữ 12px giữa breadcrumb, vạch nhấn, tiêu đề và mô tả. */
+.page--profile-edit .profile-heading h1 {
+  line-height: 57px;
+}
+
+/* Breadcrumb có dòng 16px để vạch nhấn và tiêu đề nằm đúng cao độ của frame desktop. */
+.page--profile-edit .profile-breadcrumb {
+  line-height: 16px;
+}
+
+/* Mô tả dùng dòng 22px để hàng card bắt đầu gần y270 ở khung 1920px. */
+.page--profile-edit .profile-heading__copy > p {
+  line-height: 22px;
+}
+
+/* Pill neo vào main, cách mép màn hình 20px như frame, độc lập với khung nội dung 1680px. */
+.page--profile-edit .profile-draft {
+  position: absolute;
+  top: var(--edit-page-top);
+  right: var(--space-5);
+  margin-top: var(--space-5);
+  line-height: 16px;
+}
+
+/* Danh sách giữ năm liên kết cách 4px, phần đầu chừa 16px từ nhãn tới mục đầu. */
+.edit-settings__list {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Liên kết có vùng nhấn như Figma, icon luôn vuông 18px và không bị ép khi chữ dài. */
+.edit-settings__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--edit-nav-padding-x);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+/* Icon kế thừa màu chữ, tỷ lệ được bảo toàn bằng cả chiều rộng và chiều cao. */
+.edit-settings__link svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Nhãn và ghi chú có khoảng cách 2px để tổng chiều cao mỗi mục là 59px. */
+.edit-settings__link > span {
+  display: grid;
+  gap: var(--edit-nav-text-gap);
+}
+
+/* Nhãn chính nét vừa và ghi chú nhỏ có dòng riêng để dễ quét danh sách. */
+.edit-settings__link strong {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Ghi chú dùng màu muted chung, không sáng hơn giới hạn tương phản của dự án. */
+.edit-settings__link small {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 15px;
+}
+
+/* Trạng thái hiện tại và hover chỉ thay nền, không làm di chuyển nội dung. */
+.edit-settings__link:hover,
+.edit-settings__link[aria-current='true'] {
+  background: var(--color-sakura);
+  color: var(--color-red);
+  text-decoration: none;
+}
+
+/* Xoá luôn có nhãn đỏ dù đang ở mục khác, kèm icon cùng màu để cảnh báo rõ. */
+.edit-settings__link--danger {
+  color: var(--color-red);
+}
+
+/* Dải đầu cao đúng 100px, giữ torii và tiêu đề cân giữa thay vì dùng toạ độ tuyệt đối. */
+.page--profile-edit .profile-card__band {
+  min-height: 100px;
+  gap: var(--edit-copy-gap);
+  justify-content: center;
+}
+
+/* Đề mục cách mép trên header một khoảng an toàn khi nhảy tới neo trên trang. */
+.page--profile-edit .profile-section,
+.edit-danger {
+  scroll-margin-top: calc(var(--header-height) + var(--space-6));
+}
+
+/* Dòng tiêu đề và mô tả tạo khối cao 53px theo số đo Figma. */
+.page--profile-edit .profile-section__heading h2 {
+  line-height: 29px;
+}
+
+/* Khoảng 6px và dòng 18px khớp mô tả trong thiết kế mà vẫn cho phép xuống dòng. */
+.page--profile-edit .profile-section__heading p {
+  margin-top: var(--edit-copy-gap);
+  line-height: 18px;
+}
+
+/* Nhãn, ô 53px và gợi ý 15px tạo hàng dữ liệu 102px; các hàng cách nhau 20px. */
+.page--profile-edit .profile-fields-grid {
+  row-gap: var(--space-5);
+}
+
+/* Nhãn giữ dòng 18px để hàng có gợi ý không bị kéo cao hơn bản thiết kế. */
+.page--profile-edit .field__label {
+  line-height: 18px;
+}
+
+/* Ô nhập một dòng có chiều cao cố định, textarea vẫn dùng chiều cao riêng của trang gốc. */
+.page--profile-edit input.input,
+.page--profile-edit select.input {
+  height: 53px;
+}
+
+/* Gợi ý và bộ đếm cùng dòng 15px để nền tảng trình duyệt không làm sai khoảng cách. */
+.page--profile-edit .field__hint {
+  line-height: 15px;
+}
+
+/* Avatar ghi chú cách tên 6px và hàng nút cách ghi chú 16px, tổng khung gần 147px. */
+.page--profile-edit .profile-avatar-box p {
+  margin-top: var(--edit-copy-gap);
+  line-height: 16px;
+}
+
+/* Tên thao tác ảnh có dòng 20px, không kéo cao khung avatar so với mốc 147px. */
+.page--profile-edit .profile-avatar-box h3 {
+  line-height: 20px;
+}
+
+/* Nút ảnh dùng dòng 18px để cả nút viền có chiều cao xấp xỉ 40px của component Figma. */
+.page--profile-edit .profile-avatar-box__actions .btn {
+  line-height: 18px;
+}
+
+/* Hàng nút ảnh có khoảng cách trên tương ứng hai khoảng đệm nhỏ của Figma. */
+.page--profile-edit .profile-avatar-box__actions {
+  margin-top: var(--edit-avatar-actions-gap);
+}
+
+/* Nhóm ngôn ngữ có khoảng cách 20px giữa nhãn, radio và gợi ý theo frame. */
+.page--profile-edit .profile-native legend {
+  margin-bottom: var(--space-5);
+  line-height: 18px;
+}
+
+/* Radio đủ cao và có đệm 18px như component gốc, giữ nội dung dễ đọc. */
+.page--profile-edit .profile-native .radio-card {
+  min-height: 78px;
+  padding: var(--radio-padding);
+}
+
+/* Hai dòng chữ radio có chiều cao 18px và 16px, giữ thẻ đúng 78px thay vì bị dòng mặc định kéo cao. */
+.page--profile-edit .profile-native strong {
+  line-height: 18px;
+}
+
+/* Phụ đề radio vẫn có khoảng 4px phía trên từ CSS gốc, chỉ chuẩn hoá chiều cao dòng. */
+.page--profile-edit .profile-native small {
+  line-height: 16px;
+}
+
+/* Gợi ý sau radio tách 20px và cỡ nhỏ phù hợp thân biểu mẫu. */
+.page--profile-edit .profile-native > .field__hint {
+  margin-top: var(--space-5);
+  font-size: 12px;
+}
+
+/* Phần đỏ tóm tắt dùng khoảng 10px giữa bốn hàng như số đo Figma. */
+.page--profile-edit .profile-summary__top {
+  gap: var(--button-small-y);
+}
+
+/* Nhãn nhỏ trong tóm tắt cao 14px, không bị chiều cao dòng thân trang làm giãn hàng. */
+.page--profile-edit .profile-summary .profile-eyebrow {
+  line-height: 14px;
+}
+
+/* Tiêu đề tóm tắt có dòng 29px giống đề mục biểu mẫu. */
+.page--profile-edit .profile-summary__top h2 {
+  line-height: 29px;
+}
+
+/* Phần trăm chiếm dòng 43px, đảm bảo dải đầu tóm tắt có tổng chiều cao 168px. */
+.page--profile-edit .profile-summary__percent {
+  line-height: 43px;
+}
+
+/* Hàng thông tin cao 39px và cách nhãn 6px để thân tóm tắt cao 254px như Figma. */
+.page--profile-edit .profile-summary__rows {
+  margin-top: var(--edit-copy-gap);
+  line-height: 16px;
+}
+
+/* Khoảng giữa dữ liệu, thông báo, thanh nút và vùng xoá là 40px. */
+.page--profile-edit .profile-form {
+  gap: var(--space-8);
+}
+
+/* Vùng xoá nằm cuối thẻ, chữ mô tả cho phép co để nút không bị đẩy ra ngoài. */
+.edit-danger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-md);
+  background: var(--color-danger-zone-bg);
+}
+
+/* Khối giải thích vùng xoá nhận phần chiều rộng còn lại. */
+.edit-danger > div {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Tiêu đề vùng xoá dùng chữ đỏ 16px, không áp phông display dành cho tiêu đề lớn. */
+.edit-danger h2 {
+  color: var(--color-red);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Mô tả nguy hiểm nhỏ hơn nhãn nhưng vẫn giữ màu chữ đủ tương phản. */
+.edit-danger p {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+/* Nút xoá giữ nhãn trên một dòng khi desktop có đủ chiều rộng. */
+.edit-danger > .btn {
+  flex-shrink: 0;
+}
+
+/* Dialog xác nhận đứng yên giữa màn hình; dùng dialog gốc để quản lý focus và phím Escape. */
+.edit-dialog {
+  width: calc(100% - var(--space-7));
+  max-width: 520px;
+  max-height: calc(100% - var(--space-7));
+  margin: auto;
+  padding: var(--space-7);
+  overflow-y: auto;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card-strong);
+}
+
+/* Lớp phủ làm rõ hộp xác nhận mà không có hiệu ứng xuất hiện hoặc biến mất. */
+.edit-dialog::backdrop {
+  background: var(--edit-dialog-backdrop);
+}
+
+/* Nội dung dialog xếp dọc theo thứ tự đọc: cảnh báo, mật khẩu, lỗi rồi nút. */
+.edit-dialog__form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* Tiêu đề dialog đỏ và đủ lớn để phân biệt hành động xoá vĩnh viễn với lưu hồ sơ. */
+.edit-dialog h2 {
+  color: var(--color-red);
+  font-size: 24px;
+}
+
+/* Các nút trong dialog căn phải theo thứ tự huỷ trước, xoá sau trên desktop. */
+.edit-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* Laptop đưa năm mục vào dải cuộn ngang bên trong card, không kéo rộng cả trang. */
+@media (max-width: 1280px) {
+  /* Dải điều hướng có thể co trong lưới một cột của stylesheet Register Advanced. */
+  .edit-settings {
+    min-width: 0;
+  }
+
+  /* Cột cuộn chỉ nằm trong menu, mỗi liên kết giữ đủ chỗ cho cả hai dòng chữ. */
+  .edit-settings__list {
+    display: flex;
+    overflow-x: auto;
+    /* Ẩn thanh cuộn xám của hệ điều hành; người dùng vẫn vuốt ngang được dải mục cài đặt. */
+    scrollbar-width: none;
+    padding-bottom: var(--space-2);
+  }
+
+  /* Không bóp các mục thành cột chữ hẹp khi laptop không đủ bề ngang. */
+  .edit-settings__list > li {
+    flex-shrink: 0;
+  }
+
+  /* Pill xuống dòng khi heading thiếu chiều rộng, giữ mô tả hoàn toàn đọc được. */
+  .page--profile-edit .profile-heading {
+    flex-direction: column;
+  }
+
+  /* Bỏ vị trí tuyệt đối của pill khi khung nội dung đã thu về một cột. */
+  .page--profile-edit .profile-draft {
+    position: static;
+    margin-top: 0;
+  }
+}
+
+/* Tablet bỏ ô trống ở nửa phải hàng mật khẩu hiện tại khi các hàng đã xếp dọc. */
+@media (max-width: 960px) {
+  /* Ô giữ chỗ chỉ có ý nghĩa ở desktop, không được tạo khoảng trắng trên tablet. */
+  .edit-password-spacer {
+    display: none;
+  }
+
+  /* Vùng xoá xếp dọc để đoạn mô tả và nút đều còn đủ chỗ đọc. */
+  .edit-danger {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Mobile giữ lề 16px, dialog và nút đủ rộng, không có cột nào làm tràn màn hình 360px. */
+@media (max-width: 600px) {
+  /* Ưu tiên đệm 24px của mobile thay cho giá trị 31px đã đo riêng cho desktop. */
+  .page--profile-edit .profile-setup {
+    padding-top: var(--space-6);
+  }
+
+  /* Tiêu đề trở về chiều cao tự nhiên khi cỡ chữ đã giảm theo CSS trang gốc. */
+  .page--profile-edit .profile-heading h1 {
+    line-height: 1.2;
+  }
+
+  /* Pill cho xuống dòng trong khung hẹp khi trình duyệt phóng to chữ. */
+  .page--profile-edit .profile-draft {
+    max-width: 100%;
+    flex-shrink: 1;
+  }
+
+  /* Vùng nguy hiểm giảm đệm ngang và dùng nút phủ hết chiều rộng. */
+  .edit-danger {
+    padding-inline: var(--space-4);
+  }
+
+  /* Nút xoá và hai nút dialog có vùng chạm đầy đủ trên điện thoại. */
+  .edit-danger > .btn,
+  .edit-dialog__actions > .btn {
+    width: 100%;
+  }
+
+  /* Dialog chừa đúng 16px mỗi bên và giảm đệm để ô mật khẩu không bị ép. */
+  .edit-dialog {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  /* Nút dialog xếp theo thứ tự DOM, tránh lệch thứ tự Tab và thứ tự nhìn. */
+  .edit-dialog__actions {
+    flex-direction: column;
+  }
+}

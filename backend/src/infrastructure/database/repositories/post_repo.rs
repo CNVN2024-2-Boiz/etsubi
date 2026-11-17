@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use diesel::dsl::count_star;
 use diesel::prelude::*;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
     domains::post::repository::PostRepository,
     infrastructure::database::{
         models::entities::{NewPost, Post},
-        schema::{post_translation, posts, posts_tags},
+        schema::{post_translation, posts, posts_tags, reactions, tags, users_follows},
     },
 };
 
@@ -293,6 +294,89 @@ impl PostRepository for PostgresPostRepo {
             .order(posts::created_at.desc())
             .limit(limit)
             .offset(offset)
+            .load(&mut conn)?)
+    }
+
+    fn list_newest_posts(&self) -> Result<Vec<Post>> {
+        let mut conn = self.pool.get()?;
+
+        Ok(posts::table
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .order(posts::created_at.desc())
+            .limit(20)
+            .select(Post::as_select())
+            .load(&mut conn)?)
+    }
+
+    fn list_popular_posts(&self) -> Result<Vec<Post>> {
+        let mut conn = self.pool.get()?;
+
+        let ranked: Vec<(Uuid, i64)> = posts::table
+            .inner_join(reactions::table)
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .group_by(posts::id)
+            .select((posts::id, count_star()))
+            .order(count_star().desc())
+            .limit(20)
+            .load(&mut conn)?;
+
+        let ids: Vec<Uuid> = ranked.into_iter().map(|(id, _)| id).collect();
+        if ids.is_empty() {
+            return Ok(vec![]);
+        }
+
+        let rows = posts::table
+            .filter(posts::id.eq_any(&ids))
+            .select(Post::as_select())
+            .load::<Post>(&mut conn)?;
+
+        let mut map: HashMap<Uuid, Post> = rows.into_iter().map(|p| (p.id, p)).collect();
+        Ok(ids.into_iter().filter_map(|id| map.remove(&id)).collect())
+    }
+
+    fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>> {
+        let mut conn = self.pool.get()?;
+
+        let following_ids: Vec<Uuid> = users_follows::table
+            .filter(users_follows::follower_id.eq(user_id))
+            .select(users_follows::following_id)
+            .load(&mut conn)?;
+
+        if following_ids.is_empty() {
+            return Ok(vec![]);
+        }
+
+        Ok(posts::table
+            .filter(posts::author_id.eq_any(&following_ids))
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .order(posts::created_at.desc())
+            .select(Post::as_select())
+            .load(&mut conn)?)
+    }
+
+    fn list_question_and_answer_posts(&self) -> Result<Vec<Post>> {
+        let mut conn = self.pool.get()?;
+
+        let question_tag: Option<Uuid> = tags::table
+            .filter(tags::name.eq("question"))
+            .select(tags::id)
+            .first(&mut conn)
+            .optional()?;
+
+        let Some(tag_id) = question_tag else {
+            return Ok(vec![]);
+        };
+
+        Ok(posts::table
+            .inner_join(posts_tags::table)
+            .filter(posts_tags::tag_id.eq(tag_id))
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .order(posts::created_at.desc())
+            .select(Post::as_select())
             .load(&mut conn)?)
     }
 }

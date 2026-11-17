@@ -35,6 +35,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    notifications (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        actor_id -> Nullable<Uuid>,
+        kind -> Text,
+        message -> Text,
+        link -> Text,
+        is_readed -> Bool,
+        created_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     post_translation (original_post_id, language) {
         original_post_id -> Uuid,
         language -> Text,
@@ -92,13 +105,14 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Uuid,
+        displayname -> Text,
         username -> Text,
         email -> Text,
         institute -> Nullable<Text>,
         address -> Nullable<Text>,
         native -> Text,
         language -> Text,
-        password -> Text,
+        password -> Nullable<Text>,
         avatar_url -> Nullable<Text>,
         bio -> Nullable<Text>,
         role -> Text,
@@ -107,6 +121,9 @@ diesel::table! {
         updated_at -> Timestamptz,
         muted_until -> Nullable<Timestamptz>,
         token_version -> Int4,
+        oauth_provider -> Nullable<Text>,
+        oauth_subject -> Nullable<Text>,
+        profile_completed_at -> Nullable<Timestamptz>,
     }
 }
 
@@ -134,6 +151,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
     comment_translation,
     comments,
+    notifications,
     post_translation,
     posts,
     posts_tags,

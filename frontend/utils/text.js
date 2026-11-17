@@ -1,3 +1,4 @@
+import { richToPlainText } from '/utils/rich-text.js';
 /** Xử lý văn bản bằng nút DOM để kết quả tìm kiếm không chèn được HTML từ API. */
 
 /**
@@ -74,8 +75,7 @@ export function wrapJapanese(fragmentOrText) {
  * @returns {string} Đoạn trích thuần văn bản, có dấu ba chấm khi bị cắt.
  */
 export function makeExcerpt(content, query = '', max = 220) {
-  const text = String(content ?? '')
-    .replace(/<[^>]*>/gu, ' ')
+  const text = richToPlainText(content)
     .replace(/!?\[([^\]]*)\]\([^)]*\)/gu, '$1')
     .replace(/^[ \t]*[>#\-+]+\s*/gmu, '')
     .replace(/[`*_~]/gu, '')

@@ -1,0 +1,1233 @@
+/* Trang đọc bài (Figma Reading Page, shared file 1:1337): khung bài viết 997px + sidebar 403px. */
+
+/* ===== Khung trang và cánh hoa ===== */
+
+/* Nền trang sáng như Figma; main làm mốc định vị cho lớp cánh hoa phía sau nội dung. */
+.page--post {
+  background: var(--color-page);
+}
+
+/* Đệm trên 36px tới breadcrumb và 88px dưới cùng trước footer, đo theo khung 1920px. */
+.post-page {
+  position: relative;
+  padding-block: 36px 88px;
+  overflow: hidden;
+}
+
+/* Nội dung nổi trên lớp cánh hoa để cánh hoa không che chữ khi màn hình hẹp. */
+.post-page__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Lớp cánh hoa phủ toàn vùng main, không nhận chuột. */
+.post-page__petals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Mỗi cánh hoa đặt theo tâm trang và góc xoay tĩnh lấy từ token, không có animation. */
+.post-petal {
+  position: absolute;
+  left: calc(50% + var(--petal-x));
+  top: var(--petal-y);
+  transform: rotate(var(--petal-rotate));
+  opacity: .8;
+}
+
+/* Gán toạ độ riêng cho từng cánh hoa (kích thước nằm sẵn trong file SVG). */
+.post-petal--1 { --petal-x: var(--post-petal-1-x); --petal-y: var(--post-petal-1-y); --petal-rotate: var(--post-petal-1-rotate); }
+.post-petal--2 { --petal-x: var(--post-petal-2-x); --petal-y: var(--post-petal-2-y); --petal-rotate: var(--post-petal-2-rotate); }
+.post-petal--3 { --petal-x: var(--post-petal-3-x); --petal-y: var(--post-petal-3-y); --petal-rotate: var(--post-petal-3-rotate); }
+.post-petal--4 { --petal-x: var(--post-petal-4-x); --petal-y: var(--post-petal-4-y); --petal-rotate: var(--post-petal-4-rotate); }
+.post-petal--5 { --petal-x: var(--post-petal-5-x); --petal-y: var(--post-petal-5-y); --petal-rotate: var(--post-petal-5-rotate); }
+.post-petal--6 { --petal-x: var(--post-petal-6-x); --petal-y: var(--post-petal-6-y); --petal-rotate: var(--post-petal-6-rotate); }
+.post-petal--7 { --petal-x: var(--post-petal-7-x); --petal-y: var(--post-petal-7-y); --petal-rotate: var(--post-petal-7-rotate); }
+.post-petal--8 { --petal-x: var(--post-petal-8-x); --petal-y: var(--post-petal-8-y); --petal-rotate: var(--post-petal-8-rotate); }
+.post-petal--9 { --petal-x: var(--post-petal-9-x); --petal-y: var(--post-petal-9-y); --petal-rotate: var(--post-petal-9-rotate); }
+.post-petal--10 { --petal-x: var(--post-petal-10-x); --petal-y: var(--post-petal-10-y); --petal-rotate: var(--post-petal-10-rotate); }
+
+/* ===== Breadcrumb ===== */
+
+/* Breadcrumb 15px chữ muted, mục hiện tại đỏ đậm vừa; cách khung bài 24px. */
+.post-breadcrumb {
+  margin-bottom: var(--space-6);
+  font-size: 15px;
+  line-height: 19px;
+}
+
+/* Danh sách ngang, dấu › chèn bằng CSS để không lặp chữ trong HTML. */
+.post-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-muted);
+}
+
+/* Dấu phân cách › nằm giữa hai mục, chỉ trang trí nên không đọc thành lời. */
+.post-breadcrumb__list li + li::before {
+  content: '›';
+  margin-right: var(--space-3);
+  color: var(--color-muted);
+}
+
+/* Liên kết Diễn đàn giữ màu muted, gạch chân khi rê chuột để báo có thể bấm. */
+.post-breadcrumb__link {
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+/* Hover/focus chỉ đổi màu và gạch chân, không dịch chuyển. */
+.post-breadcrumb__link:hover {
+  color: var(--color-red);
+  text-decoration: underline;
+}
+
+/* Tên bài hiện tại: đỏ, đậm vừa, cho phép xuống dòng khi tiêu đề dài. */
+.post-breadcrumb__current {
+  color: var(--color-red);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh chờ của breadcrumb ngắn, cùng chiều cao dòng chữ. */
+.post-breadcrumb__placeholder {
+  display: inline-block;
+  width: 180px;
+  vertical-align: middle;
+}
+
+/* Lỗi trang nằm trên hai cột, cách nội dung 16px. */
+.post-page__error {
+  margin-bottom: var(--space-4);
+}
+
+/* ===== Hai cột ===== */
+
+/* Cột bài viết co giãn, sidebar cố định 403px, khe 40px như Figma. */
+.post-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--post-sidebar-width);
+  align-items: start;
+  gap: var(--post-columns-gap);
+}
+
+/* ===== Khung bài viết ===== */
+
+/* Thẻ kem viền đỏ 1.2px; các khối bên trong cách đều 24px theo đo đạc Figma. */
+.post-article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--post-flow-gap);
+  min-width: 0;
+  padding: var(--post-card-padding-top) var(--post-card-padding-x) var(--post-card-padding-bottom);
+  border: var(--post-card-border) solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+}
+
+/* Hàng tác giả: avatar 56px và khối tên/ngày, khe 14px. */
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Avatar tròn nền chuyển sắc đỏ hồng, chữ đầu tên bằng phông display 20px. */
+.post-author__avatar {
+  display: inline-flex;
+  flex: 0 0 var(--post-avatar-size);
+  align-items: center;
+  justify-content: center;
+  width: var(--post-avatar-size);
+  height: var(--post-avatar-size);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Ảnh đại diện thật phủ kín khung tròn, không méo. */
+.post-author__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Avatar chờ là hình tròn xám, không có chữ đầu tưởng tượng. */
+.post-author__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Khối tên và ngày xếp dọc, khe 4px; co được khi tên dài. */
+.post-author__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Thanh chờ tên tác giả rộng vừa phải. */
+.post-author__bar {
+  width: 160px;
+}
+
+/* Tên tác giả 18px đậm vừa và cờ quốc gia cách 10px. */
+.post-author__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* Hover tên tác giả chỉ đổi màu chữ sang đỏ. */
+.post-author__name:hover {
+  color: var(--color-red);
+}
+
+/* Ngày đăng và thời gian đọc 14px màu muted. */
+.post-author__meta {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+/* Cờ quốc gia giữ đúng tỉ lệ 29 × 20 của Figma, không bị kéo méo. */
+.post-flag {
+  flex: 0 0 auto;
+  width: 29px;
+  height: 20px;
+}
+
+/* Cờ nhỏ hơn trong thẻ "Về tác giả" (26 × 18). */
+.post-flag--sm {
+  width: 26px;
+  height: 18px;
+}
+
+/* Người dùng tiếng Anh không có cờ riêng: nhãn chữ EN viền mảnh theo mô tả component Flag. */
+.post-flag--label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Tiêu đề bài 40px phông display, giãn dòng 1.25, cho phép xuống dòng từ dài. */
+.post-article__title {
+  color: var(--color-text);
+  font-size: 40px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh chờ tiêu đề cao gần bằng một dòng chữ 40px. */
+.post-article__title-bar {
+  width: 60%;
+  height: 36px;
+}
+
+/* ===== Nút dịch ===== */
+
+/* Hàng nút dịch: nút và dòng trạng thái nằm cạnh nhau, xuống dòng khi hẹp. */
+.post-translate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Nút viền đỏ 1.2px nền kem, icon 18px, chữ 15px đậm vừa màu đỏ (component TranslateButton). */
+.post-translate__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 18px 10px 16px;
+  border: 1.2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-red);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .15s;
+  line-height: 19px;
+}
+
+/* Hover/đang xem bản dịch: nền hồng nhạt, không đổi kích thước. */
+.post-translate__button:hover, .post-translate__button[aria-pressed='true'] {
+  background: var(--color-sakura);
+}
+
+/* Vòng sáng bàn phím chung của hệ thống. */
+.post-translate__button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Khi đang tải hoặc chưa có bài, nút mờ và không nhận nhấn. */
+.post-translate__button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Icon dịch không co lại khi nhãn dài. */
+.post-translate__icon {
+  flex-shrink: 0;
+}
+
+/* Dòng trạng thái dịch nhỏ, màu muted; lỗi đổi sang màu nguy hiểm. */
+.post-translate__status {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Trạng thái lỗi của nút dịch. */
+.post-translate__status.is-error {
+  color: var(--color-danger);
+}
+
+/* ===== Thân bài ===== */
+
+/* Thân bài 18px giãn dòng 1.7; các đoạn cách nhau 24px như các khối trong Figma. */
+.post-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--post-flow-gap);
+  color: var(--color-post-body);
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+/* Giữ xuống dòng đơn do người viết nhập trong một đoạn. */
+.post-body__paragraph {
+  white-space: pre-line;
+}
+
+/* Khối trích dẫn: nền hồng, vạch đỏ 4px bên trái, chữ nghiêng 18px màu nâu đỏ. */
+.post-body__quote {
+  margin: 0;
+  padding: 20px 26px;
+  border-left: 4px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-post-quote-bg);
+  color: var(--color-post-quote-text);
+  font-style: italic;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+/* Nội dung rỗng hoặc lỗi tải hiện chữ muted cỡ nhỏ hơn. */
+.post-body__empty {
+  color: var(--color-muted);
+  font-size: 15px;
+}
+
+/* Đường phân cách 1px màu viền nhạt, bỏ kiểu mặc định của hr. */
+.post-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--color-border);
+}
+
+/* ===== Nút thao tác ===== */
+
+/* Ba nút pill cách nhau 12px; dòng trạng thái chia sẻ nằm cuối hàng. */
+.post-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Pill nền be nhạt, viền 1px, chữ 15px đậm vừa, icon 20px (component Action Pill). */
+.post-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-neutral-100);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  line-height: 20px;
+}
+
+/* Hover chỉ đổi màu viền sang đỏ. */
+.post-pill:hover {
+  border-color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím. */
+.post-pill:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đã thích/đã lưu: viền hồng và chữ đỏ để không chỉ dựa vào màu icon. */
+.post-pill[aria-pressed='true'] {
+  border-color: var(--color-pink-border);
+  color: var(--color-red);
+}
+
+/* Icon tim và bookmark được tô đỏ khi đang bật. */
+.post-pill[aria-pressed='true'] .post-pill__icon {
+  fill: currentColor;
+}
+
+/* Khi chưa tải xong hoặc đang gửi, pill mờ và không nhận nhấn. */
+.post-pill:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Icon pill giữ 20px, theo màu chữ. */
+.post-pill__icon {
+  flex-shrink: 0;
+}
+
+/* Dòng trạng thái thao tác (đã sao chép liên kết, lỗi) nhỏ và muted. */
+.post-actions__status {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Trạng thái lỗi của thao tác. */
+.post-actions__status.is-error {
+  color: var(--color-danger);
+}
+
+/* ===== Thảo luận ===== */
+
+/* Khối thảo luận: tiêu đề, danh sách, ô viết cách nhau 24px. */
+.post-discussion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--post-flow-gap);
+}
+
+/* Tiêu đề và bộ chọn thứ tự nằm hai đầu một hàng. */
+.post-discussion__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* "Thảo luận (n)" phông display 22px. */
+.post-discussion__title {
+  color: var(--color-text);
+  font-size: 22px;
+  line-height: 31px;
+}
+
+/* Bộ chọn thứ tự trông như chữ "Mới nhất ▾" muted 14px, mũi tên bằng icon SVG. */
+.post-discussion__select {
+  padding: var(--space-1) 22px var(--space-1) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent url('/assets/icons/chevron-down-muted.svg') no-repeat right center / 16px 16px;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 14px;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Hover đổi chữ sang màu chính để báo có thể bấm. */
+.post-discussion__select:hover {
+  color: var(--color-text);
+}
+
+/* Vòng sáng bàn phím thay viền mặc định của select. */
+.post-discussion__select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Hộp danh sách bình luận: nền trang, viền nhạt, bo 6px, đệm 20/22, khe 20px. */
+.post-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-page);
+}
+
+/* Đường kẻ giữa hai bình luận gốc (không kẻ trước bình luận đầu tiên). */
+.post-comment + .post-comment {
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Chữ chờ hoặc "chưa có bình luận" trong hộp. */
+.post-comments__note {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+/* Một bình luận: avatar 40px và nội dung, khe 14px. */
+.post-comment__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Trả lời lùi vào ngang với nội dung bình luận cha (40 + 14px). */
+.post-comment__replies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  padding-left: 54px;
+}
+
+/* Avatar bình luận 40px, chữ đầu 14px đậm. */
+.post-comment__avatar {
+  flex: 0 0 var(--post-comment-avatar);
+  width: var(--post-comment-avatar);
+  height: var(--post-comment-avatar);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Avatar chờ khi chưa tải được hồ sơ người viết. */
+.post-comment__avatar--placeholder {
+  background: var(--color-placeholder-bar);
+}
+
+/* Nội dung bình luận: hàng tên/thời gian và đoạn văn, khe 6px. */
+.post-comment__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Hàng tên + thời gian bên trái, nút Dịch/Xoá bên phải. */
+.post-comment__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* Tên và thời gian cách nhau 10px. */
+.post-comment__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Tên người bình luận 15px đậm vừa. */
+.post-comment__name {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Thanh chờ tên khi chưa tải hồ sơ. */
+.post-comment__name-bar {
+  width: 100px;
+}
+
+/* Thời gian 13px muted. */
+.post-comment__time {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Nhóm nút chữ Dịch/Xoá cách nhau 12px. */
+.post-comment__tools {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Nút chữ đỏ 13px không nền (Figma "Dịch"). */
+.post-comment__tool {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-red);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Hover chỉ gạch chân. */
+.post-comment__tool:hover {
+  text-decoration: underline;
+}
+
+/* Vòng sáng bàn phím. */
+.post-comment__tool:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Nút đang gửi yêu cầu mờ đi. */
+.post-comment__tool:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Nút xoá dùng màu muted để ít nổi bật hơn nút Dịch. */
+.post-comment__tool--muted {
+  color: var(--color-muted);
+}
+
+/* Nội dung bình luận 15px giãn dòng 1.6, giữ xuống dòng của người viết. */
+.post-comment__text {
+  color: var(--color-post-body);
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Bình luận đã xoá hiện chữ nghiêng muted. */
+.post-comment__text--deleted {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Ghi chú nhỏ dưới bình luận (đang xem bản dịch, lỗi dịch). */
+.post-comment__note {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Ghi chú lỗi đổi màu nguy hiểm. */
+.post-comment__note.is-error {
+  color: var(--color-danger);
+}
+
+/* Ô viết và nút Gửi cùng hàng, khe 12px; gợi ý lỗi xuống dòng riêng. */
+.post-comment-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-2) var(--space-3);
+}
+
+/* Ô nhập cao 53px như Figma (component Input). */
+.post-comment-form__input {
+  height: 53px;
+  font-size: 16px;
+}
+
+/* Nút Gửi/Theo dõi cao 50px như Figma: .btn có viền 1px nên đệm dọc 14px + dòng chữ 20px. */
+.post-comment-form__submit, .post-side-author__action {
+  padding-block: 14px;
+  line-height: 20px;
+}
+
+/* Gợi ý dưới ô nhập trải hai cột; rỗng thì không chiếm chỗ. */
+.post-comment-form__hint {
+  grid-column: 1 / -1;
+}
+
+/* Gợi ý rỗng được ẩn để không tạo khoảng trống. */
+.post-comment-form__hint:empty {
+  display: none;
+}
+
+/* Editor mở rộng trải cả hai cột, cùng nút Gửi chuyển vào footer thay vì nhân đôi form. */
+.post-comment-form__expanded { min-width: 0; grid-column: 1 / -1; }
+.post-comment-form[hidden], .post-comment-form__expanded[hidden], .post-comment-form__input[hidden] { display: none; }
+.post-comment-form.is-open { display: block; }
+
+/* Bình luận có body thấp hơn bài viết; phần media nằm trong vùng body và bộ đếm sát footer. */
+.post-comment-form__expanded .rich-editor { border-width: 2px; }
+.post-comment-form__expanded .rich-editor__body { min-height: var(--comment-body-height); }
+.post-comment-form__expanded .rich-editor__area { font-size: 14px; padding-block: var(--space-3); }
+.post-comment-form__expanded .rich-editor__counter { min-height: var(--comment-counter-height); padding-top: 0; }
+.post-comment-form__expanded .place-chip { font-size: var(--rich-counter-size); padding-block: 0; }
+
+/* Thanh gửi nền trang nhạt, checkbox thật ở trái và Huỷ/Đăng ở phải, có thể xuống hàng. */
+.post-comment-editor__footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-height: var(--comment-footer-height); padding: var(--space-2) var(--space-4); border-top: 1px solid var(--color-border); border-radius: 0 0 var(--radius-md) var(--radius-md); background: var(--color-page); }
+.post-comment-editor__spoiler { display: inline-flex; flex: 1; align-items: center; gap: var(--space-2); min-width: 0; color: var(--color-text-body); font-size: var(--rich-chip-size); cursor: pointer; }
+.post-comment-editor__footer .btn { padding: var(--space-3) var(--space-4); }
+
+/* Map Leaflet nằm dưới nút mở Maps và có chiều cao đồng bộ khung đã có. */
+.post-map__leaflet { height: 100%; }
+.post-map__open { z-index: 1000; }
+
+/* Mobile cho footer thở đủ chỗ và các nút gửi/huỷ rộng cả hàng để dễ chạm. */
+@media (max-width: 600px) {
+  .post-comment-editor__spoiler { flex-basis: 100%; }
+  .post-comment-editor__footer .btn { width: 100%; }
+  .post-comment-editor__footer { padding: var(--space-3); }
+}
+
+/* Thông báo khoá bình luận hoặc bị cấm viết. */
+.post-discussion__notice {
+  font-size: 14px;
+}
+
+/* ===== Sidebar ===== */
+
+/* Bốn thẻ xếp dọc cách nhau 20px, không kéo giãn theo chiều cao bài viết. */
+.post-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--post-side-gap);
+  min-width: 0;
+}
+
+/* Thẻ sidebar: nền kem, viền đỏ 2px, bo 4px, bóng hồng rất nhẹ; dải đỏ cách thân 16px. */
+.post-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--post-side-padding);
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Thuộc tính hidden phải thắng display:flex của thẻ. */
+.post-side-card[hidden] {
+  display: none;
+}
+
+/* Dải đỏ đầu thẻ: cổng torii nhỏ và tiêu đề 14px đậm vừa màu kem. */
+.post-side-card__band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 18px;
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Thân thẻ: đệm ngang 22px, các khối cách nhau 14px. */
+.post-side-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding-inline: var(--post-side-padding);
+}
+
+/* Chữ phụ trong thẻ (trạng thái tải, không có dữ liệu). */
+.post-side-card__note {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Tên tác giả 19px đậm và cờ 26 × 18, khe 10px. */
+.post-side-author__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  font-size: 19px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* Giới thiệu tác giả 14px giãn dòng 1.55. */
+.post-side-author__bio {
+  color: var(--color-text-body);
+  font-size: 14px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* Chưa có giới thiệu: chữ muted nghiêng để phân biệt với nội dung thật. */
+.post-side-author__bio--empty {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Hai chỉ số cách nhau 36px. */
+.post-side-author__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin: 0;
+}
+
+/* Mỗi chỉ số: số lớn ở trên, nhãn ở dưới (dùng dl/dt/dd, đảo thứ tự hiển thị). */
+.post-side-author__stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+/* Số 20px phông display. */
+.post-side-author__stat dd {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Nhãn 13px muted. */
+.post-side-author__stat dt {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Sidebar bị ẩn khi không tìm thấy bài: hidden phải thắng display:flex. */
+.post-sidebar[hidden] {
+  display: none;
+}
+
+/* ===== Địa điểm văn hoá ===== */
+
+/* Khung bản đồ 182px bo 8px; nút và nhãn nổi phía trên hình minh hoạ. */
+.post-map {
+  position: relative;
+  height: var(--post-map-height);
+  overflow: hidden;
+  border-radius: var(--post-map-radius);
+}
+
+/* Hình bản đồ phủ kín khung, giữ tỉ lệ bằng object-fit để không méo. */
+.post-map__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Nút "Mở trong Maps": nền trắng, viền nhạt, bóng nhỏ, cách góc 10px. */
+.post-map__open {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-map-button);
+  color: var(--color-red);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* Hover chỉ đổi viền sang đỏ. */
+.post-map__open:hover {
+  border-color: var(--color-red);
+}
+
+/* Nhãn toạ độ góc dưới trái bản đồ: nền kem, chữ đỏ 15px đậm vừa. */
+.post-map__label {
+  position: absolute;
+  left: 14px;
+  bottom: 16px;
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  background: var(--color-post-map-label);
+  color: var(--color-red);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Thông tin địa điểm: tên, địa chỉ, giờ mở cửa, khe 6px. */
+.post-place {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Tên địa điểm 17px đậm. */
+.post-place__name {
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* Địa chỉ 14px và giờ mở cửa 13px, muted, giãn dòng 1.5. */
+.post-place__line {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Dòng giờ mở cửa nhỏ hơn địa chỉ một cỡ. */
+.post-place__line--small {
+  font-size: 13px;
+}
+
+/* Liên kết Google Maps 14px đậm vừa màu đỏ. */
+.post-place__link {
+  color: var(--color-red);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Hover chỉ gạch chân. */
+.post-place__link:hover {
+  text-decoration: underline;
+}
+
+/* ===== Bài viết liên quan ===== */
+
+/* Một bài liên quan: ô kanji 60px bên trái, chữ bên phải, khe 14px. */
+.post-related__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* Ô kanji theo loại tag: nền chuyển sắc hồng, chữ đỏ 22px, chỉ trang trí. */
+.post-related__thumb {
+  display: grid;
+  flex: 0 0 60px;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Ô kanji chờ nhạt hơn. */
+.post-related__thumb--placeholder {
+  opacity: .4;
+}
+
+/* Khối chữ: tiêu đề và dòng phụ, khe 4px, co được. */
+.post-related__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Tiêu đề 14px đậm vừa, tối đa hai dòng. */
+.post-related__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* Hover tiêu đề đổi sang đỏ. */
+.post-related__title:hover {
+  color: var(--color-red);
+}
+
+/* Dòng phụ: số bình luận và tên chủ đề, 12px muted. */
+.post-related__meta {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* ===== Chủ đề liên quan ===== */
+
+/* Các tag xuống dòng tự do, khe 8px. */
+.post-topics {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Tag mềm: nền trắng 60%, viền đỏ 35%, chữ đỏ 13px đậm vừa (component Tag trong Figma). */
+.post-topic {
+  display: inline-flex;
+  padding: 5px var(--space-3);
+  border: 1px solid var(--chip-soft-border);
+  border-radius: var(--radius-pill);
+  background: var(--chip-soft-bg);
+  color: var(--color-red);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* Hover đổi viền sang đỏ đậm, không dịch chuyển. */
+.post-topic:hover {
+  border-color: var(--color-red);
+}
+
+/* ===== Laptop ≤ 1280px ===== */
+@media (max-width: 1280px) {
+  /* Sidebar thu về 320px, đệm khung bài giảm còn 40px hai bên. */
+  .post-columns {
+    grid-template-columns: minmax(0, 1fr) var(--post-sidebar-laptop);
+    gap: var(--space-6);
+  }
+
+  /* Đệm ngang của khung bài nhỏ lại để cột chữ không quá hẹp. */
+  .post-article {
+    padding-inline: var(--space-8);
+  }
+}
+
+/* ===== Tablet ≤ 960px ===== */
+@media (max-width: 960px) {
+  /* Một cột: sidebar chuyển xuống dưới bài viết. */
+  .post-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Cánh hoa hai bên lề bị ẩn vì không còn lề trống. */
+  .post-page__petals {
+    display: none;
+  }
+}
+
+/* ===== Mobile ≤ 600px ===== */
+@media (max-width: 600px) {
+  /* Đệm trang nhỏ lại, giữ lề 16px của container. */
+  .post-page {
+    padding-block: var(--space-5) var(--space-9);
+  }
+
+  /* Khung bài đệm 20/16px, khe giữa khối 20px. */
+  .post-article {
+    gap: var(--space-5);
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  /* Tiêu đề 28px để không bẻ từng chữ trên màn hình hẹp. */
+  .post-article__title {
+    font-size: 28px;
+  }
+
+  /* Thân bài 16px dễ đọc trên điện thoại. */
+  .post-body {
+    font-size: 16px;
+  }
+
+  /* Khối trích dẫn đệm nhỏ hơn. */
+  .post-body__quote {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  /* Hộp bình luận đệm 16px; trả lời lùi ít hơn. */
+  .post-comments {
+    padding: var(--space-4);
+  }
+
+  /* Trả lời chỉ lùi 24px để còn chỗ cho chữ. */
+  .post-comment__replies {
+    padding-left: var(--space-6);
+  }
+
+  /* Ô viết và nút Gửi xếp dọc, nút rộng hết khung để dễ chạm. */
+  .post-comment-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Nút Gửi rộng toàn khung trên điện thoại. */
+  .post-comment-form__submit {
+    width: 100%;
+  }
+}
+
+/* ===== Góc nhìn Mod/Admin và tác giả (Figma 1:2435, khu "Bài viết" và "Bình luận") ===== */
+
+/* Ô khối staff ở đầu bài; rỗng thì không chiếm chỗ (bài đang hiện bình thường). */
+.post-article__staff:empty {
+  display: none;
+}
+
+/* Hàng trong khối staff: nhãn, câu giải thích và nút Hiện lại / Khôi phục ở bên phải. */
+.post-staff-row {
+  width: 100%;
+}
+
+/* Câu giải thích chiếm phần còn lại để nút nằm sát mép phải. */
+.post-staff-row__text {
+  flex: 1;
+  min-width: 160px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+/* Bài bị ẩn / đã xoá (góc nhìn staff): tiêu đề, nội dung và thao tác mờ đi như Figma. */
+.post-article.is-faded .post-article__title, .post-article.is-faded .post-body, .post-article.is-faded .post-actions {
+  opacity: .5;
+}
+
+/* Hàng tác giả giữ nút "···" ở mép phải. */
+.post-author__menu {
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+/* Tên tác giả và nhãn trạng thái (Đã ẩn / Đã xoá) cùng hàng, khe 8px. */
+.post-author__name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Các phần bài bị ẩn khi đang sửa: hidden phải thắng display:flex. */
+.post-translate[hidden], .post-body[hidden] {
+  display: none;
+}
+
+/* Biểu mẫu sửa bài: tiêu đề, nội dung và hai nút, khe 16px. */
+.post-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Ô nội dung cao vừa đủ, chỉ kéo giãn theo chiều dọc. */
+.post-edit__content {
+  height: auto;
+  min-height: 220px;
+  padding-block: var(--space-3);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+/* Hai nút Huỷ và Lưu ở bên phải. */
+.post-edit__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* Tiêu đề Thảo luận và nhãn khoá cùng hàng, khe 12px. */
+.post-discussion__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Ô nhãn khoá rỗng không chiếm chỗ. */
+.post-discussion__title-row [data-locked-badge]:empty {
+  display: none;
+}
+
+/* Thông báo thay cho / cạnh ô viết bình luận: icon 16px và chữ 14px, đệm 12/16, bo 6px. */
+.post-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* Bị tắt tiếng: nền vàng nhạt, chữ nâu cam. */
+.post-notice--muted {
+  border-color: var(--color-status-muted-border);
+  background: var(--color-status-muted-bg);
+  color: var(--color-status-muted-text);
+}
+
+/* Icon trong thông báo không co lại. */
+.post-notice svg {
+  flex-shrink: 0;
+}
+
+/* Hidden phải thắng display:flex của thông báo. */
+.post-notice[hidden] {
+  display: none;
+}
+
+/* Ô viết bình luận bị khoá vì tắt tiếng: mờ đi, không nhận thao tác. */
+.post-comment-form.is-disabled {
+  opacity: .6;
+}
+
+/* Bình luận đang ẩn (góc nhìn staff): nội dung mờ trong khối viền đứt. */
+.post-comment--hidden .post-comment__row {
+  opacity: .6;
+}
+
+/* Hàng "Chỉ Mod/Admin thấy" + Khôi phục dưới bình luận đã xoá. */
+.post-comment__staff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Nút chữ đậm màu chính (Hiện lại) cạnh nút Xoá đỏ của bình luận đang ẩn. */
+.post-comment__tool--strong {
+  color: var(--color-text);
+}
+
+/* Nút "···" của bình luận nhỏ hơn nút của bài viết. */
+.post-comment__tools .mod-more {
+  width: 28px;
+  height: 28px;
+}
+
+/* Handle dùng chữ phụ dưới tên bình luận và trong thẻ tác giả, không làm hẹp nội dung chính. */
+.post-comment__handle,
+.post-side-author__handle {
+  display: block;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}

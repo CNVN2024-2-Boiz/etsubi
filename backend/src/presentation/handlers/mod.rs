@@ -4,6 +4,7 @@ pub mod comment_handler;
 pub mod follow_handler;
 pub mod health_handler;
 pub mod manage_handler;
+pub mod notification_handler;
 pub mod personal_handler;
 pub mod post_handler;
 pub mod reaction_handler;

@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 #[derive(Deserialize, ToSchema)]
 pub struct RegisterRequest {
+    pub displayname: Option<String>,
     pub username: String,
     pub email: String,
     pub password: String,

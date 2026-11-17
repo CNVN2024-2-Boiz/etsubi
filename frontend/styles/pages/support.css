@@ -1,0 +1,918 @@
+/* Trang Hỗ trợ (Figma "Etsubi Hỗ trợ 2", shared file 1:1966): hero hồng, lưới chủ đề, FAQ và sidebar liên hệ. */
+
+/* ===== Nền trang ===== */
+
+/* Nền trang sáng như các trang nội dung khác. */
+.page--support {
+  background: var(--color-page);
+}
+
+/* ===== Hero ===== */
+
+/* Hero cao 450px: nền chuyển sắc hồng, nội dung căn giữa, đệm trên 72px. Cắt phần trang trí tràn ra ngoài. */
+.support-hero {
+  position: relative;
+  min-height: var(--support-hero-height);
+  overflow: hidden;
+  padding: var(--support-section-gap) var(--page-gutter) 80px;
+  background: var(--gradient-support-hero);
+}
+
+/* Lớp trang trí phủ toàn hero, không nhận chuột. */
+.support-hero__art {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Mặt trời trắng mờ 560px, đặt theo tâm trang (x 680 → -280 so với tâm 960), nhô lên trên 120px. */
+.support-hero__sun {
+  position: absolute;
+  left: calc(50% - 280px);
+  top: -120px;
+  width: 560px;
+  height: 560px;
+}
+
+/* Mây trắng mờ: dùng lại ba file mây của trang xác thực, kích thước sẵn trong file SVG. */
+.support-hero__cloud {
+  position: absolute;
+}
+
+/* Mây phải nhỏ (216 × 84) ở x 1250, y 20. */
+.support-hero__cloud--1 {
+  left: calc(50% + 290px);
+  top: 20px;
+}
+
+/* Mây phải lớn (240 × 96) ở x 1480, y 40. */
+.support-hero__cloud--2 {
+  left: calc(50% + 520px);
+  top: 40px;
+}
+
+/* Mây trái (312 × 108) ở x 180, y 60. */
+.support-hero__cloud--3 {
+  left: calc(50% - 780px);
+  top: 60px;
+}
+
+/* Cổng torii đỏ rất mờ (độ mờ 10% nằm trong file SVG), chạm đáy hero. */
+.support-hero__torii {
+  position: absolute;
+  bottom: 10px;
+}
+
+/* Torii phải lớn 220 × 181 ở x 1540. */
+.support-hero__torii--right {
+  left: calc(50% + 580.8px);
+  width: 220.76px;
+  height: 181.44px;
+}
+
+/* Torii trái nhỏ 147 × 121 ở x 150. */
+.support-hero__torii--left {
+  left: calc(50% - 810px);
+  width: 147.18px;
+  height: 120.96px;
+}
+
+/* Cánh hoa trong hero: vị trí so với tâm trang và đỉnh hero, góc xoay tĩnh. */
+.support-petal {
+  position: absolute;
+  left: calc(50% + var(--petal-x));
+  top: var(--petal-y);
+  transform: rotate(var(--petal-rotate));
+  opacity: .8;
+}
+
+/* Toạ độ tám cánh hoa trong hero. */
+.support-petal--hero-1 { --petal-x: var(--support-hero-petal-1-x); --petal-y: var(--support-hero-petal-1-y); --petal-rotate: var(--support-hero-petal-1-rotate); }
+.support-petal--hero-2 { --petal-x: var(--support-hero-petal-2-x); --petal-y: var(--support-hero-petal-2-y); --petal-rotate: var(--support-hero-petal-2-rotate); }
+.support-petal--hero-3 { --petal-x: var(--support-hero-petal-3-x); --petal-y: var(--support-hero-petal-3-y); --petal-rotate: var(--support-hero-petal-3-rotate); }
+.support-petal--hero-4 { --petal-x: var(--support-hero-petal-4-x); --petal-y: var(--support-hero-petal-4-y); --petal-rotate: var(--support-hero-petal-4-rotate); }
+.support-petal--hero-5 { --petal-x: var(--support-hero-petal-5-x); --petal-y: var(--support-hero-petal-5-y); --petal-rotate: var(--support-hero-petal-5-rotate); }
+.support-petal--hero-6 { --petal-x: var(--support-hero-petal-6-x); --petal-y: var(--support-hero-petal-6-y); --petal-rotate: var(--support-hero-petal-6-rotate); }
+.support-petal--hero-7 { --petal-x: var(--support-hero-petal-7-x); --petal-y: var(--support-hero-petal-7-y); --petal-rotate: var(--support-hero-petal-7-rotate); }
+.support-petal--hero-8 { --petal-x: var(--support-hero-petal-8-x); --petal-y: var(--support-hero-petal-8-y); --petal-rotate: var(--support-hero-petal-8-rotate); }
+
+/* Toạ độ sáu cánh hoa bên lề phần nội dung. */
+.support-petal--main-1 { --petal-x: var(--support-petal-1-x); --petal-y: var(--support-petal-1-y); --petal-rotate: var(--support-petal-1-rotate); }
+.support-petal--main-2 { --petal-x: var(--support-petal-2-x); --petal-y: var(--support-petal-2-y); --petal-rotate: var(--support-petal-2-rotate); }
+.support-petal--main-3 { --petal-x: var(--support-petal-3-x); --petal-y: var(--support-petal-3-y); --petal-rotate: var(--support-petal-3-rotate); }
+.support-petal--main-4 { --petal-x: var(--support-petal-4-x); --petal-y: var(--support-petal-4-y); --petal-rotate: var(--support-petal-4-rotate); }
+.support-petal--main-5 { --petal-x: var(--support-petal-5-x); --petal-y: var(--support-petal-5-y); --petal-rotate: var(--support-petal-5-rotate); }
+.support-petal--main-6 { --petal-x: var(--support-petal-6-x); --petal-y: var(--support-petal-6-y); --petal-rotate: var(--support-petal-6-rotate); }
+
+/* Nội dung hero xếp dọc, căn giữa, khe 18px; nằm trên lớp trang trí. */
+.support-hero__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+/* Dòng nhỏ phía trên: 14px đậm vừa, giãn chữ 1.4px, màu đỏ nhấn. */
+.support-hero__eyebrow {
+  color: var(--color-red-accent);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  line-height: 18px;
+}
+
+/* Tiêu đề 48px phông display màu đỏ. */
+.support-hero__title {
+  color: var(--color-red);
+  font-size: 48px;
+  line-height: 69px;
+}
+
+/* Mô tả 18px màu chữ phụ; thêm 24px phía dưới (khối "Gap" 6px + khe 18px) trước ô tìm kiếm. */
+.support-hero__subtitle {
+  margin-bottom: var(--space-6);
+  color: var(--color-text-secondary);
+  font-size: 18px;
+  line-height: 23px;
+}
+
+/* Ô tìm kiếm 760 × 60: nền kem, viền đỏ 1.5px, bo tròn, bóng hồng; icon, ô nhập, nút cách nhau 12px. */
+.support-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: min(100%, var(--support-search-width));
+  height: var(--support-search-height);
+  padding: 0 7px 0 22px;
+  border: 1.5px solid var(--color-red);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-support-search);
+  transition: box-shadow .15s;
+}
+
+/* Khi ô nhập bên trong được focus, cả viên thuốc hiện vòng sáng (ô nhập không có khung riêng). */
+.support-search:focus-within {
+  box-shadow: var(--shadow-support-search), var(--focus-ring);
+}
+
+/* Icon kính lúp 22px màu đỏ. */
+.support-search__icon {
+  flex-shrink: 0;
+  color: var(--color-red);
+}
+
+/* Ô nhập không viền, không nền, chữ 16px; gợi ý màu muted. */
+.support-search__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+/* Gợi ý trong ô nhập dùng màu muted. */
+.support-search__input::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* Ẩn nút xoá có sẵn của ô type=search để không trùng với giao diện của trang. */
+.support-search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Nút "Tìm kiếm" đỏ cao 44px, bo tròn, chữ 16px đậm, bóng đỏ nhẹ. */
+.support-search__submit {
+  flex-shrink: 0;
+  padding: 12px 28px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-red);
+  box-shadow: var(--shadow-button);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+/* Hover đổi nền sang đỏ đậm hơn. */
+.support-search__submit:hover {
+  background: var(--color-red-hover);
+}
+
+/* Vòng sáng bàn phím. */
+.support-search__submit:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Chưa nhập gì: nút mờ 40% và không bấm được (cùng quy tắc với trang Tìm kiếm). */
+.support-search__submit:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* Hàng "Phổ biến:" và các chip, khe 10px, xuống dòng khi hẹp. */
+.support-popular {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Nhãn "Phổ biến:" 14px đậm vừa màu muted. */
+.support-popular__label {
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Nhóm chip, khe 10px. */
+.support-popular__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Chip từ khoá: nền trắng 65%, viền hồng, chữ đỏ 14px, bo tròn. */
+.support-chip {
+  padding: 6px 14px;
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-support-chip-bg);
+  color: var(--color-red);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+/* Hover đổi viền sang đỏ. */
+.support-chip:hover {
+  border-color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím. */
+.support-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ===== Phần nội dung ===== */
+
+/* Phần dưới hero: đệm trên 72px, dưới 96px; làm mốc cho lớp cánh hoa. */
+.support-main {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--support-section-gap) 96px;
+}
+
+/* Lớp cánh hoa phủ toàn phần nội dung, không nhận chuột. */
+.support-main__petals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Hai khu (chủ đề, FAQ) cách nhau 72px, nằm trên lớp cánh hoa. */
+.support-main__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--support-section-gap);
+}
+
+/* Mỗi khu: tiêu đề rồi nội dung cách 28px. */
+.support-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Bỏ khung focus khi nhảy tới khu FAQ bằng liên kết #faq. */
+.support-section:focus {
+  outline: none;
+}
+
+/* Tiêu đề khu và mô tả xếp dọc cách 8px (cao 71px như Figma). */
+.support-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Tiêu đề 30px phông display, vạch đỏ 5 × 26 bên trái. */
+.support-heading__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 43px;
+}
+
+/* Vạch đỏ vẽ bằng CSS. */
+.support-heading__title::before {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 26px;
+  border-radius: var(--home-accent-radius);
+  background: var(--color-red);
+  content: '';
+}
+
+/* Mô tả 16px muted. */
+.support-heading__desc {
+  color: var(--color-muted);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* ===== Lưới chủ đề ===== */
+
+/* Bốn cột bằng nhau, khe 32px (thẻ 336px trong khung 1440px). */
+.support-topics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--support-grid-gap);
+}
+
+/* Thẻ chủ đề là nút: nền kem, viền nhạt, bóng hồng rất nhẹ, đệm 24px, khe 12px. */
+.support-topic {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-support-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+/* Hover: viền đỏ và bóng đậm hơn, không dịch chuyển. */
+.support-topic:hover {
+  border-color: var(--color-red);
+  box-shadow: var(--shadow-sidebar);
+}
+
+/* Vòng sáng bàn phím. */
+.support-topic:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Chủ đề đang chọn: viền đỏ để biết FAQ bên dưới đang lọc theo nó. */
+.support-topic[aria-pressed='true'] {
+  border-color: var(--color-red);
+}
+
+/* Ô icon 48px nền hồng chuyển sắc, icon đỏ 24px. */
+.support-topic__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+}
+
+/* Tên chủ đề 18px đậm vừa. */
+.support-topic__title {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 23px;
+}
+
+/* Mô tả 14px muted, giãn dòng 21px. */
+.support-topic__desc {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Số câu hỏi thật của chủ đề: 14px đậm vừa màu đỏ. */
+.support-topic__count {
+  color: var(--color-red);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: pre;
+}
+
+/* ===== FAQ và sidebar ===== */
+
+/* Hai cột: FAQ co giãn (960px ở 1920) và sidebar 440px, khe 40px. */
+.support-help {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--support-sidebar-width);
+  align-items: start;
+  gap: var(--space-8);
+}
+
+/* Cột FAQ: dòng trạng thái lọc và danh sách cách nhau 16px. */
+.support-help__faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* Dòng trạng thái lọc: chữ bên trái, nút xem lại bên phải. */
+.support-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Hidden phải thắng display:flex. */
+.support-filter[hidden] {
+  display: none;
+}
+
+/* Số kết quả 14px màu chữ phụ. */
+.support-filter__text {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* Nút chữ đỏ "Xem câu hỏi phổ biến". */
+.support-filter__reset {
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-red);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Hover gạch chân. */
+.support-filter__reset:hover {
+  text-decoration: underline;
+}
+
+/* Vòng sáng bàn phím. */
+.support-filter__reset:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Thẻ FAQ: nền kem, viền đỏ 1.2px, bo 6px, bóng hồng nhẹ; các câu ngăn bằng đường kẻ 1px. */
+.support-faq {
+  overflow: hidden;
+  border: 1.2px solid var(--color-red);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Đường kẻ giữa hai câu hỏi. */
+.support-faq__item + .support-faq__item {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Câu đang mở có nền hồng rất nhạt như Figma. */
+.support-faq__item[open] {
+  background: var(--color-support-faq-open);
+}
+
+/* Dòng câu hỏi (summary): đệm 18/24, chữ 16px đậm vừa, mũi tên ở bên phải. */
+.support-faq__question {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 18px var(--space-6);
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  list-style: none;
+  cursor: pointer;
+}
+
+/* Ẩn tam giác mặc định của summary trên Safari/Chrome. */
+.support-faq__question::-webkit-details-marker {
+  display: none;
+}
+
+/* Hover đổi chữ sang đỏ. */
+.support-faq__question:hover {
+  color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím vẽ bên trong để không bị cắt bởi overflow của thẻ. */
+.support-faq__question:focus-visible {
+  outline: none;
+  box-shadow: inset var(--focus-ring);
+}
+
+/* Câu đang mở: chữ đỏ. */
+.support-faq__item[open] .support-faq__question {
+  color: var(--color-red);
+}
+
+/* Chữ câu hỏi chiếm phần còn lại. */
+.support-faq__question-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mũi tên 20px màu đỏ; khi mở thì quay ngược lên (xoay tĩnh, không có hiệu ứng chuyển). */
+.support-faq__chevron {
+  flex-shrink: 0;
+  color: var(--color-red);
+}
+
+/* Mũi tên hướng lên khi câu hỏi đang mở. */
+.support-faq__item[open] .support-faq__chevron {
+  transform: rotate(180deg);
+}
+
+/* Câu trả lời 15px giãn dòng 24px, cách câu hỏi 10px (đệm trên âm của summary đã có 18px). */
+.support-faq__answer {
+  margin-top: -8px;
+  padding: 0 var(--space-6) 18px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+/* Nhãn chủ đề nhỏ dưới câu trả lời khi đang xem kết quả tìm kiếm. */
+.support-faq__topic {
+  display: inline-block;
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* Không có kết quả: chữ muted căn giữa và liên kết sang tìm trong Diễn đàn. */
+.support-faq__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-6);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* Sidebar: hai thẻ cách nhau 20px. */
+.support-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Thẻ sidebar: nền kem, viền đỏ 2px, bo 4px, bóng hồng nhẹ; dải đỏ cách thân 16px. */
+.support-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: 22px;
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Dải đỏ đầu thẻ: torii nhỏ và tiêu đề 14px đậm vừa màu kem. */
+.support-side-card__band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 18px;
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Thân thẻ: đệm ngang 22px, khe 14px. */
+.support-side-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-inline: 22px;
+}
+
+/* Lời mở đầu 14px màu chữ phụ. */
+.support-side-card__intro {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+/* Hàng liên hệ (nút hoặc liên kết): nền trang, viền nhạt, bo 6px, đệm 12/14, khe 12px. */
+.support-contact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-page);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+/* Hover đổi viền sang đỏ. */
+.support-contact:hover {
+  border-color: var(--color-red);
+}
+
+/* Vòng sáng bàn phím. */
+.support-contact:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Ô icon 40px nền hồng chuyển sắc, icon đỏ 20px. */
+.support-contact__icon {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+}
+
+/* Khối chữ: tiêu đề và dòng phụ, khe 2px. */
+.support-contact__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Tiêu đề hàng 15px đậm vừa. */
+.support-contact__title {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 19px;
+  overflow-wrap: anywhere;
+}
+
+/* Dòng phụ 13px muted. */
+.support-contact__meta {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* Mũi tên → đỏ 16px đậm vừa. */
+.support-contact__arrow {
+  color: var(--color-red);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Nút "Gửi yêu cầu" cao 50px như Figma (.btn có viền 1px nên đệm 14px + dòng 20px). */
+.support-side-card__action {
+  padding-block: 14px;
+  line-height: 20px;
+}
+
+/* Danh sách quy tắc: bỏ chấm đầu dòng, các quy tắc cách nhau 14px. */
+.support-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Một quy tắc: khiên đỏ 18px và chữ 14px giãn dòng 21px, khe 10px. */
+.support-rules__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Icon khiên đỏ không co lại, căn với dòng chữ đầu. */
+.support-rules__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-red);
+}
+
+/* Liên kết "Đọc đầy đủ quy tắc →" 14px đậm vừa màu đỏ, giữ hai khoảng trắng như Figma. */
+.support-side-card__link {
+  color: var(--color-red);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  text-decoration: none;
+  white-space: pre;
+}
+
+/* Hover gạch chân. */
+.support-side-card__link:hover {
+  text-decoration: underline;
+}
+
+/* ===== Hộp thoại gửi yêu cầu ===== */
+
+/* Hộp thoại rộng tối đa 520px: nền kem, viền đỏ 2px, bo 4px, bóng thẻ. */
+.support-dialog {
+  width: min(520px, calc(100% - 2 * var(--space-4)));
+  padding: 0;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+}
+
+/* Nền mờ phía sau hộp thoại. */
+.support-dialog::backdrop {
+  background: var(--color-dialog-backdrop);
+}
+
+/* Dải đỏ tiêu đề hộp thoại. */
+.support-dialog__band {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Thân hộp thoại: các trường cách nhau 16px, đệm 20px. */
+.support-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+/* Trường bị ẩn theo chế độ hộp thoại: hidden phải thắng display:flex của .field. */
+.support-dialog .field[hidden] {
+  display: none;
+}
+
+/* Ô nội dung nhiều dòng cao vừa đủ, chỉ kéo giãn theo chiều dọc. */
+.support-dialog__message {
+  height: auto;
+  min-height: 120px;
+  padding-block: var(--space-3);
+  resize: vertical;
+}
+
+/* Hai nút Đóng và Gửi nằm bên phải. */
+.support-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+/* Liên kết trong thông báo của hộp thoại (gửi qua email). */
+.support-dialog a {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* ===== Laptop ≤ 1280px ===== */
+@media (max-width: 1280px) {
+  /* Lưới chủ đề còn hai cột, khe 24px. */
+  .support-topics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* Sidebar thu về 360px. */
+  .support-help {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--space-6);
+  }
+
+  /* Tiêu đề hero 40px để không tràn. */
+  .support-hero__title {
+    font-size: 40px;
+    line-height: 1.3;
+  }
+}
+
+/* ===== Tablet ≤ 960px ===== */
+@media (max-width: 960px) {
+  /* FAQ và sidebar xếp dọc. */
+  .support-help {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Ẩn torii, mây và cánh hoa bên lề khi màn hình hẹp để chữ dễ đọc. */
+  .support-hero__torii, .support-hero__cloud, .support-main__petals, .support-petal {
+    display: none;
+  }
+}
+
+/* ===== Mobile ≤ 600px ===== */
+@media (max-width: 600px) {
+  /* Hero thấp hơn, đệm nhỏ lại. */
+  .support-hero {
+    min-height: 0;
+    padding: var(--space-9) var(--page-gutter) var(--space-8);
+  }
+
+  /* Tiêu đề hero 28px. */
+  .support-hero__title {
+    font-size: 28px;
+  }
+
+  /* Mô tả hero 16px. */
+  .support-hero__subtitle {
+    margin-bottom: var(--space-2);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  /* Ô tìm kiếm thấp hơn; nút Tìm kiếm gọn lại. */
+  .support-search {
+    height: 52px;
+    padding-left: var(--space-4);
+  }
+
+  /* Nút tìm đệm ngang nhỏ hơn để còn chỗ cho ô nhập. */
+  .support-search__submit {
+    padding: 10px var(--space-4);
+  }
+
+  /* Phần nội dung đệm nhỏ lại. */
+  .support-main {
+    padding-block: var(--space-9) var(--space-9);
+  }
+
+  /* Khoảng cách giữa hai khu nhỏ lại. */
+  .support-main__inner {
+    gap: var(--space-9);
+  }
+
+  /* Tiêu đề khu 24px. */
+  .support-heading__title {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  /* Một cột thẻ chủ đề. */
+  .support-topics {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  /* Câu hỏi và câu trả lời đệm ngang 16px. */
+  .support-faq__question {
+    padding-inline: var(--space-4);
+  }
+
+  /* Câu trả lời đệm ngang 16px. */
+  .support-faq__answer {
+    padding-inline: var(--space-4);
+  }
+
+  /* Hai nút của hộp thoại rộng đều nhau. */
+  .support-dialog__actions .btn {
+    flex: 1;
+  }
+}

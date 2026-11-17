@@ -1,0 +1,669 @@
+/* Thành phần góc nhìn Mod/Admin (Figma 1:2435): nhãn, khối chỉ staff thấy, menu thả xuống, hộp thoại xác nhận. */
+
+/* ===== Nhãn "Chỉ Mod/Admin thấy" ===== */
+
+/* Nhãn nền slate đậm, chữ trắng 11px đậm vừa, icon khiên 12px, bo 4px. */
+.staff-tag {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-staff);
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+/* ===== Nhãn trạng thái (StatusBadge) ===== */
+
+/* Khung chung: icon 14px và chữ 12px đậm vừa, đệm 4/10/4/8, viền 1px, bo 6px. */
+.status-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-1) 10px var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+/* Đang bị tắt tiếng: vàng nhạt, chữ nâu cam. */
+.status-badge--muted {
+  border-color: var(--color-status-muted-border);
+  background: var(--color-status-muted-bg);
+  color: var(--color-status-muted-text);
+}
+
+/* Đã bị cấm: nền nâu đen, chữ trắng. */
+.status-badge--banned {
+  border-color: var(--color-status-banned);
+  background: var(--color-status-banned);
+  color: var(--color-white);
+}
+
+/* Đã ẩn: xám be. */
+.status-badge--hidden {
+  border-color: var(--color-status-hidden-border);
+  background: var(--color-status-hidden-bg);
+}
+
+/* Đã xoá: hồng nhạt, chữ đỏ. */
+.status-badge--deleted {
+  border-color: var(--color-pink-border);
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* ===== Khối chỉ staff thấy ===== */
+
+/* Nền xanh xám nhạt, viền đứt 1.5px màu slate, đệm 12/14, các phần cách nhau 10px. */
+.staff-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-3) 14px;
+  border: 1.5px dashed var(--color-staff-box-border);
+  border-radius: var(--radius-md);
+  background: var(--color-staff-box-bg);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 17px;
+}
+
+/* Hàng trên của khối: nhãn staff, chữ phụ và nút, xuống dòng khi hẹp. */
+.staff-box__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Chữ đậm màu slate cạnh nhãn (ví dụ "Còn 6 giờ 12 phút"). */
+.staff-box__strong {
+  color: var(--color-staff);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Hàng nút trong khối, khe 8px. */
+.staff-box__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Nút viền slate 1.2px nền kem, icon 16px, chữ 14px đậm vừa màu slate. */
+.staff-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-2) var(--space-4) var(--space-2) 14px;
+  border: 1.2px solid var(--color-staff);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-staff);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+/* Nút phụ (Gia hạn…) viền nhạt, chữ màu chính. */
+.staff-button--plain {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Hover nền xanh xám nhạt. */
+.staff-button:hover {
+  background: var(--color-staff-box-bg);
+}
+
+/* Vòng sáng bàn phím. */
+.staff-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đang gửi yêu cầu. */
+.staff-button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* Nút "Quản trị" ở đầu hồ sơ: nền slate đậm chữ trắng (hoặc viền slate khi có class --outline). */
+.staff-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 var(--space-4) 0 14px;
+  border: 1.2px solid var(--color-staff);
+  border-radius: var(--radius-md);
+  background: var(--color-staff);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Biến thể viền slate nền kem (dùng khi hồ sơ đang có trạng thái tắt tiếng hoặc bị cấm). */
+.staff-trigger--outline {
+  background: var(--color-cream);
+  color: var(--color-staff);
+}
+
+/* Vòng sáng bàn phím. */
+.staff-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Bị khoá (người cùng cấp hoặc cao hơn): xám nhạt, không bấm được; lý do hiện khi rê chuột/focus. */
+.staff-trigger:disabled {
+  border-color: var(--color-border);
+  background: var(--color-neutral-100);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+/* Bọc nút khoá để hiện chú thích lý do. */
+.staff-locked {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Chú thích đen hiện bên dưới nút khi rê chuột hoặc focus vào khối. */
+.staff-locked__tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 5;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-staff);
+  color: var(--color-white);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Hiện chú thích khi rê chuột hoặc focus. */
+.staff-locked:hover .staff-locked__tip, .staff-locked:focus-within .staff-locked__tip {
+  display: inline-flex;
+}
+
+/* ===== Menu thả xuống ===== */
+
+/* Khối bọc làm mốc định vị cho menu. */
+.mod-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Menu rộng 272px: nền kem, viền nhạt, bo 8px, bóng; neo mép phải dưới nút mở. */
+.mod-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 272px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-cream);
+  box-shadow: var(--shadow-menu);
+  text-align: left;
+}
+
+/* Hidden phải thắng display:flex. */
+.mod-menu[hidden] {
+  display: none;
+}
+
+/* Độ dịch ngang do JS đo khi mở, giữ menu nằm trong màn hình hẹp (mặc định 0, không chuyển động). */
+.mod-menu {
+  translate: var(--mod-menu-shift, 0) 0;
+}
+
+/* Dòng tiêu đề menu: icon 14px, chữ 12px đậm vừa muted. */
+.mod-menu__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 15px;
+}
+
+/* Một mục: icon 18px, chữ 14px, đệm 9/12, bo 6px; hover nền hồng nhạt. */
+.mod-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Hover/focus mục: nền hồng rất nhạt. */
+.mod-menu__item:hover, .mod-menu__item:focus-visible {
+  outline: none;
+  background: var(--color-sakura);
+}
+
+/* Mục nguy hiểm (cấm, xoá): chữ và icon đỏ, đậm hơn. */
+.mod-menu__item--danger {
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* Mục bị khoá: chữ xám nhạt, không bấm được, có icon ổ khoá bên phải. */
+.mod-menu__item:disabled {
+  background: none;
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+/* Khối chữ của mục: nhãn và dòng phụ, khe 1px. */
+.mod-menu__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Dòng phụ 12px (ví dụ "Chỉ Quản trị viên"). */
+.mod-menu__sub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+}
+
+/* Đường kẻ giữa các nhóm mục. */
+.mod-menu__divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--color-border);
+}
+
+/* Nút "···" tròn 32px trên bài viết và bình luận; hover nền hồng. */
+.mod-more {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+/* Hover hoặc đang mở: nền hồng nhạt. */
+.mod-more:hover, .mod-more[aria-expanded='true'] {
+  background: var(--color-sakura);
+}
+
+/* Vòng sáng bàn phím. */
+.mod-more:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ===== Hộp thoại xác nhận ===== */
+
+/* Hộp thoại rộng 480px (vừa màn hình nhỏ), bo 8px, bóng đậm; bỏ khung mặc định của dialog. */
+.mod-dialog {
+  width: min(480px, calc(100% - 2 * var(--space-4)));
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-cream);
+  box-shadow: var(--shadow-dialog);
+  color: var(--color-text);
+}
+
+/* Nền mờ phía sau. */
+.mod-dialog::backdrop {
+  background: var(--color-dialog-backdrop);
+}
+
+/* Thân hộp thoại: đệm 24/24/20, các khối cách nhau 18px. */
+.mod-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: var(--space-6) var(--space-6) var(--space-5);
+}
+
+/* Hàng đầu: ô icon tròn 44px, tiêu đề và nút đóng, khe 14px. */
+.mod-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* Ô icon tròn 44px: đỏ trên nền hồng (mặc định) hoặc nâu cam trên nền vàng (tắt tiếng). */
+.mod-dialog__icon {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* Biến thể vàng cho hộp thoại tắt tiếng. */
+.mod-dialog__icon--amber {
+  background: var(--color-status-muted-bg);
+  color: var(--color-status-muted-text);
+}
+
+/* Tiêu đề và dòng phụ, khe 4px. */
+.mod-dialog__titles {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Tiêu đề 19px đậm. */
+.mod-dialog__title {
+  color: var(--color-text);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+/* Dòng phụ 13px muted. */
+.mod-dialog__subtitle {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* Nút × đóng 20px, không nền. */
+.mod-dialog__close {
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+/* Hover đổi sang màu chữ chính. */
+.mod-dialog__close:hover {
+  color: var(--color-text);
+}
+
+/* Vòng sáng bàn phím. */
+.mod-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Đoạn giải thích 14px giãn dòng 22px. */
+.mod-dialog__text {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* Nhãn trường 13-14px đậm vừa; khi bọc ô nhập thì xếp dọc khe 8px. */
+.mod-dialog__label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Danh sách hậu quả: icon cảnh báo đỏ 16px và chữ 14px, khe 8px. */
+.mod-dialog__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Một dòng hậu quả. */
+.mod-dialog__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* Icon cảnh báo màu đỏ, căn với dòng chữ đầu. */
+.mod-dialog__list svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-red);
+}
+
+/* Ô gõ lại tên: viền đỏ 1.5px như Figma. */
+.mod-dialog__input {
+  height: 46px;
+  border-width: 1.5px;
+  border-color: var(--color-red);
+  font-weight: 400;
+}
+
+/* Các chip thời hạn xuống dòng, khe 8px. */
+.mod-dialog__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Chip thời hạn: viền 1.2px, bo tròn, chữ 14px; đang chọn thì nền đỏ chữ trắng. */
+.mod-dialog__chip {
+  padding: var(--space-2) 14px;
+  border: 1.2px solid var(--color-input-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+/* Chip đang chọn. */
+.mod-dialog__chip.is-selected {
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Vòng sáng bàn phím cho chip. */
+.mod-dialog__chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Dòng "Hết hạn lúc…": nền be nhạt, icon đồng hồ, chữ 13px đậm vừa. */
+.mod-dialog__until {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Ba thẻ vai trò xếp dọc, khe 18px như các khối khác của hộp thoại; bỏ khung mặc định của fieldset. */
+.mod-dialog__roles {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Chữ trong thẻ vai trò: tên 15px đậm vừa và mô tả 13px muted, khe 4px. */
+.radio-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Tên vai trò. */
+.radio-card__title {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 19px;
+}
+
+/* Mô tả vai trò. */
+.radio-card__desc {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* Thẻ Quản trị viên luôn bị khoá: mờ 45% như Figma. */
+.radio-card.is-disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* Lỗi trả về từ máy chủ, hiện ngay trong hộp thoại. */
+.mod-dialog__error {
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+/* Hàng nút cuối: Huỷ và xác nhận bên phải, khe 10px, cách trên thêm 4px. */
+.mod-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: var(--space-1);
+}
+
+/* Nút Huỷ: viền nhạt nền kem, chữ 14px đậm vừa. */
+.mod-dialog__cancel {
+  padding: 10px 20px 10px 18px;
+  border: 1.2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+/* Nút xác nhận đỏ chữ trắng, icon 16px. */
+.mod-dialog__confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px 10px 18px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-red);
+  color: var(--color-white);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+/* Hover nút: đổi màu nền. */
+.mod-dialog__cancel:hover {
+  background: var(--color-neutral-100);
+}
+
+/* Hover nút xác nhận: đỏ đậm hơn. */
+.mod-dialog__confirm:hover {
+  background: var(--color-red-hover);
+}
+
+/* Vòng sáng bàn phím cho hai nút. */
+.mod-dialog__cancel:focus-visible, .mod-dialog__confirm:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Chưa đủ điều kiện hoặc đang gửi: nút xác nhận mờ 40% (Figma vẽ màu hồng nhạt). */
+.mod-dialog__confirm:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* ===== Mobile ≤ 600px ===== */
+@media (max-width: 600px) {
+  /* Hộp thoại đệm nhỏ hơn. */
+  .mod-dialog__panel {
+    padding: var(--space-5) var(--space-4) var(--space-4);
+  }
+
+  /* Hai nút cuối chia đều bề ngang. */
+  .mod-dialog__cancel, .mod-dialog__confirm {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Menu không vượt quá màn hình. */
+  .mod-menu {
+    width: min(272px, calc(100vw - 2 * var(--space-4)));
+  }
+}

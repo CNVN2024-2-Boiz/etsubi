@@ -22,17 +22,38 @@ export function toVietnameseMessage(error) {
   if (/account (?:is|has been) banned/i.test(message)) {
     return 'Tài khoản của bạn đã bị khoá.';
   }
+  // Máy chủ nói cả email và username thì không suy đoán trường trùng.
+  if (error?.status === 409 && /email/i.test(message) && /username/i.test(message)) {
+    return 'Email hoặc @tên người dùng đã được dùng.';
+  }
   if (/email already (?:exists|taken)/i.test(message)) {
     return 'Email này đã được sử dụng.';
   }
   if (/username already taken/i.test(message)) {
-    return 'Tên này đã có người dùng.';
+    return '@tên người dùng này đã có người dùng, hãy chọn tên khác.';
   }
   if (/username too short/i.test(message)) {
-    return 'Tên cần ít nhất 3 ký tự.';
+    return 'Tên người dùng cần ít nhất 3 ký tự.';
   }
   if (/password too weak|weak password|password.*(?:8|short)/i.test(message)) {
     return 'Mật khẩu cần ít nhất 8 ký tự.';
+  }
+  // Lỗi tên hiển thị khi đăng ký và khi PATCH hồ sơ (giới hạn 50 ký tự sau trim).
+  if (/display ?name too long/i.test(message)) {
+    return 'Tên hiển thị không được vượt quá 50 ký tự.';
+  }
+  if (/display ?name cannot be empty/i.test(message)) {
+    return 'Vui lòng nhập tên hiển thị.';
+  }
+  // Lỗi khi đăng bài ở Diễn đàn (PostError của backend).
+  if (/title cannot be empty/i.test(message)) {
+    return 'Bài viết cần có tiêu đề.';
+  }
+  if (/title too long/i.test(message)) {
+    return 'Tiêu đề quá dài (tối đa 255 ký tự).';
+  }
+  if (/content too long/i.test(message)) {
+    return 'Nội dung quá dài.';
   }
   if (/invalid language/i.test(message)) {
     return 'Ngôn ngữ không hợp lệ.';
@@ -52,6 +73,25 @@ export function toVietnameseMessage(error) {
 }
 
 /**
+ * Diễn giải lỗi của nút "Dịch" ở trang đọc bài (POST /posts/{id}/translate và /comments/{id}/translate).
+ * @param {object} error Lỗi có status từ API.
+ * @returns {string} Thông báo tiếng Việt ngắn để hiện ngay cạnh nội dung.
+ */
+export function translationErrorMessage(error) {
+  // 503: máy chủ chưa cấu hình dịch vụ dịch; 504: dịch vụ dịch trả lời quá lâu.
+  if (error?.status === 503) {
+    return 'Dịch vụ dịch chưa sẵn sàng. Vui lòng thử lại sau.';
+  }
+  if (error?.status === 504) {
+    return 'Dịch quá lâu, vui lòng thử lại.';
+  }
+  if (error?.status === 400) {
+    return 'Nội dung quá dài để dịch.';
+  }
+  return toVietnameseMessage(error);
+}
+
+/**
  * Tìm trường cần sửa trên trang login hoặc register từ thông báo API.
  * @param {object} error Lỗi có message tiếng Anh.
  * @returns {string|null} Tên trường hoặc null để hiện lỗi chung của biểu mẫu.
@@ -61,6 +101,13 @@ export function fieldForError(error) {
   // Sai thông tin đăng nhập không tiết lộ riêng email hay mật khẩu bị sai.
   if (/invalid credentials/i.test(message)) {
     return null;
+  }
+  // Lỗi gộp không được gán riêng vào email hoặc handle.
+  if (/email/i.test(message) && /username/i.test(message)) {
+    return null;
+  }
+  if (/display ?name/i.test(message)) {
+    return 'displayname';
   }
   if (/email/i.test(message)) {
     return 'email';

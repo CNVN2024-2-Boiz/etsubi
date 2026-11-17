@@ -86,11 +86,14 @@ pub async fn get_my_reaction(
     let post_id = path.into_inner();
     let user_id = user.id;
 
-    let reaction = web::block(move || service.get_mine(user_id, post_id))
+    let reaction_opt = web::block(move || service.get_mine(user_id, post_id))
         .await
         .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Ok().json(ReactionResponse::from(reaction)))
+    match reaction_opt {
+        Some(reaction) => Ok(HttpResponse::Ok().json(ReactionResponse::from(reaction))),
+        _none => Ok(HttpResponse::Ok().json(serde_json::json!(null))),
+    }
 }
 
 #[utoipa::path(

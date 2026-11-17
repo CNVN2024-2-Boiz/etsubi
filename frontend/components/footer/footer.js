@@ -29,7 +29,7 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
   // Bản xác thực chỉ có dòng bản quyền, nhường không gian cho biểu mẫu.
   if (variant === 'slim') {
     const copy = el('p', { className: 'site-footer__slim-copy' },
-      '© 2025 Etsubi · ', japan(), '  |  IE104 – UIT  |  Cầu nối văn hoá Việt – Nhật'
+      '© 2026 Etsubi · ', japan(), '  |  IE104 – UIT  |  Cầu nối văn hoá Việt – Nhật'
     );
     target.replaceChildren(copy, mobile);
     return target;

@@ -1,0 +1,14 @@
+/* Trang thông báo trực tiếp dùng cột kem 640px giữa nền trang, co vừa màn hình nhỏ. */
+.notifications-page { flex: 1; width: 100%; max-width: var(--notif-page-width); margin-inline: auto; background: var(--color-cream); }
+
+/* Danh sách trang riêng cuộn cùng tài liệu để bảng thao tác nhỏ không bị vùng overflow cắt. */
+.notifications-page .notification-menu__list { max-height: none; overflow: visible; }
+
+/* Dòng chờ trước xác thực là chữ tĩnh có khoảng đệm dễ đọc. */
+.notifications-page__initial { padding: var(--space-6); color: var(--color-muted); text-align: center; font-size: 14px; }
+
+/* Trang mobile không thêm gutter ngoài hàng, giữ danh sách trải đủ chiều rộng 360px. */
+@media (max-width: 600px) {
+  /* Nền kem phủ toàn nội dung còn lại giống khung Mobile 375 của Figma. */
+  .page--notifications { background: var(--color-cream); }
+}

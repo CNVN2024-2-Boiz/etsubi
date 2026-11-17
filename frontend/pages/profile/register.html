@@ -42,11 +42,21 @@
           <form data-auth-form novalidate>
             <!-- Nhóm trường nhập xếp dọc; mỗi trường có nhãn và vùng gợi ý lỗi riêng. -->
             <div class="auth-card__fields">
-              <!-- Trường username: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
-              <div class="field" data-field="username">
-                <label class="field__label" for="username">Họ và tên</label>
-                <input class="input" id="username" name="username" type="text" placeholder="Nguyễn Văn A" autocomplete="name" aria-describedby="username-hint" required />
-                <p class="field__hint field__hint--error" id="username-hint" hidden></p>
+              <!-- Hai loại tên độc lập: tên hiển thị đổi được và handle duy nhất có tiền tố @ cố định. -->
+              <div class="auth-card__names">
+                <div class="field" data-field="displayname">
+                  <label class="field__label" for="displayname">Tên hiển thị</label>
+                  <input class="input" id="displayname" name="displayname" type="text" placeholder="Nguyễn Văn A" autocomplete="name" aria-describedby="displayname-hint" required />
+                  <p class="field__hint" id="displayname-hint" data-default-hint="Hiện trên bài viết, đổi được sau">Hiện trên bài viết, đổi được sau</p>
+                </div>
+                <div class="field" data-field="username">
+                  <label class="field__label" for="username">Tên người dùng</label>
+                  <div class="username-input">
+                    <span class="username-input__prefix" aria-hidden="true">@</span>
+                    <input class="input" id="username" name="username" type="text" placeholder="nguyenvana" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-hint" required />
+                  </div>
+                  <p class="field__hint" id="username-hint" data-default-hint="Duy nhất · chữ thường, số, . và _">Duy nhất · chữ thường, số, . và _</p>
+                </div>
               </div>
               <!-- Trường email: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
               <div class="field" data-field="email">
@@ -96,6 +106,15 @@
             <div class="alert alert--error auth-card__message" role="alert" data-form-alert hidden></div>
             <!-- Nút gửi có nhãn gốc để module phục hồi sau trạng thái chờ tĩnh. -->
             <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit>Đăng ký</button>
+            <!-- Phân cách hai cách đăng ký bằng chữ và hai vạch tĩnh theo bản tham chiếu. -->
+            <div class="auth-card__or"><span>hoặc</span></div>
+            <!-- Nút Google chưa gửi API, chỉ hiện thông báo sắp có trong vùng trạng thái của form. -->
+            <button class="auth-card__google" type="button" data-google-auth>
+              <img src="/assets/icons/google-g.svg" alt="" width="20" height="20" />
+              <span>Đăng ký với Google</span>
+            </button>
+            <!-- Vùng trạng thái riêng của nút Google, không dùng chung với thông báo của form hay thông báo phiên. -->
+            <p class="alert alert--info auth-card__message" role="status" data-google-note hidden></p>
           </form>
           <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
           <img class="auth-card__divider" src="/assets/illustrations/card-divider.svg" alt="" aria-hidden="true" />

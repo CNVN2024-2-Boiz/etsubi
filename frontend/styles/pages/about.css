@@ -1,0 +1,804 @@
+/* Trang Giới thiệu (Figma "Etsubi Giới thiệu", shared file 1:1737): banner ảnh và các khu nội dung tĩnh. */
+
+/* ===== Nền trang ===== */
+
+/* Nền trang sáng như các trang nội dung khác. */
+.page--about {
+  background: var(--color-page);
+}
+
+/* ===== Banner ===== */
+
+/* Banner cao 440px; ảnh phủ kín, lớp phủ đỏ đậm dần sang trong suốt (cùng token với Trang chủ). */
+.about-hero {
+  position: relative;
+  min-height: var(--about-hero-height);
+  overflow: hidden;
+  background: var(--color-red-dark);
+}
+
+/* Ảnh nền phủ kín banner, giữ tỉ lệ bằng object-fit để không méo. */
+.about-hero__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Lớp phủ chuyển sắc vẽ bằng ::after để chữ trắng đủ tương phản trên ảnh. */
+.about-hero::after {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-home-hero);
+  content: '';
+}
+
+/* Lớp cánh hoa nằm trên lớp phủ, dưới chữ. */
+.about-hero__petals {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Nội dung banner: cách đỉnh 93px, xếp dọc, khe 18px. */
+.about-hero__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding-top: var(--about-hero-top);
+  padding-bottom: var(--space-9);
+}
+
+/* Vạch vàng cam 77 × 7 phía trên dòng chữ nhỏ. */
+.about-hero__accent {
+  width: 77px;
+  height: 7px;
+  background: var(--color-tip-border);
+}
+
+/* Dòng "越日 · Etsubi" 30px màu hồng cam. */
+.about-hero__kicker {
+  color: var(--color-hero-kicker);
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Tiêu đề "Về Etsubi" 68px trắng. */
+.about-hero__title {
+  color: var(--color-white);
+  font-size: 68px;
+  line-height: 1.2;
+}
+
+/* Mô tả 21px, giãn dòng 32px, trắng 90%, rộng tối đa 640px. */
+.about-hero__desc {
+  max-width: 640px;
+  color: var(--color-about-hero-text);
+  font-size: 21px;
+  line-height: 32px;
+}
+
+/* ===== Cánh hoa ===== */
+
+/* Mỗi cánh hoa đặt theo tâm trang, góc xoay tĩnh. */
+.about-petal {
+  position: absolute;
+  left: calc(50% + var(--petal-x));
+  top: var(--petal-y);
+  transform: rotate(var(--petal-rotate));
+  opacity: .8;
+}
+
+/* Toạ độ sáu cánh hoa trong banner. */
+.about-petal--hero-1 { --petal-x: var(--about-hero-petal-1-x); --petal-y: var(--about-hero-petal-1-y); --petal-rotate: var(--about-hero-petal-1-rotate); }
+.about-petal--hero-2 { --petal-x: var(--about-hero-petal-2-x); --petal-y: var(--about-hero-petal-2-y); --petal-rotate: var(--about-hero-petal-2-rotate); }
+.about-petal--hero-3 { --petal-x: var(--about-hero-petal-3-x); --petal-y: var(--about-hero-petal-3-y); --petal-rotate: var(--about-hero-petal-3-rotate); }
+.about-petal--hero-4 { --petal-x: var(--about-hero-petal-4-x); --petal-y: var(--about-hero-petal-4-y); --petal-rotate: var(--about-hero-petal-4-rotate); }
+.about-petal--hero-5 { --petal-x: var(--about-hero-petal-5-x); --petal-y: var(--about-hero-petal-5-y); --petal-rotate: var(--about-hero-petal-5-rotate); }
+.about-petal--hero-6 { --petal-x: var(--about-hero-petal-6-x); --petal-y: var(--about-hero-petal-6-y); --petal-rotate: var(--about-hero-petal-6-rotate); }
+
+/* Toạ độ bảy cánh hoa bên lề phần nội dung. */
+.about-petal--main-1 { --petal-x: var(--about-petal-1-x); --petal-y: var(--about-petal-1-y); --petal-rotate: var(--about-petal-1-rotate); }
+.about-petal--main-2 { --petal-x: var(--about-petal-2-x); --petal-y: var(--about-petal-2-y); --petal-rotate: var(--about-petal-2-rotate); }
+.about-petal--main-3 { --petal-x: var(--about-petal-3-x); --petal-y: var(--about-petal-3-y); --petal-rotate: var(--about-petal-3-rotate); }
+.about-petal--main-4 { --petal-x: var(--about-petal-4-x); --petal-y: var(--about-petal-4-y); --petal-rotate: var(--about-petal-4-rotate); }
+.about-petal--main-5 { --petal-x: var(--about-petal-5-x); --petal-y: var(--about-petal-5-y); --petal-rotate: var(--about-petal-5-rotate); }
+.about-petal--main-6 { --petal-x: var(--about-petal-6-x); --petal-y: var(--about-petal-6-y); --petal-rotate: var(--about-petal-6-rotate); }
+.about-petal--main-7 { --petal-x: var(--about-petal-7-x); --petal-y: var(--about-petal-7-y); --petal-rotate: var(--about-petal-7-rotate); }
+
+/* ===== Phần nội dung ===== */
+
+/* Đệm trên 80px, dưới 96px; làm mốc cho lớp cánh hoa. */
+.about-main {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--about-main-top) var(--about-main-bottom);
+}
+
+/* Lớp cánh hoa bên lề, không nhận chuột. */
+.about-main__petals {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Các khu xếp dọc cách nhau 88px, nằm trên lớp cánh hoa. */
+.about-main__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--about-section-gap);
+}
+
+/* Một khu có tiêu đề: tiêu đề rồi nội dung cách 28px. */
+.about-section {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Tiêu đề khu và mô tả xếp dọc cách 8px. */
+.about-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Tiêu đề 30px phông display, vạch đỏ 5 × 26 bên trái cách 12px. */
+.about-heading__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+  font-size: 30px;
+  line-height: 43px;
+}
+
+/* Vạch đỏ vẽ bằng CSS. */
+.about-heading__title::before {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 26px;
+  border-radius: var(--home-accent-radius);
+  background: var(--color-red);
+  content: '';
+}
+
+/* Mô tả 16px muted. */
+.about-heading__desc {
+  color: var(--color-muted);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* ===== Câu chuyện tên gọi ===== */
+
+/* Hai cột: chữ 652px và phương trình 708px, khe 80px, căn giữa theo chiều dọc. */
+.about-story {
+  display: grid;
+  grid-template-columns: minmax(0, 652fr) minmax(0, 708fr);
+  align-items: center;
+  gap: 80px;
+}
+
+/* Cột chữ: tiêu đề rồi ba đoạn văn, khe 20px; đoạn văn 17px giãn dòng 28px. */
+.about-story__text {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--color-text-secondary);
+  font-size: 17px;
+  line-height: 28px;
+}
+
+/* Phương trình 越 + 日 = Etsubi xếp ngang, khe 20px. */
+.about-equation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+/* Thẻ chữ Hán rộng 180px: nền kem, viền đỏ 2px, bo 4px, bóng hồng nhẹ. */
+.about-glyph {
+  display: flex;
+  flex: 0 0 180px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Dải đỏ trên thẻ: "Etsu" / "bi" 16px trắng đậm vừa. */
+.about-glyph__band {
+  padding: 10px 0;
+  background: var(--color-red);
+  color: var(--color-white);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* Thân thẻ: chữ Hán lớn và chú thích, đệm 18/20, khe 4px, căn giữa. */
+.about-glyph__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 18px 0 20px;
+}
+
+/* Chữ Hán 88px đậm màu đỏ (Noto Sans JP qua lang="ja"). */
+.about-glyph__char {
+  color: var(--color-red);
+  font-size: 88px;
+  font-weight: 700;
+  line-height: 104px;
+}
+
+/* Chú thích "Việt Nam" / "Nhật Bản" 14px muted. */
+.about-glyph__caption {
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* Dấu + và = 40px phông display màu đỏ nhấn. */
+.about-equation__sign {
+  color: var(--color-red-accent);
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 700;
+}
+
+/* Vòng tròn kết quả 220px đỏ: logo và chữ Etsubi trắng, khe 14px. */
+.about-equation__result {
+  display: flex;
+  flex: 0 0 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 220px;
+  height: 220px;
+  border-radius: var(--radius-pill);
+  background: var(--color-red);
+  box-shadow: var(--shadow-about-result);
+  color: var(--color-white);
+  font-size: 22px;
+}
+
+/* ===== Điều Etsubi mang lại ===== */
+
+/* Bốn cột bằng nhau, khe 32px. */
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--support-grid-gap);
+}
+
+/* Thẻ tính năng: nền kem, viền nhạt, bóng hồng rất nhẹ, đệm 24px, khe 12px (cùng kiểu thẻ ở trang Hỗ trợ). */
+.about-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-support-card);
+}
+
+/* Ô icon 48px nền hồng chuyển sắc, icon đỏ. */
+.about-feature__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+}
+
+/* Tên tính năng 18px đậm vừa. */
+.about-feature__title {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 23px;
+}
+
+/* Mô tả 14px muted, giãn dòng 21px; chiếm phần còn lại để liên kết nằm đáy thẻ. */
+.about-feature__desc {
+  flex: 1;
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* Liên kết 14px đậm vừa màu đỏ, giữ hai khoảng trắng trước mũi tên như Figma. */
+.about-feature__link {
+  color: var(--color-red);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  text-decoration: none;
+  white-space: pre;
+}
+
+/* Hover gạch chân. */
+.about-feature__link:hover {
+  text-decoration: underline;
+}
+
+/* ===== Công nghệ phía sau ===== */
+
+/* Thẻ rộng toàn khung: nền kem, viền đỏ 2px, bo 4px, bóng hồng nhẹ. */
+.about-tech {
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+}
+
+/* Dải đỏ đầu thẻ: torii nhỏ và tiêu đề 14px đậm vừa màu kem. */
+.about-tech__band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 18px;
+  background: var(--color-red);
+  color: var(--color-cream);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Thân: ba cột bằng nhau, đệm 28/8/30; đường kẻ dọc giữa các cột. */
+.about-tech__body {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 28px var(--space-2) 30px;
+}
+
+/* Một công nghệ: ô icon và chữ, khe 16px, đệm ngang 28px. */
+.about-tech__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-inline: 28px;
+}
+
+/* Đường kẻ dọc 1px ở bên trái mọi cột trừ cột đầu. */
+.about-tech__item + .about-tech__item {
+  border-left: 1px solid var(--color-border);
+}
+
+/* Ô icon 52px nền hồng chuyển sắc, icon đỏ 26px. */
+.about-tech__icon {
+  display: grid;
+  flex: 0 0 52px;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-suggest-thumb);
+  color: var(--color-red);
+}
+
+/* Chữ: tên và mô tả, khe 6px. */
+.about-tech__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* Tên công nghệ 18px đậm vừa. */
+.about-tech__title {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 23px;
+}
+
+/* Mô tả 14px muted, giãn dòng 22px. */
+.about-tech__desc {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* ===== Đội ngũ ===== */
+
+/* Năm thẻ bằng nhau, khe 25px; bỏ kiểu danh sách mặc định. */
+.about-team {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 25px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Thẻ thành viên: nền kem, viền đỏ 2px, bo 4px; đệm trên 122px (64 dải đỏ + 58) cho avatar nằm đè. */
+.about-member {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 122px var(--space-4) var(--space-6);
+  overflow: hidden;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-post-side);
+  text-align: center;
+}
+
+/* Dải đỏ cao 64px trên cùng thẻ, chứa bốn cánh hoa trang trí. */
+.about-member__cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  overflow: hidden;
+  background: var(--color-red);
+}
+
+/* Cánh hoa trong dải đỏ: vị trí tính từ góc trái dải (theo Figma), góc xoay tĩnh. */
+.about-member__petal {
+  position: absolute;
+  left: var(--petal-x);
+  top: var(--petal-y);
+  transform: rotate(var(--petal-rotate));
+  opacity: .8;
+}
+
+/* Vị trí bốn cánh hoa trong dải đỏ của thẻ thành viên. */
+.about-member__petal--1 { --petal-x: 20px; --petal-y: 12px; --petal-rotate: 0deg; }
+.about-member__petal--2 { --petal-x: 204.7px; --petal-y: 14px; --petal-rotate: -80deg; }
+.about-member__petal--3 { --petal-x: 223.4px; --petal-y: -13.5px; --petal-rotate: -160deg; }
+.about-member__petal--4 { --petal-x: 59.9px; --petal-y: 29.3px; --petal-rotate: -40deg; }
+
+/* Vòng kem 88px quanh avatar, cách đỉnh thẻ 18px, căn giữa, bóng hồng. */
+.about-member__ring {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-about-avatar-ring);
+  transform: translateX(-50%);
+}
+
+/* Avatar 80px nền chuyển sắc, chữ đầu tên 27px phông display. */
+.about-member__avatar {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 700;
+}
+
+/* Tên thành viên 18px đậm vừa. */
+.about-member__name {
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 23px;
+}
+
+/* Nhãn vai trò: nền hồng nhạt, chữ đỏ 13px, bo 6px. */
+.about-member__role {
+  padding: var(--space-1) 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+  color: var(--color-red);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Mã số sinh viên 13px muted. */
+.about-member__id {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* ===== Lời mời cuối trang ===== */
+
+/* Khối đỏ bo 6px, đệm 44/56, chữ bên trái và hai nút bên phải, khe 24px. */
+.about-cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: 44px 56px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-red);
+}
+
+/* Cổng torii hồng rất mờ phía sau hai nút (vị trí x 1210, y 10 trong khối). */
+.about-cta__torii {
+  position: absolute;
+  top: 10px;
+  left: 1210px;
+  width: 121.8px;
+  height: 100.8px;
+  opacity: .1;
+  pointer-events: none;
+}
+
+/* Khối chữ chiếm phần còn lại, khe 10px. */
+.about-cta__text {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* Tiêu đề 30px phông display trắng. */
+.about-cta__title {
+  color: var(--color-white);
+  font-size: 30px;
+  line-height: 43px;
+}
+
+/* Mô tả 16px trắng 85%. */
+.about-cta__desc {
+  color: var(--color-about-cta-text);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+/* Nút liên kết: icon 20px và chữ 16px đậm vừa, đệm 14/26/14/24, bo 6px. */
+.about-cta__button {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px 14px 24px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  text-decoration: none;
+  transition: background-color .15s, border-color .15s;
+}
+
+/* Nút đặc: nền kem, chữ đỏ. */
+.about-cta__button--solid {
+  background: var(--color-cream);
+  color: var(--color-red);
+}
+
+/* Hover nút đặc: nền hồng nhạt. */
+.about-cta__button--solid:hover {
+  background: var(--color-sakura);
+}
+
+/* Nút viền: viền trắng 70% dày 1.5px, chữ trắng. */
+.about-cta__button--outline {
+  border: 1.5px solid var(--color-white-70);
+  color: var(--color-white);
+}
+
+/* Hover nút viền: viền trắng đậm hẳn. */
+.about-cta__button--outline:hover {
+  border-color: var(--color-white);
+}
+
+/* Vòng sáng bàn phím cho cả hai nút. */
+.about-cta__button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ===== Laptop ≤ 1280px ===== */
+@media (max-width: 1280px) {
+  /* Câu chuyện tên gọi: phương trình xuống dưới đoạn văn. */
+  .about-story {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+
+  /* Phương trình căn trái khi nằm dưới chữ. */
+  .about-equation {
+    justify-content: flex-start;
+  }
+
+  /* Tính năng hai cột. */
+  .about-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  /* Đội ngũ ba cột. */
+  .about-team {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Lời mời: chữ một hàng, hai nút xuống hàng dưới. */
+  .about-cta {
+    flex-wrap: wrap;
+  }
+
+  /* Khối chữ chiếm trọn hàng đầu. */
+  .about-cta__text {
+    flex-basis: 100%;
+  }
+
+  /* Ẩn cổng torii vì vị trí cố định theo khung 1440px. */
+  .about-cta__torii {
+    display: none;
+  }
+}
+
+/* ===== Tablet ≤ 960px ===== */
+@media (max-width: 960px) {
+  /* Ẩn cánh hoa bên lề khi không còn lề trống. */
+  .about-main__petals, .about-hero__petals {
+    display: none;
+  }
+
+  /* Công nghệ xếp dọc, đường kẻ chuyển thành đường ngang. */
+  .about-tech__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  /* Đường kẻ phía trên thay cho đường kẻ bên trái. */
+  .about-tech__item + .about-tech__item {
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  /* Đội ngũ hai cột. */
+  .about-team {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Banner chữ nhỏ hơn. */
+  .about-hero__title {
+    font-size: 52px;
+  }
+}
+
+/* ===== Mobile ≤ 600px ===== */
+@media (max-width: 600px) {
+  /* Banner thấp hơn, chữ nhỏ hơn. */
+  .about-hero {
+    min-height: 0;
+  }
+
+  /* Đệm trên của banner nhỏ lại. */
+  .about-hero__content {
+    gap: var(--space-3);
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-8);
+  }
+
+  /* Dòng 越日 · Etsubi 22px. */
+  .about-hero__kicker {
+    font-size: 22px;
+  }
+
+  /* Tiêu đề 40px. */
+  .about-hero__title {
+    font-size: 40px;
+  }
+
+  /* Mô tả 17px. */
+  .about-hero__desc {
+    font-size: 17px;
+    line-height: 26px;
+  }
+
+  /* Phần nội dung đệm và khoảng cách nhỏ lại. */
+  .about-main {
+    padding-block: var(--space-9) var(--space-9);
+  }
+
+  /* Khoảng cách giữa các khu 56px. */
+  .about-main__inner {
+    gap: 56px;
+  }
+
+  /* Tiêu đề khu 24px. */
+  .about-heading__title {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  /* Phương trình: thu nhỏ thẻ và vòng tròn để vừa 343px, cho phép xuống dòng. */
+  .about-equation {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  /* Thẻ chữ Hán rộng 120px. */
+  .about-glyph {
+    flex-basis: 120px;
+  }
+
+  /* Chữ Hán 60px. */
+  .about-glyph__char {
+    font-size: 60px;
+    line-height: 72px;
+  }
+
+  /* Vòng tròn kết quả 160px. */
+  .about-equation__result {
+    flex-basis: 160px;
+    width: 160px;
+    height: 160px;
+  }
+
+  /* Logo trong vòng tròn nhỏ lại. */
+  .about-equation__result img {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* Tính năng và đội ngũ một cột. */
+  .about-features, .about-team {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  /* Công nghệ đệm ngang nhỏ lại. */
+  .about-tech__item {
+    padding-inline: var(--space-4);
+  }
+
+  /* Lời mời đệm nhỏ, hai nút rộng hết khung. */
+  .about-cta {
+    padding: var(--space-8) var(--space-5);
+  }
+
+  /* Tiêu đề lời mời 24px. */
+  .about-cta__title {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  /* Hai nút rộng hết khung, chữ căn giữa. */
+  .about-cta__button {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

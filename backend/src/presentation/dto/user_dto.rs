@@ -7,6 +7,7 @@ use crate::infrastructure::database::models::entities::User;
 
 #[derive(Deserialize, ToSchema)]
 pub struct UpdateProfileRequest {
+    pub displayname: Option<String>,
     pub username: Option<String>,
     pub email: Option<String>,
     pub institute: Option<String>,
@@ -35,6 +36,7 @@ pub struct MuteUserRequest {
 #[derive(Serialize, ToSchema)]
 pub struct GetUserResponse {
     pub id: Uuid,
+    pub displayname: String,
     pub username: String,
     pub email: String,
     pub institute: Option<String>,
@@ -63,6 +65,7 @@ impl From<User> for GetUserResponse {
     fn from(u: User) -> Self {
         Self {
             id: u.id,
+            displayname: u.displayname,
             username: u.username,
             email: u.email,
             institute: u.institute,

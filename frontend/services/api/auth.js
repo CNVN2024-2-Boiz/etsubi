@@ -6,10 +6,11 @@ import { request } from '/services/api/client.js';
  * @param {object} details Tên, email, mật khẩu, tiếng mẹ đẻ và ngôn ngữ giao diện.
  * @returns {Promise<object>} Mã người dùng vừa tạo.
  */
-export function register({ username, email, password, native = 'vi', language = 'vi' }) {
+export function register({ displayname, username, email, password, native = 'vi', language = 'vi' }) {
+  // Máy chủ trim displayname, rỗng thì lấy username, quá 50 ký tự trả 400.
   return request('/auth/register', {
     method: 'POST',
-    body: { username, email, password, native, language },
+    body: { displayname, username, email, password, native, language },
     auth: false,
   });
 }

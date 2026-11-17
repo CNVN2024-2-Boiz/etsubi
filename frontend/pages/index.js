@@ -1,9 +1,10 @@
 /** Trang chủ Home 4: dữ liệu thật, khung chờ trung tính và thao tác tường minh. */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featured-card/featured-card.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
-import { listPosts, getFeaturedPosts, getPostTags, getPostStats, listFollowingFeed } from '/services/api/posts.js';
+import { listHomeFeed, getFeaturedPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getMyRecommendations } from '/services/api/recommendations.js';
 import { getReactionSummary } from '/services/api/reactions.js';
@@ -18,6 +19,9 @@ import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
+
+// Figma Home 4 (140:135): mỗi tab của "Bài viết mới" chỉ hiện 3 bài, phần còn lại xem ở Diễn đàn qua "Xem thêm →".
+const HOME_LATEST_LIMIT = 3;
 
 // Header có form riêng của Home, còn footer tái dùng biến thể đầy đủ của trang nội dung.
 mountHeader(qs('[data-component="header"]'), { active: 'home', searchForm: true });
@@ -135,12 +139,12 @@ function resizeFeatured(event) {
 
 /** Dựng avatar thành viên thật, dùng chữ đầu khi không có ảnh hoặc ảnh hỏng. */
 function memberAvatar(member) {
-  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.username));
+  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.displayname || member.username));
   if (member.avatar_url) {
-    const image = el('img', { src: member.avatar_url, alt: member.username, width: 40, height: 40, loading: 'lazy' });
+    const image = el('img', { src: member.avatar_url, alt: getAuthorLabel(member), width: 40, height: 40, loading: 'lazy' });
     /** Đổi ảnh hỏng về chữ đầu tên thật để không hiện icon ảnh lỗi. */
     function useInitials() {
-      avatar.replaceChildren(initials(member.username));
+      avatar.replaceChildren(initials(member.displayname || member.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -204,8 +208,8 @@ function createSuggestedPost(post) {
 function createSuggestedMember(member) {
   const text = el('div', { className: 'home-member__text' });
   if (member) {
-    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(member.username)),
-      el('p', { className: 'home-member__sub' }, wrapJapanese('@' + member.username
+    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(getAuthorLabel(member))),
+      el('p', { className: 'home-member__sub' }, wrapJapanese(getAuthorHandle(member)
         + (member.address ? ' · ' + member.address : member.institute ? ' · ' + member.institute : ''))));
   } else {
     text.append(placeholder(false, true), placeholder(true));
@@ -251,7 +255,7 @@ function renderRecommendations(data = null) {
   qs('[data-recommendations]').replaceChildren(
     el('div', { className: 'home-recommendations__band' },
       el('img', { src: '/assets/icons/torii-mini.svg', alt: '', width: 58, height: 48, 'aria-hidden': 'true' }),
-      el('p', {}, wrapJapanese(user ? 'Dành riêng cho ' + user.username : 'Gợi ý cho bạn'))), body);
+      el('p', {}, wrapJapanese(user ? 'Dành riêng cho ' + getAuthorLabel(user) : 'Gợi ý cho bạn'))), body);
 }
 
 /** Thẻ tải tĩnh giữ chiều cao bảng tin mà không có spinner hoặc shimmer. */
@@ -367,7 +371,7 @@ async function enrichFeed(posts, version) {
   }
 }
 
-/** Tải đúng bảng tin người dùng chọn; không gửi yêu cầu sort hoặc feed khi cờ hỗ trợ còn tắt. */
+/** Tải bảng tin qua endpoint tương ứng; chỉ bảng tin theo dõi yêu cầu đăng nhập. */
 async function loadFeed() {
   const version = ++feedVersion;
   feedController?.abort();
@@ -375,49 +379,32 @@ async function loadFeed() {
   const { signal } = feedController;
   feedList.setAttribute('aria-busy', 'true');
   feedStatus.textContent = 'Đang tải bài viết…';
-  feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
+  // Số khung chờ bằng giới hạn bài thật để giữ bố cục nhất quán khi tải.
+  feedList.replaceChildren(...Array.from({ length: HOME_LATEST_LIMIT }, () => createFeedPlaceholder()));
   try {
-    // Các trạng thái chưa có API là thông báo trong trang, không tạo request thất bại ở console.
-    if (selectedFeed === 'popular' && !backendSupports.popularSort) {
-      showFeedInfo('Sắp xếp theo độ phổ biến sẽ có khi máy chủ hỗ trợ.');
+    // Khách vẫn thấy lời mời đăng nhập, không gửi yêu cầu tới endpoint cần JWT.
+    if (selectedFeed === 'following' && !user) {
+      showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
       return;
     }
-    if (selectedFeed === 'following') {
-      if (!user) {
-        showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
-        return;
-      }
-      if (!backendSupports.followingFeed) {
-        showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
-        return;
-      }
-    }
-    let tagIds = [];
-    if (selectedFeed === 'question') {
-      tags = await listTags();
-      if (version !== feedVersion) {
-        return;
-      }
-      const questionTag = tags.find(tag => tag.name === 'question');
-      if (!questionTag) {
-        showFeedInfo('Chưa có bài viết nào.');
-        return;
-      }
-      tagIds = [questionTag.id];
-    }
     const viewerLanguage = getCachedUser()?.language || readStorage('etsubi_lang') || 'vi';
-    const posts = selectedFeed === 'following'
-      ? await listFollowingFeed({ limit: 5, offset: 0, signal })
-      : await listPosts({ limit: 5, tagIds, sort: selectedFeed === 'popular' ? 'popular' : 'newest',
-        lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
+    // Cả bốn tab dùng chung service Trang chủ để đổi endpoint tại một chỗ.
+    const posts = await listHomeFeed(selectedFeed, { limit: HOME_LATEST_LIMIT,
+      lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
     if (version !== feedVersion) {
       return;
     }
-    if (!posts?.length) {
-      showFeedInfo('Chưa có bài viết nào.');
+    // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
+    if (posts === null) {
+      showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
       return;
     }
-    const visiblePosts = posts.slice(0, 5);
+    if (!posts?.length) {
+      showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.' : 'Chưa có bài viết nào.');
+      return;
+    }
+    // Tự giới hạn trong lúc chờ endpoint riêng của Trang chủ nhận limit.
+    const visiblePosts = posts.slice(0, HOME_LATEST_LIMIT);
     feedList.replaceChildren(...visiblePosts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
     feedStatus.textContent = 'Đã tải ' + visiblePosts.length + ' bài viết.';

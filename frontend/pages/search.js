@@ -270,8 +270,8 @@ async function enrichPosts(entries, version) {
     try {
       entry.author = await getUser(entry.post.author_id);
     } catch {
-      // Tác giả lỗi không làm mất bài; tên dự phòng thay thanh chờ để không kẹt ở trạng thái tải.
-      entry.author = { username: 'Thành viên' };
+      // Tác giả lỗi không làm mất bài; giữ thanh xám thay vì tạo tên hoặc handle giả.
+      entry.author = null;
     }
     if (version !== requestVersion) {
       return;
