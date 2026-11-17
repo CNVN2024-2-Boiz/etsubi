@@ -7,59 +7,53 @@ pub enum UserError {
     #[error("User not found")]
     NotFound,
 
-    #[error("Invalid credentials")]
-    InvalidCredentials,
-
-    #[error("Username too short")]
-    UsernameTooShort,
-
-    #[error("Invalid status")]
-    InvalidStatus,
-
-    #[error("Invalid role")]
-    InvalidRole,
-
-    #[error("Invalid language code (must be vi, en, or ja)")]
-    InvalidLanguage,
-
-    #[error("Email already exists")]
-    EmailAlreadyExists,
+    #[error("Email already taken")]
+    EmailAlreadyTaken,
 
     #[error("Username already taken")]
     UsernameAlreadyTaken,
 
-    #[error("Email already taken")]
-    EmailAlreadyTaken,
+    #[error("Username too short")]
+    UsernameTooShort,
 
-    #[error("You can only edit your own profile")]
+    #[error("Display name cannot be empty")]
+    InvalidDisplayname,
+
+    #[error("Display name too long (max 50 characters)")]
+    DisplaynameTooLong,
+
+    #[error("Invalid language code (must be vi, en, or ja)")]
+    InvalidLanguage,
+
+    #[error("Invalid status (must be active or banned)")]
+    InvalidStatus,
+
+    #[error("Invalid role (must be user or moderator)")]
+    InvalidRole,
+
+    #[error("Not allowed to edit another user's profile")]
     ForbiddenProfileEdit,
 
-    #[error("Cannot modify a user with equal or higher role")]
+    #[error("Requires moderator or admin role")]
+    RequiresStaff,
+
+    #[error("Requires admin role")]
+    RequiresAdmin,
+
+    #[error("Cannot modify a user with an equal or higher role")]
     CannotModifyHigherRole,
+
+    #[error("Cannot assign admin role")]
+    CannotAssignAdminRole,
+
+    #[error("Cannot change your own role")]
+    CannotChangeOwnRole,
 
     #[error("Cannot ban yourself")]
     CannotBanSelf,
 
     #[error("Cannot mute yourself")]
     CannotMuteSelf,
-
-    #[error("Cannot change your own role")]
-    CannotChangeOwnRole,
-
-    #[error("Cannot assign admin role")]
-    CannotAssignAdminRole,
-
-    #[error("Requires admin role")]
-    RequiresAdmin,
-
-    #[error("Requires moderator or admin role")]
-    RequiresStaff,
-
-    #[error("Account is banned")]
-    AccountBanned,
-
-    #[error("Invalid or expired token")]
-    InvalidToken,
 
     #[error(transparent)]
     Internal(#[from] anyhow::Error),
@@ -69,35 +63,26 @@ impl ResponseError for UserError {
     fn status_code(&self) -> StatusCode {
         match self {
             UserError::NotFound => StatusCode::NOT_FOUND,
-            UserError::InvalidCredentials => StatusCode::UNAUTHORIZED,
-
+            UserError::EmailAlreadyTaken | UserError::UsernameAlreadyTaken => StatusCode::CONFLICT,
             UserError::UsernameTooShort
-            | UserError::InvalidStatus
-            | UserError::InvalidRole
+            | UserError::InvalidDisplayname
+            | UserError::DisplaynameTooLong
             | UserError::InvalidLanguage
-            | UserError::InvalidToken => StatusCode::BAD_REQUEST,
-
-            UserError::EmailAlreadyExists
-            | UserError::UsernameAlreadyTaken
-            | UserError::EmailAlreadyTaken => StatusCode::CONFLICT,
-
+            | UserError::InvalidStatus
+            | UserError::InvalidRole => StatusCode::BAD_REQUEST,
             UserError::ForbiddenProfileEdit
-            | UserError::CannotModifyHigherRole
-            | UserError::CannotBanSelf
-            | UserError::CannotMuteSelf
-            | UserError::CannotChangeOwnRole
-            | UserError::CannotAssignAdminRole
-            | UserError::RequiresAdmin
             | UserError::RequiresStaff
-            | UserError::AccountBanned => StatusCode::FORBIDDEN,
-
+            | UserError::RequiresAdmin
+            | UserError::CannotModifyHigherRole
+            | UserError::CannotAssignAdminRole
+            | UserError::CannotChangeOwnRole
+            | UserError::CannotBanSelf
+            | UserError::CannotMuteSelf => StatusCode::FORBIDDEN,
             UserError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
     fn error_response(&self) -> HttpResponse {
-        HttpResponse::build(self.status_code()).json(json!({
-            "error": self.to_string(),
-        }))
+        HttpResponse::build(self.status_code()).json(json!({ "error": self.to_string() }))
     }
 }

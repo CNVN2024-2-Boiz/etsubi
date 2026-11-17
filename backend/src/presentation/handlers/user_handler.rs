@@ -69,6 +69,7 @@ pub async fn update_user(
         service.update_profile(
             target_id,
             requester_id,
+            req.displayname,
             req.username,
             req.email,
             req.native,
