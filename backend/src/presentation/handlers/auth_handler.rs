@@ -30,8 +30,9 @@ pub async fn register(
         service.register(
             &body.username,
             &body.email,
+            body.displayname.as_deref(),
             &body.native,
-            &body.native,
+            &body.language,
             &body.password,
         )
     })

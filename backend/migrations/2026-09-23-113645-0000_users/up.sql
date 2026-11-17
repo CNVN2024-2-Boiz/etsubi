@@ -17,9 +17,13 @@ CREATE TABLE users (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     muted_until TIMESTAMPTZ,
-    token_version INTEGER NOT NULL DEFAULT 0
+    token_version INTEGER NOT NULL DEFAULT 0,
+    oauth_provider TEXT,
+    oauth_subject TEXT,
+    profile_completed_at TIMESTAMPTZ
 );
 
 CREATE INDEX idx_users_role ON users (role);
 CREATE INDEX idx_users_status ON users (status);
 CREATE INDEX idx_users_muted ON users (muted_until) WHERE muted_until IS NOT NULL;
+CREATE UNIQUE INDEX idx_users_oauth ON users (oauth_provider, oauth_subject) WHERE oauth_provider IS NOT NULL;

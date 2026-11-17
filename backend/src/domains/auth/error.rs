@@ -31,6 +31,9 @@ pub enum AuthError {
     #[error("Invalid language code (must be vi, en, or ja)")]
     InvalidLanguage,
 
+    #[error("Display name too long (max 50 characters)")]
+    DisplaynameTooLong,
+
     #[error("Admin account cannot be self-deleted")]
     CannotDeleteAdmin,
 
@@ -47,6 +50,7 @@ impl ResponseError for AuthError {
             AuthError::UsernameTooShort
             | AuthError::WeakPassword
             | AuthError::InvalidLanguage
+            | AuthError::DisplaynameTooLong
             | AuthError::CannotDeleteAdmin => StatusCode::BAD_REQUEST,
             AuthError::EmailAlreadyExists | AuthError::UsernameAlreadyTaken => StatusCode::CONFLICT,
             AuthError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,

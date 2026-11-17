@@ -19,6 +19,7 @@ use crate::{
 
 const MIN_USERNAME_LEN: usize = 3;
 const MIN_PASSWORD_LEN: usize = 8;
+const MAX_DISPLAYNAME_CHARS: usize = 50;
 const VALID_LANGUAGES: &[&str] = &["vi", "en", "ja"];
 
 pub struct AuthService {
@@ -47,6 +48,7 @@ impl AuthService {
         &self,
         username: &str,
         email: &str,
+        displayname: Option<&str>,
         native: &str,
         language: &str,
         password: &str,
@@ -63,6 +65,16 @@ impl AuthService {
         if !VALID_LANGUAGES.contains(&language) {
             return Err(AuthError::InvalidLanguage);
         }
+
+        let displayname = displayname
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .unwrap_or(username);
+
+        if displayname.chars().count() > MAX_DISPLAYNAME_CHARS {
+            return Err(AuthError::DisplaynameTooLong);
+        }
+
         if self.user_repo.find_by_email(email)?.is_some() {
             return Err(AuthError::EmailAlreadyExists);
         }
@@ -74,7 +86,7 @@ impl AuthService {
         let now = Utc::now();
         let user = User {
             id: Uuid::nil(),
-            displayname: username.to_string(),
+            displayname: displayname.to_string(),
             username: username.into(),
             email: email.into(),
             institute: None,
@@ -90,6 +102,9 @@ impl AuthService {
             updated_at: now,
             muted_until: None,
             token_version: 0,
+            oauth_provider: None,
+            oauth_subject: None,
+            profile_completed_at: None,
         };
 
         Ok(self.auth_repo.create(&user)?)
