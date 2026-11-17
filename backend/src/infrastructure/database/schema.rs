@@ -121,6 +121,9 @@ diesel::table! {
         updated_at -> Timestamptz,
         muted_until -> Nullable<Timestamptz>,
         token_version -> Int4,
+        oauth_provider -> Nullable<Text>,
+        oauth_subject -> Nullable<Text>,
+        profile_completed_at -> Nullable<Timestamptz>,
     }
 }
 

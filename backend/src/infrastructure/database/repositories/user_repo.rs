@@ -25,6 +25,7 @@ impl UserRepository for PostgresUserRepo {
 
         Ok(diesel::update(users::table.find(user.id))
             .set((
+                users::displayname.eq(&user.displayname),
                 users::username.eq(&user.username),
                 users::email.eq(&user.email),
                 users::institute.eq(&user.institute),

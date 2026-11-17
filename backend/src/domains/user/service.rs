@@ -9,6 +9,7 @@ use crate::{
 };
 
 const MIN_USERNAME_LEN: usize = 3;
+const MAX_DISPLAYNAME_CHARS: usize = 50;
 const VALID_LANGUAGES: &[&str] = &["vi", "en", "ja"];
 
 pub struct UserService {
@@ -33,6 +34,7 @@ impl UserService {
         &self,
         target_id: Uuid,
         requester_id: Uuid,
+        display_name: Option<String>,
         username: Option<String>,
         email: Option<String>,
         native: Option<String>,
@@ -77,6 +79,17 @@ impl UserService {
             user.email = new_email;
         }
 
+        if let Some(raw) = display_name {
+            let trimmed = raw.trim();
+            if trimmed.is_empty() {
+                return Err(UserError::InvalidDisplayname);
+            }
+            if trimmed.chars().count() > MAX_DISPLAYNAME_CHARS {
+                return Err(UserError::DisplaynameTooLong);
+            }
+            user.displayname = trimmed.to_string();
+        }
+
         if let Some(institute) = institute {
             user.institute = Some(institute);
         }
@@ -105,6 +118,10 @@ impl UserService {
 
         if let Some(avatar_url) = avatar_url {
             user.avatar_url = Some(avatar_url);
+        }
+
+        if user.profile_completed_at.is_none() {
+            user.profile_completed_at = Some(Utc::now());
         }
 
         Ok(self.user_repo.update_profile(&user)?)
