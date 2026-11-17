@@ -25,6 +25,9 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
     pub muted_until: Option<DateTime<Utc>>,
     pub token_version: i32,
+    pub oauth_provider: Option<String>,
+    pub oauth_subject: Option<String>,
+    pub profile_completed_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Insertable)]
@@ -38,4 +41,7 @@ pub struct NewUser<'a> {
     pub language: &'a str,
     pub role: &'a str,
     pub status: &'a str,
+    pub oauth_provider: Option<&'a str>,
+    pub oauth_subject: Option<&'a str>,
+    pub profile_completed_at: Option<DateTime<Utc>>,
 }

@@ -35,6 +35,9 @@ impl AuthRepository for PostgresAuthRepo {
             language: &user.language,
             role: &user.role,
             status: &user.status,
+            oauth_provider: user.oauth_provider.as_deref(),
+            oauth_subject: user.oauth_subject.as_deref(),
+            profile_completed_at: user.profile_completed_at,
         };
 
         Ok(diesel::insert_into(users::table)
