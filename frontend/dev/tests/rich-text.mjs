@@ -36,6 +36,24 @@ for (const tag of ['script', 'style', 'iframe', 'object', 'embed', 'template', '
 assert.equal(clean('A<embed src=x>Z'), 'A');
 assert.equal(clean('<script title="x>y">alert(1)</script>'), '');
 assert.equal(clean('<img src=x onerror=alert(1)>ok'), 'ok');
+// Ảnh chỉ nhận HTTPS thật, giữ alt và kích thước hợp lệ; không giữ thuộc tính thực thi hoặc CSS.
+const imageHtml = '<img src="https://example.com/a.png?x=1&amp;y=2" alt="&quot;&lt;script&gt;" width="640" height="400">';
+assert.equal(clean(imageHtml), imageHtml);
+assert.equal(clean(imageHtml, { allowLinks: true }), imageHtml);
+assert.equal(clean(imageHtml.replace(' height="400"', ' height="400" onerror="bad()" style="color:red" srcset="https://evil.test/a"')), imageHtml);
+for (const src of ['http://x/a', 'javascript:alert(1)', 'data:image/png;base64,AAA', '//x/a', '&#x6a;avascript:alert(1)',
+  'https://x/a b', ' https://x/a', 'https://x/&#10;a', 'https://x/\tbad', 'h&#116;tps://x/a', 'https&#58;//x/a', '&amp;#x6a;avascript:bad']) {
+  assert.equal(clean('<img src="' + src + '">'), '', src);
+}
+for (const width of ['0', '-5', '5000', '12px', '1e3', '1.5', '4001']) {
+  assert.equal(clean('<img src="https://x/a" width="' + width + '" height="' + width + '">'), '<img src="https://x/a" alt="">', width);
+}
+assert.equal(clean('<img src="https://x/a" width="1" height="4000">'), '<img src="https://x/a" alt="" width="1" height="4000">');
+assert.equal(clean('<b>A<img src="https://x/a"></img>B</b>'), '<b>A<img src="https://x/a" alt="">B</b>');
+assert.equal(clean('<img src="https://x/a" alt="' + '日'.repeat(301) + '">'), '<img src="https://x/a" alt="' + '日'.repeat(300) + '">');
+assert.equal(clean(clean(imageHtml)), imageHtml);
+assert.equal(plain('A' + imageHtml + 'B'), 'AB');
+assert.equal(hasRichTags(imageHtml), true);
 assert.equal(clean('<svg onload=alert(1)><circle/><text>chữ</text></svg>'), 'chữ');
 assert.equal(clean('A<!-- secret --><!DOCTYPE html><![CDATA[bad]]><?bad?>Z'), 'AZ');
 
@@ -110,12 +128,28 @@ function node(tag = '#fragment') {
   return { tag, children: [], attrs: {}, ownerDocument: doc,
     append(...children) { this.children.push(...children); },
     replaceChildren(...children) { this.children = children; },
-    setAttribute(key, value) { this.attrs[key] = value; },
+    setAttribute(key, value) {
+      // Ảnh phải nhận chính sách riêng tư trước src, không gửi Referer trong request đầu tiên.
+      if (this.tag === 'img' && key === 'src') assert.equal(this.attrs.referrerpolicy, 'no-referrer');
+      this.attrs[key] = value;
+    },
     set innerHTML(value) { throw new Error('Không được gán innerHTML: ' + value); },
   };
 }
 const doc = { createElement: tag => node(tag), createTextNode: text => ({ text }) };
 const container = node();
+// Renderer ảnh chỉ dùng createElement/setAttribute, DOM giả cấm mọi gán innerHTML.
+renderRichContent(container, imageHtml);
+const renderedImage = container.children[0].children[0];
+assert.equal(renderedImage.tag, 'img');
+assert.equal(renderedImage.attrs.src, 'https://example.com/a.png?x=1&y=2');
+assert.equal(renderedImage.attrs.alt, '"<script>');
+assert.equal(renderedImage.attrs.width, '640');
+assert.equal(renderedImage.attrs.height, '400');
+assert.equal(renderedImage.attrs.loading, 'lazy');
+assert.equal(renderedImage.attrs.decoding, 'async');
+assert.equal(renderedImage.attrs.referrerpolicy, 'no-referrer');
+assert.equal(renderedImage.className, 'rich-content__image');
 renderRichContent(container, '<p>A<a href="https://example.com">link</a><img src=x></p>', { allowLinks: true });
 assert.equal(container.children[0].tag, 'p');
 assert.equal(container.children[0].children[1].tag, 'a');
@@ -133,6 +167,105 @@ assert.equal(container.children.length, 2);
 assert.equal(container.children[0].tag, 'p');
 assert.deepEqual(container.children[0].children.map(child => child.tag || 'text'), ['text', 'b', 'text', 'span', 'text']);
 assert.equal(container.children[1].tag, 'p');
+
+// So sánh mốc sửa, nhãn thống kê và mailto là hàm thuần, không cần trình duyệt hoặc máy chủ.
+const timeModule = await load('/utils/comment-time.js'); await timeModule.evaluate();
+const edited = timeModule.namespace.isCommentEdited;
+assert.equal(edited('2026-11-18T00:00:00Z', '2026-11-18T00:00:01.001Z'), true);
+assert.equal(edited('2026-11-18T00:00:00Z', '2026-11-18T00:00:01Z'), false);
+assert.equal(edited('2026-11-18T00:00:00Z', '2026-11-18T00:00:00Z'), false);
+assert.equal(edited('2026-11-18T00:00:00Z', '2026-11-17T23:00:00Z'), false);
+assert.equal(edited('bad', '2026-11-18T00:00:00Z'), false);
+assert.equal(edited(null, null), false);
+const labelModule = await load('/utils/stat-label.js'); await labelModule.evaluate();
+const label = labelModule.namespace.statLabel;
+assert.equal(label(12, 'Số bình luận'), '12 bình luận');
+assert.equal(label(3, 'Số lượt chia sẻ'), '3 lượt chia sẻ');
+assert.equal(label(1, 'lượt thích'), '1 lượt thích');
+assert.equal(label(0, 'bình luận'), '0 bình luận');
+for (const value of [undefined, null, NaN, Infinity, '12']) assert.equal(label(value, 'bình luận'), 'Số bình luận · chưa có dữ liệu');
+const mailModule = await load('/utils/support-mailto.js'); await mailModule.evaluate();
+const mail = mailModule.namespace.buildSupportMailto('Quy tắc & Cộng đồng', 'a+b@example.com', 'Ảnh? & #\nDòng hai');
+assert.equal(mail, 'mailto:contact@etsubi.vn?subject=' + encodeURIComponent('[Etsubi] Quy tắc & Cộng đồng')
+  + '&body=' + encodeURIComponent('Ảnh? & #\nDòng hai\n\nEmail liên hệ: a+b@example.com'));
+assert.ok(!mail.includes('\n'));
+
+/** DOM giả cho dialog: điều khiển riêng sự kiện tải ảnh, không gọi mạng hoặc tạo cửa sổ thật. */
+class DialogNode {
+  constructor(tag) {
+    this.tag = tag; this.children = []; this.attrs = {}; this.listeners = new Map();
+    this.value = ''; this.validity = { badInput: false }; this.disabled = false; this.open = false;
+  }
+  /** Các thuộc tính ID/class phản ánh cùng dữ liệu như DOM thật. */
+  get id() { return this.attrs.id || ''; }
+  set className(value) { this.attrs.class = value; }
+  get className() { return this.attrs.class || ''; }
+  /** Gán thuộc tính không phân tích HTML, disabled mô phỏng boolean gốc. */
+  setAttribute(key, value) { this.attrs[key] = value; if (key === 'disabled') this.disabled = true; }
+  getAttribute(key) { return this.attrs[key] ?? null; }
+  removeAttribute(key) { delete this.attrs[key]; }
+  /** Cây node tối thiểu đủ để chạy module el và dialog thật. */
+  append(...nodes) { for (const child of nodes) { child.parent = this; this.children.push(child); } }
+  replaceChildren(...nodes) { this.children = []; this.append(...nodes); }
+  remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
+  focus() { dialogDoc.activeElement = this; }
+  showModal() { this.open = true; }
+  close() { this.open = false; this.fire('close'); }
+  /** Phát sự kiện đã chọn để thử load đến trễ và thao tác bàn phím một cách xác định. */
+  addEventListener(type, listener) { this.listeners.set(type, [...(this.listeners.get(type) || []), listener]); }
+  fire(type) { for (const listener of this.listeners.get(type) || []) listener({ preventDefault() {}, stopPropagation() {} }); }
+}
+const dialogImages = [];
+const dialogDoc = { body: new DialogNode('body'), activeElement: null,
+  createElement(tag) { const result = new DialogNode(tag); if (tag === 'img') dialogImages.push(result); return result; },
+  createTextNode(text) { const result = new DialogNode('#text'); result.textContent = text; return result; } };
+context.document = dialogDoc; context.Node = DialogNode;
+modules.set('/components/rich-editor/rich-editor.js', new vm.SyntheticModule(['editorIcon'], function icons() {
+  this.setExport('editorIcon', () => new DialogNode('span'));
+}, { context }));
+const dialogModule = await load('/components/rich-editor/image-dialog.js'); await dialogModule.evaluate();
+/** Tìm trường trong cây giả bằng hook ổn định thay vì phụ thuộc thứ tự con. */
+function findDialog(rootNode, predicate) {
+  if (predicate(rootNode)) return rootNode;
+  for (const child of rootNode.children) { const found = findDialog(child, predicate); if (found) return found; }
+  return null;
+}
+const resultPromise = dialogModule.namespace.openImageDialog();
+const imageDialog = dialogDoc.body.children[0];
+const urlInput = findDialog(imageDialog, item => item.id.endsWith('-url'));
+const widthInput = findDialog(imageDialog, item => item.id.endsWith('-width'));
+const heightInput = findDialog(imageDialog, item => item.id.endsWith('-height'));
+const applyImage = findDialog(imageDialog, item => item.tag === 'button' && item.getAttribute('type') === 'submit');
+assert.equal(dialogDoc.activeElement, urlInput);
+assert.equal(applyImage.disabled, true);
+urlInput.value = 'https://example.com/old.png'; urlInput.fire('input');
+const oldPreview = dialogImages.at(-1);
+assert.equal(oldPreview.getAttribute('referrerpolicy'), 'no-referrer');
+assert.equal(applyImage.disabled, true, 'URL đúng nhưng chưa load phải khoá');
+urlInput.value = 'http://example.com/a.png'; urlInput.fire('input');
+oldPreview.naturalWidth = 1200; oldPreview.naturalHeight = 800; oldPreview.fire('load');
+assert.equal(applyImage.disabled, true, 'load của URL cũ không được bật nút');
+urlInput.value = 'https://example.com/a.png'; urlInput.fire('input');
+const currentPreview = dialogImages.at(-1);
+currentPreview.naturalWidth = 1200; currentPreview.naturalHeight = 800; currentPreview.fire('error');
+assert.equal(applyImage.disabled, true, 'ảnh lỗi phải khoá');
+urlInput.fire('input');
+const loadedPreview = dialogImages.at(-1);
+loadedPreview.naturalWidth = 1200; loadedPreview.naturalHeight = 800; loadedPreview.fire('load');
+assert.equal(applyImage.disabled, false);
+widthInput.value = '640'; widthInput.fire('input');
+assert.equal(heightInput.value, '427', 'khoá tỉ lệ tính theo ảnh tự nhiên');
+widthInput.value = ''; widthInput.validity.badInput = true; widthInput.fire('input');
+assert.equal(applyImage.disabled, true, 'ô number lỗi không được coi là để trống');
+widthInput.validity.badInput = false; widthInput.value = '640'; widthInput.fire('input');
+findDialog(imageDialog, item => item.tag === 'form').fire('submit');
+const imageResult = await resultPromise;
+assert.equal(imageResult.src, 'https://example.com/a.png');
+assert.equal(imageResult.width, 640); assert.equal(imageResult.height, 427);
+assert.equal(dialogDoc.body.children.length, 0);
+const cancelPromise = dialogModule.namespace.openImageDialog(imageResult);
+dialogDoc.body.children[0].fire('cancel');
+assert.equal(await cancelPromise, null);
 
 // Service địa điểm dùng module thật, chỉ thay cổng mạng để đo nhịp gửi và cache mà không gọi Internet.
 context.URLSearchParams = URLSearchParams;

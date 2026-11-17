@@ -710,16 +710,26 @@
   --rich-font-size: 16px;
   --rich-counter-size: 12px;
   --rich-chip-size: 13px;
-  --rich-thumbnail-width: 96px;
-  --rich-thumbnail-height: 72px;
   --rich-remove-bg: rgba(31, 26, 23, .65);
   --z-rich-popover: 20;
-  --place-dialog-width: 560px;
-  --place-map-height: 182px;
+  --place-dialog-width: 720px;
+  --place-map-height: 420px;
   --place-search-height: 44px;
   --place-pin-width: 36px;
   --place-pin-height: 46px;
   --comment-body-height: 96px;
   --comment-counter-height: 23px;
   --comment-footer-height: 71px;
+}
+
+/* Batch 10: kích thước ảnh, hộp thoại và tooltip từ bảng component. */
+:root {
+  --compose-tool-padding-inline: 10px;
+  --image-dialog-width: 520px;
+  --image-preview-height: 200px;
+  --comment-place-width: 420px;
+  --comment-map-height: 200px;
+  --comment-menu-size: 28px;
+  --stat-tooltip-size: 13px;
+  --stat-tooltip-mobile-width: 160px;
 }

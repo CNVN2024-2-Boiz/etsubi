@@ -78,7 +78,7 @@ const messagePatterns = Object.freeze({
   post_removed: /^Your post "(?<title>.*)" has been removed$/u,
 });
 
-// CẦN BACKEND: GET /my/notifications chưa trả actor { id, displayname, username, avatar_url } và context { post_title, emoji, muted_until }; tạm tách tên từ câu tiếng Anh của máy chủ.
+// CẦN BACKEND: GET /my/notifications chỉ cần bổ sung actor_id theo xác nhận của Phong; trước khi có vẫn tách tên từ message và dùng dữ liệu hiện tại.
 /** Tách thông điệp thành văn bản và tên in đậm; không đoán tên hoặc tiêu đề khi câu không khớp. */
 export function formatNotification(notification) {
   const message = String(notification?.message ?? '');

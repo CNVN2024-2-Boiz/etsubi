@@ -191,3 +191,5 @@ fieldset {
     scroll-behavior: auto;
   }
 }
+/* Ảnh đã lọc giữ tỉ lệ tự nhiên, co theo mọi khung đọc/soạn và thẻ feed trên mobile. */
+.rich-content__image { display: inline-block; max-width: 100%; height: auto; border-radius: var(--radius-sm); vertical-align: middle; }

@@ -9,6 +9,8 @@ import { toVietnameseMessage } from '/utils/errors.js';
 
 // Biểu tượng Lucide (24 viewBox, nét 2px, theo màu chữ); chuỗi cố định, không chứa dữ liệu người dùng.
 const ICONS = {
+  languages: '<path d="m5 8 6 6M4 14l6-6 2-3M2 5h12M7 2h1m14 20-5-10-5 10m2-4h6"/>',
+  moreVertical: '<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
   shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
   mute: '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="m22 9-6 6"/><path d="m16 9 6 6"/>',
   ban: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
@@ -166,6 +168,8 @@ function handleDocument(event) {
     return;
   }
   if (event.type === 'keydown' && event.key === 'Escape') {
+    event.preventDefault();
+    event.stopPropagation();
     closeOpenMenu(true);
   } else if (event.type === 'click' && !openMenu.wrapper.contains(event.target)) {
     closeOpenMenu();
@@ -207,7 +211,7 @@ export function createMenu(trigger, { header, items }) {
     // Chọn một mục: đóng menu trước rồi mới chạy thao tác (thường là mở hộp thoại xác nhận).
     button.addEventListener('click', () => {
       closeOpenMenu();
-      item.onSelect?.();
+      item.onSelect?.(button);
     });
     panel.append(button);
   }
@@ -234,7 +238,7 @@ export function createMenu(trigger, { header, items }) {
       panel.style.setProperty('--mod-menu-shift', shift + 'px');
       trigger.setAttribute('aria-expanded', 'true');
       openMenu = { panel, trigger, wrapper };
-      panel.querySelector('.mod-menu__item:not(:disabled)')?.focus();
+      panel.querySelector('[role="menuitem"]:not(:disabled)')?.focus();
     }
   }
 
@@ -244,13 +248,17 @@ export function createMenu(trigger, { header, items }) {
       return;
     }
     event.preventDefault();
-    const enabled = [...panel.querySelectorAll('.mod-menu__item:not(:disabled)')];
+    const enabled = [...panel.querySelectorAll('[role="menuitem"]:not(:disabled)')];
     const index = enabled.indexOf(document.activeElement);
     const next = event.key === 'ArrowDown' ? (index + 1) % enabled.length : (index - 1 + enabled.length) % enabled.length;
     enabled[next]?.focus();
   }
 
   trigger.addEventListener('click', toggle);
+  // Enter/Space dùng click gốc của button; ArrowDown cũng mở được menu theo chuẩn bàn phím.
+  trigger.addEventListener('keydown', event => { if (event.key === 'ArrowDown') { event.preventDefault(); if (panel.hidden) toggle(event); } });
+  // Tab rời menu phải đóng, tránh giữ bảng nổi mà focus đã sang nội dung khác.
+  panel.addEventListener('keydown', event => { if (event.key === 'Tab') closeOpenMenu(true); });
   panel.addEventListener('keydown', moveFocus);
   return wrapper;
 }

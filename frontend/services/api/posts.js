@@ -161,7 +161,7 @@ export async function getRelatedPosts(post, postTags = []) {
     .map(item => ({ ...item, comment_count: item.comment_count ?? null, tag }));
 }
 
-// CẦN BACKEND: POST/PATCH/GET posts cần place_name (tên địa điểm); GET /posts/{id} trả place: { name, address, opening_hours, phone } cho bài có toạ độ (latitude/longitude đã có sẵn).
+// CẦN BACKEND: POST/PATCH/GET posts cần place_name (tên địa điểm); Phong đã đồng ý bổ sung; FE dùng reverse/cache cho địa chỉ, không yêu cầu giờ mở cửa hoặc điện thoại.
 /**
  * Đọc thông tin địa điểm văn hoá của bài; null nghĩa là chưa biết, trang hiện thanh xám.
  * @param {object} post Bài đang đọc.
@@ -202,8 +202,11 @@ export async function createPost({ title, content, latitude, longitude }, { tagI
  * @param {object} changes { title, content, latitude, longitude }.
  * @returns {Promise<object>} Bài sau khi sửa.
  */
+// CẦN BACKEND: post/service.rs update chỉ lưu title/content, bỏ qua latitude/longitude của UpdatePostRequest; cần lưu toạ độ mới và xoá toạ độ khi request không gửi.
 export function updatePost(postId, { title, content, latitude = null, longitude = null }) {
-  return request('/posts/' + encodeURIComponent(postId), { method: 'PATCH', body: { title, content, latitude, longitude } });
+  // Toạ độ thiếu nghĩa là gỡ địa điểm; không gửi null ngoài hợp đồng UpdatePostRequest.
+  const coordinates = Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : {};
+  return request('/posts/' + encodeURIComponent(postId), { method: 'PATCH', body: { title, content, ...coordinates } });
 }
 
 /**
@@ -233,22 +236,6 @@ export function addPostTag(postId, tagId) {
   return request('/posts/' + encodeURIComponent(postId) + '/tags/' + encodeURIComponent(tagId), { method: 'POST' });
 }
 
-// CẦN BACKEND: POST /uploads (multipart, field "file") trả { url, name, mime_type, size }; POST /posts nhận thêm attachments: [{ type: "image" | "file", url, name }] và GET /posts trả lại mảng này để PostCard hiện ảnh.
-/**
- * Tải ảnh hoặc tệp đính kèm cho bài viết; null nghĩa là backend chưa hỗ trợ và trang không gửi yêu cầu.
- * @param {File} file Tệp người dùng chọn.
- * @returns {Promise<object|null>} Thông tin tệp đã tải lên hoặc null.
- */
-export async function uploadAttachment(file) {
-  if (!backendSupports.postAttachments) {
-    return null;
-  }
-  // Lưu ý khi bật cờ: request() hiện luôn gửi JSON, cần thêm nhánh gửi FormData nguyên dạng trong client.js.
-  const form = new FormData();
-  form.append('file', file);
-  return request('/uploads', { method: 'POST', body: form });
-}
-
 // CẦN BACKEND: POST /posts nhận thêm poll: { question, options: [string], closes_at? }; GET /posts/{id} trả poll kèm số phiếu từng lựa chọn và lựa chọn của người xem; POST /posts/{id}/poll/votes { option_index } để bỏ phiếu.
 /**
  * Cho trang biết có tạo được thăm dò hay chưa, để không hiện biểu mẫu gửi đi một trường backend bỏ qua.
@@ -269,7 +256,7 @@ export function getAuthorHandle(author) {
   return formatHandle(author?.username);
 }
 
-// CẦN BACKEND: các danh sách chưa trả displayname (theo dõi, gợi ý, tác giả nhúng) tạm hiện @username thật.
+// CẦN BACKEND: gợi ý và tác giả nhúng cần displayname; danh sách theo dõi đã có displayname, còn thiếu phân trang.
 /** Nhãn trên giao diện phân biệt tên tự do với handle dự phòng; thiếu cả hai thì giữ chỗ. */
 export function getAuthorLabel(author) {
   return author?.displayname ? getAuthorDisplayName(author)

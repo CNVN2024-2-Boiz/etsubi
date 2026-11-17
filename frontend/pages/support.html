@@ -83,7 +83,7 @@
               </div>
 
               <aside class="support-sidebar" aria-label="Liên hệ và quy tắc">
-                <!-- Vẫn cần trợ giúp: gửi yêu cầu, email, báo cáo vi phạm. -->
+                <!-- Vẫn cần trợ giúp: gửi yêu cầu qua ứng dụng email. -->
                 <section class="support-side-card" aria-labelledby="contact-title">
                   <h3 id="contact-title" class="support-side-card__band">
                     <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
@@ -107,14 +107,6 @@
                       </span>
                       <span class="support-contact__arrow" aria-hidden="true">→</span>
                     </a>
-                    <button type="button" class="support-contact" data-open-dialog="report">
-                      <span class="support-contact__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></span>
-                      <span class="support-contact__text">
-                        <span class="support-contact__title">Báo cáo vi phạm</span>
-                        <span class="support-contact__meta">Đội kiểm duyệt xử lý ưu tiên</span>
-                      </span>
-                      <span class="support-contact__arrow" aria-hidden="true">→</span>
-                    </button>
                     <button type="button" class="btn btn--primary btn--block support-side-card__action" data-open-dialog="ticket">
                       Gửi yêu cầu <img src="/assets/icons/arrow-right.svg" width="18" height="18" alt="" />
                     </button>
@@ -139,7 +131,7 @@
       </div>
     </main>
 
-    <!-- Hộp thoại gửi yêu cầu hỗ trợ / báo cáo vi phạm (thẻ dialog có sẵn của trình duyệt, không animation). -->
+    <!-- Hộp thoại soạn email hỗ trợ (thẻ dialog có sẵn của trình duyệt, không animation). -->
     <dialog class="support-dialog" aria-labelledby="dialog-title" data-dialog>
       <form class="support-dialog__form" method="dialog" novalidate data-dialog-form>
         <h2 id="dialog-title" class="support-dialog__band" data-dialog-title>Gửi yêu cầu hỗ trợ</h2>
@@ -148,19 +140,15 @@
             <label class="field__label" for="dialog-topic">Chủ đề</label>
             <select id="dialog-topic" class="input" data-dialog-topic></select>
           </div>
-          <div class="field" data-field="link" hidden>
-            <label class="field__label" for="dialog-link">Đường dẫn bài viết hoặc bình luận <span class="field__required" aria-hidden="true">*</span></label>
-            <input id="dialog-link" class="input" type="url" placeholder="Dán đường dẫn trang đọc bài, ví dụ …/pages/post.html?id=…" data-dialog-link />
-          </div>
           <div class="field" data-field="email">
             <label class="field__label" for="dialog-email">Email nhận phản hồi <span class="field__required" aria-hidden="true">*</span></label>
-            <input id="dialog-email" class="input" type="email" autocomplete="email" data-dialog-email />
+            <input id="dialog-email" class="input" type="email" autocomplete="email" required aria-describedby="support-dialog-status" data-dialog-email />
           </div>
           <div class="field">
             <label class="field__label" for="dialog-message">Nội dung <span class="field__required" aria-hidden="true">*</span></label>
-            <textarea id="dialog-message" class="input support-dialog__message" rows="5" maxlength="2000" placeholder="Mô tả vấn đề bạn gặp, càng cụ thể càng tốt." data-dialog-message></textarea>
+            <textarea id="dialog-message" class="input support-dialog__message" rows="5" maxlength="2000" required aria-describedby="support-dialog-status" placeholder="Mô tả vấn đề bạn gặp, càng cụ thể càng tốt." data-dialog-message></textarea>
           </div>
-          <p class="alert alert--info" role="status" data-dialog-status hidden></p>
+          <p id="support-dialog-status" class="alert alert--info" role="status" data-dialog-status hidden></p>
           <div class="support-dialog__actions">
             <button type="button" class="btn btn--secondary" data-dialog-close>Đóng</button>
             <button type="submit" class="btn btn--primary" value="send" data-dialog-submit disabled>Gửi</button>

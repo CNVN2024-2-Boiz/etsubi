@@ -243,10 +243,6 @@
   padding-left: calc(var(--forum-avatar-size) + var(--rich-body-padding));
 }
 
-/* Bản đồ đang gắn có nền hồng và icon đỏ như Figma, không dùng màu để biểu đạt một mình. */
-.forum-compose__tool[aria-pressed='true'] { background: var(--color-sakura); }
-.forum-compose__tool svg { color: var(--color-red); flex-shrink: 0; }
-
 /* Thuộc tính hidden phải thắng display:flex. */
 .forum-compose__extra[hidden] {
   display: none;
@@ -291,48 +287,6 @@
   margin: 0;
   border: 0;
   background: var(--color-border);
-}
-
-/* Hàng thao tác cao 40px: ba nút công cụ bên trái, Huỷ và Đăng bên phải, khe 8px. */
-.forum-compose__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* Nút công cụ không nền: icon 20px, chữ 15px đậm vừa, đệm 6/10, bo 6px. */
-.forum-compose__tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: none;
-  color: var(--color-text-secondary);
-  font: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 19px;
-  cursor: pointer;
-  transition: background-color .15s;
-}
-
-/* Hover nền hồng nhạt, không dịch chuyển. */
-.forum-compose__tool:hover {
-  background: var(--color-sakura);
-}
-
-/* Vòng sáng bàn phím. */
-.forum-compose__tool:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-/* Khoảng trống co giãn đẩy Huỷ và Đăng sang phải. */
-.forum-compose__spacer {
-  flex: 1;
 }
 
 /* Nút Đăng cao 40px: đệm 10/26 (viền 1px của .btn được tính trong 40px), chữ 16px đậm. */
@@ -599,7 +553,7 @@
   }
 
   /* Nút Đăng xuống dòng riêng và rộng hết khung để dễ chạm. */
-  .forum-compose__spacer {
+  .compose-tools__spacer {
     flex-basis: 100%;
   }
 

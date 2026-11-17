@@ -387,3 +387,9 @@
     margin-left: auto;
   }
 }
+/* Ảnh nội dung xếp dọc như Figma, chỉ lấy node qua renderer an toàn dùng chung. */
+.postcard-feed__images { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.postcard-feed__images:empty { display: none; }
+/* Thống kê Search nằm trên liên kết phủ toàn thẻ để hover/focus hiện được tooltip. */
+.postcard__stats .stat-tooltip { z-index: 2; }
+.postcard__stats .stat-tooltip:nth-child(3)::after { left: auto; right: 0; transform: none; }

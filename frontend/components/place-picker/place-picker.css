@@ -1,4 +1,4 @@
-/* Dialog địa điểm 560px theo Figma, nằm trên dialog soạn bài nhờ native top layer. */
+/* Dialog địa điểm 720px theo Figma, nằm trên dialog soạn bài nhờ native top layer. */
 .place-picker { width: calc(100% - var(--space-4) * 2); max-width: var(--place-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 2px solid var(--color-red); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
 /* Lớp phủ tĩnh giống hộp thoại soạn bài, không có hiệu ứng. */
 .place-picker::backdrop { background: var(--edit-dialog-backdrop); }
@@ -24,7 +24,25 @@
 /* Bản đồ có khung cố định, lớp hint ở góc trên không cản kéo ghim. */
 .place-picker__map-wrap { position: relative; margin-top: var(--space-4); }
 .place-map { height: var(--place-map-height); border-radius: var(--radius-md); background: var(--color-input-bg); font-family: var(--font-body); }
-.place-picker__map-hint { position: absolute; top: var(--space-2); right: var(--space-2); z-index: 1000; max-width: calc(100% - var(--space-4)); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--rich-remove-bg); color: var(--color-white); font-size: var(--rich-counter-size); pointer-events: none; }
+.place-picker__map-hint { position: absolute; top: var(--space-3); left: var(--space-3); z-index: 1000; max-width: calc(100% - var(--space-10) * 2); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--rich-remove-bg); color: var(--color-white); font-size: var(--rich-counter-size); pointer-events: none; }
+/* Nút mở rộng và zoom dùng góc phải; vùng hint bên trái không chồng điều khiển. */
+.place-picker__fullscreen { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 1000; display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-text); font: inherit; font-size: var(--rich-chip-size); cursor: pointer; }
+.place-picker__fullscreen:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.place-picker__map .leaflet-top.leaflet-right { top: var(--space-10); }
+/* Toàn màn hình phủ viewport, các điều khiển nổi trên map; không có chuyển cảnh. */
+.place-picker.is-fullscreen { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100vh; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; }
+.place-picker.is-fullscreen .place-picker__map-wrap { position: absolute; inset: 0; margin: 0; }
+.place-picker.is-fullscreen .place-picker__map { width: 100%; height: 100%; border-radius: 0; }
+.place-picker.is-fullscreen .place-picker__heading { display: none; }
+.place-picker.is-fullscreen .place-picker__search { position: absolute; top: var(--space-4); left: var(--space-4); z-index: 1001; width: min(calc(100% - var(--space-8)), var(--image-dialog-width)); }
+.place-picker.is-fullscreen .place-picker__results { position: absolute; top: var(--space-10); left: var(--space-4); z-index: 1002; width: min(calc(100% - var(--space-8)), var(--image-dialog-width)); }
+.place-picker.is-fullscreen .place-picker__location { position: absolute; bottom: var(--space-10); left: var(--space-4); right: var(--space-4); z-index: 1001; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--color-cream); }
+/* Lỗi ở dưới toạ độ trong cùng panel, panel tự cao lên nên không che giá trị hoặc nút định vị. */
+.place-picker.is-fullscreen .place-picker__coordinates { margin: 0; }
+.place-picker.is-fullscreen .place-picker__actions { position: absolute; right: var(--space-4); bottom: var(--space-4); z-index: 1001; margin: 0; }
+.place-picker.is-fullscreen .place-picker__status { position: absolute; top: calc(var(--space-10) + var(--space-9)); left: var(--space-4); right: var(--space-4); z-index: 1003; background: var(--color-cream); }
+.place-picker.is-fullscreen .place-picker__map-hint, .place-picker.is-fullscreen .place-picker__fullscreen { top: var(--space-10); }
+.place-picker.is-fullscreen .place-picker__map .leaflet-top.leaflet-right { top: calc(var(--space-10) + var(--space-9)); }
 /* Pin Lucide màu thương hiệu và lòng kem, giữ nguyên tỷ lệ ở cả hai bản đồ. */
 .place-map__pin { width: var(--place-pin-width); height: var(--place-pin-height); color: var(--color-red); }
 .place-map__pin svg { height: var(--place-pin-height); fill: var(--color-cream); }
@@ -47,4 +65,12 @@
   .place-picker { padding: var(--space-4); }
   .place-picker__actions .btn { flex: 1 1 100%; }
   .place-picker__map-hint { font-size: var(--rich-counter-size); }
+  /* Map mobile cao 60vh, hint xuống dưới nút để chữ dễ đọc và không chồng nhau. */
+  .place-picker__map { height: 60vh; }
+  .place-picker__map-hint { top: var(--space-9); max-width: calc(100% - var(--space-10)); }
+  .place-picker.is-fullscreen .place-picker__map-hint { top: calc(var(--space-10) + var(--space-9)); }
+  .place-picker.is-fullscreen .place-picker__location { bottom: var(--space-10); }
+  /* Toàn màn hình giữ hai nút cùng hàng, chừa vùng riêng cho dòng toạ độ ở phía trên. */
+  .place-picker.is-fullscreen .place-picker__actions { left: var(--space-4); }
+  .place-picker.is-fullscreen .place-picker__actions .btn { flex: 1 1 0; padding-inline: var(--space-2); }
 }

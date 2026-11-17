@@ -16,12 +16,8 @@ export const backendSupports = {
   relatedPosts: false,
   postPlace: false,
   commentAuthors: false,
-  // Diễn đàn: đính kèm ảnh/tệp và thăm dò trong ô viết bài.
-  postAttachments: false,
+  // Thăm dò còn hoãn; ảnh HTTPS nằm trực tiếp trong content.
   postPolls: false,
-  // Hỗ trợ: gửi yêu cầu hỗ trợ và báo cáo vi phạm từ trang Hỗ trợ.
-  supportTickets: false,
-  contentReports: false,
   // Mod/Admin: đọc bài ở mọi trạng thái (ẩn, đã xoá) để mở lại trang đọc bài.
   manageGetPost: false,
 };

@@ -8,7 +8,7 @@
 /* Định dạng đang bật và hover dùng nền hồng nhẹ, không dịch chuyển. */
 .rich-editor__tool:hover, .rich-editor__tool[aria-pressed='true'], .rich-editor__tool[aria-expanded='true'] { background: var(--color-sakura); color: var(--color-red); }
 /* Mọi nút/icon và editor đều có vòng focus bàn phím chung. */
-.rich-editor__tool:focus-visible, .rich-editor__area:focus-visible, .place-chip__remove:focus-visible, .rich-media__remove:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.rich-editor__tool:focus-visible, .rich-editor__area:focus-visible, .place-chip__remove:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 /* Nét phân nhóm và SVG không bị co, giữ tỷ lệ Lucide. */
 .rich-editor__separator { width: 1px; height: var(--space-5); margin-inline: var(--rich-toolbar-padding); background: var(--color-border); }
 .rich-icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; }
@@ -29,22 +29,108 @@
 .rich-editor__link label, .rich-editor__link p { flex-basis: 100%; }
 .rich-editor__link input { min-width: 0; flex: 1; }
 .rich-editor__popover[hidden] { display: none; }
-/* Hàng media linh hoạt, ảnh vẫn 96x72 và chip không tràn màn hình nhỏ. */
+/* Hàng media linh hoạt, chip không tràn màn hình nhỏ. */
 .rich-media { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); min-width: 0; }
 .rich-media[hidden], .rich-media:empty { display: none; }
 .rich-editor__media { padding-inline: var(--space-4); }
 .rich-editor__media:empty { display: none; }
-.rich-media__thumbnail { position: relative; display: inline-flex; flex: 0 0 var(--rich-thumbnail-width); width: var(--rich-thumbnail-width); height: var(--rich-thumbnail-height); }
-.rich-media__thumbnail img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); }
-/* Nút bỏ ảnh nổi ở góc, nền tối đủ đọc trên ảnh sáng hoặc tối. */
-.rich-media__remove { position: absolute; top: var(--space-1); right: var(--space-1); display: inline-flex; align-items: center; justify-content: center; width: var(--space-5); height: var(--space-5); padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--rich-remove-bg); color: var(--color-white); cursor: pointer; }
 /* Chip địa điểm có tên đậm và toạ độ muted, nút gỡ dùng cùng màu với chữ. */
 .place-chip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); max-width: 100%; padding: var(--space-1) var(--space-3); border: 1px solid var(--color-pink-border); border-radius: var(--radius-pill); background: var(--color-sakura-100); font-size: var(--rich-chip-size); line-height: 1.5; overflow-wrap: anywhere; }
 .place-chip > .rich-icon { color: var(--color-red); }
 .place-chip__coords { color: var(--color-muted); }
 .place-chip__remove { display: inline-flex; padding: 0; border: 0; border-radius: var(--radius-sm); background: var(--color-transparent); color: var(--color-muted); cursor: pointer; }
-/* Chú thích media báo rõ giới hạn backend và không giả trạng thái đã đăng ảnh. */
-.rich-media-note { color: var(--color-muted); font-size: var(--rich-counter-size); line-height: 1.6; }
 /* Nội dung đọc giữ xuống dòng, đoạn văn và liên kết nhìn rõ bằng gạch chân. */
 .rich-content__paragraph { white-space: pre-wrap; overflow-wrap: anywhere; }
 .post-body a, .post-comment__text a { color: var(--color-red-dark); text-decoration: underline; }
+
+/* Ảnh đang chọn có outline, thanh Sửa/Gỡ nổi ngay trên ảnh bằng vị trí CSS động. */
+.rich-content__image.is-selected { outline: 2px solid var(--color-red); }
+.rich-editor__image-bar { position: absolute; z-index: var(--z-rich-popover); top: var(--image-bar-top); left: var(--image-bar-left); display: flex; flex-wrap: wrap; max-width: 100%; gap: var(--space-2); padding: var(--space-1) var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-cream); box-shadow: var(--shadow-result); }
+.rich-editor__image-bar[hidden] { display: none; }
+.rich-editor__image-bar button { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1); border: 0; border-radius: var(--radius-sm); background: var(--color-transparent); color: var(--color-text-secondary); font: inherit; font-size: var(--rich-counter-size); cursor: pointer; }
+.rich-editor__image-bar .rich-editor__image-remove { color: var(--color-red); }
+.rich-editor__image-bar button:hover { background: var(--color-sakura); }
+.rich-editor__image-bar button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* Dialog ảnh có viền đỏ và nền kem; viewport hẹp luôn chừa hai lề 16px. */
+.image-dialog { width: calc(100% - var(--space-4) * 2); max-width: var(--image-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 2px solid var(--color-red); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
+.image-dialog::backdrop { background: var(--edit-dialog-backdrop); }
+/* Nhịp trường đều, heading có nút đóng riêng và tiêu đề display đỏ. */
+.image-dialog__form { display: flex; flex-direction: column; gap: var(--space-4); }
+.image-dialog__heading { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); }
+.image-dialog__heading h2 { color: var(--color-red); font-size: 24px; }
+.image-dialog__close, .image-dialog__lock { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--space-8); height: var(--space-8); padding: var(--space-1); border: 0; border-radius: var(--radius-md); background: var(--color-transparent); color: var(--color-muted); cursor: pointer; }
+/* Input link và kích thước gộp prefix/suffix vào một khung, vòng focus chỉ nằm ở khung. */
+.image-dialog__url-wrap, .image-dialog__dimension { display: flex; align-items: center; gap: var(--space-2); min-width: 0; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-muted); }
+.image-dialog__url, .image-dialog__number { width: 100%; min-width: 0; padding: 0; border: 0; outline: none; background: var(--color-transparent); color: var(--color-text); font: inherit; }
+.image-dialog__url-wrap:focus-within, .image-dialog__dimension:focus-within { border-color: var(--color-red); box-shadow: var(--focus-ring); }
+.image-dialog__url-wrap:has([aria-invalid='true']), .image-dialog__dimension:has([aria-invalid='true']) { border-color: var(--color-danger); }
+/* Xem trước không crop ảnh; chú thích kích thước đặt ngay dưới để đọc được trên mọi ảnh. */
+.image-dialog__preview { display: flex; justify-content: center; align-items: center; height: var(--image-preview-height); overflow: hidden; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-input-bg); color: var(--color-muted); }
+.image-dialog__preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.image-dialog__caption { margin-top: calc(-1 * var(--space-3)); color: var(--color-muted); font-size: var(--rich-counter-size); text-align: center; }
+.image-dialog__dimensions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: var(--space-3); }
+.image-dialog__lock[aria-pressed='true'] { background: var(--color-sakura); color: var(--color-red); }
+.image-dialog__actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
+/* Nút và thông báo không chiếm hàng trắng khi chưa có lỗi. */
+.image-dialog .field__hint:empty { display: none; }
+.image-dialog__close:focus-visible, .image-dialog__lock:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* Mobile giữ trường trên một cột, thao tác có diện tích chạm rộng. */
+@media (max-width: 600px) {
+  .image-dialog { padding: var(--space-4); }
+  .image-dialog__actions .btn { flex: 1; padding-inline: var(--space-3); }
+}
+
+/* Hàng thao tác cao 40px: hai nút công cụ bên trái, Huỷ và Đăng bên phải, khe 8px. */
+.compose-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Nút công cụ không nền: icon 20px, chữ 15px đậm vừa, đệm 6/10, bo 6px. */
+.compose-tools__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rich-toolbar-padding);
+  padding: var(--rich-toolbar-padding) var(--compose-tool-padding-inline);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 19px;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+/* Hover nền hồng nhạt, không dịch chuyển. */
+.compose-tools__button:hover {
+  background: var(--color-sakura);
+}
+
+/* Vòng sáng bàn phím. */
+.compose-tools__button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Khoảng trống co giãn đẩy Huỷ và Đăng sang phải. */
+.compose-tools__spacer {
+  flex: 1;
+}
+
+/* Bản đồ đang gắn có nền hồng và icon đỏ như Figma, không dùng màu để biểu đạt một mình. */
+.compose-tools__button[aria-pressed='true'] { background: var(--color-sakura); }
+.compose-tools__button svg { color: var(--color-red); flex-shrink: 0; }
+
+
+/* Thanh công cụ sửa bài có divider; phần soạn bài giữ divider sẵn có. */
+.post-edit .compose-tools { padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
+/* Mobile chia công cụ và nút lưu thành hai hàng để không bóp hẹp chữ. */
+@media (max-width: 600px) {
+  .compose-tools__spacer { flex-basis: 100%; }
+  .post-edit .compose-tools > .btn { flex: 1; padding-inline: var(--space-2); }
+}

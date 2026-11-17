@@ -1,9 +1,16 @@
 /** Editor nhỏ dùng lệnh trình duyệt; HTML chỉ được đọc qua bộ lọc dùng chung. */
 import { el } from '/utils/dom.js';
-import { sanitizeRichHtml, renderRichContent, richToPlainText, countWords, countChars, safeRichUrl } from '/utils/rich-text.js';
+import { sanitizeRichHtml, renderRichContent, richToPlainText, countWords, countChars, safeRichUrl, safeImageUrl, imageDimension } from '/utils/rich-text.js';
+import { openImageDialog } from '/components/rich-editor/image-dialog.js';
 
 // Các nét Lucide cố định, không chứa dữ liệu người dùng hoặc HTML API.
 const PATHS = {
+  pencil: '<path d="m16 3 5 5L8 21l-5 1 1-5Z M14 5l5 5"/>',
+  trash: '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
+  lock: '<rect x="4" y="10" width="16" height="12" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>',
+  maximize: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
+  minimize: '<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
   bold: '<path d="M6 12h9a4 4 0 0 1 0 8H6V4h8a4 4 0 0 1 0 8"/>',
   italic: '<path d="M19 4h-9M14 20H5M15 4 9 20"/>',
   underline: '<path d="M6 3v7a6 6 0 0 0 12 0V3M4 21h16"/>',
@@ -34,7 +41,7 @@ const LABELS = { bold: 'In đậm', italic: 'In nghiêng', underline: 'Gạch ch
 
 /** Tạo editor độc lập; form sở hữu xử lý callback ảnh và địa điểm. */
 export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết nội dung…', allowLinks = false,
-  tools = ['bold', 'italic', 'underline', 'strikeThrough', '|', 'removeFormat'], counter = 'post', onChange = () => {}, onTool = () => {} } = {}) {
+  tools = ['bold', 'italic', 'underline', 'strikeThrough', '|', 'removeFormat'], counter = 'post', imageActions = true, onChange = () => {}, onTool = () => {} } = {}) {
   const id = 'rich-area-' + (++editorId);
   const area = el('div', { id, className: 'rich-editor__area', contenteditable: 'true', role: 'textbox',
     'aria-multiline': 'true', 'aria-label': label, 'data-placeholder': placeholder, 'data-rich-area': '', 'data-empty': 'true' });
@@ -48,6 +55,12 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   const buttons = new Map();
   let savedRange = null;
   let activePopover = null;
+  let selectedImage = null;
+  const imageBar = el('div', { className: 'rich-editor__image-bar', hidden: true, role: 'group', 'aria-label': 'Thao tác ảnh' });
+  const editImage = el('button', { type: 'button' }, editorIcon('pencil', 14), 'Sửa ảnh');
+  const removeImage = el('button', { type: 'button', className: 'rich-editor__image-remove' }, editorIcon('trash', 14), 'Gỡ ảnh');
+  imageBar.append(editImage, removeImage);
+  root.append(imageBar);
 
   /** Ghi vùng chọn chỉ khi nó thuộc editor này, để công cụ không sửa nội dung editor khác. */
   function rememberSelection() {
@@ -68,7 +81,7 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   /** Cập nhật bộ đếm trên chữ thật và báo thay đổi cho form sở hữu. */
   function changed() {
     const text = getPlainText();
-    area.dataset.empty = String(!text.trim());
+    area.dataset.empty = String(!text.trim() && !area.querySelector('img'));
     count.textContent = counter === 'comment' ? countWords(text) + ' chữ' : countWords(text) + ' từ · ' + countChars(text) + ' ký tự';
     rememberSelection();
     updatePressed();
@@ -89,12 +102,72 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   }
   /** Thực hiện lệnh sau khi trả selection, dùng undo nguyên bản của trình duyệt. */
   function command(name, value = null) {
+    closeImageBar();
     restoreSelection();
     document.execCommand('defaultParagraphSeparator', false, 'p');
     document.execCommand(name, false, value);
     if (name === 'removeFormat') document.execCommand('unlink', false);
     changed();
   }
+  /** Đóng thanh ảnh và bỏ outline để việc gõ tiếp diễn ra bình thường. */
+  function closeImageBar() {
+    selectedImage?.classList.remove('is-selected');
+    selectedImage = null;
+    imageBar.hidden = true;
+  }
+  /** Áp dụng đúng thuộc tính đã kiểm tra, xoá kích thước cũ nếu người dùng để trống. */
+  function applyImage(node, image) {
+    // Chính sách tải phải có trước src, kể cả lần tạo node mới chưa gắn vào DOM.
+    node.setAttribute('loading', 'lazy');
+    node.setAttribute('decoding', 'async');
+    node.setAttribute('referrerpolicy', 'no-referrer');
+    node.setAttribute('alt', Array.from(String(image.alt || '')).slice(0, 300).join(''));
+    for (const name of ['width', 'height']) {
+      const value = imageDimension(image[name]);
+      if (value) node.setAttribute(name, String(value)); else node.removeAttribute(name);
+    }
+    node.setAttribute('src', safeImageUrl(image.src));
+    node.className = 'rich-content__image';
+  }
+  /** Chèn node ảnh tại caret đã lưu, tuyệt đối không đưa link người dùng vào insertHTML. */
+  function insertImage(image) {
+    if (!safeImageUrl(image?.src)) return;
+    closeImageBar(); restoreSelection();
+    const selection = document.getSelection();
+    const range = savedRange && area.contains(savedRange.commonAncestorContainer) ? savedRange.cloneRange() : document.createRange();
+    if (!savedRange || !area.contains(savedRange.commonAncestorContainer)) { range.selectNodeContents(area); range.collapse(false); }
+    const node = document.createElement('img');
+    applyImage(node, image);
+    range.deleteContents(); range.insertNode(node); range.setStartAfter(node); range.collapse(true);
+    selection.removeAllRanges(); selection.addRange(range); savedRange = range.cloneRange();
+    changed();
+  }
+  /** Click ảnh chọn node và neo thanh công cụ ngay phía trên, dùng biến CSS cho vị trí động. */
+  function selectImage(event) {
+    const node = event.target.closest('img');
+    closeImageBar();
+    if (!imageActions || !node || !area.contains(node) || area.contentEditable === 'false') return;
+    selectedImage = node; node.classList.add('is-selected');
+    const range = document.createRange(); range.selectNode(node);
+    const selection = document.getSelection(); selection.removeAllRanges(); selection.addRange(range); savedRange = range.cloneRange();
+    const imageRect = node.getBoundingClientRect(); const rootRect = root.getBoundingClientRect();
+    // Theo Figma, thanh nằm bên trong mép trên của ảnh (cách 8px) để không đè lên thanh công cụ.
+    root.style.setProperty('--image-bar-top', Math.max(0, imageRect.top - rootRect.top + 8) + 'px');
+    imageBar.hidden = false;
+    // Căn giữa theo ảnh nhưng vẫn nằm trong khung editor, kể cả ảnh nhỏ sát mép phải trên điện thoại.
+    const centered = imageRect.left - rootRect.left + (imageRect.width - imageBar.offsetWidth) / 2;
+    const left = Math.min(centered, root.clientWidth - imageBar.offsetWidth);
+    root.style.setProperty('--image-bar-left', Math.max(0, left) + 'px');
+  }
+  // Sửa giữ đúng node ảnh, Huỷ giữ nguyên ảnh; gỡ luôn báo thay đổi và cập nhật đếm.
+  editImage.addEventListener('click', async () => {
+    const node = selectedImage;
+    if (!node) return;
+    const image = await openImageDialog({ src: node.getAttribute('src'), alt: node.getAttribute('alt'), width: node.getAttribute('width'), height: node.getAttribute('height') });
+    if (image && area.contains(node)) { applyImage(node, image); closeImageBar(); changed(); }
+  });
+  removeImage.addEventListener('click', () => { selectedImage?.remove(); closeImageBar(); changed(); area.focus(); });
+  area.addEventListener('click', selectImage);
   /** Đóng popover và cập nhật aria-expanded, tuỳ chọn trả focus về nút mở. */
   function closePopover(restoreFocus = false) {
     const previous = activePopover;
@@ -180,12 +253,16 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   // Dán và kéo văn bản chỉ nhận text/plain, không cho HTML bên ngoài vào contenteditable.
   area.addEventListener('paste', event => { event.preventDefault(); command('insertText', event.clipboardData.getData('text/plain')); });
   area.addEventListener('drop', event => { event.preventDefault(); });
-  area.addEventListener('input', changed);
+  area.addEventListener('input', () => { closeImageBar(); changed(); });
   area.addEventListener('keyup', rememberSelection);
   area.addEventListener('mouseup', rememberSelection);
   area.addEventListener('focus', () => document.execCommand('defaultParagraphSeparator', false, 'p'));
   // Giữ shortcut B/I/U nhất quán và để Ctrl+Z dùng undo của trình duyệt.
   area.addEventListener('keydown', event => {
+    if (selectedImage) {
+      closeImageBar();
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); return; }
+    }
     const shortcut = { b: 'bold', i: 'italic', u: 'underline' }[event.key.toLowerCase()];
     if ((event.ctrlKey || event.metaKey) && shortcut) { event.preventDefault(); command(shortcut); }
     if (event.key === 'Escape' && activePopover) { event.preventDefault(); event.stopPropagation(); closePopover(true); }
@@ -194,6 +271,11 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   function selectionChanged() { if (root.isConnected) { rememberSelection(); updatePressed(); } }
   /** Bấm bên ngoài đóng bảng công cụ; Escape ở input link cũng chỉ đóng popover. */
   function outside(event) {
+    if (selectedImage && ((event.type === 'pointerdown' && !imageBar.contains(event.target) && event.target !== selectedImage)
+      || (event.type === 'keydown' && event.key === 'Escape'))) {
+      closeImageBar();
+      if (event.type === 'keydown') { event.preventDefault(); event.stopPropagation(); area.focus(); }
+    }
     if (activePopover && ((event.type === 'pointerdown' && !popover.contains(event.target) && !buttons.get(activePopover)?.contains(event.target)) || (event.type === 'keydown' && event.key === 'Escape'))) {
       if (event.type === 'keydown') { event.preventDefault(); event.stopPropagation(); }
       closePopover(event.type === 'keydown');
@@ -201,15 +283,31 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   }
   document.addEventListener('selectionchange', selectionChanged);
   document.addEventListener('pointerdown', outside);
+  // Resize đóng thanh nổi để toạ độ cũ không đẩy nó ra ngoài editor sau khi đổi viewport.
+  window.addEventListener('resize', closeImageBar);
   root.addEventListener('keydown', outside);
   /** Đọc HTML nhưng không tin HTML do trình duyệt tạo; luôn lọc trước khi gửi/lưu nháp. */
   function getHtml() { return sanitizeRichHtml(area.innerHTML, { allowLinks }); }
+  /** Focus vào editor; nếu con trỏ chưa nằm trong vùng soạn (vừa mở sửa) thì đặt ở cuối nội dung để gõ tiếp. */
+  function focusEnd() {
+    area.focus({ preventScroll: true });
+    // Đã có vị trí con trỏ người dùng chọn trước đó thì trả lại đúng chỗ đó.
+    if (savedRange && area.contains(savedRange.startContainer)) { restoreSelection(); return; }
+    const selection = document.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(area);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    savedRange = range.cloneRange();
+  }
   /** Chữ thuần dùng đếm và quyết định trạng thái nút gửi. */
   function getPlainText() { return richToPlainText(getHtml()); }
   /** Nạp nội dung đã lọc bằng DOM, giữ editor rỗng thật để placeholder hiện được. */
   function setHtml(html) {
     renderRichContent(area, sanitizeRichHtml(html, { allowLinks }), { allowLinks });
-    if (!getPlainText()) area.replaceChildren();
+    if (!getPlainText() && !area.querySelector('img')) area.replaceChildren();
+    closeImageBar();
     savedRange = null;
     changed();
   }
@@ -217,11 +315,13 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   function destroy() {
     document.removeEventListener('selectionchange', selectionChanged);
     document.removeEventListener('pointerdown', outside);
+    window.removeEventListener('resize', closeImageBar);
     closePopover();
+    closeImageBar();
   }
   // Khởi tạo bộ đếm mà chưa phát callback khi caller chưa nhận được editor.
   count.textContent = counter === 'comment' ? '0 chữ' : '0 từ · 0 ký tự';
-  return { root, area, toolbar, media, getHtml, getPlainText, setHtml, destroy,
-    clear: () => setHtml(''), focus: () => area.focus({ preventScroll: true }), isEmpty: () => !getPlainText().trim(),
+  return { root, area, toolbar, media, getHtml, getPlainText, setHtml, destroy, insertImage, rememberSelection,
+    clear: () => setHtml(''), focus: focusEnd, isEmpty: () => !getPlainText().trim() && !area.querySelector('img'),
     setToolPressed: (name, pressed) => buttons.get(name)?.setAttribute('aria-pressed', String(pressed)) };
 }

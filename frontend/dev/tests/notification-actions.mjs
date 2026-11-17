@@ -70,7 +70,7 @@ function recordConsole() {
 }
 
 // Nạp module thật qua VM, chỉ thay lớp request và phiên để tránh phụ thuộc trình duyệt hoặc mạng.
-const context = vm.createContext({ console: { error: recordConsole, warn: recordConsole, log: recordConsole } });
+const context = vm.createContext({ URL, console: { error: recordConsole, warn: recordConsole, log: recordConsole } });
 const modules = new Map();
 const client = new vm.SyntheticModule(['request'], function () {
   this.setExport('request', request);
@@ -269,15 +269,15 @@ await check('ẩn và khoá dùng phản hồi chính khi thiếu tác giả', a
 });
 
 // Kiểm tra xuất bản luôn gắn tag tuần tự trước một request fan-out, kể cả không chọn tag hay lỗi phụ.
-// Batch 9 gửi HTML và toạ độ thật; ảnh/tên địa điểm chưa hỗ trợ phải nằm ngoài request.
+// Batch 10 giữ ảnh HTTPS trong content; tên địa điểm còn ở nháp và không thêm trường ngoài hợp đồng.
 await check('bài rich gửi nội dung và cặp toạ độ, bỏ trường chưa hỗ trợ', async () => {
   await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung <b>đậm</b></p>', latitude: 35.0003, longitude: 135.7795,
-    place_name: 'Tên chỉ ở nháp', attachments: ['blob:preview'] });
+    place_name: 'Tên chỉ ở nháp' });
   assert.equal(calls[0].body.content, '<p>Nội dung <b>đậm</b></p>');
   assert.equal(calls[0].body.latitude, 35.0003);
   assert.equal(calls[0].body.longitude, 135.7795);
   assert.equal(Object.hasOwn(calls[0].body, 'place_name'), false);
-  assert.equal(Object.hasOwn(calls[0].body, 'attachments'), false);
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,title');
 });
 await check('bài không có điểm không gửi toạ độ rỗng', async () => {
   await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung</p>' });
@@ -285,10 +285,34 @@ await check('bài không có điểm không gửi toạ độ rỗng', async () 
   assert.equal(Object.hasOwn(calls[0].body, 'longitude'), false);
 });
 await check('bình luận rich chỉ gửi content và parent_id theo hợp đồng hiện có', async () => {
-  const content = '<p><a href="https://example.com/">Link</a></p>';
-  await comments.createComment('p', content, null, { postAuthorId: 'other', attachments: ['blob:preview'], latitude: 35, longitude: 135, is_spoiler: true });
+  const content = '<p><a href="https://example.com/">Link</a><img src="https://example.com/a.png" alt="Ảnh"></p>';
+  await comments.createComment('p', content, null, { postAuthorId: 'other', latitude: 35, longitude: 135, is_spoiler: true });
   assert.equal(calls[0].body.content, content);
   assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,parent_id');
+});
+
+// Sửa bình luận và gỡ địa điểm bài viết phải đúng body PATCH, không gửi notification phụ khi sửa.
+await check('sửa bình luận lọc HTML, giữ ảnh HTTPS và chỉ gửi content', async () => {
+  await comments.updateComment('c/id', '<b onclick="bad()">Sửa</b><img src="https://example.com/a.png" onerror="bad()"><script>bad()</script>');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].path, '/comments/c%2Fid');
+  assert.equal(calls[0].method, 'PATCH');
+  assert.equal(Object.keys(calls[0].body).join(','), 'content');
+  assert.equal(calls[0].body.content, '<b>Sửa</b><img src="https://example.com/a.png" alt="">');
+});
+await check('sửa bình luận vượt 10000 byte không gửi request', async () => {
+  await assert.rejects(comments.updateComment('c', '日'.repeat(3334)), /10[.,]000/);
+  assert.equal(calls.length, 0);
+});
+await check('sửa bài gửi cặp toạ độ hoặc bỏ cả hai khi gỡ', async () => {
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>', latitude: 35, longitude: 135, place_name: 'Tên nháp' });
+  assert.equal(calls[0].method, 'PATCH');
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,title');
+  assert.equal(calls[0].body.latitude, 35);
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>' });
+  assert.equal(Object.keys(calls[1].body).sort().join(','), 'content,title');
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>', latitude: 35 });
+  assert.equal(Object.keys(calls[2].body).sort().join(','), 'content,title');
 });
 
 for (const tagIds of [[], ['one', 'two']]) {

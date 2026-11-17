@@ -1105,7 +1105,7 @@ async function uploadAvatar() {
     context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-white').trim();
     context.fillRect(0, 0, 256, 256);
     context.drawImage(image, (image.naturalWidth - side) / 2, (image.naturalHeight - side) / 2, side, side, 0, 0, 256, 256);
-    // CẦN BACKEND: Chưa có endpoint tải file; chỉ gửi chuỗi JPEG nhỏ trong trường avatar_url của PATCH /my.
+    // Ảnh đại diện giữ dạng JPEG nhỏ trong avatar_url; nhóm đã bỏ yêu cầu endpoint upload.
     avatarUrl = canvas.toDataURL('image/jpeg', 0.85);
   } catch (error) {
     hint.textContent = error.message || 'Không xử lý được ảnh. Vui lòng thử lại.';

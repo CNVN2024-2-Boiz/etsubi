@@ -1,4 +1,6 @@
 /** Thẻ kết quả có liên kết phủ thẻ, còn liên kết tag vẫn thao tác độc lập được. */
+import { statLabel } from '/utils/stat-label.js';
+import { renderRichContent } from '/utils/rich-text.js';
 import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
 import { initials, relativeTime } from '/utils/format.js';
@@ -73,8 +75,8 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
   for (const [icon, count, label, suffix] of numbers) {
     const known = typeof count === 'number' && Number.isFinite(count);
     stats.append(el('span', {
-      className: 'postcard__stat' + (known ? '' : ' postcard__stat--unknown'),
-      'aria-label': known ? count + ' ' + label : 'Chưa có số ' + label,
+      className: 'postcard__stat stat-tooltip' + (known ? '' : ' postcard__stat--unknown'),
+      tabindex: '0', 'aria-label': statLabel(count, label),
     },
     el('img', { src: '/assets/icons/' + icon + '.svg', alt: '', width: 16, height: 16 }),
     (known ? String(count) : '–') + suffix));
@@ -147,8 +149,8 @@ function createFeedAvatar(author) {
 function createFeedStat(iconName, count, label) {
   const available = Number.isFinite(count);
   return el('span', {
-    className: 'postcard-feed__stat',
-    'aria-label': label + ': ' + (available ? count : 'chưa có dữ liệu'),
+    className: 'postcard-feed__stat stat-tooltip', tabindex: '0',
+    'aria-label': statLabel(count, label),
   }, feedIcon(iconName), available ? count : '–');
 }
 
@@ -288,6 +290,10 @@ export function createFeedPostCard(post, {
     el('a', { href: routes.post(post.id), className: 'btn btn--primary featured-card__detail postcard-feed__detail' },
       'Xem chi tiết', feedIcon('arrow-right')),
     createBookmarkButton(post.id, bookmarked, onBookmark));
+  // Ảnh HTTPS lấy từ nội dung đã lọc, giữ thứ tự dọc; không tạo dải thumbnail hoặc dữ liệu ảnh riêng.
+  const richBody = el('div');
+  renderRichContent(richBody, post.content);
+  const images = el('div', { className: 'postcard-feed__images' }, [...richBody.querySelectorAll('img')]);
   return el('article', { className: 'postcard postcard--feed', 'data-post-id': post.id },
-    userRow, createTranslationNote(post, viewerLanguage), content, engagement);
+    userRow, createTranslationNote(post, viewerLanguage), content, images, engagement);
 }

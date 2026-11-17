@@ -3,7 +3,7 @@ import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { getPost, getPostTags, listUserPosts, translatePost, getRelatedPosts, getPostPlace, updatePost, deletePost } from '/services/api/posts.js';
-import { listComments, createComment, deleteComment, translateComment, getEmbeddedAuthor, setCommentsLocked } from '/services/api/comment.js';
+import { listComments, createComment, updateComment, deleteComment, translateComment, getEmbeddedAuthor, setCommentsLocked } from '/services/api/comment.js';
 import { setPostStatus, restorePost, getPostForStaff, listCommentsForStaff, setCommentStatus, restoreComment, setUserMute } from '/services/api/manage.js';
 import {
   isStaff, canModerateUser, isMutedNow, formatUntil, formatUntilFull, createStaffTag, createStatusBadge, createStaffBox,
@@ -17,11 +17,14 @@ import { fetchCurrentUser, getCachedUser, requireAuth } from '/utils/auth.js';
 import { el, qs } from '/utils/dom.js';
 import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
-import { renderRichContent, richToPlainText, validateRichBytes } from '/utils/rich-text.js';
-import { createRichEditor } from '/components/rich-editor/rich-editor.js';
-import { createPlaceChip, createImagePreviews } from '/components/rich-editor/media-preview.js';
+import { renderRichContent, richToPlainText, sanitizeRichHtml, validateRichBytes } from '/utils/rich-text.js';
+import { isCommentEdited } from '/utils/comment-time.js';
+import { createRichEditor, editorIcon } from '/components/rich-editor/rich-editor.js';
+import { createPlaceChip } from '/components/rich-editor/place-chip.js';
+import { openImageDialog } from '/components/rich-editor/image-dialog.js';
 import { pickPlace } from '/components/place-picker/place-picker.js';
 import { createPlaceMap } from '/components/place-picker/place-map.js';
+import { createCommentPlace } from '/components/place-picker/comment-place.js';
 import { reversePlace } from '/services/geo/nominatim.js';
 import { toVietnameseMessage, translationErrorMessage } from '/utils/errors.js';
 import { routes, searchUrl } from '/utils/routes.js';
@@ -53,6 +56,9 @@ const state = {
   // Thời điểm bài bị xoá trong phiên này (staff vẫn thấy bài và có nút Khôi phục).
   deletedAt: null,
 };
+// Một bình luận được sửa tại một thời điểm; các map con được dọn trước khi vẽ lại danh sách.
+let activeCommentEdit = null;
+let commentPlaceViews = [];
 
 /* ===== Tiện ích hiển thị ===== */
 
@@ -186,7 +192,7 @@ function renderBody(content, language) {
   const body = qs('[data-body]');
   body.lang = ['ja', 'en'].includes(language) ? language : 'vi';
   renderRichContent(body, content);
-  if (!richToPlainText(content)) body.append(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
+  if (!richToPlainText(content) && !body.querySelector('img')) body.append(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
 }
 
 /** Hiện tiêu đề và thân bài theo bản gốc hoặc bản dịch đang chọn. */
@@ -383,17 +389,36 @@ function startEdit() {
     return;
   }
   const titleInput = el('input', { id: 'edit-title', className: 'input', type: 'text', maxlength: '255', value: state.post.title, 'aria-describedby': 'post-edit-status' });
+  let place = Number.isFinite(state.post.latitude) && Number.isFinite(state.post.longitude)
+    ? { latitude: state.post.latitude, longitude: state.post.longitude, name: state.post.place_name || 'Vị trí đã chọn' } : null;
   const editEditor = createRichEditor({ label: 'Nội dung bài viết' });
   editEditor.setHtml(state.post.content || '');
   editEditor.area.setAttribute('aria-describedby', 'post-edit-status');
   const status = el('p', { id: 'post-edit-status', className: 'field__hint', role: 'alert' });
   const save = el('button', { type: 'submit', className: 'btn btn--primary' }, 'Lưu thay đổi');
   const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Huỷ');
+  const imageButton = el('button', { type: 'button', className: 'compose-tools__button' }, editorIcon('image', 20), 'Ảnh');
+  const mapButton = el('button', { type: 'button', className: 'compose-tools__button', 'aria-pressed': String(Boolean(place)) }, editorIcon('pin', 20), 'Bản đồ');
+  const placeRow = el('div', { className: 'rich-media' });
   const form = el('form', { className: 'post-edit', 'data-edit-form': '', novalidate: true },
     el('div', { className: 'field' }, el('label', { className: 'field__label', for: 'edit-title' }, 'Tiêu đề'), titleInput),
     el('div', { className: 'field' }, el('span', { className: 'field__label' }, 'Nội dung'), editEditor.root),
-    status, el('div', { className: 'post-edit__actions' }, cancel, save));
+    placeRow, el('p', { className: 'field__hint' }, 'Ảnh được chèn trong nội dung bằng link. Bấm Bản đồ để chọn hoặc đổi địa điểm.'), status,
+    el('div', { className: 'compose-tools' }, imageButton, mapButton, el('span', { className: 'compose-tools__spacer' }), cancel, save));
   const parts = ['[data-title]', '.post-translate', '[data-body]'].map(selector => qs(selector, article));
+  /** Chip và trạng thái nhấn đồng bộ ngay sau chọn hoặc gỡ vị trí. */
+  function renderEditPlace() {
+    placeRow.replaceChildren(...(place ? [createPlaceChip(place, () => { place = null; renderEditPlace(); })] : []));
+    mapButton.setAttribute('aria-pressed', String(Boolean(place)));
+  }
+  // Thanh dưới tái sử dụng dialog ảnh và bản đồ, giữ caret của editor trước khi mở.
+  imageButton.addEventListener('click', async () => {
+    editEditor.rememberSelection();
+    const image = await openImageDialog();
+    if (image && form.isConnected) editEditor.insertImage(image);
+  });
+  mapButton.addEventListener('click', async () => { const selected = await pickPlace(place); if (selected && form.isConnected) { place = selected; renderEditPlace(); } });
+  renderEditPlace();
 
   /** Đóng biểu mẫu sửa và hiện lại bài. */
   function close() {
@@ -404,7 +429,7 @@ function startEdit() {
     });
   }
 
-  /** Lưu: gửi tiêu đề, nội dung và toạ độ cũ; thành công thì vẽ lại bài. */
+  /** Lưu nội dung và toạ độ nháp; bỏ cả hai trường khi gỡ địa điểm theo hợp đồng backend. */
   async function submit(event) {
     event.preventDefault();
     const validation = validateRichBytes(titleInput.value.trim(), 255, 'Tiêu đề') || validateRichBytes(editEditor.getHtml(), 100000);
@@ -415,17 +440,23 @@ function startEdit() {
       status.textContent = validation || 'Vui lòng nhập tiêu đề và nội dung.'; return;
     }
     save.disabled = true;
+    form.inert = true;
     save.textContent = 'Đang lưu…';
     try {
       const updated = await updatePost(state.post.id, {
-        title: titleInput.value.trim(), content: editEditor.getHtml(), latitude: state.post.latitude, longitude: state.post.longitude,
+        title: titleInput.value.trim(), content: editEditor.getHtml(), ...(place ? { latitude: place.latitude, longitude: place.longitude } : {}),
       });
-      state.post = { ...state.post, ...updated };
+      state.post = { ...state.post, latitude: null, longitude: null, place_name: null, place: null, ...updated };
       state.translated = null;
       state.showTranslation = false;
       close();
       renderContent();
       void renderPlace();
+      // CẦN BACKEND: PATCH /posts/{id} hiện bỏ qua latitude/longitude; nếu toạ độ trả về khác lựa chọn thì báo thật cho người dùng.
+      const wanted = place ? [place.latitude, place.longitude].map(Number) : [null, null];
+      const saved = [state.post.latitude, state.post.longitude].map(value => (Number.isFinite(value) ? Number(value) : null));
+      const placeKept = wanted.every((value, index) => (value === null ? saved[index] === null : Math.abs(value - saved[index]) < 1e-6));
+      if (!placeKept) showActionStatus('Đã lưu bài. Địa điểm chưa được cập nhật vì máy chủ chưa lưu thay đổi toạ độ khi sửa bài.', true);
       qs('[data-breadcrumb-title]').replaceChildren(wrapJapanese(state.post.title));
       document.title = richToPlainText(state.post.title) + ' · Etsubi';
     } catch (error) {
@@ -433,11 +464,14 @@ function startEdit() {
       status.classList.add('field__hint--error');
     } finally {
       save.disabled = false;
+      form.inert = false;
       save.textContent = 'Lưu thay đổi';
     }
   }
 
   cancel.addEventListener('click', close);
+  // Escape chỉ đóng form khi không có dialog hoặc thanh công cụ con đang xử lý nó.
+  form.addEventListener('keydown', event => { if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); } });
   form.addEventListener('submit', submit);
   parts.forEach(part => {
     part.hidden = true;
@@ -448,20 +482,37 @@ function startEdit() {
 
 /* ===== Kiểm duyệt bình luận ===== */
 
-/** Menu "···" của staff trên một bình luận: ẩn, xoá, tắt tiếng người viết (khoá nếu cùng cấp hoặc cao hơn). */
-function createCommentMenu(comment, author) {
+/** Một menu dọc cho mọi quyền: dịch, sửa/xoá của tác giả, rồi các thao tác staff. */
+function createCommentMenu(comment, author, text, note) {
   const canMute = author && canModerateUser(state.viewer, author);
-  return createMenu(createMoreButton('Kiểm duyệt bình luận'), {
-    header: { icon: 'shield', text: 'Kiểm duyệt bình luận' },
-    items: [
-      { icon: 'eyeOff', label: 'Ẩn bình luận', onSelect: () => moderateComment(comment, 'hide') },
-      { icon: 'trash', label: 'Xoá bình luận…', danger: true, onSelect: () => moderateComment(comment, 'delete') },
-      'divider',
+  const own = Boolean(state.viewer?.id && state.viewer.id === comment.user_id);
+  const items = [];
+  // Bình luận đã xoá chỉ staff có thao tác khôi phục; không cho sửa/dịch nội dung đã xoá.
+  if (!comment.is_deleted) {
+    items.push({ icon: 'languages', label: comment.showTranslation ? 'Xem bản gốc' : 'Dịch bình luận',
+      onSelect: button => toggleCommentTranslation(comment, button, text, note) });
+    if (own) items.push({ icon: 'pencil', label: 'Sửa bình luận', disabled: isMutedNow(state.viewer?.mutedUntil),
+      onSelect: () => startCommentEdit(comment) }, 'divider',
+      { icon: 'trash', label: 'Xoá bình luận…', danger: true,
+        onSelect: button => isStaff(state.viewer) ? moderateComment(comment, 'delete') : handleDelete(comment, button, note) });
+  }
+  // Cùng một menu giữ đầy đủ ẩn/hiện, xoá/khôi phục và tắt tiếng như batch trước.
+  if (isStaff(state.viewer)) {
+    if (items.length) items.push('divider');
+    if (comment.is_deleted) items.push({ icon: 'restore', label: 'Khôi phục bình luận', onSelect: () => moderateComment(comment, 'restore') });
+    else {
+      items.push({ icon: comment.status === 'hidden' ? 'eye' : 'eyeOff', label: comment.status === 'hidden' ? 'Hiện lại bình luận' : 'Ẩn bình luận',
+        onSelect: () => moderateComment(comment, comment.status === 'hidden' ? 'show' : 'hide') });
+      if (!own) items.push({ icon: 'trash', label: 'Xoá bình luận…', danger: true, onSelect: () => moderateComment(comment, 'delete') });
+    }
+    items.push(
       canMute
         ? { icon: 'mute', label: 'Tắt tiếng người viết…', onSelect: () => muteAuthor(author) }
-        : { icon: 'mute', label: 'Tắt tiếng người viết…', sub: 'Không thể với người cùng cấp hoặc cao hơn', disabled: true },
-    ],
-  });
+        : { icon: 'mute', label: 'Tắt tiếng người viết…', sub: 'Không thể với người cùng cấp hoặc cao hơn', disabled: true });
+  }
+  if (!items.length) return null;
+  return createMenu(el('button', { type: 'button', className: 'post-comment__more', 'aria-label': 'Tuỳ chọn bình luận',
+    disabled: activeCommentEdit?.id === comment.id && activeCommentEdit.sending }, modIcon('moreVertical', 18)), { items });
 }
 
 /** Ẩn, hiện lại, xoá hoặc khôi phục một bình luận (staff), luôn qua hộp thoại xác nhận. */
@@ -590,6 +641,96 @@ async function sharePost() {
 
 /* ===== Thảo luận ===== */
 
+/** Sửa ngay dưới hàng tác giả, dùng cùng toolbar và dialog với ô đăng bình luận. */
+function startCommentEdit(comment) {
+  if (activeCommentEdit?.sending || state.viewer?.id !== comment.user_id || isMutedNow(state.viewer?.mutedUntil)) return;
+  activeCommentEdit?.destroy();
+  let original = sanitizeRichHtml(comment.content, { allowLinks: true });
+  let place = Number.isFinite(comment.latitude) && Number.isFinite(comment.longitude)
+    ? { latitude: comment.latitude, longitude: comment.longitude, name: comment.place_name || 'Vị trí đã chọn' } : null;
+  const originalPlace = JSON.stringify(place);
+  const spoilerInput = el('input', { type: 'checkbox', className: 'checkbox', checked: Boolean(comment.is_spoiler) });
+  const status = el('p', { id: 'comment-edit-error', className: 'field__hint field__hint--error', role: 'alert' });
+  const save = el('button', { type: 'submit', className: 'btn btn--primary', disabled: true }, 'Lưu thay đổi');
+  const cancel = el('button', { type: 'button', className: 'btn btn--ghost' }, 'Huỷ');
+  const editor = createRichEditor({ label: 'Sửa bình luận', allowLinks: true, counter: 'comment',
+    tools: ['emoji', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'link', 'image', 'pin', '|', 'removeFormat'],
+    onChange: sync, onTool: tool });
+  const placeBox = el('div', { className: 'rich-media' });
+  editor.media.append(placeBox);
+  editor.area.setAttribute('aria-describedby', status.id);
+  const form = el('form', { className: 'post-comment-editor post-comment-editor--edit', novalidate: true }, editor.root, status);
+  editor.root.append(el('div', { className: 'post-comment-editor__footer' },
+    el('label', { className: 'post-comment-editor__spoiler' }, spoilerInput, 'Bình luận này chứa spoiler'), cancel, save));
+  const session = { id: comment.id, root: form, sending: false, destroy: () => editor.destroy() };
+  activeCommentEdit = session;
+
+  /** Nội dung rỗng hoặc toàn bộ nháp không đổi thì không gửi PATCH thừa. */
+  function sync() {
+    const unchanged = editor.getHtml() === original && JSON.stringify(place) === originalPlace && spoilerInput.checked === Boolean(comment.is_spoiler);
+    save.disabled = session.sending || editor.isEmpty() || unchanged;
+    editor.area.removeAttribute('aria-invalid');
+    status.textContent = '';
+  }
+  /** Gắn hoặc bỏ địa điểm đồng bộ nút pin; hiện chỉ gửi content vì API chưa có toạ độ. */
+  function renderEditPlace() {
+    placeBox.replaceChildren(...(place ? [createPlaceChip(place, () => { place = null; renderEditPlace(); sync(); })] : []));
+    editor.setToolPressed('pin', Boolean(place));
+  }
+  /** Công cụ ảnh dùng dialog chung, công cụ pin giữ nháp khi người dùng Huỷ. */
+  async function tool(name) {
+    if (session.sending) return;
+    if (name === 'image') {
+      const image = await openImageDialog();
+      if (image && activeCommentEdit === session) editor.insertImage(image);
+    } else if (name === 'pin') {
+      const selected = await pickPlace(place);
+      if (selected && activeCommentEdit === session) { place = selected; renderEditPlace(); sync(); }
+    }
+  }
+  /** Huỷ giữ nguyên bản gốc và chỉ tháo listener của editor đang sửa. */
+  function close() {
+    if (session.sending) return;
+    editor.destroy();
+    // Phản hồi chậm của phiên cũ không được đóng editor khác vừa mở sau đó.
+    if (activeCommentEdit === session) activeCommentEdit = null;
+    renderComments();
+  }
+  /** Lưu HTML đã lọc trong giới hạn byte; lỗi vẫn giữ nháp và thông báo dưới editor. */
+  async function submit(event) {
+    event.preventDefault();
+    if (save.disabled || session.sending) return;
+    const content = editor.getHtml();
+    const error = validateRichBytes(content, 10000, 'Bình luận');
+    if (error) { status.textContent = error; editor.area.setAttribute('aria-invalid', 'true'); return; }
+    session.sending = true; form.inert = true; save.disabled = true; save.textContent = 'Đang lưu...';
+    // Vẽ lại nút menu để khoá thao tác ngoài form trong lúc PATCH đang gửi.
+    renderComments();
+    try {
+      const updated = await updateComment(comment.id, content);
+      state.comments = state.comments.map(item => item.id === comment.id ? { ...item, ...updated, translation: null, showTranslation: false } : item);
+      session.sending = false; close();
+      showActionStatus('Đã lưu bình luận.' + (place ? ' Địa điểm chưa được lưu vì máy chủ chưa hỗ trợ.' : '')
+        + (spoilerInput.checked !== Boolean(comment.is_spoiler) ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : ''));
+    } catch (failure) {
+      status.textContent = toVietnameseMessage(failure);
+      editor.area.setAttribute('aria-invalid', 'true');
+    } finally {
+      session.sending = false; form.inert = false; save.disabled = false; save.textContent = 'Lưu thay đổi';
+      if (activeCommentEdit === session) renderComments();
+    }
+  }
+  // Escape trong popover được editor giữ lại; Escape ở body đóng toàn bộ form sửa.
+  form.addEventListener('keydown', event => { if (event.key === 'Escape' && !event.defaultPrevented) { event.preventDefault(); close(); } });
+  cancel.addEventListener('click', close);
+  spoilerInput.addEventListener('change', sync);
+  form.addEventListener('submit', submit);
+  editor.setHtml(original);
+  // Renderer bọc nội dung cũ trong p; lấy mốc sau chuẩn hoá để không coi mở form là một thay đổi.
+  original = editor.getHtml();
+  renderEditPlace(); sync(); renderComments(); editor.focus();
+}
+
 /** Cập nhật số bình luận thật trong tiêu đề "Thảo luận (n)" (không tính bình luận đã xoá). */
 function renderCommentCount() {
   // Chỉ đếm bình luận mọi người thấy (không tính bình luận đã ẩn hoặc đã xoá mà staff vẫn thấy).
@@ -602,8 +743,8 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
   if (comment.showTranslation) {
     comment.showTranslation = false;
     renderRichContent(textNode, comment.content, { allowLinks: true });
-    button.textContent = 'Dịch';
     note.textContent = '';
+    renderComments();
     return;
   }
   if (!comment.translation) {
@@ -625,9 +766,9 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
   }
   comment.showTranslation = true;
   renderRichContent(textNode, comment.translation.content, { allowLinks: true });
-  button.textContent = 'Bản gốc';
   note.classList.remove('is-error');
   note.textContent = comment.translation.translated ? 'Đang xem bản dịch.' : 'Bình luận đã ở ngôn ngữ của bạn.';
+  renderComments();
 }
 
 /** Xoá bình luận của chính mình: bấm lần đầu đổi thành "Xác nhận xoá", bấm lần hai mới gọi API. */
@@ -662,45 +803,24 @@ function createCommentNode(comment, replies = []) {
     author ? el('span', { className: 'post-comment__name' }, wrapJapanese(getAuthorLabel(author)),
       el('span', { className: 'post-comment__handle' }, getAuthorHandle(author)))
       : placeholder('post-comment__name-bar'),
-    el('time', { className: 'post-comment__time', datetime: comment.created_at }, formatCommentTime(comment.created_at)));
+    el('time', { className: 'post-comment__time', datetime: comment.created_at }, formatCommentTime(comment.created_at)
+      + (isCommentEdited(comment.created_at, comment.updated_at) ? ' · đã sửa' : '')));
   const staff = isStaff(state.viewer);
   const text = el('div', { className: 'post-comment__text' + (comment.is_deleted ? ' post-comment__text--deleted' : '') });
   if (comment.is_deleted) text.textContent = 'Bình luận này đã bị xoá.';
   else renderRichContent(text, comment.showTranslation ? comment.translation.content : comment.content, { allowLinks: true });
-  const note = el('p', { className: 'post-comment__note', role: 'status' });
+  const note = el('p', { className: 'post-comment__note', role: 'status' }, comment.showTranslation ? 'Đang xem bản dịch.' : '');
   const tools = el('div', { className: 'post-comment__tools' });
-  if (!comment.is_deleted) {
-    const translateButton = el('button', { type: 'button', className: 'post-comment__tool' },
-      comment.showTranslation ? 'Bản gốc' : 'Dịch');
-    translateButton.addEventListener('click', () => toggleCommentTranslation(comment, translateButton, text, note));
-    tools.append(translateButton);
-    // Người viết (không phải staff) thấy nút xoá; staff dùng menu kiểm duyệt. Backend vẫn kiểm tra quyền.
-    if (state.viewer && state.viewer.id === comment.user_id && !staff) {
-      const deleteButton = el('button', { type: 'button', className: 'post-comment__tool post-comment__tool--muted' }, 'Xoá');
-      deleteButton.addEventListener('click', () => handleDelete(comment, deleteButton, note));
-      tools.append(deleteButton);
-    }
-  }
-  // Staff: menu "···" trên bình luận đang hiện; nút Hiện lại / Khôi phục cho bình luận đã ẩn / đã xoá.
-  if (staff && !comment.is_deleted && comment.status !== 'hidden') {
-    tools.append(createCommentMenu(comment, author));
-  }
+  const menu = createCommentMenu(comment, author, text, note);
+  if (menu) tools.append(menu);
   const content = el('div', { className: 'post-comment__content' }, el('div', { className: 'post-comment__head' }, who, tools), text);
-  if (staff && comment.is_deleted) {
-    content.append(el('div', { className: 'post-comment__staff' }, createStaffTag(),
-      createStaffButton('restore', 'Khôi phục', () => moderateComment(comment, 'restore'))));
-  } else if (staff && comment.status === 'hidden') {
-    const links = el('div', { className: 'post-comment__tools' },
-      el('button', { type: 'button', className: 'post-comment__tool post-comment__tool--strong', 'data-action': 'show' }, 'Hiện lại'),
-      el('button', { type: 'button', className: 'post-comment__tool', 'data-action': 'delete' }, 'Xoá'));
-    // Hai nút chữ của bình luận đang ẩn: Hiện lại hoặc Xoá (đều qua hộp thoại xác nhận).
-    links.addEventListener('click', event => {
-      const action = event.target.closest('[data-action]')?.dataset.action;
-      if (action) {
-        moderateComment(comment, action);
-      }
-    });
-    content.append(links);
+  // Editor sửa được giữ cùng node khi hồ sơ tác giả tải bổ sung để không mất nháp.
+  if (activeCommentEdit?.id === comment.id) {
+    text.hidden = true;
+    content.append(activeCommentEdit.root);
+  } else if (!comment.is_deleted) {
+    const place = createCommentPlace(comment);
+    if (place) { commentPlaceViews.push(place); content.append(place.root); }
   }
   content.append(note);
   let node = el('div', { className: 'post-comment' + (comment.status === 'hidden' ? ' post-comment--hidden' : '') },
@@ -719,6 +839,12 @@ function createCommentNode(comment, replies = []) {
 
 /** Vẽ lại danh sách: bình luận gốc theo thứ tự đã chọn, trả lời luôn cũ trước dưới bình luận cha. */
 function renderComments() {
+  // Bình luận bị xoá hoặc quyền thay đổi trong lúc tải bổ sung không được giữ editor cũ.
+  if (activeCommentEdit && !state.comments.some(comment => comment.id === activeCommentEdit.id && !comment.is_deleted && comment.user_id === state.viewer?.id)) {
+    activeCommentEdit.destroy(); activeCommentEdit = null;
+  }
+  commentPlaceViews.forEach(view => view.destroy());
+  commentPlaceViews = [];
   const box = qs('[data-comments]');
   renderCommentCount();
   if (!state.comments.length) {
@@ -772,7 +898,7 @@ async function loadComments() {
   }
 }
 
-// Editor bình luận có cùng bộ lọc với bài viết; ảnh/địa điểm/spoiler chỉ lưu trong nháp.
+// Editor bình luận dùng cùng ảnh HTTPS với bài viết; địa điểm và spoiler còn ở nháp.
 let commentOpen = false;
 let commentSending = false;
 let restoringCommentFocus = false;
@@ -785,20 +911,14 @@ const commentEditor = createRichEditor({ label: 'Viết bình luận', placehold
   tools: ['emoji', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'link', 'image', 'pin', '|', 'removeFormat'],
   onChange: commentContentChanged, onTool: handleCommentTool });
 commentEditor.area.setAttribute('aria-describedby', 'comment-hint');
-const commentImagesBox = el('div', { className: 'rich-media' });
 const commentPlaceBox = el('div', { className: 'rich-media' });
-const commentImageNote = el('p', { className: 'rich-media-note', hidden: true }, 'Ảnh chưa được gửi kèm bình luận (máy chủ chưa hỗ trợ).');
-commentEditor.media.append(commentImagesBox, commentPlaceBox);
-const commentImages = createImagePreviews(commentImagesBox, {
-  onChange: () => { commentImageNote.hidden = !commentImages.hasImages(); },
-  onError: message => { qs('[data-comment-hint]').textContent = message; },
-});
+commentEditor.media.append(commentPlaceBox);
 const spoiler = el('input', { type: 'checkbox', className: 'checkbox', 'data-comment-spoiler': '' });
 const cancelComment = el('button', { type: 'button', className: 'btn btn--ghost', 'data-comment-cancel': '' }, 'Huỷ');
 const commentFooter = el('div', { className: 'post-comment-editor__footer' },
   el('label', { className: 'post-comment-editor__spoiler' }, spoiler, 'Bình luận này chứa spoiler'), cancelComment);
 commentEditor.root.append(commentFooter);
-expandedComment.append(commentEditor.root, commentImageNote);
+expandedComment.append(commentEditor.root);
 
 /** Mở editor từ ô gọn và chuyển con trỏ vào body, không cần nhập hai lần. */
 function openCommentEditor() {
@@ -814,10 +934,10 @@ function openCommentEditor() {
   commentEditor.focus();
 }
 
-/** Huỷ hoặc thành công xoá mọi nháp, thu hồi ảnh và trả nút Gửi về vị trí cũ. */
+/** Huỷ hoặc thành công xoá nháp và trả nút Gửi về vị trí cũ. */
 function resetCommentEditor() {
   commentOpen = false;
-  commentEditor.clear(); commentImages.clear();
+  commentEditor.clear();
   commentPlace = null; spoiler.checked = false;
   renderCommentPlace();
   commentInput.value = '';
@@ -835,10 +955,13 @@ function renderCommentPlace() {
   commentEditor.setToolPressed('pin', Boolean(commentPlace));
 }
 
-/** Ảnh và địa điểm ở bình luận chỉ xem trước, mọi dữ liệu chưa hỗ trợ đều không gửi. */
+/** Ảnh chèn vào HTML, địa điểm vẫn nằm trong nháp cho đến khi API hỗ trợ. */
 async function handleCommentTool(tool) {
   if (commentSending) return;
-  if (tool === 'image') commentImages.open();
+  if (tool === 'image') {
+    const image = await openImageDialog();
+    if (image) commentEditor.insertImage(image);
+  }
   else if (tool === 'pin') {
     const place = await pickPlace(commentPlace);
     if (place) { commentPlace = place; renderCommentPlace(); }
@@ -847,8 +970,8 @@ async function handleCommentTool(tool) {
 
 /** Nút chỉ bật khi có chữ thật, giữ khoá trong thời gian đang gửi hoặc bị mute. */
 function syncCommentForm() {
-  const text = commentOpen ? commentEditor.getPlainText() : commentInput.value;
-  commentSubmit.disabled = commentSending || commentInput.disabled || !text.trim();
+  const empty = commentOpen ? commentEditor.isEmpty() : !commentInput.value.trim();
+  commentSubmit.disabled = commentSending || commentInput.disabled || empty;
 }
 
 /** Chỉ gõ lại mới xoá lỗi cũ; việc bật/tắt nút sau request không được xoá aria-invalid. */
@@ -861,7 +984,7 @@ function commentContentChanged() {
   syncCommentForm();
 }
 
-/** Gửi HTML đã lọc với link an toàn; không gửi ảnh, địa điểm hoặc spoiler khi API chưa hỗ trợ. */
+/** Gửi HTML gồm ảnh HTTPS và link an toàn; chưa gửi địa điểm hoặc spoiler khi API chưa hỗ trợ. */
 async function submitComment(event) {
   event.preventDefault();
   if (!commentOpen) { openCommentEditor(); return; }
@@ -876,7 +999,8 @@ async function submitComment(event) {
   commentSubmit.disabled = true;
   commentSubmit.classList.add('is-loading');
   commentSubmit.textContent = 'Đang đăng...';
-  const omitted = commentImages.hasImages() || commentPlace || spoiler.checked;
+  const omittedPlace = Boolean(commentPlace);
+  const omittedSpoiler = spoiler.checked;
   try {
     const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id });
     state.comments.push(comment);
@@ -884,7 +1008,8 @@ async function submitComment(event) {
       state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, displayname: state.viewer.displayname, avatar_url: state.viewer.avatarUrl });
     }
     resetCommentEditor();
-    hint.textContent = omitted ? 'Đã đăng bình luận. Ảnh, địa điểm và spoiler chưa được gửi vì máy chủ chưa hỗ trợ.' : 'Đã đăng bình luận.';
+    hint.textContent = 'Đã đăng bình luận.' + (omittedPlace ? ' Địa điểm chưa được lưu vì máy chủ chưa hỗ trợ.' : '')
+      + (omittedSpoiler ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : '');
     renderComments();
   } catch (error) {
     commentEditor.area.setAttribute('aria-invalid', 'true');
@@ -908,7 +1033,7 @@ function focusCollapsedComment() {
 
 // Escape chỉ thu gọn nháp trống; picker và các popover xử lý Escape riêng trước form.
 commentForm.addEventListener('keydown', event => {
-  if (event.key === 'Escape' && commentOpen && commentEditor.isEmpty() && !commentPlace && !commentImages.hasImages() && !spoiler.checked) {
+  if (event.key === 'Escape' && commentOpen && commentEditor.isEmpty() && !commentPlace && !spoiler.checked) {
     event.preventDefault(); resetCommentEditor(); focusCollapsedComment();
   }
 });
