@@ -390,7 +390,7 @@ function validateSection(section) {
 
 /** Chỉ nhận các trường của mục vừa lưu, kể cả khi API trả toàn bộ hồ sơ có dữ liệu cũ của mục khác. */
 function acceptSection(section, user, patch) {
-  // CẦN BACKEND: PATCH /my chưa lưu displayname; không dùng patch để giả tên đã được máy chủ nhận.
+  // Tên hiển thị luôn lấy từ phản hồi PATCH /my, không dùng patch để giả tên đã được máy chủ nhận.
   const values = normalizeProfile({ ...serverValues, ...patch, ...(user || {}),
     displayname: user && Object.hasOwn(user, 'displayname') ? user.displayname : serverValues.displayname });
   for (const key of sections[section].keys) {
@@ -441,7 +441,7 @@ async function saveSection(section) {
       displaynameUnsupported = section === 'account' && Object.hasOwn(patch, 'displayname')
         && savedUser?.displayname !== patch.displayname;
       acceptSection(section, savedUser, patch);
-      // Ghi chú nhẹ nằm trong mục, sau khi form đã nhận lại tên thật từ phản hồi.
+      // Phòng hờ: phản hồi trả tên khác bản gửi thì báo nhẹ trong mục, form đã nhận lại tên thật.
       if (section === 'account') {
         const note = qs('[data-displayname-note]');
         note.textContent = displaynameUnsupported ? 'Máy chủ chưa lưu được tên hiển thị.' : '';

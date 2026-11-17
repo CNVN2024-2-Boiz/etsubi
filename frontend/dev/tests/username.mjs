@@ -62,8 +62,9 @@ assert.equal(formatHandle(''), '–');
 assert.equal(formatHandle(null), '–');
 assert.equal(validateDisplayName('  あ  '), '');
 assert.equal(validateDisplayName(' Nguyễn Văn An '), '');
-assert.equal(validateDisplayName('あ'.repeat(60)), '');
-assert.ok(validateDisplayName('あ'.repeat(61)));
+assert.equal(validateDisplayName('あ'.repeat(50)), '');
+assert.ok(validateDisplayName('あ'.repeat(51)));
+assert.equal(validateDisplayName(' ' + 'a'.repeat(50) + ' '), '');
 assert.ok(validateDisplayName('   '));
 
 /** Input giả ghi lại vùng chọn để kiểm tra con trỏ khi xoá ký tự trong chuỗi. */
@@ -135,6 +136,12 @@ assert.equal(toVietnameseMessage({ status: 409, message: 'Email already exists o
 assert.equal(toVietnameseMessage({ status: 409, message: 'Conflict' }), 'Conflict');
 assert.equal(fieldForError({ status: 409, message: 'Username already taken' }), 'username');
 assert.equal(fieldForError({ status: 409, message: 'Email already exists' }), 'email');
+// Hai lỗi 400 về tên hiển thị (đăng ký và PATCH hồ sơ) dịch sang tiếng Việt và gán vào ô displayname.
+for (const message of ['Display name too long (max 50 characters)', 'Display name cannot be empty']) {
+  assert.equal(fieldForError({ status: 400, message }), 'displayname');
+}
+assert.equal(toVietnameseMessage({ status: 400, message: 'Display name too long (max 50 characters)' }), 'Tên hiển thị không được vượt quá 50 ký tự.');
+assert.equal(toVietnameseMessage({ status: 400, message: 'Display name cannot be empty' }), 'Vui lòng nhập tên hiển thị.');
 assert.equal(notifications.formatNotification({ kind: 'follow', message: 'legacy started following you', actor: { username: 'an' } }).initials, 'A');
 assert.equal(requests, 0);
 console.log('username: passed');

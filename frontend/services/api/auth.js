@@ -7,7 +7,7 @@ import { request } from '/services/api/client.js';
  * @returns {Promise<object>} Mã người dùng vừa tạo.
  */
 export function register({ displayname, username, email, password, native = 'vi', language = 'vi' }) {
-  // CẦN BACKEND: POST /auth/register chưa đọc displayname, hiện gán bằng username; Register Advanced/Cài đặt sẽ gửi lại khi máy chủ hỗ trợ.
+  // Máy chủ trim displayname, rỗng thì lấy username, quá 50 ký tự trả 400.
   return request('/auth/register', {
     method: 'POST',
     body: { displayname, username, email, password, native, language },

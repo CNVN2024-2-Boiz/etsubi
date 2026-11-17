@@ -38,6 +38,13 @@ export function toVietnameseMessage(error) {
   if (/password too weak|weak password|password.*(?:8|short)/i.test(message)) {
     return 'Mật khẩu cần ít nhất 8 ký tự.';
   }
+  // Lỗi tên hiển thị khi đăng ký và khi PATCH hồ sơ (giới hạn 50 ký tự sau trim).
+  if (/display ?name too long/i.test(message)) {
+    return 'Tên hiển thị không được vượt quá 50 ký tự.';
+  }
+  if (/display ?name cannot be empty/i.test(message)) {
+    return 'Vui lòng nhập tên hiển thị.';
+  }
   // Lỗi khi đăng bài ở Diễn đàn (PostError của backend).
   if (/title cannot be empty/i.test(message)) {
     return 'Bài viết cần có tiêu đề.';
@@ -99,7 +106,7 @@ export function fieldForError(error) {
   if (/email/i.test(message) && /username/i.test(message)) {
     return null;
   }
-  if (/displayname/i.test(message)) {
+  if (/display ?name/i.test(message)) {
     return 'displayname';
   }
   if (/email/i.test(message)) {

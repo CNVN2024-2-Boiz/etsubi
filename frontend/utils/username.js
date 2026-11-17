@@ -34,13 +34,13 @@ export function formatHandle(username) {
   return text ? '@' + text : '–';
 }
 
-/** Tên hiển thị cho phép tiếng Việt, tiếng Nhật và trùng tên, giới hạn 60 ký tự sau trim. */
+/** Tên hiển thị cho phép tiếng Việt, tiếng Nhật và trùng tên, giới hạn 50 ký tự sau trim như máy chủ. */
 export function validateDisplayName(value) {
   const text = String(value ?? '').trim();
   if (!text) {
     return 'Vui lòng nhập tên hiển thị.';
   }
-  return Array.from(text).length > 60 ? 'Tên hiển thị không được vượt quá 60 ký tự.' : '';
+  return Array.from(text).length > 50 ? 'Tên hiển thị không được vượt quá 50 ký tự.' : '';
 }
 
 /** Chuẩn hoá cả vùng trước con trỏ để xoá khoảng trắng giữa chuỗi không đẩy con trỏ về cuối. */

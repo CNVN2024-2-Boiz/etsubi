@@ -403,7 +403,7 @@ async function submitProfile(event) {
   }
   try {
     if (Object.keys(patch).length) {
-      // CẦN BACKEND: PATCH /my chưa lưu displayname; giữ tên server và báo rõ thay vì báo lưu tên thành công.
+      // Phòng hờ: phản hồi trả tên khác bản gửi thì giữ tên server và báo rõ thay vì báo lưu tên thành công.
       const savedUser = await updateMe(patch);
       if (Object.hasOwn(patch, 'displayname') && savedUser?.displayname !== patch.displayname) {
         serverUser = savedUser || serverUser;
@@ -428,6 +428,10 @@ async function submitProfile(event) {
       usernameConflict = true;
       setFieldError('username', toVietnameseMessage(error));
       input('username').focus();
+    } else if (error.status === 400 && fieldForError(error) === 'displayname') {
+      // Tên hiển thị rỗng hoặc quá 50 ký tự theo máy chủ: báo ngay dưới ô thay vì vùng chung.
+      setFieldError('displayname', toVietnameseMessage(error));
+      input('displayname').focus();
     } else if (error.status !== 401) {
       showAlert(toVietnameseMessage(error));
       alertBox.focus();
