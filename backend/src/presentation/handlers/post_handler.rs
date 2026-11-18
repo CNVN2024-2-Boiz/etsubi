@@ -137,6 +137,8 @@ pub async fn update_post(
             requester_id,
             &req.title,
             req.content.as_deref().unwrap_or(""),
+            req.latitude,
+            req.longitude,
         )
     })
     .await

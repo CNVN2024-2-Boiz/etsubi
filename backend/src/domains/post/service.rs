@@ -111,6 +111,8 @@ impl PostService {
         requester_id: Uuid,
         title: &str,
         content: &str,
+        latitude: Option<f64>,
+        longitude: Option<f64>,
     ) -> Result<Post, PostError> {
         let mut post = self.get_active(id)?;
         let requester = self
@@ -139,6 +141,8 @@ impl PostService {
 
         post.title = title.to_string();
         post.content = content.to_string();
+        post.latitude = latitude;
+        post.longitude = longitude;
 
         let text_to_detect = format!("{} {}", title, content);
 

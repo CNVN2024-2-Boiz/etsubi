@@ -65,6 +65,8 @@ impl CommentService {
         post_id: Uuid,
         parent_id: Option<Uuid>,
         content: &str,
+        latitude: Option<f64>,
+        longitude: Option<f64>,
     ) -> Result<Comment, CommentError> {
         let requester = self
             .user_repo
@@ -114,6 +116,8 @@ impl CommentService {
             user_id: requester.id,
             content: content.to_string(),
             language: detected_language,
+            latitude,
+            longitude,
             status: "visible".into(),
             created_at: now,
             updated_at: now,
@@ -154,6 +158,8 @@ impl CommentService {
         id: Uuid,
         requester_id: Uuid,
         content: &str,
+        latitude: Option<f64>,
+        longitude: Option<f64>,
     ) -> Result<Comment, CommentError> {
         let requester = self
             .user_repo
@@ -177,6 +183,8 @@ impl CommentService {
         }
 
         comment.content = content.to_string();
+        comment.latitude = latitude;
+        comment.longitude = longitude;
 
         let detected_language = match detect_language(content) {
             Lang::Vie => "vi",
@@ -317,5 +325,10 @@ impl CommentService {
             return Err(CommentError::NotFound);
         }
         Ok(comment)
+    }
+
+    pub fn count_visible_by_post(&self, post_id: Uuid) -> Result<i64, CommentError> {
+        self.ensure_post_readable(post_id)?;
+        Ok(self.comment_repo.count_visible_by_post(post_id)?)
     }
 }

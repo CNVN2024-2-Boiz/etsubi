@@ -13,6 +13,8 @@ pub struct Comment {
     pub user_id: Uuid,
     pub content: String,
     pub language: String,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub status: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -26,6 +28,8 @@ pub struct NewComment<'a> {
     pub post_id: Uuid,
     pub user_id: Uuid,
     pub language: &'a str,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub content: &'a str,
     pub status: &'a str,
 }

@@ -19,6 +19,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::comment_handler::list_post_comments);
     cfg.service(presentation::handlers::comment_handler::get_comment);
+    cfg.service(presentation::handlers::comment_handler::count_post_comments);
 
     cfg.service(presentation::handlers::tag_handler::list_tags);
     cfg.service(presentation::handlers::tag_handler::get_tag);
