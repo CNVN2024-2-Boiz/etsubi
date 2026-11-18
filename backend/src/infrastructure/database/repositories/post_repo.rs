@@ -2,7 +2,6 @@ use anyhow::Result;
 use chrono::{DateTime, Utc};
 use diesel::dsl::count_star;
 use diesel::prelude::*;
-use std::collections::HashMap;
 use uuid::Uuid;
 
 use crate::{
@@ -10,7 +9,7 @@ use crate::{
     domains::post::repository::PostRepository,
     infrastructure::database::{
         models::entities::{NewPost, Post},
-        schema::{post_translation, posts, posts_tags, reactions, tags, users_follows},
+        schema::{post_translation, posts, posts_tags, tags, users_follows},
     },
 };
 
@@ -310,30 +309,7 @@ impl PostRepository for PostgresPostRepo {
     }
 
     fn list_popular_posts(&self) -> Result<Vec<Post>> {
-        let mut conn = self.pool.get()?;
-
-        let ranked: Vec<(Uuid, i64)> = posts::table
-            .inner_join(reactions::table)
-            .filter(posts::status.eq("published"))
-            .filter(posts::deleted_at.is_null())
-            .group_by(posts::id)
-            .select((posts::id, count_star()))
-            .order(count_star().desc())
-            .limit(20)
-            .load(&mut conn)?;
-
-        let ids: Vec<Uuid> = ranked.into_iter().map(|(id, _)| id).collect();
-        if ids.is_empty() {
-            return Ok(vec![]);
-        }
-
-        let rows = posts::table
-            .filter(posts::id.eq_any(&ids))
-            .select(Post::as_select())
-            .load::<Post>(&mut conn)?;
-
-        let mut map: HashMap<Uuid, Post> = rows.into_iter().map(|p| (p.id, p)).collect();
-        Ok(ids.into_iter().filter_map(|id| map.remove(&id)).collect())
+        self.list_top_ranked_posts(3, 9)
     }
 
     fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>> {
@@ -378,5 +354,33 @@ impl PostRepository for PostgresPostRepo {
             .order(posts::created_at.desc())
             .select(Post::as_select())
             .load(&mut conn)?)
+    }
+
+    fn list_top_ranked_posts(&self, limit: i64, offset: i64) -> Result<Vec<Post>> {
+        use diesel::dsl::sql;
+        use diesel::sql_types::BigInt;
+
+        let mut conn = self.pool.get()?;
+
+        let rows = posts::table
+            .filter(posts::status.eq("published"))
+            .filter(posts::deleted_at.is_null())
+            .order_by(
+                sql::<BigInt>(
+                    "((SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id) \
+                     + (SELECT COUNT(*) FROM comments \
+                        WHERE comments.post_id = posts.id \
+                          AND comments.deleted_at IS NULL \
+                          AND comments.status = 'visible'))",
+                )
+                .desc(),
+            )
+            .then_order_by(posts::created_at.desc())
+            .limit(limit)
+            .offset(offset)
+            .select(Post::as_select())
+            .load::<Post>(&mut conn)?;
+
+        Ok(rows)
     }
 }

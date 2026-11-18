@@ -291,3 +291,23 @@ pub async fn list_following_user_posts(
     let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
     Ok(HttpResponse::Ok().json(resp))
 }
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/posts/highlight",
+    tag = "post",
+    responses(
+        (status = 200, description = "Top 9 highlighted posts (home)", body = [PostResponse]),
+    ),
+)]
+#[get("/posts/highlight")]
+pub async fn list_highlight_posts(state: web::Data<AppState>) -> Result<HttpResponse, Error> {
+    let service = state.post_service.clone();
+
+    let posts = web::block(move || service.list_highlight_posts())
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
+    Ok(HttpResponse::Ok().json(resp))
+}
