@@ -58,7 +58,7 @@ async function request(path, options = {}) {
   if (method === 'DELETE' || path.includes('/tags/')) {
     return null;
   }
-  if (method === 'GET' && ['/posts', '/posts/popular', '/posts/qa', '/my/following/posts'].includes(path)) {
+  if (method === 'GET' && ['/posts', '/posts/highlight', '/posts/popular', '/posts/qa', '/my/following/posts'].includes(path)) {
     return [{ id: 'p', author_id: 'other' }];
   }
   return { id: 'p', author_id: 'other', title: 'Tiêu đề thật', ...options.body };
@@ -70,7 +70,7 @@ function recordConsole() {
 }
 
 // Nạp module thật qua VM, chỉ thay lớp request và phiên để tránh phụ thuộc trình duyệt hoặc mạng.
-const context = vm.createContext({ console: { error: recordConsole, warn: recordConsole, log: recordConsole } });
+const context = vm.createContext({ URL, console: { error: recordConsole, warn: recordConsole, log: recordConsole } });
 const modules = new Map();
 const client = new vm.SyntheticModule(['request'], function () {
   this.setExport('request', request);
@@ -269,26 +269,50 @@ await check('ẩn và khoá dùng phản hồi chính khi thiếu tác giả', a
 });
 
 // Kiểm tra xuất bản luôn gắn tag tuần tự trước một request fan-out, kể cả không chọn tag hay lỗi phụ.
-// Batch 9 gửi HTML và toạ độ thật; ảnh/tên địa điểm chưa hỗ trợ phải nằm ngoài request.
+// Batch 10 giữ ảnh HTTPS trong content; tên địa điểm còn ở nháp và không thêm trường ngoài hợp đồng.
 await check('bài rich gửi nội dung và cặp toạ độ, bỏ trường chưa hỗ trợ', async () => {
   await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung <b>đậm</b></p>', latitude: 35.0003, longitude: 135.7795,
-    place_name: 'Tên chỉ ở nháp', attachments: ['blob:preview'] });
+    place_name: 'Tên chỉ ở nháp' });
   assert.equal(calls[0].body.content, '<p>Nội dung <b>đậm</b></p>');
   assert.equal(calls[0].body.latitude, 35.0003);
   assert.equal(calls[0].body.longitude, 135.7795);
   assert.equal(Object.hasOwn(calls[0].body, 'place_name'), false);
-  assert.equal(Object.hasOwn(calls[0].body, 'attachments'), false);
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,title');
 });
 await check('bài không có điểm không gửi toạ độ rỗng', async () => {
   await posts.createPost({ title: 'Bài mới', content: '<p>Nội dung</p>' });
   assert.equal(Object.hasOwn(calls[0].body, 'latitude'), false);
   assert.equal(Object.hasOwn(calls[0].body, 'longitude'), false);
 });
-await check('bình luận rich chỉ gửi content và parent_id theo hợp đồng hiện có', async () => {
-  const content = '<p><a href="https://example.com/">Link</a></p>';
-  await comments.createComment('p', content, null, { postAuthorId: 'other', attachments: ['blob:preview'], latitude: 35, longitude: 135, is_spoiler: true });
+await check('bình luận rich gửi content, parent_id và toạ độ, chưa gửi spoiler', async () => {
+  const content = '<p><a href="https://example.com/">Link</a><img src="https://example.com/a.png" alt="Ảnh"></p>';
+  await comments.createComment('p', content, null, { postAuthorId: 'other', latitude: 35, longitude: 135, is_spoiler: true });
   assert.equal(calls[0].body.content, content);
-  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,parent_id');
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,parent_id');
+});
+
+// Sửa bình luận và gỡ địa điểm bài viết phải đúng body PATCH, không gửi notification phụ khi sửa.
+await check('sửa bình luận lọc HTML, giữ ảnh HTTPS và chỉ gửi content', async () => {
+  await comments.updateComment('c/id', '<b onclick="bad()">Sửa</b><img src="https://example.com/a.png" onerror="bad()"><script>bad()</script>');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].path, '/comments/c%2Fid');
+  assert.equal(calls[0].method, 'PATCH');
+  assert.equal(Object.keys(calls[0].body).join(','), 'content');
+  assert.equal(calls[0].body.content, '<b>Sửa</b><img src="https://example.com/a.png" alt="">');
+});
+await check('sửa bình luận vượt 10000 byte không gửi request', async () => {
+  await assert.rejects(comments.updateComment('c', '日'.repeat(3334)), /10[.,]000/);
+  assert.equal(calls.length, 0);
+});
+await check('sửa bài gửi cặp toạ độ hoặc bỏ cả hai khi gỡ', async () => {
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>', latitude: 35, longitude: 135, place_name: 'Tên nháp' });
+  assert.equal(calls[0].method, 'PATCH');
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,title');
+  assert.equal(calls[0].body.latitude, 35);
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>' });
+  assert.equal(Object.keys(calls[1].body).sort().join(','), 'content,title');
+  await posts.updatePost('p', { title: 'A', content: '<p>B</p>', latitude: 35 });
+  assert.equal(Object.keys(calls[2].body).sort().join(','), 'content,title');
 });
 
 for (const tagIds of [[], ['one', 'two']]) {
@@ -320,7 +344,8 @@ await check('endpoint mới không gửi tham số phân trang và Search giữ 
   // Backend đã sửa route /my/following/posts (upstream 8fee464) nên bảng tin theo dõi gửi request thật, không kèm phân trang.
   await posts.listFollowingFeed({ limit: 5, offset: 10 });
   await posts.listQuestionPosts();
-  assert.equal(calls.map(call => call.path).join(','), '/posts/popular,/my/following/posts,/posts/qa');
+  // Tab Phổ biến ghép bảng xếp hạng từ highlight (hạng 1-12) và popular (hạng 13-15).
+  assert.equal(calls.map(call => call.path).join(','), '/posts/highlight,/posts/popular,/my/following/posts,/posts/qa');
   assert.ok(calls.every(call => call.query === undefined));
   await posts.searchPosts({ q: 'từ khoá', tagIds: ['tag'], limit: 10, offset: 20 });
   assert.equal(calls.at(-1).path, '/posts');

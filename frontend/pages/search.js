@@ -4,7 +4,7 @@ import { mountFooter } from '/components/footer/footer.js';
 import { createSearchBar } from '/components/search-bar/search-bar.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
 import { createPostCard } from '/components/postcard/PostCard.js';
-import { searchPosts, getPostTags } from '/services/api/posts.js';
+import { searchPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { listTags, tagIdsFromNames } from '/services/api/tags.js';
 import { getUser } from '/services/api/users.js';
 import { requireAuth } from '/utils/auth.js';
@@ -289,6 +289,15 @@ async function enrichPosts(entries, version) {
       return;
     }
     updateEnrichment(entry, false);
+    // Số bình luận thật chỉ tải cho thẻ đã hiện; getPostStats tự trả null khi lỗi nên thẻ giữ dấu gạch.
+    const stats = await getPostStats(entry.post.id, entry.post);
+    if (version !== requestVersion) {
+      return;
+    }
+    if (Number.isFinite(stats?.comment_count)) {
+      entry.post = { ...entry.post, comment_count: stats.comment_count };
+      updateStats(entry);
+    }
   }
 }
 
@@ -309,6 +318,12 @@ function updateEnrichment(entry, authorOnly) {
   const next = createPostCard(entry.post, { query: submitted.q, author: entry.author, tags: entry.tags, onTagHref: postTagHref });
   const hook = authorOnly ? '[data-post-author]' : '[data-post-tags]';
   qs(hook, entry.card).replaceWith(qs(hook, next));
+}
+
+/** Chỉ thay hàng số liệu của thẻ, giữ nguyên tiêu đề, tác giả và tag đã bổ sung. */
+function updateStats(entry) {
+  const next = createPostCard(entry.post, { query: submitted.q, author: entry.author, tags: entry.tags, onTagHref: postTagHref });
+  qs('[data-post-stats]', entry.card).replaceWith(qs('[data-post-stats]', next));
 }
 
 /** Đảo thứ tự danh sách đã tải cho Cũ nhất, không diễn đạt là thứ tự toàn bộ dữ liệu của máy chủ. */

@@ -1,8 +1,10 @@
 /** Thẻ nổi bật chỉ dựng DOM từ dữ liệu thật hoặc thanh chờ, không tự gọi API. */
+import { statLabel } from '/utils/stat-label.js';
 import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
 import { initials, relativeTime } from '/utils/format.js';
 import { makeExcerpt, wrapJapanese } from '/utils/text.js';
+import { markMentions } from '/utils/mention.js';
 import { getAuthorLabel, getAuthorHandle, getAuthorDisplayName } from '/services/api/posts.js';
 
 /** Tạo icon cố định đúng kích thước thật; tên thao tác do phần tử cha cung cấp. */
@@ -66,11 +68,11 @@ export function createFeaturedCard({ post, rank, author = post.author, tags = po
       el('time', { datetime: post.created_at }, relativeTime(post.created_at))));
   const meta = el('div', { className: 'featured-card__meta' }, createAvatar(author), identity);
   const actions = el('div', { className: 'featured-card__actions' },
-    el('span', { className: 'featured-card__comments' }, icon('comment'),
+    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(commentCount, 'bình luận') }, icon('comment'),
       (Number.isFinite(commentCount) ? commentCount : '–') + ' bình luận'), createDetail(post.id));
   return el('article', { className: 'featured-card' }, createBand(rank),
     el('div', { className: 'featured-card__body' }, title,
-      el('p', { className: 'featured-card__excerpt' }, wrapJapanese(makeExcerpt(post.content, '', 220))),
+      markMentions(el('p', { className: 'featured-card__excerpt' }, wrapJapanese(makeExcerpt(post.content, '', 220)))),
       tagRow, el('div', { className: 'featured-card__spacer' }), meta, actions));
 }
 
@@ -93,7 +95,7 @@ export function createFeaturedPlaceholder(rank) {
     el('span', { className: 'featured-card__avatar featured-card__avatar--placeholder' }),
     el('span', { className: 'u-placeholder-bar u-placeholder-bar--short' })),
   el('div', { className: 'featured-card__actions' },
-    el('span', { className: 'featured-card__comments' }, icon('comment'), '– bình luận'), createDetail()),
+    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(null, 'bình luận') }, icon('comment'), '– bình luận'), createDetail()),
   el('span', { className: 'u-visually-hidden' }, 'Đang chờ dữ liệu bài nổi bật'));
   return el('article', { className: 'featured-card featured-card--placeholder' }, createBand(rank), body);
 }

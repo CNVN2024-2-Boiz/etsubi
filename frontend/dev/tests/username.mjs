@@ -20,14 +20,19 @@ modules.set('/utils/auth.js', new vm.SyntheticModule(['getCachedUser', 'fetchCur
 }, { context }));
 
 /** Ánh xạ import tuyệt đối về frontend, dùng cùng một module cho mỗi đường dẫn. */
-async function load(specifier) {
+async function resolveModule(specifier) {
   if (!modules.has(specifier)) {
     const source = await readFile(new URL(specifier.slice(1), root), 'utf8');
-    const module = new vm.SourceTextModule(source, { context, identifier: specifier });
-    modules.set(specifier, module);
-    await module.link(load);
+    modules.set(specifier, new vm.SourceTextModule(source, { context, identifier: specifier }));
   }
   return modules.get(specifier);
+}
+
+/** Nạp module và liên kết một lần ở cấp ngoài cùng, để các import dùng chung không bị liên kết chồng. */
+async function load(specifier) {
+  const module = await resolveModule(specifier);
+  if (module.status === 'unlinked') await module.link(resolveModule);
+  return module;
 }
 
 const usernameModule = await load('/utils/username.js');
@@ -44,11 +49,11 @@ assert.equal(normalizeUsername(null), '');
 assert.equal(normalizeUsername(normalizeUsername(' @ABC ')), 'abc');
 
 // Biên độ dài và bảng ký tự được dùng giống nhau trong kiểm tra và thông báo lỗi.
-for (const value of ['abc', 'a.b_9', 'a'.repeat(30), '123']) {
+for (const value of ['abc', 'a_b_9', 'a'.repeat(30), '123']) {
   assert.equal(isValidUsername(value), true);
   assert.equal(validateUsername(value), '');
 }
-for (const value of ['', 'ab', 'A_b', 'あいう', 'nguyễn', 'a-b', '@abc', 'abc def', 'abc\n', 'a'.repeat(31)]) {
+for (const value of ['', 'ab', 'A_b', 'a.b', 'abc.', 'あいう', 'nguyễn', 'a-b', '@abc', 'abc def', 'abc\n', 'a'.repeat(31)]) {
   assert.equal(isValidUsername(value), false, value);
   assert.ok(validateUsername(value), value);
 }

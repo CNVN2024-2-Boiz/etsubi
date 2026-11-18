@@ -5,7 +5,8 @@ import { mountFooter } from '/components/footer/footer.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
 import { createRichEditor } from '/components/rich-editor/rich-editor.js';
-import { createPlaceChip, createImagePreviews } from '/components/rich-editor/media-preview.js';
+import { createPlaceChip } from '/components/rich-editor/place-chip.js';
+import { openImageDialog } from '/components/rich-editor/image-dialog.js';
 import { pickPlace } from '/components/place-picker/place-picker.js';
 import { validateRichBytes } from '/utils/rich-text.js';
 import { listPosts, listFollowingFeed, listQuestionPosts, getPostTags, getPostStats, createPost } from '/services/api/posts.js';
@@ -25,7 +26,7 @@ import { routes, withRedirect } from '/utils/routes.js';
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
 mountFooter();
 
-// Tab Mới nhất tải từng trang 10 bài; các endpoint riêng phục vụ Diễn đàn không phân trang, hiện backend tạm cắt 3 bài.
+// Tab Mới nhất tải từng trang 10 bài; tab Phổ biến hiện cả danh sách ghép tối đa 15 bài, không có trang tiếp theo.
 const PAGE_SIZE = 10;
 const feedList = qs('[data-feed-list]');
 const feedStatus = qs('[data-feed-status]');
@@ -59,12 +60,6 @@ const composeEditor = createRichEditor({ label: 'Nội dung bài viết', onChan
 } });
 composeEditor.area.setAttribute('aria-describedby', 'compose-hint');
 qs('[data-compose-editor]').append(composeEditor.root);
-// CẦN BACKEND: ảnh chỉ xem trước; hợp đồng POST /uploads + attachments nằm trong posts.js.
-const composeImages = createImagePreviews(qs('[data-compose-images]'), {
-  onChange: () => { qs('[data-compose-image-note]').hidden = !composeImages.hasImages(); },
-  onError: message => setComposeStatus(message, 'error'),
-});
-
 /* ===== Tiện ích ===== */
 
 /** Báo lỗi tiếng Việt trong vùng alert chung, không dùng alert() của trình duyệt. */
@@ -152,7 +147,7 @@ function feedCard(post, author, postTags = [], stats = null, bookmarked = null) 
   });
 }
 
-/** Bổ sung tác giả, tag và số lượt thích cho từng bài lần lượt (tôn trọng giới hạn 4 yêu cầu/giây). */
+/** Bổ sung tác giả, tag và số lượt thích cho từng bài lần lượt (không gửi dồn để tránh vượt giới hạn của máy chủ). */
 async function enrichFeed(posts, version) {
   for (const post of posts) {
     if (version !== feedVersion) {
@@ -463,8 +458,7 @@ function renderComposeTags() {
 /** Nút Đăng chỉ bật khi đã có cả tiêu đề và nội dung (backend bắt buộc tiêu đề). */
 function syncComposeSubmit() {
   const title = qs('[data-compose-title]').value.trim();
-  const content = composeEditor.getPlainText().trim();
-  qs('[data-compose-submit]').disabled = composeSending || composeMuted || !title || !content;
+  qs('[data-compose-submit]').disabled = composeSending || composeMuted || !title || composeEditor.isEmpty();
 }
 
 /** Chưa đăng nhập mà bấm vào ô viết: sang trang đăng nhập, xong quay lại với ô viết mở sẵn (?compose=1). */
@@ -488,7 +482,6 @@ function openCompose() {
 function resetCompose() {
   compose.reset();
   composeEditor.clear();
-  composeImages.clear();
   composePlace = null;
   renderComposePlace();
   selectedTags = new Set();
@@ -511,13 +504,17 @@ function renderComposePlace() {
   qs('[data-compose-tool="place"]').setAttribute('aria-pressed', String(Boolean(composePlace)));
 }
 
-/** Ảnh mở picker cục bộ; Bản đồ dùng dialog chung và giữ nháp khi Huỷ. */
+/** Ảnh chèn bằng link tại caret; Bản đồ dùng dialog chung và giữ nháp khi Huỷ. */
 async function handleComposeTool(event) {
   const tool = event.target.closest('[data-compose-tool]')?.dataset.composeTool;
   if (!tool || composeMuted || composeSending) return;
   if (!user) { goToLogin(); return; }
   openCompose();
-  if (tool === 'image') composeImages.open();
+  if (tool === 'image') {
+    composeEditor.rememberSelection();
+    const image = await openImageDialog();
+    if (image) composeEditor.insertImage(image);
+  }
   if (tool === 'place') {
     const place = await pickPlace(composePlace);
     if (place) { composePlace = place; renderComposePlace(); }
@@ -526,10 +523,10 @@ async function handleComposeTool(event) {
 
 /** Nháp hoàn toàn trống mới được tự thu gọn, không bỏ nội dung khi bấm bên ngoài. */
 function collapseEmptyCompose(event) {
-  if (composeDialog.open || document.querySelector('[data-place-picker]') || !compose.classList.contains('is-open')) return;
+  if (composeDialog.open || document.querySelector('[data-place-picker], [data-image-dialog]') || !compose.classList.contains('is-open')) return;
   if (event.type === 'keydown' && event.key !== 'Escape') return;
   if (event.type === 'pointerdown' && compose.contains(event.target)) return;
-  if (!qs('[data-compose-title]').value.trim() && composeEditor.isEmpty() && !composeImages.hasImages() && !composePlace && !selectedTags.size) resetCompose();
+  if (!qs('[data-compose-title]').value.trim() && composeEditor.isEmpty() && !composePlace && !selectedTags.size) resetCompose();
 }
 
 /** Đăng bài: tạo bài, gắn từng tag đã chọn, thu gọn ô viết và tải lại tab Mới nhất. */
@@ -547,7 +544,6 @@ async function submitCompose(event) {
     (titleError ? titleInput : composeEditor.area).setAttribute('aria-invalid', 'true');
     setComposeStatus(validation, 'error'); return;
   }
-  const hadImages = composeImages.hasImages();
   composeSending = true;
   const button = qs('[data-compose-submit]');
   compose.inert = true;
@@ -560,7 +556,7 @@ async function submitCompose(event) {
     const post = await createPost({ title, content, ...(composePlace ? { latitude: composePlace.latitude, longitude: composePlace.longitude } : {}) }, { tagIds: [...selectedTags] });
     const failedTags = post.failedTagIds.length;
     resetCompose();
-    setComposeStatus([hadImages ? 'Đã đăng bài. Ảnh chưa được gửi vì máy chủ chưa hỗ trợ. ' : 'Đã đăng bài. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
+    setComposeStatus(['Đã đăng bài. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
       failedTags ? ' (' + failedTags + ' chủ đề chưa gắn được.)' : ''], 'success');
     // Chỉ thành công mới đóng dialog; khi lỗi, vùng trạng thái và bản nháp vẫn nằm trước người viết.
     closeComposeDialog();

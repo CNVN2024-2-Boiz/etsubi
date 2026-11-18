@@ -59,4 +59,4 @@ export function listMyFollowing() {
   return request('/my/following');
 }
 
-// CẦN BACKEND: danh sách followers/following cần trả displayname cùng username; khi thiếu tên hiển thị dùng @username.
+// CẦN BACKEND: danh sách followers/following đã có displayname; còn thiếu phân trang limit/offset và tổng số.

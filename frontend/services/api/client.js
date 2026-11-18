@@ -143,21 +143,28 @@ export function onUnauthorized(callback) {
   return () => unauthorizedListeners.delete(callback);
 }
 
-// Tối đa ba yêu cầu đồng thời và cách nhau 250ms để tránh vượt giới hạn 4 lần/giây.
+// Tối đa ba yêu cầu đồng thời và cách nhau 250ms để không gửi dồn dập; máy chủ cho phép 20 lần/giây, tối đa 50 lần liên tiếp.
 const queue = [];
 let inFlight = 0;
 let lastStart = 0;
 let timer = null;
+// Mốc thời gian cả hàng đợi tạm dừng sau lỗi 429 để máy chủ kịp phục hồi hạn mức.
+let holdUntil = 0;
 
 /** Lấy một công việc khỏi hàng đợi khi còn chỗ và đã đủ khoảng cách thời gian. */
 function pump() {
   if (timer || inFlight >= 3 || !queue.length) {
     return;
   }
-  const delay = Math.max(0, 250 - (Date.now() - lastStart));
+  const delay = Math.max(0, 250 - (Date.now() - lastStart), holdUntil - Date.now());
   // Bộ hẹn giờ chỉ điều tiết mạng, không điều khiển animation giao diện.
   timer = setTimeout(() => {
     timer = null;
+    // Lỗi 429 đến trong lúc đang chờ thì hẹn lại, không gửi thêm yêu cầu vào hạn mức đã cạn.
+    if (Date.now() < holdUntil) {
+      pump();
+      return;
+    }
     const job = queue.shift();
     if (!job) {
       return;
@@ -313,8 +320,10 @@ export async function request(path, { method = 'GET', body, query, signal, auth 
       if (error.status !== 429 || attempt === 2) {
         throw error;
       }
-      // Chờ lâu hơn ở lần tiếp theo để máy chủ có thời gian phục hồi hạn mức.
-      await pause(600 * (attempt + 1), signal);
+      // Chờ lâu hơn ở lần tiếp theo; các yêu cầu khác cũng dừng để lần thử lại không bị tranh hạn mức.
+      const wait = 600 * (attempt + 1);
+      holdUntil = Math.max(holdUntil, Date.now() + wait);
+      await pause(wait, signal);
     }
   }
 }

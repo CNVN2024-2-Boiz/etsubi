@@ -70,25 +70,23 @@
               </fieldset>
               <!-- Editor luôn nằm sau chủ đề và trước hàng ảnh, địa điểm của cùng bản nháp. -->
               <div data-compose-editor></div>
-              <!-- Ảnh chỉ xem trước; địa điểm lưu toạ độ, tên đang chờ backend hỗ trợ. -->
+              <!-- Địa điểm nằm dưới nội dung; ảnh được chèn trực tiếp trong editor bằng link. -->
               <div class="rich-media" data-compose-media>
-                <div class="rich-media" data-compose-images></div>
                 <div class="rich-media" data-compose-place></div>
               </div>
-              <p class="rich-media-note" data-compose-image-note hidden>Ảnh chỉ xem trước, chưa được đăng kèm bài (máy chủ chưa hỗ trợ).</p>
             </div>
 
             <hr class="forum-compose__divider" />
 
             <!-- Chỉ hai công cụ Ảnh và Bản đồ; Huỷ xoá nháp, Đăng gửi nội dung đã lọc. -->
-            <div class="forum-compose__actions">
-              <button type="button" class="forum-compose__tool" data-compose-tool="image">
-                <img src="/assets/icons/compose-camera.svg" width="20" height="20" alt="" />Ảnh
+            <div class="compose-tools">
+              <button type="button" class="compose-tools__button" data-compose-tool="image">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Ảnh
               </button>
-              <button type="button" class="forum-compose__tool" data-compose-tool="place" aria-pressed="false">
+              <button type="button" class="compose-tools__button" data-compose-tool="place" aria-pressed="false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Bản đồ
               </button>
-              <span class="forum-compose__spacer"></span>
+              <span class="compose-tools__spacer"></span>
               <button type="button" class="btn btn--ghost forum-compose__cancel" data-compose-cancel hidden>Huỷ</button>
               <button type="submit" class="btn btn--primary forum-compose__submit" data-compose-submit disabled>Đăng</button>
             </div>

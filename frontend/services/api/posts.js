@@ -5,7 +5,7 @@
 import { request } from '/services/api/client.js';
 import { formatHandle } from '/utils/username.js';
 import { backendSupports } from '/services/api/capabilities.js';
-import { getNotificationPost, notifyAfter, notifyPostFollowers } from '/services/api/notify-actions.js';
+import { getNotificationPost, notifyAfter, notifyMentions, notifyPostFollowers } from '/services/api/notify-actions.js';
 
 /**
  * Tìm bài qua HTTP sau khi người dùng gửi biểu mẫu tìm kiếm.
@@ -28,20 +28,69 @@ export function getPostTags(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/tags');
 }
 
-// Gom các đường dẫn của Trang chủ để đổi sang endpoint riêng khi backend hoàn tất.
+// Gom các đường dẫn của Trang chủ để đổi sang endpoint riêng khi backend hoàn tất; tab Phổ biến ghép riêng ở listPopularPosts.
 const HOME_FEED_ENDPOINTS = Object.freeze({
   newest: '/posts',
-  popular: '/posts/popular',
   question: '/posts/qa',
   following: '/my/following/posts',
 });
 
-// CẦN BACKEND: endpoint riêng cho trang chủ (BE đang làm), nhận limit; khi có route mới chỉ cần đổi HOME_FEED_ENDPOINTS và hàm này.
+// Bảng xếp hạng gồm highlight (hạng 1-12) và popular (hạng 13-15), nên danh sách ghép tối đa 15 bài.
+const POPULAR_MERGED_LIMIT = 15;
+// Số bình luận chỉ nhớ một lúc ngắn; bảng xếp hạng nhớ đến khi tải lại trang để khối nổi bật và tab Phổ biến dùng chung.
+const COMMENT_COUNT_CACHE_MS = 30000;
+let highlightRequest = null;
+const commentCountCache = new Map();
+
+/** Tải top 12 đúng một lần cho mỗi lần mở trang; lỗi thì bỏ kết quả để nút Thử lại gửi được yêu cầu mới. */
+export function listHighlightPosts() {
+  if (!highlightRequest) {
+    const pending = request('/posts/highlight', { auth: false });
+    highlightRequest = pending;
+    pending.catch(() => {
+      if (highlightRequest === pending) highlightRequest = null;
+    });
+  }
+  return highlightRequest;
+}
+
+/** Ghép highlight trước popular, bỏ bài trùng theo id, giữ nguyên thứ hạng và không vượt quá 15 bài. */
+export function mergePopularPosts(highlight, popular, limit = POPULAR_MERGED_LIMIT) {
+  const seen = new Set();
+  const merged = [];
+  for (const post of [...(highlight || []), ...(popular || [])]) {
+    if (post?.id && !seen.has(post.id) && merged.length < limit) {
+      seen.add(post.id);
+      merged.push(post);
+    }
+  }
+  return merged;
+}
+
+/** Trang chủ lấy các bài cuối danh sách ghép: đủ 15 bài là hạng 13-15, ít bài thì tab vẫn không trống. */
+export function homePopularPosts(merged, limit = 3) {
+  return (merged || []).slice(-limit);
+}
+
+/** Danh sách Phổ biến đầy đủ; popular rỗng khi tổng số bài không quá 12 là trường hợp bình thường. */
+export async function listPopularPosts({ signal } = {}) {
+  const [highlight, popular] = await Promise.all([
+    listHighlightPosts(),
+    request('/posts/popular', { signal, auth: false }),
+  ]);
+  return mergePopularPosts(highlight, popular);
+}
+
+// CẦN BACKEND: GET /posts/newest, /posts/qa, /my/following/posts còn truncate(3) và chưa nhận limit; khi có route mới chỉ cần đổi HOME_FEED_ENDPOINTS và hàm này.
 /** Lấy bảng tin Trang chủ; tab theo dõi cần JWT và chỉ gọi khi máy chủ hỗ trợ. */
-export function listHomeFeed(tab, { limit, lang, signal } = {}) {
+export async function listHomeFeed(tab, { limit, lang, signal } = {}) {
   // Giữ trạng thái trung tính và không gửi request theo dõi khi cờ hỗ trợ đang tắt.
   if (tab === 'following' && !backendSupports.followingFeed) {
-    return Promise.resolve(null);
+    return null;
+  }
+  // Tab Phổ biến dùng chung lần tải highlight với khối nổi bật, chỉ hiện các bài cuối danh sách ghép.
+  if (tab === 'popular') {
+    return homePopularPosts(await listPopularPosts({ signal }), limit);
   }
   // Bài mới dùng GET /posts có limit sẵn; trang chỉ truyền lang khi cờ autoTranslateFeed đã bật.
   if (tab === 'newest') {
@@ -57,9 +106,9 @@ export async function listPosts({ limit = 5, offset = 0, tagIds = [], sort = 'ne
   if (lang && !backendSupports.autoTranslateFeed) {
     return null;
   }
-  // CẦN BACKEND: /posts/popular phục vụ Diễn đàn, không phân trang; hiện backend tạm cắt còn 3 bài (truncate(3)), chờ BE trả danh sách đầy đủ, kèm author, tags và số đếm.
+  // Diễn đàn hiện cả danh sách ghép (tối đa 15 bài), không có trang tiếp theo.
   if (sort === 'popular') {
-    return request('/posts/popular', { signal });
+    return listPopularPosts({ signal });
   }
   return request('/posts', {
     query: { limit, offset, tags: tagIds.join(','), lang },
@@ -67,26 +116,51 @@ export async function listPosts({ limit = 5, offset = 0, tagIds = [], sort = 'ne
   });
 }
 
-// CẦN BACKEND: GET /posts/featured?limit=9 trả bài theo thứ hạng tuần, kèm author{id,displayname,username,avatar_url,native}, tags[{id,name}] và comment_count.
-/** Đọc bài nổi bật theo thứ hạng; chưa hỗ trợ thì giữ khung chờ dữ liệu trung tính. */
-export async function getFeaturedPosts({ limit = 9 } = {}) {
+// CẦN BACKEND: GET /posts/highlight nên nhúng author, tags và số đếm để thẻ nổi bật không phải tải riêng từng bài.
+/** Đọc top bài nổi bật theo thứ hạng; chưa hỗ trợ thì giữ khung chờ dữ liệu trung tính. */
+export async function getFeaturedPosts({ limit = 12 } = {}) {
   if (!backendSupports.featuredPosts) {
     return null;
   }
-  return request('/posts/featured', { query: { limit } });
+  return (await listHighlightPosts() || []).slice(0, limit);
 }
 
-// CẦN BACKEND: GET /posts và GET /posts/{id} bổ sung comment_count, repost_count, like_count; dùng lại bài đã tải, không tạo endpoint thống kê riêng.
-/** Đọc thống kê từ bài hoặc từ trang chi tiết khi chưa có bài truyền vào. */
+/** Đếm bình luận thật của một bài (gồm trả lời); nhớ ngắn trong bộ nhớ để không gọi lặp khi vẽ lại thẻ. */
+export function getPostCommentCount(postId) {
+  const key = String(postId);
+  const cached = commentCountCache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return cached.promise;
+  }
+  const promise = request('/posts/' + encodeURIComponent(postId) + '/comments/count', { auth: false })
+    .then(result => (Number.isFinite(result?.count) ? result.count : null));
+  const entry = { expires: Date.now() + COMMENT_COUNT_CACHE_MS, promise };
+  commentCountCache.set(key, entry);
+  // Lỗi không được nhớ lại, lần vẽ sau còn cơ hội lấy số thật.
+  promise.catch(() => {
+    if (commentCountCache.get(key) === entry) commentCountCache.delete(key);
+  });
+  return promise;
+}
+
+// CẦN BACKEND: GET /posts nên trả comment_count, like_count để thẻ bài không phải gọi riêng từng bài.
+/** Thống kê của một thẻ đã hiển thị; số nào lỗi hoặc chưa có thì trả null để thẻ giữ dấu gạch trung tính. */
 export async function getPostStats(postId, post = null) {
   if (!backendSupports.postStats) {
     return null;
   }
-  const source = post || await request('/posts/' + encodeURIComponent(postId));
+  let commentCount = post?.comment_count ?? null;
+  if (commentCount === null) {
+    try {
+      commentCount = await getPostCommentCount(postId);
+    } catch {
+      // Số bình luận chỉ là thông tin phụ, lỗi mạng không được làm hỏng thẻ bài.
+      commentCount = null;
+    }
+  }
   return {
-    comment_count: source.comment_count ?? null,
-    repost_count: source.repost_count ?? null,
-    like_count: source.like_count ?? null,
+    comment_count: commentCount,
+    like_count: post?.like_count ?? null,
   };
 }
 
@@ -161,7 +235,7 @@ export async function getRelatedPosts(post, postTags = []) {
     .map(item => ({ ...item, comment_count: item.comment_count ?? null, tag }));
 }
 
-// CẦN BACKEND: POST/PATCH/GET posts cần place_name (tên địa điểm); GET /posts/{id} trả place: { name, address, opening_hours, phone } cho bài có toạ độ (latitude/longitude đã có sẵn).
+// CẦN BACKEND: POST/PATCH/GET posts cần place_name (tên địa điểm); Phong đã đồng ý bổ sung; FE dùng reverse/cache cho địa chỉ, không yêu cầu giờ mở cửa hoặc điện thoại.
 /**
  * Đọc thông tin địa điểm văn hoá của bài; null nghĩa là chưa biết, trang hiện thanh xám.
  * @param {object} post Bài đang đọc.
@@ -193,17 +267,36 @@ export async function createPost({ title, content, latitude, longitude }, { tagI
     }
   }
   await notifyPostFollowers(post);
+  await notifyMentions({ postId: post.id }, post.content ?? content);
   return { ...post, failedTagIds };
 }
 
 /**
- * Sửa bài của chính mình (tiêu đề bắt buộc). Gửi lại toạ độ cũ vì backend coi thiếu toạ độ là xoá địa điểm.
+ * Dựng dữ liệu sửa bài mà không làm mất địa điểm: place bỏ trống thì giữ toạ độ hiện có,
+ * place là null nghĩa là người dùng chủ động gỡ, còn đối tượng place là vị trí mới.
+ * @param {object} post Bài đang sửa.
+ * @param {object} changes { title, content, place }.
+ * @returns {object} { title, content, latitude?, longitude? } cho updatePost.
+ */
+export function buildPostEdit(post, { title, content, place }) {
+  const source = place === undefined ? post : place;
+  const hasCoordinates = Number.isFinite(source?.latitude) && Number.isFinite(source?.longitude);
+  return { title, content, ...(hasCoordinates ? { latitude: source.latitude, longitude: source.longitude } : {}) };
+}
+
+/**
+ * Sửa bài của chính mình (tiêu đề bắt buộc). Backend coi thiếu toạ độ là xoá địa điểm, nên nơi gọi dùng buildPostEdit.
  * @param {string} postId Mã bài viết.
  * @param {object} changes { title, content, latitude, longitude }.
  * @returns {Promise<object>} Bài sau khi sửa.
  */
-export function updatePost(postId, { title, content, latitude = null, longitude = null }) {
-  return request('/posts/' + encodeURIComponent(postId), { method: 'PATCH', body: { title, content, latitude, longitude } });
+export async function updatePost(postId, { title, content, latitude = null, longitude = null }) {
+  // Toạ độ thiếu nghĩa là gỡ địa điểm; không gửi null ngoài hợp đồng UpdatePostRequest.
+  const coordinates = Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : {};
+  const updated = await request('/posts/' + encodeURIComponent(postId), { method: 'PATCH', body: { title, content, ...coordinates } });
+  // Máy chủ chống trùng nên người đã được nhắc từ trước không nhận thêm thông báo.
+  await notifyMentions({ postId }, updated?.content ?? content);
+  return updated;
 }
 
 /**
@@ -233,22 +326,6 @@ export function addPostTag(postId, tagId) {
   return request('/posts/' + encodeURIComponent(postId) + '/tags/' + encodeURIComponent(tagId), { method: 'POST' });
 }
 
-// CẦN BACKEND: POST /uploads (multipart, field "file") trả { url, name, mime_type, size }; POST /posts nhận thêm attachments: [{ type: "image" | "file", url, name }] và GET /posts trả lại mảng này để PostCard hiện ảnh.
-/**
- * Tải ảnh hoặc tệp đính kèm cho bài viết; null nghĩa là backend chưa hỗ trợ và trang không gửi yêu cầu.
- * @param {File} file Tệp người dùng chọn.
- * @returns {Promise<object|null>} Thông tin tệp đã tải lên hoặc null.
- */
-export async function uploadAttachment(file) {
-  if (!backendSupports.postAttachments) {
-    return null;
-  }
-  // Lưu ý khi bật cờ: request() hiện luôn gửi JSON, cần thêm nhánh gửi FormData nguyên dạng trong client.js.
-  const form = new FormData();
-  form.append('file', file);
-  return request('/uploads', { method: 'POST', body: form });
-}
-
 // CẦN BACKEND: POST /posts nhận thêm poll: { question, options: [string], closes_at? }; GET /posts/{id} trả poll kèm số phiếu từng lựa chọn và lựa chọn của người xem; POST /posts/{id}/poll/votes { option_index } để bỏ phiếu.
 /**
  * Cho trang biết có tạo được thăm dò hay chưa, để không hiện biểu mẫu gửi đi một trường backend bỏ qua.
@@ -269,7 +346,7 @@ export function getAuthorHandle(author) {
   return formatHandle(author?.username);
 }
 
-// CẦN BACKEND: các danh sách chưa trả displayname (theo dõi, gợi ý, tác giả nhúng) tạm hiện @username thật.
+// CẦN BACKEND: gợi ý và tác giả nhúng cần displayname; danh sách theo dõi đã có displayname, còn thiếu phân trang.
 /** Nhãn trên giao diện phân biệt tên tự do với handle dự phòng; thiếu cả hai thì giữ chỗ. */
 export function getAuthorLabel(author) {
   return author?.displayname ? getAuthorDisplayName(author)

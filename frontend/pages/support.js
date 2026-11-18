@@ -1,11 +1,10 @@
 /** Trang Hỗ trợ (Figma 1:1966): tìm trong câu hỏi thường gặp, lọc theo chủ đề và hộp thoại gửi yêu cầu. */
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
-import { createSupportTicket, createReport } from '/services/api/support.js';
+import { buildSupportMailto } from '/utils/support-mailto.js';
 import { fetchCurrentUser } from '/utils/auth.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { wrapJapanese } from '/utils/text.js';
-import { toVietnameseMessage } from '/utils/errors.js';
 import { searchUrl } from '/utils/routes.js';
 import { topics, faqs, rules, popularQueries } from '/pages/support-content.js';
 
@@ -30,7 +29,6 @@ const faqList = qs('[data-faq-list]');
 const queryInput = qs('[data-help-query]');
 const dialog = qs('[data-dialog]');
 let user = null;
-let dialogMode = 'ticket';
 
 /* ===== Tiện ích ===== */
 
@@ -223,13 +221,8 @@ function renderRules() {
 
 /* ===== Hộp thoại gửi yêu cầu ===== */
 
-/** Mở hộp thoại ở chế độ "ticket" (yêu cầu hỗ trợ) hoặc "report" (báo cáo vi phạm). */
-function openDialog(mode) {
-  dialogMode = mode;
-  const isReport = mode === 'report';
-  qs('[data-dialog-title]').textContent = isReport ? 'Báo cáo vi phạm' : 'Gửi yêu cầu hỗ trợ';
-  qs('[data-field="link"]').hidden = !isReport;
-  qs('[data-field="topic"]').hidden = isReport;
+/** Mở hộp thoại soạn email hỗ trợ và điền sẵn email của phiên hiện tại. */
+function openDialog() {
   qs('[data-dialog-status]').hidden = true;
   const topicSelect = qs('[data-dialog-topic]');
   topicSelect.replaceChildren(...topics.map(topic => el('option', { value: topic.id }, topic.title)));
@@ -246,8 +239,7 @@ function openDialog(mode) {
 function syncDialogSubmit() {
   const message = qs('[data-dialog-message]').value.trim();
   const email = qs('[data-dialog-email]').value.trim();
-  const link = qs('[data-dialog-link]').value.trim();
-  const ready = message && email && (dialogMode !== 'report' || link);
+  const ready = message && email;
   qs('[data-dialog-submit]').disabled = !ready;
 }
 
@@ -259,35 +251,25 @@ function setDialogStatus(content, kind = 'info') {
   status.hidden = false;
 }
 
-/** Gửi yêu cầu hoặc báo cáo; khi backend chưa hỗ trợ thì không gửi gì và đề nghị gửi qua email. */
-async function submitDialog(event) {
+/** Kiểm tra trường bắt buộc rồi mở ứng dụng email; không tạo phiếu trên máy chủ. */
+function submitDialog(event) {
   event.preventDefault();
-  const email = qs('[data-dialog-email]').value.trim();
-  const message = qs('[data-dialog-message]').value.trim();
-  const link = qs('[data-dialog-link]').value.trim();
-  const topic = qs('[data-dialog-topic]').value;
-  const button = qs('[data-dialog-submit]');
-  button.disabled = true;
-  button.textContent = 'Đang gửi…';
-  try {
-    const result = dialogMode === 'report'
-      ? await createReport({ target_url: link, reason: 'other', message })
-      : await createSupportTicket({ topic, email, message });
-    if (result) {
-      setDialogStatus('Đã gửi. Đội ngũ Etsubi sẽ trả lời qua email ' + email + '.', 'success');
-      return;
-    }
-    // Backend chưa có endpoint: soạn sẵn email để người dùng tự gửi bằng ứng dụng thư của họ.
-    const subject = dialogMode === 'report' ? 'Báo cáo vi phạm' : 'Yêu cầu hỗ trợ: ' + (topics.find(entry => entry.id === topic)?.title || '');
-    const body = (dialogMode === 'report' ? 'Đường dẫn: ' + link + '\n\n' : '') + message + '\n\nEmail nhận phản hồi: ' + email;
-    const mailto = 'mailto:contact@etsubi.vn?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    setDialogStatus(['Gửi trực tuyến sẽ có khi máy chủ hỗ trợ. Bạn có thể ', el('a', { href: mailto }, 'gửi nội dung này qua email'), ' tới contact@etsubi.vn.']);
-  } catch (error) {
-    setDialogStatus(toVietnameseMessage(error), 'error');
-  } finally {
-    button.textContent = 'Gửi';
-    syncDialogSubmit();
+  const emailInput = qs('[data-dialog-email]');
+  const messageInput = qs('[data-dialog-message]');
+  const email = emailInput.value.trim();
+  const message = messageInput.value.trim();
+  // novalidate giữ thông báo tiếng Việt trong dialog, gắn lỗi đúng trường để đọc được.
+  const validEmail = Boolean(email) && emailInput.validity.valid;
+  emailInput.setAttribute('aria-invalid', String(!validEmail));
+  messageInput.setAttribute('aria-invalid', String(!message));
+  if (!validEmail || !message) {
+    setDialogStatus(!validEmail ? 'Vui lòng nhập email hợp lệ.' : 'Vui lòng nhập nội dung cần hỗ trợ.', 'error');
+    (!validEmail ? emailInput : messageInput).focus();
+    return;
   }
+  const topic = topics.find(entry => entry.id === qs('[data-dialog-topic]').value);
+  location.href = buildSupportMailto(topic?.title || 'Hỗ trợ', email, message);
+  setDialogStatus('Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.vn.');
 }
 
 /** Đóng hộp thoại và trả focus về nút đã mở nó (trình duyệt tự làm khi dùng dialog). */
@@ -299,7 +281,7 @@ function closeDialog() {
 function handleDialogTrigger(event) {
   const trigger = event.target.closest('[data-open-dialog]');
   if (trigger) {
-    openDialog(trigger.dataset.openDialog);
+    openDialog();
   }
 }
 
@@ -349,7 +331,7 @@ qs('[data-faq-reset]').addEventListener('click', () => {
 document.addEventListener('click', handleDialogTrigger);
 qs('[data-topics]').addEventListener('click', handleTopicClick);
 qs('[data-topic-link]').addEventListener('click', handleTopicClick);
-for (const field of qsa('[data-dialog-email], [data-dialog-message], [data-dialog-link]')) {
+for (const field of qsa('[data-dialog-email], [data-dialog-message]')) {
   field.addEventListener('input', syncDialogSubmit);
 }
 qs('[data-dialog-form]').addEventListener('submit', submitDialog);

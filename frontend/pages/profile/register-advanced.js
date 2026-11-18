@@ -284,7 +284,7 @@ function setFieldError(name, message = '') {
   }
   const defaults = {
     displayname: 'Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào',
-    username: 'Duy nhất · chữ thường, số, dấu . và _ · tối thiểu 3 ký tự',
+    username: 'Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự',
     bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
     native: 'Có thể thay đổi bất cứ lúc nào trong Cài đặt',
   };

@@ -1,4 +1,7 @@
 /** Thẻ kết quả có liên kết phủ thẻ, còn liên kết tag vẫn thao tác độc lập được. */
+import { statLabel } from '/utils/stat-label.js';
+import { renderRichContent } from '/utils/rich-text.js';
+import { markMentions } from '/utils/mention.js';
 import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
 import { initials, relativeTime } from '/utils/format.js';
@@ -53,7 +56,7 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
   const title = el('h2', { className: 'postcard__title' },
     el('a', { className: 'postcard__link', href: routes.post(post.id) }, markedText(post.title, query, 'title'))
   );
-  const excerpt = el('p', { className: 'postcard__excerpt' }, markedText(makeExcerpt(post.content, query), query, 'body'));
+  const excerpt = markMentions(el('p', { className: 'postcard__excerpt' }, markedText(makeExcerpt(post.content, query), query, 'body')));
   const tagList = el('div', { className: 'postcard__tags', 'data-post-tags': '' });
   for (const tag of tags) {
     const name = typeof tag === 'string' ? tag : tag.name;
@@ -61,10 +64,10 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
       tagList.append(createTagChip({ name, href: onTagHref ? onTagHref(name) : searchUrl({ tags: [name] }) }));
     }
   }
-  const stats = el('div', { className: 'postcard__stats' });
+  const stats = el('div', { className: 'postcard__stats', 'data-post-stats': '' });
   // Luôn giữ đủ 3 ô số như Figma (bình luận, lượt thích, lượt xem) theo quy tắc "front end đi trước".
-  // CẦN BACKEND: GET /posts chưa trả comment_count, like_count, view_count; khi thiếu thì hiện "–",
-  // tuyệt đối không tạo số giả. Khi backend bổ sung trường, các ô tự hiện số thật.
+  // Số bình luận do trang tải bổ sung qua getPostStats. CẦN BACKEND: GET /posts chưa trả like_count, view_count;
+  // khi thiếu thì hiện "–", tuyệt đối không tạo số giả. Khi backend bổ sung trường, các ô tự hiện số thật.
   const numbers = [
     ['message-circle', post.comment_count, 'bình luận', ''],
     ['heart', post.like_count ?? post.reaction_count, 'lượt thích', ''],
@@ -73,8 +76,8 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
   for (const [icon, count, label, suffix] of numbers) {
     const known = typeof count === 'number' && Number.isFinite(count);
     stats.append(el('span', {
-      className: 'postcard__stat' + (known ? '' : ' postcard__stat--unknown'),
-      'aria-label': known ? count + ' ' + label : 'Chưa có số ' + label,
+      className: 'postcard__stat stat-tooltip' + (known ? '' : ' postcard__stat--unknown'),
+      tabindex: '0', 'aria-label': statLabel(count, label),
     },
     el('img', { src: '/assets/icons/' + icon + '.svg', alt: '', width: 16, height: 16 }),
     (known ? String(count) : '–') + suffix));
@@ -147,9 +150,50 @@ function createFeedAvatar(author) {
 function createFeedStat(iconName, count, label) {
   const available = Number.isFinite(count);
   return el('span', {
-    className: 'postcard-feed__stat',
-    'aria-label': label + ': ' + (available ? count : 'chưa có dữ liệu'),
+    className: 'postcard-feed__stat stat-tooltip', tabindex: '0',
+    'aria-label': statLabel(count, label),
   }, feedIcon(iconName), available ? count : '–');
+}
+
+/** Nút chia sẻ link bài viết: mở bảng chia sẻ của thiết bị, không có thì sao chép link; không đếm lượt. */
+function createFeedShare(post) {
+  const label = el('span', {}, 'Chia sẻ');
+  const feedback = el('span', { className: 'u-visually-hidden', role: 'status' });
+  const button = el('button', { type: 'button', className: 'postcard-feed__share', 'aria-label': 'Chia sẻ bài viết' });
+  // SVG tĩnh dùng currentColor để icon đổi màu cùng chữ khi hover, không nhận dữ liệu từ API.
+  button.innerHTML = '<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="13.5" cy="4.12" r="1.87"/><circle cx="4.5" cy="9" r="1.87"/><circle cx="13.5" cy="13.88" r="1.87"/><path d="m6.12 9.95 5.76 2.98M11.88 5.07 6.12 8.05"/></svg>';
+  button.append(label);
+  let sharing = false;
+  /** Báo kết quả trong 1,5 giây; timer chỉ đổi chữ, không tạo hoạt ảnh. */
+  function showResult(text, message) {
+    label.textContent = text;
+    feedback.textContent = message;
+    setTimeout(() => { label.textContent = 'Chia sẻ'; }, 1500);
+  }
+  /** Chia sẻ đường dẫn tuyệt đối; người dùng tự đóng bảng chia sẻ thì không báo lỗi. */
+  async function shareLink() {
+    if (sharing) {
+      return;
+    }
+    sharing = true;
+    const url = new URL(routes.post(post.id), location.origin).href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: makeExcerpt(post.title, '', 120), url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        showResult('Đã sao chép', 'Đã sao chép liên kết bài viết');
+      }
+    } catch (error) {
+      if (error?.name !== 'AbortError') {
+        showResult('Không thể sao chép', 'Không thể sao chép. Bạn có thể mở chi tiết để lấy liên kết.');
+      }
+    } finally {
+      sharing = false;
+    }
+  }
+  button.addEventListener('click', shareLink);
+  return el('span', { className: 'postcard-feed__share-box' }, button, feedback);
 }
 
 /** Dựng menu nhỏ gồm sao chép liên kết và chi tiết; không chèn dữ liệu API bằng innerHTML. */
@@ -276,18 +320,22 @@ export function createFeedPostCard(post, {
   sub.append(el('time', { datetime: post.created_at }, relativeTime(post.created_at)));
   identity.append(sub);
   const userRow = el('div', { className: 'postcard-feed__user' }, createFeedAvatar(author), identity, createFeedMore(post.id));
-  const content = el('p', { className: 'postcard-feed__content' }, wrapJapanese(makeExcerpt(post.content, '', 260)));
+  const content = markMentions(el('p', { className: 'postcard-feed__content' }, wrapJapanese(makeExcerpt(post.content, '', 260))));
   // Hashtag dùng liên kết an toàn và tên thật; chữ Nhật được gắn lang cho phông chính xác.
   for (const tag of tags) {
     content.append(' ', el('a', { href: searchUrl({ tags: [tag.name] }) }, wrapJapanese('#' + tag.name)));
   }
   const engagement = el('div', { className: 'postcard-feed__engagement' },
     createFeedStat('comment', stats?.comment_count, 'Số bình luận'),
-    createFeedStat('repeat', stats?.repost_count, 'Số lượt chia sẻ'),
     createFeedStat('upvote', stats?.like_count, 'Số lượt thích'),
+    createFeedShare(post),
     el('a', { href: routes.post(post.id), className: 'btn btn--primary featured-card__detail postcard-feed__detail' },
       'Xem chi tiết', feedIcon('arrow-right')),
     createBookmarkButton(post.id, bookmarked, onBookmark));
+  // Ảnh HTTPS lấy từ nội dung đã lọc, giữ thứ tự dọc; không tạo dải thumbnail hoặc dữ liệu ảnh riêng.
+  const richBody = el('div');
+  renderRichContent(richBody, post.content);
+  const images = el('div', { className: 'postcard-feed__images' }, [...richBody.querySelectorAll('img')]);
   return el('article', { className: 'postcard postcard--feed', 'data-post-id': post.id },
-    userRow, createTranslationNote(post, viewerLanguage), content, engagement);
+    userRow, createTranslationNote(post, viewerLanguage), content, images, engagement);
 }

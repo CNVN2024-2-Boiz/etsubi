@@ -484,6 +484,20 @@
   background: var(--color-page);
 }
 
+/* Bình luận được nhảy tới từ thông báo: nền hồng nhạt tĩnh, không hoạt ảnh; focus do code đặt nên không cần viền. */
+.post-comment__row.is-target {
+  margin: calc(var(--space-2) * -1);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+}
+
+/* Khối bình luận chỉ nhận focus từ code khi nhảy tới, nền hồng đã đánh dấu vị trí nên bỏ cả viền lẫn vòng focus chung. */
+.post-comment:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 /* Đường kẻ giữa hai bình luận gốc (không kẻ trước bình luận đầu tiên). */
 .post-comment + .post-comment {
   padding-top: 20px;
@@ -679,7 +693,7 @@
 .post-comment-form__expanded .rich-editor { border-width: 2px; }
 .post-comment-form__expanded .rich-editor__body { min-height: var(--comment-body-height); }
 .post-comment-form__expanded .rich-editor__area { font-size: 14px; padding-block: var(--space-3); }
-.post-comment-form__expanded .rich-editor__counter { min-height: var(--comment-counter-height); padding-top: 0; }
+.post-comment-form__expanded .rich-editor__footer { min-height: var(--comment-counter-height); padding-top: 0; }
 .post-comment-form__expanded .place-chip { font-size: var(--rich-counter-size); padding-block: 0; }
 
 /* Thanh gửi nền trang nhạt, checkbox thật ở trái và Huỷ/Đăng ở phải, có thể xuống hàng. */
@@ -1231,3 +1245,23 @@
   font-weight: 400;
   overflow-wrap: anywhere;
 }
+/* Nút kebab dọc 28px dùng một menu chung, không tách Dịch/Xoá thành nút chữ. */
+.post-comment__more { display: inline-flex; align-items: center; justify-content: center; width: var(--comment-menu-size); height: var(--comment-menu-size); padding: 0; border: 0; border-radius: var(--radius-pill); background: var(--color-transparent); color: var(--color-muted); cursor: pointer; }
+/* Nút kebab và chip hiện focus rõ ràng, hover màu sakura như bảng component. */
+.post-comment__more:hover, .post-comment__more[aria-expanded='true'] { background: var(--color-sakura); color: var(--color-red); }
+.post-comment__more:focus-visible, .comment-place__chip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* Địa điểm bình luận thu gọn thành chip; thẻ mở rộng không vượt khung 420px. */
+.comment-place { max-width: 100%; margin-top: var(--space-1); }
+.comment-place__chip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); max-width: 100%; padding: var(--space-1) var(--space-2); border: 1px solid var(--color-pink-border); border-radius: var(--radius-pill); background: var(--color-sakura); color: var(--color-red); font: inherit; font-size: var(--rich-counter-size); cursor: pointer; overflow-wrap: anywhere; }
+.comment-place__city { color: var(--color-muted); }
+.comment-place__chip[aria-expanded='true'] > .rich-icon:last-child { transform: rotate(180deg); }
+.comment-place__card { display: flex; flex-direction: column; gap: var(--space-1); width: 100%; max-width: var(--comment-place-width); margin-top: var(--space-2); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-cream); font-size: var(--rich-chip-size); }
+.comment-place__card[hidden] { display: none; }
+.comment-place__map { height: var(--comment-map-height); }
+/* Khung bọc phải cùng chiều cao map để không cắt attribution OpenStreetMap ở đáy. */
+.comment-place .post-map { height: var(--comment-map-height); }
+.comment-place__address { color: var(--color-muted); overflow-wrap: anywhere; }
+.comment-place__link { color: var(--color-red); }
+/* Form sửa bình luận giữ toàn bộ chiều rộng còn lại bên cạnh avatar. */
+.post-comment-editor--edit { min-width: 0; width: 100%; margin-top: var(--space-2); }
+.post-comment-editor--edit .rich-editor__body { min-height: var(--rich-body-height); }

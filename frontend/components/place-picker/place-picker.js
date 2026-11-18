@@ -21,6 +21,7 @@ export function pickPlace(existing = null) {
     let debounce = null;
     let mapView = null;
     let finished = false;
+    let fullscreen = false;
     const titleId = 'place-picker-title';
     const dialog = el('dialog', { className: 'place-picker', 'aria-labelledby': titleId, 'data-place-picker': '' });
     const close = el('button', { type: 'button', className: 'place-picker__close', 'aria-label': 'Đóng địa điểm' }, editorIcon('close', 24));
@@ -29,6 +30,7 @@ export function pickPlace(existing = null) {
     const list = el('div', { id: 'place-results', className: 'place-picker__results', role: 'listbox', 'aria-label': 'Kết quả địa điểm', hidden: true });
     const status = el('p', { className: 'place-picker__status', role: 'status' });
     const map = el('div', { className: 'place-map place-picker__map', 'aria-label': 'Bản đồ chọn địa điểm' });
+    const expand = el('button', { type: 'button', className: 'place-picker__fullscreen', 'aria-pressed': 'false' }, editorIcon('maximize', 16), 'Toàn màn hình');
     const coordinates = el('strong', { 'data-place-coordinates': '' }, '–');
     const locate = el('button', { type: 'button', className: 'place-picker__locate' }, editorIcon('locate', 16), 'Dùng vị trí của tôi');
     const error = el('p', { className: 'place-picker__error', role: 'alert' });
@@ -37,8 +39,9 @@ export function pickPlace(existing = null) {
     dialog.append(el('div', { className: 'place-picker__heading' }, el('h2', { id: titleId, className: 't-display' }, 'Gắn địa điểm'), close),
       el('label', { className: 'u-visually-hidden', for: 'place-query' }, 'Tìm địa điểm'),
       el('div', { className: 'place-picker__search' }, editorIcon('search'), input), list, status,
-      el('div', { className: 'place-picker__map-wrap' }, map, el('span', { className: 'place-picker__map-hint' }, 'Kéo ghim hoặc bấm vào bản đồ để chỉnh vị trí')),
-      el('div', { className: 'place-picker__coordinates' }, el('span', {}, 'Toạ độ ', coordinates), locate), error,
+      el('div', { className: 'place-picker__map-wrap' }, map, el('span', { className: 'place-picker__map-hint' }, 'Kéo ghim hoặc bấm vào bản đồ để chỉnh vị trí'), expand),
+      el('div', { className: 'place-picker__location' },
+        el('div', { className: 'place-picker__coordinates' }, el('span', {}, 'Toạ độ ', coordinates), locate), error),
       el('div', { className: 'place-picker__actions' }, cancel, apply));
 
     /** Kết thúc một lần, dọn mạng/map và resolve trực tiếp thay vì phụ thuộc sự kiện close. */
@@ -48,9 +51,22 @@ export function pickPlace(existing = null) {
       clearTimeout(debounce);
       controller.abort(); searchController?.abort(); reverseController?.abort();
       mapView?.destroy();
+      window.removeEventListener('resize', resizeMap);
       if (dialog.open) dialog.close();
       dialog.remove();
       resolve(value);
+    }
+    /** Sau thay đổi kích thước, Leaflet đo lại khung mà không di chuyển ghim hoặc chạy hiệu ứng. */
+    function resizeMap() {
+      if (!finished) mapView?.map.invalidateSize({ animate: false });
+    }
+    /** Toàn màn hình giữ nguyên input và toạ độ, chỉ thay bố cục bằng lớp CSS. */
+    function toggleFullscreen() {
+      fullscreen = !fullscreen;
+      dialog.classList.toggle('is-fullscreen', fullscreen);
+      expand.setAttribute('aria-pressed', String(fullscreen));
+      expand.replaceChildren(editorIcon(fullscreen ? 'minimize' : 'maximize', 16), fullscreen ? 'Thu nhỏ' : 'Toàn màn hình');
+      resizeMap();
     }
     /** Toạ độ luôn cập nhật ngay, kể cả khi reverse đang chờ hoặc bị lỗi. */
     function syncPoint(center = false) {
@@ -160,7 +176,9 @@ export function pickPlace(existing = null) {
     cancel.addEventListener('click', () => finish(null));
     close.addEventListener('click', () => finish(null));
     apply.addEventListener('click', () => { if (point) { previousPoint = { ...point }; finish({ ...point, name: point.name || 'Vị trí đã chọn' }); } });
-    dialog.addEventListener('cancel', event => { event.preventDefault(); event.stopPropagation(); finish(null); });
+    expand.addEventListener('click', toggleFullscreen);
+    window.addEventListener('resize', resizeMap);
+    dialog.addEventListener('cancel', event => { event.preventDefault(); event.stopPropagation(); if (fullscreen) toggleFullscreen(); else finish(null); });
     dialog.addEventListener('close', () => finish(null));
     document.body.append(dialog);
     dialog.showModal();

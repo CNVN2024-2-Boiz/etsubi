@@ -2,7 +2,7 @@
 import { htmlEntities } from '/utils/html-entities.js';
 
 // Thẻ định dạng được giữ; khối nguy hiểm bị bỏ cả nội dung thay vì chỉ bỏ vỏ.
-const ALLOWED = new Set(['b', 'strong', 'i', 'em', 'u', 's', 'p', 'br']);
+const ALLOWED = new Set(['b', 'strong', 'i', 'em', 'u', 's', 'p', 'br', 'img']);
 const BLOCKED = new Set(['script', 'style', 'iframe', 'object', 'embed', 'template', 'noscript', 'textarea', 'title']);
 const ALIASES = { div: 'p', strike: 's', del: 's' };
 const MAX_DEPTH = 32;
@@ -43,6 +43,25 @@ export function safeRichUrl(value) {
     // URL lỗi chỉ mất liên kết, chữ vẫn được giữ.
     return null;
   }
+}
+
+/** Ảnh chỉ nhận HTTPS tuyệt đối, không chấp nhận khoảng trắng hoặc ký tự điều khiển. */
+export function safeImageUrl(value) {
+  const source = String(value ?? '');
+  if (!/^https:\/\//i.test(source) || /[\s\u0000-\u001f\u007f-\u009f]/u.test(source)) return null;
+  try {
+    const parsed = new URL(source);
+    return parsed.protocol === 'https:' && parsed.hostname ? parsed.href : null;
+  } catch {
+    // Không tự sửa đường dẫn lỗi vì có thể trỏ sang tài nguyên khác ý người nhập.
+    return null;
+  }
+}
+
+/** Kích thước phải là số nguyên thập phân trong giới hạn, không âm thầm ép giá trị lỗi. */
+export function imageDimension(value) {
+  const text = String(value ?? '');
+  return /^[1-9]\d{0,3}$/.test(text) && Number(text) <= 4000 ? Number(text) : null;
 }
 
 /** Tách cú pháp bằng bộ quét có nhận dấu nháy; dữ liệu được giải mã sau bước tách thẻ. */
@@ -89,7 +108,7 @@ function scan(html) {
 }
 
 /** Đọc href theo từng thuộc tính để không nhầm chữ href bên trong title hoặc thuộc tính khác. */
-function readHref(attributes) {
+function readAttribute(attributes, wanted, decode = true) {
   let cursor = 0;
   while (cursor < attributes.length) {
     while (/\s/.test(attributes[cursor] || '') && cursor < attributes.length) cursor++;
@@ -112,7 +131,7 @@ function readHref(attributes) {
         value = attributes.slice(valueStart, cursor);
       }
     }
-    if (name === 'href') return decodeEntities(value);
+    if (name === wanted) return decode ? decodeEntities(value) : value;
   }
   return '';
 }
@@ -144,6 +163,16 @@ function sanitizeTokens(html, { allowLinks = false } = {}) {
       }
       const name = ALIASES[raw] || raw;
       if (!ALLOWED.has(name) && !(allowLinks && name === 'a')) continue;
+      // img là thẻ rỗng: bỏ dấu đóng ngay, không tác động stack hoặc bộ đếm độ sâu.
+      if (name === 'img') {
+        if (closing) continue;
+        const rawSrc = readAttribute(tag.attributes, 'src', false);
+        const src = /^https:\/\//i.test(rawSrc) ? safeImageUrl(decodeEntities(rawSrc)) : null;
+        if (!src) continue;
+        tokens.push({ open: 'img', image: { src, alt: Array.from(readAttribute(tag.attributes, 'alt')).slice(0, 300).join(''),
+          width: imageDimension(readAttribute(tag.attributes, 'width')), height: imageDimension(readAttribute(tag.attributes, 'height')) } });
+        continue;
+      }
       if (closing) {
         if (overflow) { overflow--; continue; }
         const index = stack.lastIndexOf(name);
@@ -156,7 +185,7 @@ function sanitizeTokens(html, { allowLinks = false } = {}) {
       if (stack.length >= MAX_DEPTH || overflow) { if (name !== 'br') overflow++; continue; }
       let href = null;
       if (name === 'a') {
-        href = safeRichUrl(readHref(tag.attributes));
+        href = safeRichUrl(readAttribute(tag.attributes, 'href'));
         if (!href) continue;
       }
       tokens.push({ open: name, href });
@@ -173,13 +202,15 @@ function sanitizeTokens(html, { allowLinks = false } = {}) {
 export function sanitizeRichHtml(html, options = {}) {
   return sanitizeTokens(html, options).map(token => token.text !== undefined ? escapeText(token.text)
     : token.close ? '</' + token.close + '>'
+      : token.image ? '<img src="' + escapeText(token.image.src) + '" alt="' + escapeText(token.image.alt) + '"'
+        + (token.image.width ? ' width="' + token.image.width + '"' : '') + (token.image.height ? ' height="' + token.image.height + '"' : '') + '>'
       : '<' + token.open + (token.href ? ' href="' + escapeText(token.href) + '"' : '') + '>').join('');
 }
 
 /** Nhận biết bài cũ thuần văn bản để giữ xuống dòng và trích dẫn trước đây. */
 export function hasRichTags(content, { allowLinks = false } = {}) {
   const text = String(content ?? '');
-  return /<\/?(?:b|strong|i|em|u|s|strike|del|p|br|div)(?:\s|\/?>)/i.test(text)
+  return /<\/?(?:b|strong|i|em|u|s|strike|del|p|br|div|img)(?:\s|\/?>)/i.test(text)
     || (allowLinks && /<\/?a(?:\s|\/?>)/i.test(text));
 }
 
@@ -188,6 +219,18 @@ export function richToPlainText(html) {
   return sanitizeTokens(html, { allowLinks: true }).map(token => token.text !== undefined ? token.text
     : token.open === 'br' || token.open === 'p' || token.close === 'p' ? '\n' : '').join('')
     .replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/** Liệt kê các đoạn chữ nằm ngoài liên kết, dùng để nhận diện tên được nhắc trong nội dung. */
+export function richTextOutsideLinks(html) {
+  const pieces = [];
+  let linkDepth = 0;
+  for (const token of sanitizeTokens(html, { allowLinks: true })) {
+    if (token.open === 'a') linkDepth += 1;
+    else if (token.close === 'a') linkDepth -= 1;
+    else if (token.text !== undefined && !linkDepth) pieces.push(token.text);
+  }
+  return pieces;
 }
 
 /** Đếm từ theo khoảng trắng, riêng từng chữ Hán/Hiragana/Katakana tính một từ. */
@@ -271,6 +314,18 @@ export function renderRichContent(container, content, options = {}) {
       parents.pop();
     } else {
       const node = doc.createElement(token.open);
+      // Thuộc tính ảnh đều đã lọc; chỉ dùng DOM, không phân tích HTML lần thứ hai.
+      if (token.image) {
+        // Đặt chính sách tải trước src để request đầu tiên cũng không gửi Referer.
+        node.setAttribute('loading', 'lazy');
+        node.setAttribute('decoding', 'async');
+        node.setAttribute('referrerpolicy', 'no-referrer');
+        for (const [name, value] of Object.entries(token.image)) {
+          if (name !== 'src' && value !== null) node.setAttribute(name, String(value));
+        }
+        node.setAttribute('src', token.image.src);
+        node.className = 'rich-content__image';
+      }
       if (token.href) {
         node.setAttribute('href', token.href);
         node.setAttribute('rel', 'noopener noreferrer nofollow ugc');
@@ -278,7 +333,7 @@ export function renderRichContent(container, content, options = {}) {
       }
       if (token.open === 'p') node.className = 'rich-content__paragraph';
       target(token.open === 'p').append(node);
-      if (token.open !== 'br') parents.push(node);
+      if (!['br', 'img'].includes(token.open)) parents.push(node);
     }
   }
 }

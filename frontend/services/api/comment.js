@@ -1,12 +1,18 @@
 /** Bình luận của bài viết: đọc, gửi, xoá và dịch, dùng cho trang đọc bài. */
 import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
-import { notifyAfter, notifyPostAfter } from '/services/api/notify-actions.js';
+import { notifyAfter, notifyMentions, notifyPostAfter } from '/services/api/notify-actions.js';
+import { sanitizeRichHtml, validateRichBytes } from '/utils/rich-text.js';
+
+/** Chỉ gửi toạ độ khi có đủ cặp số hợp lệ, tránh lưu nửa vị trí. */
+function commentCoordinates(latitude, longitude) {
+  return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : {};
+}
 
 /**
  * Lấy mọi bình luận đang hiện của bài (API chưa phân trang, sắp cũ trước).
  * @param {string} postId Mã bài viết.
- * @returns {Promise<Array>} CommentResponse: id, parent_id, user_id, content, is_deleted, created_at.
+ * @returns {Promise<Array>} CommentResponse: id, parent_id, user_id, content, latitude, longitude, is_deleted, created_at.
  */
 export function listComments(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/comments');
@@ -20,13 +26,12 @@ export function listComments(postId) {
  * @param {object} options postAuthorId và parentAuthorId lấy từ dữ liệu trang để không tải lại.
  * @returns {Promise<object>} Bình luận vừa tạo.
  */
-// CẦN BACKEND: CreateCommentRequest cần attachments từ POST /uploads; hiện ảnh chỉ xem trước, không gửi.
-// CẦN BACKEND: bình luận cần latitude/longitude/place_name; hiện chip địa điểm chỉ nằm trong nháp.
+// CẦN BACKEND: place_name của bình luận có thể bổ sung sau; hiện chip địa điểm dựng từ latitude/longitude.
 // CẦN BACKEND: thêm is_spoiler vào POST/GET comments; khi có dữ liệu, FE sẽ che chữ và có nút Hiện spoiler.
-export async function createComment(postId, content, parentId = null, { postAuthorId, parentAuthorId } = {}) {
+export async function createComment(postId, content, parentId = null, { postAuthorId, parentAuthorId, latitude, longitude } = {}) {
   const result = await request('/posts/' + encodeURIComponent(postId) + '/comments', {
     method: 'POST',
-    body: { content, parent_id: parentId },
+    body: { content, parent_id: parentId, ...commentCoordinates(latitude, longitude) },
   });
   // Trả lời chỉ báo cho chủ bình luận cha; bình luận gốc chỉ báo cho tác giả bài.
   if (parentId) {
@@ -37,6 +42,7 @@ export async function createComment(postId, content, parentId = null, { postAuth
   } else {
     await notifyPostAfter('comment', postId, { authorId: postAuthorId });
   }
+  await notifyMentions({ commentId: result.id }, result.content ?? content);
   return result;
 }
 
@@ -47,6 +53,19 @@ export async function createComment(postId, content, parentId = null, { postAuth
  */
 export function deleteComment(commentId) {
   return request('/comments/' + encodeURIComponent(commentId), { method: 'DELETE' });
+}
+
+/** Sửa bình luận gồm HTML đã lọc và toạ độ đang gắn; không gửi toạ độ nghĩa là gỡ địa điểm khỏi bình luận. */
+export async function updateComment(commentId, content, { latitude, longitude } = {}) {
+  const safe = sanitizeRichHtml(content, { allowLinks: true });
+  const error = validateRichBytes(safe, 10000, 'Bình luận');
+  if (error) throw new Error(error);
+  const updated = await request('/comments/' + encodeURIComponent(commentId), {
+    method: 'PATCH', body: { content: safe, ...commentCoordinates(latitude, longitude) },
+  });
+  // Máy chủ chống trùng nên người đã được nhắc từ trước không nhận thêm thông báo.
+  await notifyMentions({ commentId }, updated?.content ?? safe);
+  return updated;
 }
 
 /**

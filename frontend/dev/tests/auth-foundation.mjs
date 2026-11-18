@@ -117,6 +117,18 @@ env.context.fetch = async () => new Response(attempts++ < 2 ? '{"error":"limited
 await api.request('/retry');
 assert.equal(attempts, 3);
 assert.ok(Date.now() - retryStart >= 1800);
+// Sau lỗi 429 cả hàng đợi tạm dừng để lần thử lại không bị các yêu cầu khác tranh hạn mức.
+const holdStarts = [];
+let holdLimited = true;
+env.context.fetch = async () => {
+  holdStarts.push(Date.now());
+  const status = holdLimited ? 429 : 200;
+  holdLimited = false;
+  return new Response('{}', { status });
+};
+await Promise.all([api.request('/hold-a'), api.request('/hold-b')]);
+assert.equal(holdStarts.length, 3);
+assert.ok(holdStarts[1] - holdStarts[0] >= 550, 'queued requests must wait while the rate limit recovers');
 // 401 công khai không xoá phiên, còn 401 có token phải báo hết phiên.
 let unauthorized = 0;
 api.onUnauthorized(() => unauthorized++);
@@ -215,13 +227,14 @@ env.context.fetch = async () => new Response('{"error":"expired"}', { status: 40
 await api.request('/my').catch(() => {});
 assert.equal(env.redirects.at(-1), '/pages/profile/login.html?redirect=%2Fpages%2Fforum.html%3Fpage%3D2');
 assert.equal(auth.getCachedUser(), null);
-// Tên tự do nhận chữ Nhật; handle chỉ nhận chữ Latin thường, số, dấu chấm và gạch dưới.
+// Tên tự do nhận chữ Nhật; handle chỉ nhận chữ Latin thường, số và gạch dưới.
 const validation = await env.use('/utils/validation.js');
 const hint = validation.authFieldMessage;
 assert.ok(hint('username', { value: '  ab  ' }));
 assert.ok(hint('username', { value: '  あ  ' }));
 assert.equal(hint('displayname', { value: '  あ  ' }), '');
-assert.equal(hint('username', { value: 'nguyen.van_an' }), '');
+assert.equal(hint('username', { value: 'nguyen_van_an' }), '');
+assert.ok(hint('username', { value: 'nguyen.van_an' }));
 assert.ok(hint('displayname', { value: '   ' }));
 assert.ok(hint('displayname', { value: 'あ'.repeat(61) }));
 assert.ok(hint('email', { value: 'wrong@' }));

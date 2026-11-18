@@ -43,13 +43,28 @@ export function notifyFollowers(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/notify-followers', { method: 'POST' });
 }
 
-/** Chuyển duy nhất hai dạng liên kết máy chủ hỗ trợ sang trang nội bộ an toàn. */
+/** Gửi danh sách tên được nhắc; máy chủ bỏ qua tên không tồn tại và không báo trùng cho cùng một nội dung. */
+export function createMentions({ postId, commentId, usernames }) {
+  return request('/notifications/mention', {
+    method: 'POST', body: { ...(commentId ? { comment_id: commentId } : { post_id: postId }), mentioned_usernames: usernames },
+  });
+}
+
+// Mã bình luận trong link luôn là UUID; dạng khác bị coi là link không hợp lệ.
+const POST_LINK = /^\/posts\/([^/?#]+)(?:#comment-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))?$/iu;
+const USER_LINK = /^\/users\/([^/?#]+)$/u;
+
+/** Chỉ nhận link bài viết (có thể kèm #comment-{uuid}) và link hồ sơ, mọi dạng khác về Trang chủ. */
 export function notificationHref(link) {
-  const match = typeof link === 'string' && link.match(/^\/(posts|users)\/([^/?#]+)$/u);
-  if (!match) {
+  if (typeof link !== 'string') {
     return routes.home;
   }
-  return match[1] === 'posts' ? routes.post(match[2]) : routes.userProfile(match[2]);
+  const post = link.match(POST_LINK);
+  if (post) {
+    return routes.post(post[1]) + (post[2] ? '#comment-' + post[2].toLowerCase() : '');
+  }
+  const user = link.match(USER_LINK);
+  return user ? routes.userProfile(user[1]) : routes.home;
 }
 
 /** Bảng câu tiếng Việt theo loại; chỗ trống được điền bằng các nhóm khớp từ thông điệp máy chủ. */
@@ -58,6 +73,7 @@ export const notificationKindText = Object.freeze({
   reaction: '{actor} đã bày tỏ cảm xúc {emoji} với bài viết của bạn',
   comment: '{actor} đã bình luận bài viết của bạn',
   reply: '{actor} đã trả lời bình luận của bạn',
+  mention: '{actor} đã nhắc đến bạn',
   post_created: '{actor} vừa đăng bài mới: “{title}”',
   muted: '{actor} đã tạm khoá chức năng viết của bạn đến {date}',
   banned: '{actor} đã khoá tài khoản của bạn',
@@ -71,6 +87,7 @@ const messagePatterns = Object.freeze({
   reaction: /^(?<actor>.+) reacted (?<emoji>.+) to your post$/u,
   comment: /^(?<actor>.+) commented on your post$/u,
   reply: /^(?<actor>.+) replied to your comment$/u,
+  mention: /^(?<actor>.+) mentioned you$/u,
   post_created: /^New post from (?<actor>.+?): "(?<title>.*)"$/u,
   muted: /^Your account has been muted until (?<date>.+)$/u,
   banned: /^Your account has been banned$/u,
@@ -78,7 +95,16 @@ const messagePatterns = Object.freeze({
   post_removed: /^Your post "(?<title>.*)" has been removed$/u,
 });
 
-// CẦN BACKEND: GET /my/notifications chưa trả actor { id, displayname, username, avatar_url } và context { post_title, emoji, muted_until }; tạm tách tên từ câu tiếng Anh của máy chủ.
+/** Gom các trường actor_* phẳng của API; dữ liệu cũ không có thì để trống và dùng tên trong message. */
+function notificationActor(notification) {
+  const nested = notification?.actor;
+  return {
+    username: notification?.actor_username || nested?.username || null,
+    displayname: notification?.actor_displayname || nested?.displayname || null,
+    avatarUrl: notification?.actor_avatar_url || nested?.avatar_url || null,
+  };
+}
+
 /** Tách thông điệp thành văn bản và tên in đậm; không đoán tên hoặc tiêu đề khi câu không khớp. */
 export function formatNotification(notification) {
   const message = String(notification?.message ?? '');
@@ -86,7 +112,11 @@ export function formatNotification(notification) {
   const pattern = Object.hasOwn(messagePatterns, kind) ? messagePatterns[kind] : null;
   const match = pattern?.exec(message);
   const isSystem = ['muted', 'banned', 'post_locked', 'post_removed'].includes(kind);
-  const fallback = { actorName: null, initials: '?', text: [{ text: message, strong: false }], isSystem, kind };
+  const actor = notificationActor(notification);
+  const fallback = {
+    actorName: null, initials: actor.displayname || actor.username ? initials(actor.displayname || actor.username) : '?',
+    avatarUrl: isSystem ? null : actor.avatarUrl, text: [{ text: message, strong: false }], isSystem, kind,
+  };
   if (!match) {
     return fallback;
   }
@@ -108,14 +138,14 @@ export function formatNotification(notification) {
   }
   // Chỉ tên người thực hiện được in đậm; nội dung còn lại luôn là text node khi dựng giao diện.
   const actorName = isSystem ? 'Quản trị viên'
-    : notification.actor?.displayname
-      || (notification.actor?.username ? formatHandle(notification.actor.username) : values.actor);
+    : actor.displayname || (actor.username ? formatHandle(actor.username) : values.actor);
   values.actor = actorName;
   const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder)
     // Ô trống (như emoji bị loại) để lại hai khoảng trắng liền nhau, gộp lại cho câu gọn.
     .replace(/ {2,}/gu, ' ');
   return {
-    actorName, initials: isSystem ? 'QT' : initials(notification.actor?.displayname || notification.actor?.username || actorName), isSystem, kind,
+    actorName, initials: isSystem ? 'QT' : initials(actor.displayname || actor.username || actorName),
+    avatarUrl: isSystem ? null : actor.avatarUrl, isSystem, kind,
     text: [{ text: actorName, strong: true }, { text: suffix, strong: false }],
   };
 }
