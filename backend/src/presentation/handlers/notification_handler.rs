@@ -1,5 +1,7 @@
 use actix_web::{
-    Error, HttpResponse, delete, error::ErrorInternalServerError, get, patch, post, web,
+    Error, HttpResponse, delete,
+    error::{ErrorBadRequest, ErrorInternalServerError},
+    get, patch, post, web,
 };
 use uuid::Uuid;
 
@@ -8,6 +10,7 @@ use crate::{
     presentation::dto::{
         auth_dto::AuthUser,
         notification_dto::{
+            CreateMentionNotificationsRequest, CreateMentionNotificationsResponse,
             CreateNotificationRequest, ListNotificationsQuery, MarkAllReadResponse,
             NotificationResponse, NotifyFollowersResponse, UnreadCountResponse,
         },
@@ -224,4 +227,63 @@ pub async fn delete_notification(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::NoContent().finish())
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/v1/notifications/mention",
+    tag = "notification",
+    request_body = CreateMentionNotificationsRequest,
+    responses(
+        (status = 200, description = "Mention notifications processed", body = CreateMentionNotificationsResponse),
+        (status = 400, description = "Must supply exactly one of post_id or comment_id"),
+        (status = 401, description = "Not authenticated"),
+        (status = 403, description = "Not the owner of the post/comment"),
+        (status = 404, description = "Post/comment not found"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[post("/notifications/mention")]
+pub async fn create_mentions(
+    state: web::Data<AppState>,
+    user: AuthUser,
+    body: web::Json<CreateMentionNotificationsRequest>,
+) -> Result<HttpResponse, Error> {
+    let req = body.into_inner();
+    let actor_id = user.id;
+
+    let (content, link) = match (req.post_id, req.comment_id) {
+        (Some(post_id), _none) => {
+            let svc = state.post_service.clone();
+            let post = web::block(move || svc.get_owned(post_id, actor_id))
+                .await
+                .map_err(ErrorInternalServerError)??;
+            (post.content, format!("/posts/{}", post_id))
+        }
+        (_none, Some(comment_id)) => {
+            let svc = state.comment_service.clone();
+            let comment = web::block(move || svc.get_owned(comment_id, actor_id))
+                .await
+                .map_err(ErrorInternalServerError)??;
+            let post_id = comment.post_id;
+            (
+                comment.content,
+                format!("/posts/{}#comment-{}", post_id, comment_id),
+            )
+        }
+        _ => {
+            return Err(ErrorBadRequest(
+                "Provide exactly one of post_id or comment_id",
+            ));
+        }
+    };
+
+    let svc = state.notification_service.clone();
+    let usernames = req.mentioned_usernames;
+
+    let created = web::block(move || svc.create_mentions(actor_id, &content, &link, &usernames))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(CreateMentionNotificationsResponse { created }))
 }

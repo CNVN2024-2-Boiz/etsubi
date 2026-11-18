@@ -90,6 +90,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::notification_handler::create_notification);
     cfg.service(presentation::handlers::notification_handler::notify_followers);
     cfg.service(presentation::handlers::notification_handler::list_my_notifications);
+    cfg.service(presentation::handlers::notification_handler::create_mentions);
     cfg.service(presentation::handlers::notification_handler::unread_count);
     cfg.service(presentation::handlers::notification_handler::mark_notification_read);
     cfg.service(presentation::handlers::notification_handler::mark_all_read);
