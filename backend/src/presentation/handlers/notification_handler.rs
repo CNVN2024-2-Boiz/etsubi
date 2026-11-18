@@ -38,6 +38,7 @@ pub async fn create_notification(
     body: web::Json<CreateNotificationRequest>,
 ) -> Result<HttpResponse, Error> {
     let service = state.notification_service.clone();
+    let user_service = state.user_service.clone();
     let actor_id = user.id;
     let req = body.into_inner();
 
@@ -52,7 +53,16 @@ pub async fn create_notification(
     .await
     .map_err(ErrorInternalServerError)??;
 
-    Ok(HttpResponse::Created().json(NotificationResponse::from(created)))
+    let actor = web::block(move || user_service.find_by_id(actor_id))
+        .await
+        .map_err(ErrorInternalServerError)?
+        .ok()
+        .flatten();
+
+    Ok(
+        HttpResponse::Created()
+            .json(NotificationResponse::from(created).with_actor(actor.as_ref())),
+    )
 }
 
 #[utoipa::path(
@@ -106,6 +116,7 @@ pub async fn list_my_notifications(
     query: web::Query<ListNotificationsQuery>,
 ) -> Result<HttpResponse, Error> {
     let service = state.notification_service.clone();
+    let user_service = state.user_service.clone();
     let user_id = user.id;
     let limit = query.limit;
     let offset = query.offset;
@@ -114,8 +125,37 @@ pub async fn list_my_notifications(
         .await
         .map_err(ErrorInternalServerError)??;
 
-    let resp: Vec<NotificationResponse> =
-        list.into_iter().map(NotificationResponse::from).collect();
+    let actor_ids: Vec<Uuid> = list
+        .iter()
+        .filter_map(|n| n.actor_id)
+        .collect::<std::collections::HashSet<_>>()
+        .into_iter()
+        .collect();
+
+    let actors = if actor_ids.is_empty() {
+        std::collections::HashMap::new()
+    } else {
+        web::block(move || {
+            let mut map = std::collections::HashMap::new();
+            for id in actor_ids {
+                if let Ok(Some(u)) = user_service.find_by_id(id) {
+                    map.insert(id, u);
+                }
+            }
+            map
+        })
+        .await
+        .map_err(ErrorInternalServerError)?
+    };
+
+    let resp: Vec<NotificationResponse> = list
+        .into_iter()
+        .map(|n| {
+            let actor = n.actor_id.and_then(|id| actors.get(&id));
+            NotificationResponse::from(n).with_actor(actor)
+        })
+        .collect();
+
     Ok(HttpResponse::Ok().json(resp))
 }
 
