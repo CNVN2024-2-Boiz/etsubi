@@ -308,10 +308,6 @@ impl PostRepository for PostgresPostRepo {
             .load(&mut conn)?)
     }
 
-    fn list_popular_posts(&self) -> Result<Vec<Post>> {
-        self.list_top_ranked_posts(3, 9)
-    }
-
     fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>> {
         let mut conn = self.pool.get()?;
 

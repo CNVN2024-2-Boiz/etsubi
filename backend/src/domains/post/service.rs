@@ -296,10 +296,10 @@ impl PostService {
     }
 
     pub fn list_highlight_posts(&self) -> Result<Vec<Post>, PostError> {
-        Ok(self.post_repo.list_top_ranked_posts(9, 0)?)
+        Ok(self.post_repo.list_top_ranked_posts(12, 0)?)
     }
 
     pub fn list_popular_posts(&self) -> Result<Vec<Post>, PostError> {
-        Ok(self.post_repo.list_top_ranked_posts(3, 9)?)
+        Ok(self.post_repo.list_top_ranked_posts(3, 12)?)
     }
 }
