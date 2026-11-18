@@ -70,7 +70,7 @@ impl AuthService {
         if !(3..=30).contains(&uname_len)
             || !username
                 .chars()
-                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '.' || c == '_')
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
         {
             return Err(AuthError::InvalidUsername);
         }
