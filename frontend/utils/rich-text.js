@@ -1,5 +1,6 @@
 /** Bộ lọc HTML thuần: chỉ giữ tập thẻ nhỏ, dùng cùng quy tắc ở Node và trình duyệt. */
 import { htmlEntities } from '/utils/html-entities.js';
+import { currentLocale, t } from '/utils/i18n.js';
 
 // Thẻ định dạng được giữ; khối nguy hiểm bị bỏ cả nội dung thay vì chỉ bỏ vỏ.
 const ALLOWED = new Set(['b', 'strong', 'i', 'em', 'u', 's', 'p', 'br', 'img']);
@@ -254,8 +255,8 @@ export function utf8Bytes(text) {
 }
 
 /** Kiểm tra giới hạn byte thật của máy chủ, trả lời nhắc tiếng Việt trước khi gửi. */
-export function validateRichBytes(value, limit, label = 'Nội dung') {
-  return utf8Bytes(value) > limit ? label + ' vượt quá giới hạn ' + limit.toLocaleString('vi-VN') + ' byte.' : '';
+export function validateRichBytes(value, limit, label = t('Nội dung')) {
+  return utf8Bytes(value) > limit ? t('{label} vượt quá giới hạn {limit} byte.', { label, limit: limit.toLocaleString(currentLocale()) }) : '';
 }
 
 /** Bọc chữ Nhật bằng DOM, không cần import tiện ích DOM vào phần lọc thuần. */

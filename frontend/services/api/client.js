@@ -2,6 +2,7 @@
  * Cổng JSON dùng chung cho các trang xác thực và nội dung.
  * Gom yêu cầu vào hàng đợi để tuân thủ giới hạn của API Rust.
  */
+import { t } from '/utils/i18n.js';
 const DEFAULT_API_BASE = "http://localhost:11432/api/v1";
 const TOKEN_KEY = 'etsubi_token';
 
@@ -118,12 +119,12 @@ export async function requestExternal(url, { signal } = {}) {
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
     const response = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' }, credentials: 'omit', signal: controller.signal });
-    if (!response.ok) throw new ApiError(response.status, 'Không tải được thông tin địa điểm. Vui lòng thử lại.');
+    if (!response.ok) throw new ApiError(response.status, t('Không tải được thông tin địa điểm. Vui lòng thử lại.'));
     return await response.json();
   } catch (error) {
     if (signal?.aborted) throw signal.reason || error;
     if (error instanceof ApiError) throw error;
-    throw new ApiError(0, 'Không kết nối được dịch vụ địa điểm. Vui lòng thử lại.');
+    throw new ApiError(0, t('Không kết nối được dịch vụ địa điểm. Vui lòng thử lại.'));
   } finally {
     clearTimeout(timeout);
     signal?.removeEventListener('abort', abort);
@@ -289,7 +290,7 @@ export async function request(path, { method = 'GET', body, query, signal, auth 
           if (signal?.aborted) {
             throw signal.reason || error;
           }
-          throw new ApiError(0, 'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối và thử lại.');
+          throw new ApiError(0, t('Không kết nối được máy chủ. Vui lòng kiểm tra kết nối và thử lại.'));
         } finally {
           clearTimeout(timeout);
           signal?.removeEventListener('abort', abort);
@@ -311,7 +312,7 @@ export async function request(path, { method = 'GET', body, query, signal, auth 
               callback();
             }
           }
-          const message = data?.error || data?.message || (typeof data === 'string' && data) || ('Lỗi ' + response.status);
+          const message = data?.error || data?.message || (typeof data === 'string' && data) || t('Lỗi {status}', { status: response.status });
           throw new ApiError(response.status, message, data);
         }
         return data;

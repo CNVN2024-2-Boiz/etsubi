@@ -179,11 +179,11 @@ assert.equal(edited('bad', '2026-11-18T00:00:00Z'), false);
 assert.equal(edited(null, null), false);
 const labelModule = await load('/utils/stat-label.js'); await labelModule.evaluate();
 const label = labelModule.namespace.statLabel;
-assert.equal(label(12, 'Số bình luận'), '12 bình luận');
-assert.equal(label(3, 'Số lượt thích'), '3 lượt thích');
-assert.equal(label(1, 'lượt thích'), '1 lượt thích');
-assert.equal(label(0, 'bình luận'), '0 bình luận');
-for (const value of [undefined, null, NaN, Infinity, '12']) assert.equal(label(value, 'bình luận'), 'Số bình luận · chưa có dữ liệu');
+assert.equal(label(12, 'comments'), '12 bình luận');
+assert.equal(label(3, 'likes'), '3 lượt thích');
+assert.equal(label(1, 'views'), '1 lượt xem');
+assert.equal(label(0, 'comments'), '0 bình luận');
+for (const value of [undefined, null, NaN, Infinity, '12']) assert.equal(label(value, 'comments'), 'Số bình luận · chưa có dữ liệu');
 const mailModule = await load('/utils/support-mailto.js'); await mailModule.evaluate();
 const mail = mailModule.namespace.buildSupportMailto('Quy tắc & Cộng đồng', 'a+b@example.com', 'Ảnh? & #\nDòng hai');
 assert.equal(mail, 'mailto:contact@etsubi.vn?subject=' + encodeURIComponent('[Etsubi] Quy tắc & Cộng đồng')

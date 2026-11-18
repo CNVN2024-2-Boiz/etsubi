@@ -1,6 +1,7 @@
 /** Thanh tìm kiếm chỉ quản lý bản nháp; chỉ gọi trang khi người dùng gửi biểu mẫu. */
 import { el } from '/utils/dom.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
+import { t } from '/utils/i18n.js';
 
 // Mỗi thanh có id riêng để nhãn, lỗi và bảng chọn luôn liên kết đúng điều khiển.
 let searchBarCount = 0;
@@ -21,7 +22,7 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
   let selected = [...new Set(initialTags)];
   let busy = false;
   const element = el('div', { className: 'search-bar', 'data-search-bar': '' });
-  const form = el('form', { className: 'search-bar__form', role: 'search', 'aria-label': 'Tìm bài viết' });
+  const form = el('form', { className: 'search-bar__form', role: 'search', 'aria-label': t('Tìm bài viết') });
   const field = el('div', { className: 'search-bar__field' });
   const chips = el('div', { className: 'search-bar__chips' });
   const input = el('input', {
@@ -31,7 +32,7 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
     maxlength: 200,
     enterkeyhint: 'search',
     'data-search-input': '',
-    'aria-label': 'Tìm kiếm',
+    'aria-label': t('Tìm kiếm'),
     'aria-describedby': id + '-error',
     autocomplete: 'off',
     autocorrect: 'off',
@@ -39,7 +40,7 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
   });
   input.value = initialQuery.slice(0, 200);
   const clear = el('button', {
-    className: 'search-bar__clear', type: 'button', 'aria-label': 'Xoá nội dung',
+    className: 'search-bar__clear', type: 'button', 'aria-label': t('Xoá nội dung'),
   }, icon('clear-x'));
   const escape = el('kbd', { className: 'kbd search-bar__escape', 'aria-hidden': 'true' }, 'Esc');
   const tagIcon = icon('sliders');
@@ -47,10 +48,10 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
   const tagButton = el('button', {
     type: 'button', className: 'search-bar__tag-button',
     'aria-expanded': 'false', 'aria-controls': id + '-picker',
-  }, tagIcon, 'Tag', badge);
-  const submitLabel = el('span', { className: 'search-bar__submit-label' }, 'Tìm kiếm');
+  }, tagIcon, t('Tag'), badge);
+  const submitLabel = el('span', { className: 'search-bar__submit-label' }, t('Tìm kiếm'));
   const submit = el('button', { type: 'submit', className: 'search-bar__submit' },
-    icon('search-white'), submitLabel, el('span', { className: 'search-bar__mobile-label' }, 'Tìm')
+    icon('search-white'), submitLabel, el('span', { className: 'search-bar__mobile-label' }, t('Tìm'))
   );
   const picker = el('section', {
     id: id + '-picker', className: 'search-bar__picker', hidden: true,
@@ -60,10 +61,10 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
   const error = el('p', {
     id: id + '-error', className: 'search-bar__error', role: 'alert', hidden: true,
   });
-  picker.append(el('h2', { id: id + '-picker-title', className: 'search-bar__picker-title' }, 'Lọc theo tag'),
-    pickerTags, el('p', { className: 'search-bar__picker-note' }, 'Khớp tất cả tag đã chọn'));
+  picker.append(el('h2', { id: id + '-picker-title', className: 'search-bar__picker-title' }, t('Lọc theo tag')),
+    pickerTags, el('p', { className: 'search-bar__picker-note' }, t('Khớp tất cả tag đã chọn')));
   field.append(el('span', { className: 'search-bar__leading-icon' }, icon('search', 20)),
-    chips, el('label', { className: 'u-visually-hidden', for: input.id }, 'Tìm kiếm'),
+    chips, el('label', { className: 'u-visually-hidden', for: input.id }, t('Tìm kiếm')),
     input, escape, clear, el('span', { className: 'search-bar__divider', 'aria-hidden': 'true' }), tagButton);
   form.append(field, submit);
   element.append(form, picker, error);
@@ -98,9 +99,9 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
     tagIcon.src = '/assets/icons/' + (selected.length ? 'sliders-active' : 'sliders') + '.svg';
     submit.disabled = busy || !hasContent;
     submit.classList.toggle('is-loading', busy);
-    submitLabel.textContent = busy ? 'Đang xử lý…' : 'Tìm kiếm';
-    submit.setAttribute('aria-label', busy ? 'Đang xử lý…' : 'Tìm kiếm');
-    input.placeholder = selected.length ? '' : 'Tìm bài viết, chủ đề… hoặc gõ # để lọc theo tag';
+    submitLabel.textContent = busy ? t('Đang xử lý…') : t('Tìm kiếm');
+    submit.setAttribute('aria-label', busy ? t('Đang xử lý…') : t('Tìm kiếm'));
+    input.placeholder = selected.length ? '' : t('Tìm bài viết, chủ đề… hoặc gõ # để lọc theo tag');
   }
 
   /** Xoá một chip từ nút riêng, giữ con trỏ ở input để người dùng tiếp tục nhập. */
@@ -177,7 +178,7 @@ export function createSearchBar({ tags = [], initialQuery = '', initialTags = []
     input.value = input.value.replace(/(^|\s)#([^\s#]+)/gu, replaceToken).replace(/\s+/gu, ' ').trim();
     renderTags();
     if (rejectUnknown && unknown.length) {
-      showError('Không có tag #' + unknown[0]);
+      showError(t('Không có tag #{name}', { name: unknown[0] }));
       return false;
     }
     showError();

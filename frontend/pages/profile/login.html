@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Đăng nhập · Etsubi</title>
+    <title data-i18n>Đăng nhập · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +18,7 @@
   </head>
   <body class="page page--login">
     <!-- Liên kết bàn phím đi thẳng tới nội dung, bỏ qua thanh điều hướng. -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <!-- Vùng gắn header dùng chung; module trang gọi mountHeader để dựng điều hướng. -->
     <header class="site-header" data-component="header" data-variant="default"></header>
     <!-- Nội dung chính gồm cảnh trang trí và thẻ biểu mẫu HTML, vẫn đọc được khi tắt JavaScript. -->
@@ -30,14 +30,14 @@
         <!-- Dải đỏ và biểu tượng cổng ở đầu thẻ, giữ bố cục giống bản thiết kế. -->
         <div class="card__band">
           <img class="card__torii" src="/assets/icons/torii-mini.svg" alt="" aria-hidden="true" />
-          <p class="card__band-title">Đăng nhập</p>
+          <p class="card__band-title" data-i18n>Đăng nhập</p>
         </div>
         <!-- Nội dung thẻ: tiêu đề, biểu mẫu và liên kết chuyển giữa đăng nhập với đăng ký. -->
         <div class="auth-card__body">
           <!-- Thông báo phiên đang có, chỉ hiện sau khi tải được hồ sơ người dùng. -->
           <div class="alert alert--info auth-card__session" role="status" data-session-notice hidden></div>
-          <h1 class="t-display auth-card__title" id="auth-title">Đăng nhập</h1>
-          <p class="auth-card__subtitle">Chào mừng trở lại</p>
+          <h1 class="t-display auth-card__title" id="auth-title" data-i18n>Đăng nhập</h1>
+          <p class="auth-card__subtitle" data-i18n>Chào mừng trở lại</p>
           <!-- Biểu mẫu dùng kiểm tra tiếng Việt trong module thay cho thông báo mặc định của trình duyệt. -->
           <form data-auth-form novalidate>
             <!-- Nhóm trường nhập xếp dọc; mỗi trường có nhãn và vùng gợi ý lỗi riêng. -->
@@ -50,11 +50,11 @@
               </div>
               <!-- Trường password: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
               <div class="field" data-field="password">
-                <label class="field__label" for="password">Mật khẩu</label>
+                <label class="field__label" data-i18n for="password">Mật khẩu</label>
                 <!-- Ô mật khẩu và nút mắt: nút thật hỗ trợ bàn phím và công bố trạng thái ẩn/hiện. -->
                 <div class="input-group">
                   <input class="input" id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" aria-describedby="password-hint" required />
-                  <button type="button" class="input-group__button" data-password-toggle="password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="password">
+                  <button type="button" class="input-group__button" data-password-toggle="password" aria-label="Hiện mật khẩu" data-i18n-attr="aria-label" aria-pressed="false" aria-controls="password">
                     <img src="/assets/icons/eye.svg" alt="" width="24" height="24" />
                   </button>
                 </div>
@@ -67,22 +67,22 @@
                 <input class="checkbox__input" type="checkbox" id="remember" name="remember" checked />
                 <span class="checkbox__box" aria-hidden="true">
                 </span>
-                <span>Ghi nhớ đăng nhập</span>
+                <span data-i18n>Ghi nhớ đăng nhập</span>
               </label>
-              <a class="auth-card__forgot" href="#" data-forgot title="Sắp ra mắt">Quên mật khẩu?</a>
+              <a class="auth-card__forgot" href="#" data-forgot title="Sắp ra mắt" data-i18n data-i18n-attr="title">Quên mật khẩu?</a>
             </div>
             <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
             <div class="alert alert--info auth-card__message" role="status" data-info-alert hidden></div>
             <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
             <div class="alert alert--error auth-card__message" role="alert" data-form-alert hidden></div>
             <!-- Nút gửi có nhãn gốc để module phục hồi sau trạng thái chờ tĩnh. -->
-            <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit>Đăng nhập</button>
+            <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit data-i18n>Đăng nhập</button>
             <!-- Phân cách hai cách đăng nhập bằng chữ và hai vạch tĩnh theo bản tham chiếu. -->
-            <div class="auth-card__or"><span>hoặc</span></div>
+            <div class="auth-card__or"><span data-i18n>hoặc</span></div>
             <!-- Nút Google chưa gửi API, chỉ hiện thông báo sắp có trong vùng trạng thái của form. -->
             <button class="auth-card__google" type="button" data-google-auth>
               <img src="/assets/icons/google-g.svg" alt="" width="20" height="20" />
-              <span>Đăng nhập với Google</span>
+              <span data-i18n>Đăng nhập với Google</span>
             </button>
             <!-- Vùng trạng thái riêng của nút Google, không dùng chung với thông báo của form hay thông báo phiên. -->
             <p class="alert alert--info auth-card__message" role="status" data-google-note hidden></p>
@@ -90,7 +90,7 @@
           <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
           <img class="auth-card__divider" src="/assets/illustrations/card-divider.svg" alt="" aria-hidden="true" />
           <!-- Liên kết sang biểu mẫu còn lại; module giữ tham số trang quay về nếu có. -->
-          <p class="auth-card__switch">Chưa có tài khoản? <a href="/pages/profile/register.html" data-auth-switch>Đăng ký</a></p>
+          <p class="auth-card__switch"><span data-i18n>Chưa có tài khoản?</span> <a href="/pages/profile/register.html" data-auth-switch data-i18n>Đăng ký</a></p>
         </div>
         <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
         <img class="auth-card__bottom-wave" src="/assets/illustrations/card-bottom-wave.svg" alt="" aria-hidden="true" />

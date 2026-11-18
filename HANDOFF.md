@@ -53,6 +53,7 @@ Last update: 2026-11-18 · branch `feat/fe-backend-integration` (stacked, last t
 
 | **Batch 10: ảnh HTTPS, menu/sửa bình luận, sửa bài, địa điểm và tooltip** | `components/rich-editor/`, `components/place-picker/`, `pages/forum.*`, `pages/post.js`, `components/postcard/`, `utils/` | shared components `204:11906`, composer `204:12481`, forum `204:12845`, compose dialog `204:13110`, place dialog `204:13538`, Reading `198:11518` |
 | **Batch 10: Hỗ trợ qua email, bỏ báo cáo và phiếu hỗ trợ** | `pages/support.*`, `pages/support-content.js`, `utils/support-mailto.js`; xoá service hỗ trợ | shared Hỗ trợ 2 `195:4885` |
+| **Đợt 14: dịch giao diện VI/JA/EN** – mọi trang đọc `etsubi_lang`; khoá dịch là câu tiếng Việt, đổi ngôn ngữ thì tải lại trang. Nội dung người dùng không dịch ở đây, bài viết và bình luận vẫn dùng nút Dịch theo ngôn ngữ mẹ đẻ. Nhóm đã thống nhất không thêm trang mới | `utils/i18n.js`, `i18n/*.js`, `dev/i18n-guide.md`, `dev/tests/i18n.mjs` | dropdown canva `466:3644`, shared `239:4071` |
 
 ## 2. What is left (next batches)
 
@@ -61,7 +62,6 @@ Frame IDs below are in the personal file. The shared team file (source of truth)
 | Page | Figma frame | Notes |
 |---|---|---|
 | Mod/Admin views | board `260:1891` | `/manage/*` endpoints; staff badge colour `--color-staff`. RBAC summary in AGENTS.md §8. |
-| i18n (VI/JA/EN) | – | The header language dropdown (Đợt 13, `components/header/language-menu.js`, Figma `466:3644`, shared `239:4071`) and Cài đặt › Giao diện only store `localStorage.etsubi_lang` (through `utils/preferences.js`); no dictionaries yet. |
 | Dark theme | – | Cài đặt › Giao diện shows Tối and Theo máy disabled ("sắp có"). Waiting for a dark palette in Figma (front-end/design work, not back end). When it exists: add dark tokens, apply `etsubi_theme` on every page, enable the two options. |
 
 Sau môn học: ảnh dạng lưới kiểu Facebook, bấm xem full

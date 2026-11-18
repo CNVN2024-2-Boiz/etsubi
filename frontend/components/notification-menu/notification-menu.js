@@ -5,6 +5,7 @@ import {
   listNotifications, getUnreadCount, markNotificationRead, markAllNotificationsRead,
   deleteNotification, notificationHref, formatNotification,
 } from '/services/api/notifications.js';
+import { t } from '/utils/i18n.js';
 
 // Đường nét Lucide chuẩn khung 24, không dùng SVG xuất bị co méo hoặc icon font.
 const iconPaths = Object.freeze({
@@ -61,7 +62,7 @@ export function createNotificationItem(notification, { signal, page = false, onF
   }
   const link = el('a', { href: notificationHref(notification.link), className: 'notification-item__link' },
     avatarWrap, el('span', { className: 'notification-item__content' }, message,
-      el('span', { className: 'u-visually-hidden', 'data-notification-unread-label': '' }, notification.is_readed ? '' : ' (Chưa đọc)'),
+      el('span', { className: 'u-visually-hidden', 'data-notification-unread-label': '' }, notification.is_readed ? '' : ' ' + t('(Chưa đọc)')),
       el('span', { className: 'notification-item__time' }, relativeTime(notification.created_at))));
   // Click thường chờ đánh dấu rồi chuyển trang; tổ hợp mở tab mới vẫn giữ hành vi trình duyệt.
   link.addEventListener('click', event => { void onFollow(event, notification, link); }, { signal });
@@ -71,17 +72,17 @@ export function createNotificationItem(notification, { signal, page = false, onF
     }
   }, { signal });
   const dot = el('span', { className: 'notification-item__dot', 'data-notification-dot': '', 'aria-hidden': 'true', hidden: notification.is_readed });
-  const remove = el('button', { type: 'button', className: 'notification-item__delete', 'aria-label': 'Xoá thông báo' }, notificationIcon('x', 16));
+  const remove = el('button', { type: 'button', className: 'notification-item__delete', 'aria-label': t('Xoá thông báo') }, notificationIcon('x', 16));
   // Nút xoá độc lập với liên kết nên không vô tình điều hướng khi thao tác.
   remove.addEventListener('click', () => { void onDelete(notification, row); }, { signal });
   const trailing = el('div', { className: 'notification-item__trailing' }, dot, remove);
   row.append(link, trailing);
   // Trang riêng có nút chạm 40px và bảng thao tác; panel desktop chỉ dùng nút xoá khi hover/focus.
   if (page) {
-    const more = el('button', { type: 'button', className: 'notification-item__more', 'aria-label': 'Thao tác thông báo', 'aria-expanded': 'false' }, notificationIcon('more'));
+    const more = el('button', { type: 'button', className: 'notification-item__more', 'aria-label': t('Thao tác thông báo'), 'aria-expanded': 'false' }, notificationIcon('more'));
     const actions = el('div', { className: 'notification-item__actions', hidden: true });
-    const read = el('button', { type: 'button', className: 'notification-item__action', 'data-notification-read-action': '', hidden: notification.is_readed }, 'Đánh dấu đã đọc');
-    const erase = el('button', { type: 'button', className: 'notification-item__action' }, 'Xoá');
+    const read = el('button', { type: 'button', className: 'notification-item__action', 'data-notification-read-action': '', hidden: notification.is_readed }, t('Đánh dấu đã đọc'));
+    const erase = el('button', { type: 'button', className: 'notification-item__action' }, t('Xoá'));
     actions.append(read, erase);
     // Controller đóng bảng trước đó và quản lý click ngoài/Escape chung cho cả danh sách.
     more.addEventListener('click', () => onMenuOpen({ row, more, actions }), { signal });
@@ -125,21 +126,21 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
   const element = el('div', { className: 'notification-feed' });
   const list = el('div', { className: 'notification-menu__list', 'aria-busy': 'false', tabindex: -1 });
   const status = el('p', { className: 'notification-menu__status', role: 'alert', hidden: true });
-  const markAll = el('button', { type: 'button', className: 'notification-menu__action', disabled: true }, 'Đánh dấu tất cả đã đọc');
+  const markAll = el('button', { type: 'button', className: 'notification-menu__action', disabled: true }, t('Đánh dấu tất cả đã đọc'));
   const chip = el('span', { className: 'notification-menu__chip', hidden: true });
-  const more = el('button', { type: 'button', className: 'notification-menu__more' }, 'Xem thêm thông báo');
+  const more = el('button', { type: 'button', className: 'notification-menu__more' }, t('Xem thêm thông báo'));
   const footer = el('div', { className: 'notification-menu__footer', hidden: true }, more);
   element.append(status, list, footer);
 
   /** Đồng bộ chip, nút đọc hết và nút phân trang từ dữ liệu thật, không đếm riêng một trang làm tổng. */
   function updateControls() {
-    chip.textContent = unreadCount + ' mới';
+    chip.textContent = t('{count} mới', { count: unreadCount });
     chip.hidden = unreadCount === 0 || loadFailed;
     markAll.disabled = unreadCount === 0 || loading || actionBusy || loadFailed;
     markAll.classList.toggle('is-loading', loading);
     footer.hidden = !hasMore;
     more.disabled = loading || actionBusy;
-    more.textContent = loading ? 'Đang tải…' : 'Xem thêm thông báo';
+    more.textContent = loading ? t('Đang tải…') : t('Xem thêm thông báo');
     // Khoá cả nút từng hàng trong lúc ghi hoặc tải để người dùng không gửi thao tác trùng.
     for (const button of list.querySelectorAll('li button')) button.disabled = loading || actionBusy;
   }
@@ -208,8 +209,8 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
     if (!notifications.length) {
       list.replaceChildren(el('div', { className: 'notification-menu__empty', role: 'status' },
         el('span', { className: 'notification-menu__empty-icon' }, notificationIcon('bell-off', 22)),
-        el('p', { className: 'notification-menu__empty-title' }, 'Chưa có thông báo'),
-        el('p', { className: 'notification-menu__empty-copy' }, 'Khi có người theo dõi, bình luận hay bày tỏ cảm xúc với bài viết của bạn, thông báo sẽ hiện ở đây.')));
+        el('p', { className: 'notification-menu__empty-title' }, t('Chưa có thông báo')),
+        el('p', { className: 'notification-menu__empty-copy' }, t('Khi có người theo dõi, bình luận hay bày tỏ cảm xúc với bài viết của bạn, thông báo sẽ hiện ở đây.'))));
       return;
     }
     const items = el('ul', { className: 'notification-menu__items' });
@@ -234,7 +235,7 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
     if (!append) {
       closeActions();
       renderEvents?.abort();
-      list.replaceChildren(el('span', { className: 'u-visually-hidden', role: 'status' }, 'Đang tải…'), loadingRows());
+      list.replaceChildren(el('span', { className: 'u-visually-hidden', role: 'status' }, t('Đang tải…')), loadingRows());
       hasMore = false;
     }
     updateControls();
@@ -252,15 +253,15 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
     } catch {
       if (signal.aborted || current !== version) return;
       if (append) {
-        showStatus('Không tải được thông báo. Vui lòng kiểm tra kết nối và thử lại.');
+        showStatus(t('Không tải được thông báo. Vui lòng kiểm tra kết nối và thử lại.'));
       } else {
         // Lỗi lượt đầu vô hiệu hoá Đọc hết dù yêu cầu tổng chưa đọc hoàn thành sau đó.
         loadFailed = true;
-        const retry = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Thử lại');
+        const retry = el('button', { type: 'button', className: 'btn btn--secondary' }, t('Thử lại'));
         // Người dùng chủ động thử lại, không có polling hoặc vòng lặp tải nền.
         retry.addEventListener('click', () => { void load(); void refreshUnreadCount(); }, { signal });
         list.replaceChildren(el('div', { className: 'notification-menu__error', role: 'alert' },
-          el('p', {}, 'Không tải được thông báo. Vui lòng kiểm tra kết nối và thử lại.'), retry));
+          el('p', {}, t('Không tải được thông báo. Vui lòng kiểm tra kết nối và thử lại.')), retry));
       }
       // Lỗi danh sách không có nghĩa tổng chưa đọc bằng 0; giữ kết quả thật từ API tổng.
     } finally {
@@ -323,7 +324,7 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
       const links = list.querySelectorAll('a');
       (links[Math.min(index, links.length - 1)] || list).focus();
     } catch {
-      showStatus(remove ? 'Không xoá được thông báo. Vui lòng thử lại.' : 'Không đánh dấu được thông báo. Vui lòng thử lại.');
+      showStatus(remove ? t('Không xoá được thông báo. Vui lòng thử lại.') : t('Không đánh dấu được thông báo. Vui lòng thử lại.'));
     } finally {
       await refreshUnreadCount();
       actionBusy = false;
@@ -352,7 +353,7 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
       for (const notification of notifications) notification.is_readed = true;
       renderItems();
     } catch {
-      showStatus('Không đánh dấu được thông báo. Vui lòng thử lại.');
+      showStatus(t('Không đánh dấu được thông báo. Vui lòng thử lại.'));
     } finally {
       await refreshUnreadCount();
       actionBusy = false;
@@ -384,7 +385,7 @@ export function createNotificationFeed({ signal, page = false, onRead, onCountCh
 /** Bao danh sách dùng chung trong panel có heading nhận focus và chip tổng chưa đọc. */
 export function createNotificationMenu({ id, signal, onRead }) {
   const feed = createNotificationFeed({ signal, onRead });
-  const heading = el('h2', { id: id + '-title', tabindex: -1 }, 'Thông báo');
+  const heading = el('h2', { id: id + '-title', tabindex: -1 }, t('Thông báo'));
   const element = el('section', { id, className: 'notification-menu', hidden: true, 'aria-labelledby': id + '-title' },
     el('div', { className: 'notification-menu__heading' }, heading, feed.chip,
       el('span', { className: 'notification-menu__spacer', 'aria-hidden': 'true' }), feed.markAll), feed.element);

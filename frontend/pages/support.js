@@ -6,6 +6,7 @@ import { fetchCurrentUser } from '/utils/auth.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { wrapJapanese } from '/utils/text.js';
 import { searchUrl } from '/utils/routes.js';
+import { t } from '/utils/i18n.js';
 import { topics, faqs, rules, popularQueries } from '/pages/support-content.js';
 
 // Header có tab Hỗ trợ đang chọn và ô tìm kiếm trong suốt như Figma; footer đầy đủ.
@@ -83,7 +84,7 @@ function renderTopics(activeTopic = null) {
     el('span', { className: 'support-topic__icon' }, icon(topic.icon, 24)),
     el('span', { className: 'support-topic__title' }, topic.title),
     el('span', { className: 'support-topic__desc' }, topic.desc),
-    el('span', { className: 'support-topic__count' }, count + ' câu hỏi  →'));
+    el('span', { className: 'support-topic__count' }, t('{count} câu hỏi  →', { count })));
     return card;
   }));
 }
@@ -97,7 +98,7 @@ function createFaqItem(item, open = false, showTopic = false) {
       icon('chevron', 20, 'support-faq__chevron')),
     el('div', { className: 'support-faq__answer' },
       el('p', {}, wrapJapanese(item.a)),
-      showTopic && topic ? el('span', { className: 'support-faq__topic' }, 'Chủ đề: ' + topic.title) : null));
+      showTopic && topic ? el('span', { className: 'support-faq__topic' }, t('Chủ đề: {title}', { title: topic.title })) : null));
   return details;
 }
 
@@ -109,10 +110,10 @@ function showFaqs(items, { title, desc, status = '', openFirst = true, showTopic
   qs('[data-faq-status]').textContent = status;
   if (!items.length) {
     // Không tìm thấy: gợi ý tìm trong Diễn đàn với cùng từ khoá, hoặc gửi yêu cầu hỗ trợ.
-    const forumLink = el('a', { className: 'btn btn--secondary btn--sm', href: searchUrl({ q: emptyQuery }) }, 'Tìm trong Diễn đàn');
-    const ask = el('button', { type: 'button', className: 'btn btn--primary btn--sm', 'data-open-dialog': 'ticket' }, 'Gửi yêu cầu hỗ trợ');
+    const forumLink = el('a', { className: 'btn btn--secondary btn--sm', href: searchUrl({ q: emptyQuery }) }, t('Tìm trong Diễn đàn'));
+    const ask = el('button', { type: 'button', className: 'btn btn--primary btn--sm', 'data-open-dialog': 'ticket' }, t('Gửi yêu cầu hỗ trợ'));
     faqList.replaceChildren(el('div', { className: 'support-faq__empty' },
-      el('p', {}, 'Chưa có câu trả lời phù hợp với "' + emptyQuery + '".'), el('div', { className: 'support-dialog__actions' }, forumLink, ask)));
+      el('p', {}, t('Chưa có câu trả lời phù hợp với "{query}".', { query: emptyQuery })), el('div', { className: 'support-dialog__actions' }, forumLink, ask)));
     return;
   }
   faqList.replaceChildren(...items.map((item, index) => createFaqItem(item, openFirst && index === 0, showTopic)));
@@ -122,7 +123,7 @@ function showFaqs(items, { title, desc, status = '', openFirst = true, showTopic
 function showPopular() {
   const popular = faqs.filter(item => item.popular).sort((a, b) => a.popular - b.popular);
   renderTopics();
-  showFaqs(popular, { title: 'Câu hỏi thường gặp', desc: 'Những thắc mắc được cộng đồng Etsubi hỏi nhiều nhất.' });
+  showFaqs(popular, { title: t('Câu hỏi thường gặp'), desc: t('Những thắc mắc được cộng đồng Etsubi hỏi nhiều nhất.') });
   updateUrl({});
 }
 
@@ -135,7 +136,7 @@ function showTopic(topicId) {
   }
   const items = faqs.filter(item => item.topic === topicId);
   renderTopics(topicId);
-  showFaqs(items, { title: topic.title, desc: topic.desc, status: items.length + ' câu hỏi trong chủ đề này.' });
+  showFaqs(items, { title: topic.title, desc: topic.desc, status: t('{count} câu hỏi trong chủ đề này.', { count: items.length }) });
   updateUrl({ topic: topicId });
 }
 
@@ -152,9 +153,9 @@ function runSearch(query) {
   });
   renderTopics();
   showFaqs(items, {
-    title: 'Kết quả tìm kiếm',
-    desc: 'Câu hỏi khớp với "' + query + '".',
-    status: items.length ? items.length + ' câu hỏi phù hợp.' : '0 câu hỏi phù hợp.',
+    title: t('Kết quả tìm kiếm'),
+    desc: t('Câu hỏi khớp với "{query}".', { query }),
+    status: t('{count} câu hỏi phù hợp.', { count: items.length }),
     showTopic: true,
     emptyQuery: query,
   });
@@ -263,13 +264,13 @@ function submitDialog(event) {
   emailInput.setAttribute('aria-invalid', String(!validEmail));
   messageInput.setAttribute('aria-invalid', String(!message));
   if (!validEmail || !message) {
-    setDialogStatus(!validEmail ? 'Vui lòng nhập email hợp lệ.' : 'Vui lòng nhập nội dung cần hỗ trợ.', 'error');
+    setDialogStatus(!validEmail ? t('Vui lòng nhập email hợp lệ.') : t('Vui lòng nhập nội dung cần hỗ trợ.'), 'error');
     (!validEmail ? emailInput : messageInput).focus();
     return;
   }
   const topic = topics.find(entry => entry.id === qs('[data-dialog-topic]').value);
-  location.href = buildSupportMailto(topic?.title || 'Hỗ trợ', email, message);
-  setDialogStatus('Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.vn.');
+  location.href = buildSupportMailto(topic?.title || t('Hỗ trợ'), email, message);
+  setDialogStatus(t('Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.vn.'));
 }
 
 /** Đóng hộp thoại và trả focus về nút đã mở nó (trình duyệt tự làm khi dùng dialog). */

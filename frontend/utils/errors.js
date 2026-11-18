@@ -1,4 +1,5 @@
-/** Ánh xạ lỗi API sang tiếng Việt cho gợi ý trường và thông báo trên mọi trang. */
+/** Ánh xạ lỗi API sang câu dễ hiểu theo ngôn ngữ giao diện cho gợi ý trường và thông báo trên mọi trang. */
+import { currentLocale, t } from '/utils/i18n.js';
 
 /**
  * Chọn lời giải thích phù hợp cho lỗi ở trang đăng nhập, đăng ký và nội dung.
@@ -6,72 +7,71 @@
  * @returns {string} Thông báo tiếng Việt hoặc thông báo gốc khi chưa có ánh xạ.
  */
 export function toVietnameseMessage(error) {
-  const message = error?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+  const message = error?.message || t('Đã xảy ra lỗi. Vui lòng thử lại.');
   if (error?.status === 0) {
-    return 'Không kết nối được máy chủ. Vui lòng kiểm tra kết nối và thử lại.';
+    return t('Không kết nối được máy chủ. Vui lòng kiểm tra kết nối và thử lại.');
   }
   if (error?.status === 429) {
-    return 'Bạn thao tác quá nhanh, thử lại sau giây lát.';
+    return t('Bạn thao tác quá nhanh, thử lại sau giây lát.');
   }
   if (error?.status >= 500) {
-    return 'Máy chủ đang gặp sự cố. Vui lòng thử lại sau.';
+    return t('Máy chủ đang gặp sự cố. Vui lòng thử lại sau.');
   }
   if (/invalid credentials/i.test(message)) {
-    return 'Email hoặc mật khẩu không chính xác.';
+    return t('Email hoặc mật khẩu không chính xác.');
   }
   if (/account (?:is|has been) banned/i.test(message)) {
-    return 'Tài khoản của bạn đã bị khoá.';
+    return t('Tài khoản của bạn đã bị khoá.');
   }
   // Máy chủ nói cả email và username thì không suy đoán trường trùng.
   if (error?.status === 409 && /email/i.test(message) && /username/i.test(message)) {
-    return 'Email hoặc @tên người dùng đã được dùng.';
+    return t('Email hoặc @tên người dùng đã được dùng.');
   }
   if (/email already (?:exists|taken)/i.test(message)) {
-    return 'Email này đã được sử dụng.';
+    return t('Email này đã được sử dụng.');
   }
   if (/username already taken/i.test(message)) {
-    return '@tên người dùng này đã có người dùng, hãy chọn tên khác.';
+    return t('@tên người dùng này đã có người dùng, hãy chọn tên khác.');
   }
   if (/username too short/i.test(message)) {
-    return 'Tên người dùng cần ít nhất 3 ký tự.';
+    return t('Tên người dùng cần ít nhất 3 ký tự.');
   }
   // Máy chủ từ chối @tên có chữ hoa, khoảng trắng, ký tự lạ hoặc dài quá 30 ký tự.
   if (/username must be/i.test(message)) {
-    return '@tên người dùng gồm 3-30 ký tự: chữ thường a-z, số hoặc dấu gạch dưới.';
+    return t('@tên người dùng gồm 3-30 ký tự: chữ thường a-z, số hoặc dấu gạch dưới.');
   }
   if (/password too weak|weak password|password.*(?:8|short)/i.test(message)) {
-    return 'Mật khẩu cần ít nhất 8 ký tự.';
+    return t('Mật khẩu cần ít nhất 8 ký tự.');
   }
   // Lỗi tên hiển thị khi đăng ký và khi PATCH hồ sơ (giới hạn 50 ký tự sau trim).
   if (/display ?name too long/i.test(message)) {
-    return 'Tên hiển thị không được vượt quá 50 ký tự.';
+    return t('Tên hiển thị không được vượt quá 50 ký tự.');
   }
   if (/display ?name cannot be empty/i.test(message)) {
-    return 'Vui lòng nhập tên hiển thị.';
+    return t('Vui lòng nhập tên hiển thị.');
   }
   // Lỗi khi đăng bài ở Diễn đàn (PostError của backend).
   if (/title cannot be empty/i.test(message)) {
-    return 'Bài viết cần có tiêu đề.';
+    return t('Bài viết cần có tiêu đề.');
   }
   if (/title too long/i.test(message)) {
-    return 'Tiêu đề quá dài (tối đa 255 ký tự).';
+    return t('Tiêu đề quá dài (tối đa 255 ký tự).');
   }
   if (/content too long/i.test(message)) {
-    return 'Nội dung quá dài.';
+    return t('Nội dung quá dài.');
   }
   if (/invalid language/i.test(message)) {
-    return 'Ngôn ngữ không hợp lệ.';
+    return t('Ngôn ngữ không hợp lệ.');
   }
   // Lỗi cấm viết có thể kèm thời hạn; diễn đạt ngày theo tiếng Việt nếu đọc được.
   if (/muted/i.test(message)) {
     const until = message.match(/until\s+(.+)/i)?.[1];
     const date = until ? new Date(until) : null;
     // Chỉ thêm thời hạn khi máy chủ gửi ngày hợp lệ, tránh hiện chữ ngày lỗi.
-    let deadline = '';
     if (date && !Number.isNaN(date.getTime())) {
-      deadline = ' đến ' + date.toLocaleString('vi-VN');
+      return t('Tài khoản đang bị tạm khoá chức năng viết đến {date}.', { date: date.toLocaleString(currentLocale()) });
     }
-    return 'Tài khoản đang bị tạm khoá chức năng viết' + deadline + '.';
+    return t('Tài khoản đang bị tạm khoá chức năng viết.');
   }
   return message;
 }
@@ -84,13 +84,13 @@ export function toVietnameseMessage(error) {
 export function translationErrorMessage(error) {
   // 503: máy chủ chưa cấu hình dịch vụ dịch; 504: dịch vụ dịch trả lời quá lâu.
   if (error?.status === 503) {
-    return 'Dịch vụ dịch chưa sẵn sàng. Vui lòng thử lại sau.';
+    return t('Dịch vụ dịch chưa sẵn sàng. Vui lòng thử lại sau.');
   }
   if (error?.status === 504) {
-    return 'Dịch quá lâu, vui lòng thử lại.';
+    return t('Dịch quá lâu, vui lòng thử lại.');
   }
   if (error?.status === 400) {
-    return 'Nội dung quá dài để dịch.';
+    return t('Nội dung quá dài để dịch.');
   }
   return toVietnameseMessage(error);
 }

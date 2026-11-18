@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Thông báo · Etsubi</title>
+    <title data-i18n>Thông báo · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,12 +18,12 @@
   <!-- Trang bảo vệ bằng requireAuth; phần điều hướng và chân trang do component chung dựng. -->
   <body class="page page--notifications">
     <!-- Liên kết hỗ trợ bàn phím đi thẳng đến danh sách thông báo. -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <!-- Biến thể thông báo của header có nút quay lại, tiêu đề và thao tác đọc hết. -->
     <header class="site-header site-header--notifications" data-component="header" data-variant="notifications"></header>
     <!-- Nội dung thật được dựng sau khi xác thực; trạng thái tải ban đầu chỉ là chữ tĩnh. -->
     <main id="main" class="notifications-page" aria-labelledby="notifications-title" data-notifications-main>
-      <p class="notifications-page__initial" role="status">Đang tải…</p>
+      <p class="notifications-page__initial" role="status" data-i18n>Đang tải…</p>
     </main>
     <!-- Chân trang rút gọn thành một dòng bản quyền trên màn hình điện thoại. -->
     <footer class="site-footer" data-component="footer" data-variant="slim"></footer>

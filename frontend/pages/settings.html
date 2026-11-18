@@ -5,7 +5,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cài đặt · Etsubi</title>
+    <title data-i18n>Cài đặt · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,7 +20,7 @@
   </head>
   <body class="page page--profile-edit page--settings">
     <!-- Bỏ qua điều hướng bằng bàn phím; header được dựng duy nhất bởi component chung. -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <header class="site-header" data-component="header" data-variant="default"></header>
     <!-- Nền minh hoạ tĩnh nằm sau nội dung, không nhận tương tác hoặc được đọc thành lời. -->
     <main id="main" class="profile-setup">
@@ -30,138 +30,138 @@
         <div class="profile-heading">
           <div class="profile-heading__copy">
             <nav class="profile-breadcrumb" aria-label="Breadcrumb">
-              <a href="/pages/index.html" data-route="home">Trang chủ</a><span aria-hidden="true">›</span>
-              <span aria-current="page">Cài đặt</span>
+              <a href="/pages/index.html" data-route="home" data-i18n>Trang chủ</a><span aria-hidden="true">›</span>
+              <span aria-current="page" data-i18n>Cài đặt</span>
             </nav>
             <span class="profile-heading__accent" aria-hidden="true"></span>
-            <h1 class="t-display">Cài đặt</h1>
-            <p>Cập nhật hồ sơ, mật khẩu và giao diện của bạn tại một nơi.</p>
+            <h1 class="t-display" data-i18n>Cài đặt</h1>
+            <p data-i18n>Cập nhật hồ sơ, mật khẩu và giao diện của bạn tại một nơi.</p>
           </div>
           <p class="profile-draft" role="status" data-saved-pill>
             <img src="/assets/icons/saved-tick.svg" width="16" height="16" alt="" />
-            <span data-saved-label>Đã lưu lần cuối · –</span>
+            <span data-saved-label data-i18n>Đã lưu lần cuối · –</span>
           </p>
         </div>
         <!-- Ba cột dùng grid; thứ tự DOM giữ tiến trình trước biểu mẫu rồi đến tóm tắt. -->
         <div class="profile-layout">
           <!-- Điều hướng dùng neo thật; trạng thái hiện tại được cập nhật mà không có cuộn mượt. -->
-          <aside class="profile-progress" aria-label="Mục cài đặt hồ sơ">
-            <nav class="card profile-progress__card edit-settings" aria-label="Mục cài đặt">
-              <p class="profile-eyebrow">MỤC CÀI ĐẶT</p>
+          <aside class="profile-progress" aria-label="Mục cài đặt hồ sơ" data-i18n-attr="aria-label">
+            <nav class="card profile-progress__card edit-settings" aria-label="Mục cài đặt" data-i18n-attr="aria-label">
+              <p class="profile-eyebrow" data-i18n>MỤC CÀI ĐẶT</p>
               <ul class="edit-settings__list">
                 <!-- Mục ảnh đại diện: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
-                <li><a class="edit-settings__link" href="#section-avatar" data-settings-link="section-avatar" aria-current="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span><strong>Ảnh đại diện</strong><small>Hiển thị công khai</small></span><span class="settings-nav-unsaved" data-section-unsaved="avatar" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden">có thay đổi chưa lưu</span></span></a></li>
+                <li><a class="edit-settings__link" href="#section-avatar" data-settings-link="section-avatar" aria-current="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span><strong data-i18n>Ảnh đại diện</strong><small data-i18n>Hiển thị công khai</small></span><span class="settings-nav-unsaved" data-section-unsaved="avatar" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden" data-i18n>có thay đổi chưa lưu</span></span></a></li>
                 <!-- Mục thông tin tài khoản: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
-                <li><a class="edit-settings__link" href="#section-account" data-settings-link="section-account"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a8 8 0 0 0-16 0v2"/><circle cx="12" cy="7" r="4"/></svg><span><strong>Thông tin tài khoản</strong><small>Tên · @tên người dùng · Email</small></span><span class="settings-nav-unsaved" data-section-unsaved="account" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden">có thay đổi chưa lưu</span></span></a></li>
+                <li><a class="edit-settings__link" href="#section-account" data-settings-link="section-account"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a8 8 0 0 0-16 0v2"/><circle cx="12" cy="7" r="4"/></svg><span><strong data-i18n>Thông tin tài khoản</strong><small data-i18n>Tên · @tên người dùng · Email</small></span><span class="settings-nav-unsaved" data-section-unsaved="account" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden" data-i18n>có thay đổi chưa lưu</span></span></a></li>
                 <!-- Mục ngôn ngữ mẹ đẻ: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
-                <li><a class="edit-settings__link" href="#section-native" data-settings-link="section-native"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6m-7 0 6-6 2-5H2m5-2v2m6 19 5-11 5 11m-8-4h6"/></svg><span><strong>Ngôn ngữ mẹ đẻ</strong><small>Cờ hiển thị cạnh tên</small></span><span class="settings-nav-unsaved" data-section-unsaved="native" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden">có thay đổi chưa lưu</span></span></a></li>
+                <li><a class="edit-settings__link" href="#section-native" data-settings-link="section-native"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6m-7 0 6-6 2-5H2m5-2v2m6 19 5-11 5 11m-8-4h6"/></svg><span><strong data-i18n>Ngôn ngữ mẹ đẻ</strong><small data-i18n>Cờ hiển thị cạnh tên</small></span><span class="settings-nav-unsaved" data-section-unsaved="native" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden" data-i18n>có thay đổi chưa lưu</span></span></a></li>
                 <!-- Mục đổi mật khẩu: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
-                <li><a class="edit-settings__link" href="#section-password" data-settings-link="section-password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span><strong>Đổi mật khẩu</strong><small>Không bắt buộc</small></span><span class="settings-nav-unsaved" data-section-unsaved="password" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden">có thay đổi chưa lưu</span></span></a></li>
+                <li><a class="edit-settings__link" href="#section-password" data-settings-link="section-password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span><strong data-i18n>Đổi mật khẩu</strong><small data-i18n>Không bắt buộc</small></span><span class="settings-nav-unsaved" data-section-unsaved="password" hidden><span class="settings-unsaved-dot" aria-hidden="true"></span><span class="u-visually-hidden" data-i18n>có thay đổi chưa lưu</span></span></a></li>
                 <!-- Mục giao diện: neo tới khối tương ứng, dùng icon Lucide vuông theo màu chữ. -->
                 <li>
                   <a class="edit-settings__link" href="#section-appearance" data-settings-link="section-appearance">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
-                    <span><strong>Giao diện</strong><small>Chế độ hiển thị · Ngôn ngữ</small></span>
+                    <span><strong data-i18n>Giao diện</strong><small data-i18n>Chế độ hiển thị · Ngôn ngữ</small></span>
                   </a>
                 </li>
                 <!-- Mục xoá tài khoản: Lucide dùng viewBox vuông, nét tròn và màu kế thừa. -->
-                <li><a class="edit-settings__link edit-settings__link--danger" href="#section-delete" data-settings-link="section-delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6l-1 14H6L5 6m4 0V3h6v3m-5 4v7m4-7v7"/></svg><span><strong>Xoá tài khoản</strong><small>Không thể hoàn tác</small></span></a></li>
+                <li><a class="edit-settings__link edit-settings__link--danger" href="#section-delete" data-settings-link="section-delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M19 6l-1 14H6L5 6m4 0V3h6v3m-5 4v7m4-7v7"/></svg><span><strong data-i18n>Xoá tài khoản</strong><small data-i18n>Không thể hoàn tác</small></span></a></li>
               </ul>
             </nav>
             <!-- Mẹo nhắc mật khẩu là phần tự chọn để tránh đổi ngoài ý muốn. -->
-            <div class="profile-tip"><h2><span lang="ja">越</span> Mẹo</h2><p>Mục “Đổi mật khẩu” có thể để trống nếu bạn không muốn đổi. Mật khẩu mới tối thiểu 8 ký tự.</p></div>
+            <div class="profile-tip"><h2><span lang="ja">越</span> <span data-i18n>Mẹo</span></h2><p data-i18n>Mục “Đổi mật khẩu” có thể để trống nếu bạn không muốn đổi. Mật khẩu mới tối thiểu 8 ký tự.</p></div>
           </aside>
           <!-- Thẻ trung tâm dùng một form thật; mỗi mục có nút lưu riêng, chỉ khoá toàn bộ khi tải. -->
-          <section class="card profile-card" aria-label="Cài đặt">
+          <section class="card profile-card" aria-label="Cài đặt" data-i18n-attr="aria-label">
             <div class="profile-card__band">
               <img src="/assets/icons/torii-mini.svg" width="58" height="48" alt="" aria-hidden="true" />
-              <p>Cài đặt</p>
+              <p data-i18n>Cài đặt</p>
             </div>
             <form class="profile-form" data-profile-form novalidate aria-busy="true">
-              <p class="profile-form__loading" role="status" data-loading>Đang tải hồ sơ…</p>
+              <p class="profile-form__loading" role="status" data-loading data-i18n>Đang tải hồ sơ…</p>
               <fieldset class="profile-form__fields" data-profile-fields disabled>
-                <legend class="u-visually-hidden">Thông tin hồ sơ thành viên</legend>
+                <legend class="u-visually-hidden" data-i18n>Thông tin hồ sơ thành viên</legend>
                 <!-- Ảnh có thể chọn từ máy hoặc sáu mẫu SVG, tất cả đều lưu qua avatar_url. -->
                 <section class="profile-section" id="section-avatar" tabindex="-1" aria-labelledby="avatar-title">
                   <div class="profile-section__heading">
-                    <h2 class="t-display" id="avatar-title">Ảnh đại diện</h2>
-                    <p>Hiển thị cạnh bài viết, bình luận và trên trang hồ sơ của bạn</p>
+                    <h2 class="t-display" id="avatar-title" data-i18n>Ảnh đại diện</h2>
+                    <p data-i18n>Hiển thị cạnh bài viết, bình luận và trên trang hồ sơ của bạn</p>
                   </div>
                   <div class="profile-avatar-box">
                     <div class="profile-avatar">
                       <div class="avatar avatar--96 profile-avatar__frame" data-avatar-preview></div>
-                      <button class="profile-avatar__camera" type="button" data-upload aria-label="Đổi ảnh đại diện"><img src="/assets/icons/camera.svg" width="16" height="16" alt="" /></button>
+                      <button class="profile-avatar__camera" type="button" data-upload aria-label="Đổi ảnh đại diện" data-i18n-attr="aria-label"><img src="/assets/icons/camera.svg" width="16" height="16" alt="" /></button>
                     </div>
                     <div class="profile-avatar-box__details">
-                      <h3>Cập nhật ảnh đại diện</h3>
-                      <p>JPG, PNG · Tối đa 2MB · Ảnh vuông hiển thị đẹp nhất</p>
+                      <h3 data-i18n>Cập nhật ảnh đại diện</h3>
+                      <p data-i18n>JPG, PNG · Tối đa 2MB · Ảnh vuông hiển thị đẹp nhất</p>
                       <div class="profile-avatar-box__actions">
-                        <button class="btn btn--primary btn--sm" type="button" data-upload>Tải ảnh lên</button>
-                        <button class="btn btn--secondary btn--sm" type="button" data-presets-toggle aria-expanded="false" aria-controls="avatar-presets">Chọn ảnh mẫu</button>
-                        <button class="btn btn--danger-outline btn--sm" type="button" data-remove-avatar disabled>Xoá</button>
+                        <button class="btn btn--primary btn--sm" type="button" data-upload data-i18n>Tải ảnh lên</button>
+                        <button class="btn btn--secondary btn--sm" type="button" data-presets-toggle aria-expanded="false" aria-controls="avatar-presets" data-i18n>Chọn ảnh mẫu</button>
+                        <button class="btn btn--danger-outline btn--sm" type="button" data-remove-avatar disabled data-i18n>Xoá</button>
                       </div>
                     </div>
                   </div>
-                  <label class="u-visually-hidden" for="avatar-file">Tải ảnh đại diện JPG hoặc PNG</label>
+                  <label class="u-visually-hidden" for="avatar-file" data-i18n>Tải ảnh đại diện JPG hoặc PNG</label>
                   <input id="avatar-file" type="file" accept="image/png,image/jpeg" data-avatar-file aria-describedby="avatar-hint" hidden />
                   <p class="field__hint field__hint--error" id="avatar-hint" role="status" data-avatar-hint hidden></p>
                   <!-- Bảng mở ngay trong luồng tài liệu để Tab hoạt động tự nhiên, Escape trả về nút mở. -->
-                  <div class="profile-presets" id="avatar-presets" role="group" aria-label="Chọn ảnh đại diện mẫu" data-presets hidden>
-                    <p>Chọn một ảnh mẫu</p>
+                  <div class="profile-presets" id="avatar-presets" role="group" aria-label="Chọn ảnh đại diện mẫu" data-presets hidden data-i18n-attr="aria-label">
+                    <p data-i18n>Chọn một ảnh mẫu</p>
                     <div class="profile-presets__grid" data-presets-grid></div>
-                    <button class="btn btn--ghost btn--sm" type="button" data-presets-close>Đóng bảng ảnh mẫu</button>
+                    <button class="btn btn--ghost btn--sm" type="button" data-presets-close data-i18n>Đóng bảng ảnh mẫu</button>
                   </div>
                   <!-- Thanh lưu chỉ xuất hiện khi mục này khác bản đã lưu; lỗi luôn nằm trong chính mục. -->
                   <p class="alert alert--error" role="alert" data-section-error="avatar" hidden></p>
                   <div class="section-save-bar" data-section-save-bar="avatar" hidden>
-                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message>Mục này có thay đổi chưa lưu</span></p>
+                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message data-i18n>Mục này có thay đổi chưa lưu</span></p>
                     <div class="section-save-bar__actions" data-section-save-actions>
-                      <button class="btn btn--secondary" type="button" data-section-reset="avatar">Huỷ thay đổi</button>
-                      <button class="btn btn--primary" type="button" data-section-save="avatar">Lưu thay đổi</button>
+                      <button class="btn btn--secondary" type="button" data-section-reset="avatar" data-i18n>Huỷ thay đổi</button>
+                      <button class="btn btn--primary" type="button" data-section-save="avatar" data-i18n>Lưu thay đổi</button>
                     </div>
                   </div>
                 </section>
                 <!-- Dữ liệu được điền từ API, bao gồm email có thể sửa và chỉ được ghi khi bấm lưu. -->
                 <section class="profile-section" id="section-account" tabindex="-1" aria-labelledby="account-title">
-                  <div class="profile-section__heading"><h2 class="t-display" id="account-title">Thông tin tài khoản</h2><p>Tên hiển thị và @tên người dùng giúp mọi người nhận ra bạn · email dùng để đăng nhập</p></div>
+                  <div class="profile-section__heading"><h2 class="t-display" id="account-title" data-i18n>Thông tin tài khoản</h2><p data-i18n>Tên hiển thị và @tên người dùng giúp mọi người nhận ra bạn · email dùng để đăng nhập</p></div>
                   <div class="profile-fields-grid">
                     <!-- Tên hiển thị nhận tên tự do; username là handle duy nhất, @ không nằm trong value. -->
                     <div class="field">
-                      <label class="field__label" for="displayname">Tên hiển thị <span class="field__required">*</span></label>
+                      <label class="field__label" for="displayname"><span data-i18n>Tên hiển thị</span> <span class="field__required">*</span></label>
                       <input class="input" id="displayname" name="displayname" autocomplete="name" aria-describedby="displayname-hint" required />
-                      <p class="field__hint" id="displayname-hint" data-displayname-hint>Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào</p>
+                      <p class="field__hint" id="displayname-hint" data-displayname-hint data-i18n>Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào</p>
                     </div>
                     <div class="field">
-                      <label class="field__label" for="username">Tên người dùng <span class="field__required">*</span></label>
+                      <label class="field__label" for="username"><span data-i18n>Tên người dùng</span> <span class="field__required">*</span></label>
                       <div class="username-input">
                         <span class="username-input__prefix" aria-hidden="true">@</span>
                         <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-hint" required />
                       </div>
-                      <p class="field__hint" id="username-hint" data-username-hint>Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự</p>
+                      <p class="field__hint" id="username-hint" data-username-hint data-i18n>Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự</p>
                     </div>
                     <div class="field">
                       <label class="field__label" for="email">Email <span class="field__required">*</span></label>
                       <input class="input" id="email" name="email" type="email" autocomplete="email" required aria-describedby="email-hint" />
-                      <p class="field__hint" id="email-hint" data-email-hint>Dùng để đăng nhập · đổi email áp dụng từ lần đăng nhập sau</p>
+                      <p class="field__hint" id="email-hint" data-email-hint data-i18n>Dùng để đăng nhập · đổi email áp dụng từ lần đăng nhập sau</p>
                     </div>
                     <div class="field">
-                      <label class="field__label" for="institute">Trường / Tổ chức</label>
-                      <input class="input" id="institute" name="institute" autocomplete="organization" placeholder="Ví dụ: Trường ĐH Công nghệ Thông tin – ĐHQG-HCM" aria-describedby="institute-hint" />
-                      <p class="field__hint" id="institute-hint">Hiển thị trên trang hồ sơ, có thể để trống</p>
+                      <label class="field__label" for="institute" data-i18n>Trường / Tổ chức</label>
+                      <input class="input" id="institute" name="institute" autocomplete="organization" placeholder="Ví dụ: Trường ĐH Công nghệ Thông tin – ĐHQG-HCM" aria-describedby="institute-hint" / data-i18n-attr="placeholder">
+                      <p class="field__hint" id="institute-hint" data-i18n>Hiển thị trên trang hồ sơ, có thể để trống</p>
                     </div>
                     <!-- Nơi ở trải hết hàng sau cặp Email và Trường / Tổ chức. -->
                     <div class="field profile-fields-grid__wide">
-                      <label class="field__label" for="address">Nơi ở</label>
-                      <select class="input profile-select" id="address" name="address" aria-describedby="address-hint"><option value="">Chọn nơi ở…</option></select>
-                      <p class="field__hint" id="address-hint">Chọn tỉnh/thành · dùng cho bản đồ địa điểm văn hoá Việt – Nhật</p>
+                      <label class="field__label" for="address" data-i18n>Nơi ở</label>
+                      <select class="input profile-select" id="address" name="address" aria-describedby="address-hint"><option value="" data-i18n>Chọn nơi ở…</option></select>
+                      <p class="field__hint" id="address-hint" data-i18n>Chọn tỉnh/thành · dùng cho bản đồ địa điểm văn hoá Việt – Nhật</p>
                     </div>
                     <div class="field profile-fields-grid__wide">
-                      <label class="field__label" for="bio">Giới thiệu bản thân</label>
+                      <label class="field__label" for="bio" data-i18n>Giới thiệu bản thân</label>
                       <div class="profile-bio">
                         <textarea class="input" id="bio" name="bio" maxlength="300" rows="3" aria-describedby="bio-hint bio-counter"></textarea>
                         <span class="profile-bio__counter" id="bio-counter" data-bio-counter>0 / 300</span>
                       </div>
-                      <p class="field__hint" id="bio-hint" data-bio-hint>Hiển thị công khai trên trang hồ sơ của bạn</p>
+                      <p class="field__hint" id="bio-hint" data-bio-hint data-i18n>Hiển thị công khai trên trang hồ sơ của bạn</p>
                     </div>
                   </div>
                   <!-- Thanh lưu chỉ xuất hiện khi mục này khác bản đã lưu; lỗi luôn nằm trong chính mục. -->
@@ -169,102 +169,102 @@
                   <!-- Chỉ hiện ghi chú khi máy chủ trả lại tên khác, không giả thành công. -->
                   <p class="field__hint settings-account-note" role="status" data-displayname-note hidden></p>
                   <div class="section-save-bar" data-section-save-bar="account" hidden>
-                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message>Mục này có thay đổi chưa lưu</span></p>
+                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message data-i18n>Mục này có thay đổi chưa lưu</span></p>
                     <div class="section-save-bar__actions" data-section-save-actions>
-                      <button class="btn btn--secondary" type="button" data-section-reset="account">Huỷ thay đổi</button>
-                      <button class="btn btn--primary" type="button" data-section-save="account">Lưu thay đổi</button>
+                      <button class="btn btn--secondary" type="button" data-section-reset="account" data-i18n>Huỷ thay đổi</button>
+                      <button class="btn btn--primary" type="button" data-section-save="account" data-i18n>Lưu thay đổi</button>
                     </div>
                   </div>
                 </section>
                 <!-- Radio gốc đảm bảo một ngôn ngữ duy nhất và hỗ trợ phím mũi tên tự nhiên. -->
                 <section class="profile-section" id="section-native" tabindex="-1" aria-labelledby="native-title">
-                  <div class="profile-section__heading"><h2 class="t-display" id="native-title">Ngôn ngữ mẹ đẻ</h2><p>Chọn ngôn ngữ mẹ đẻ của bạn – thành viên khác sẽ thấy trên hồ sơ và cạnh tên khi bạn đăng bài.</p></div>
+                  <div class="profile-section__heading"><h2 class="t-display" id="native-title" data-i18n>Ngôn ngữ mẹ đẻ</h2><p data-i18n>Chọn ngôn ngữ mẹ đẻ của bạn – thành viên khác sẽ thấy trên hồ sơ và cạnh tên khi bạn đăng bài.</p></div>
                   <fieldset class="profile-native" aria-describedby="native-hint" data-native-group>
-                    <legend>Ngôn ngữ mẹ đẻ <span>(chọn 1)</span></legend>
+                    <legend><span data-i18n>Ngôn ngữ mẹ đẻ</span> <span data-i18n>(chọn 1)</span></legend>
                     <div class="profile-native__grid">
-                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="vi" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong>Tiếng Việt</strong><small>Cờ Việt Nam hiển thị cạnh tên</small></span></label>
-                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="ja" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong><span lang="ja">日本語</span> · Tiếng Nhật</strong><small>Cờ Nhật Bản hiển thị cạnh tên</small></span></label>
-                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="en" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong>English · Tiếng Anh</strong><small>Nhãn EN hiển thị cạnh tên</small></span></label>
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="vi" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n>Tiếng Việt</strong><small data-i18n>Cờ Việt Nam hiển thị cạnh tên</small></span></label>
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="ja" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n-html><span lang="ja">日本語</span> · Tiếng Nhật</strong><small data-i18n>Cờ Nhật Bản hiển thị cạnh tên</small></span></label>
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="en" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n>English · Tiếng Anh</strong><small data-i18n>Nhãn EN hiển thị cạnh tên</small></span></label>
                     </div>
-                    <p class="field__hint" id="native-hint" data-native-hint>Hiển thị bằng lá cờ cạnh tên bạn trên bài viết và bình luận</p>
+                    <p class="field__hint" id="native-hint" data-native-hint data-i18n>Hiển thị bằng lá cờ cạnh tên bạn trên bài viết và bình luận</p>
                   </fieldset>
                   <!-- Thanh lưu chỉ xuất hiện khi mục này khác bản đã lưu; lỗi luôn nằm trong chính mục. -->
                   <p class="alert alert--error" role="alert" data-section-error="native" hidden></p>
                   <div class="section-save-bar" data-section-save-bar="native" hidden>
-                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message>Mục này có thay đổi chưa lưu</span></p>
+                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message data-i18n>Mục này có thay đổi chưa lưu</span></p>
                     <div class="section-save-bar__actions" data-section-save-actions>
-                      <button class="btn btn--secondary" type="button" data-section-reset="native">Huỷ thay đổi</button>
-                      <button class="btn btn--primary" type="button" data-section-save="native">Lưu thay đổi</button>
+                      <button class="btn btn--secondary" type="button" data-section-reset="native" data-i18n>Huỷ thay đổi</button>
+                      <button class="btn btn--primary" type="button" data-section-save="native" data-i18n>Lưu thay đổi</button>
                     </div>
                   </div>
                 </section>
                 <!-- Mật khẩu không điền sẵn, chỉ yêu cầu ba ô khi người dùng muốn đổi. -->
                 <section class="profile-section" id="section-password" tabindex="-1" aria-labelledby="password-title">
-                  <div class="profile-section__heading"><h2 class="t-display" id="password-title">Đổi mật khẩu</h2><p>Không bắt buộc · để trống cả ba ô nếu bạn không muốn đổi mật khẩu.</p></div>
+                  <div class="profile-section__heading"><h2 class="t-display" id="password-title" data-i18n>Đổi mật khẩu</h2><p data-i18n>Không bắt buộc · để trống cả ba ô nếu bạn không muốn đổi mật khẩu.</p></div>
                   <div class="profile-fields-grid">
                     <!-- Mật khẩu hiện tại: nhãn thật, nút mắt riêng và gợi ý để đọc lỗi bằng bàn phím. -->
-                    <div class="field"><label class="field__label" for="current-password">Mật khẩu hiện tại</label><div class="input-group"><input class="input" id="current-password" name="current-password" type="password" autocomplete="current-password" aria-describedby="current-password-hint" /><button class="input-group__button" type="button" data-password-toggle="current-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="current-password"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="current-password-hint" data-current-password-hint>Bắt buộc khi đổi sang mật khẩu mới</p></div>
+                    <div class="field"><label class="field__label" for="current-password" data-i18n>Mật khẩu hiện tại</label><div class="input-group"><input class="input" id="current-password" name="current-password" type="password" autocomplete="current-password" aria-describedby="current-password-hint" /><button class="input-group__button" type="button" data-password-toggle="current-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="current-password" data-i18n-attr="aria-label"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="current-password-hint" data-current-password-hint data-i18n>Bắt buộc khi đổi sang mật khẩu mới</p></div>
                     <div class="edit-password-spacer" aria-hidden="true"></div>
                     <!-- Mật khẩu mới: nhãn thật, nút mắt riêng và gợi ý để đọc lỗi bằng bàn phím. -->
-                    <div class="field"><label class="field__label" for="new-password">Mật khẩu mới</label><div class="input-group"><input class="input" id="new-password" name="new-password" type="password" autocomplete="new-password" aria-describedby="new-password-hint" /><button class="input-group__button" type="button" data-password-toggle="new-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="new-password"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="new-password-hint" data-new-password-hint>Tối thiểu 8 ký tự</p></div>
+                    <div class="field"><label class="field__label" for="new-password" data-i18n>Mật khẩu mới</label><div class="input-group"><input class="input" id="new-password" name="new-password" type="password" autocomplete="new-password" aria-describedby="new-password-hint" /><button class="input-group__button" type="button" data-password-toggle="new-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="new-password" data-i18n-attr="aria-label"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="new-password-hint" data-new-password-hint data-i18n>Tối thiểu 8 ký tự</p></div>
                     <!-- Xác nhận mật khẩu mới: nhãn thật, nút mắt riêng và gợi ý để đọc lỗi bằng bàn phím. -->
-                    <div class="field"><label class="field__label" for="confirm-password">Xác nhận mật khẩu mới</label><div class="input-group"><input class="input" id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" aria-describedby="confirm-password-hint" /><button class="input-group__button" type="button" data-password-toggle="confirm-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="confirm-password"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="confirm-password-hint" data-confirm-password-hint>Nhập lại đúng mật khẩu mới</p></div>
+                    <div class="field"><label class="field__label" for="confirm-password" data-i18n>Xác nhận mật khẩu mới</label><div class="input-group"><input class="input" id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" aria-describedby="confirm-password-hint" /><button class="input-group__button" type="button" data-password-toggle="confirm-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="confirm-password" data-i18n-attr="aria-label"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="confirm-password-hint" data-confirm-password-hint data-i18n>Nhập lại đúng mật khẩu mới</p></div>
                   </div>
                   <!-- Thanh lưu chỉ xuất hiện khi mục này khác bản đã lưu; lỗi luôn nằm trong chính mục. -->
                   <p class="alert alert--error" role="alert" data-section-error="password" hidden></p>
                   <div class="section-save-bar" data-section-save-bar="password" hidden>
-                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message>Mục này có thay đổi chưa lưu</span></p>
+                    <p class="section-save-bar__message"><span class="settings-unsaved-dot" aria-hidden="true"></span><span data-section-save-message data-i18n>Mục này có thay đổi chưa lưu</span></p>
                     <div class="section-save-bar__actions" data-section-save-actions>
-                      <button class="btn btn--secondary" type="button" data-section-reset="password">Huỷ thay đổi</button>
-                      <button class="btn btn--primary" type="button" data-section-save="password">Lưu thay đổi</button>
+                      <button class="btn btn--secondary" type="button" data-section-reset="password" data-i18n>Huỷ thay đổi</button>
+                      <button class="btn btn--primary" type="button" data-section-save="password" data-i18n>Lưu thay đổi</button>
                     </div>
                   </div>
                 </section>
               </fieldset>
               <!-- Thông báo nằm ngoài fieldset khoá để nút thử lại luôn dùng được khi tải lỗi. -->
-              <div class="alert alert--error" role="alert" tabindex="-1" data-form-alert hidden><p data-alert-message></p><button class="btn btn--secondary btn--sm" type="button" data-retry hidden>Thử lại</button></div>
+              <div class="alert alert--error" role="alert" tabindex="-1" data-form-alert hidden><p data-alert-message></p><button class="btn btn--secondary btn--sm" type="button" data-retry hidden data-i18n>Thử lại</button></div>
               <!-- Vùng thông báo luôn có sẵn để trình đọc màn hình nhận kết quả của từng lần lưu. -->
               <p class="u-visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-save-status></p>
               <!-- Giao diện nằm ngoài fieldset hồ sơ: lưu tại trình duyệt ngay, không tham gia PATCH /my. -->
               <section class="profile-section settings-appearance" id="section-appearance" tabindex="-1" aria-labelledby="appearance-title" data-preferences>
                 <div class="profile-section__heading">
-                  <h2 class="t-display" id="appearance-title">Giao diện</h2>
-                  <p>Tuỳ chỉnh cách Etsubi hiển thị trên thiết bị này. Thay đổi áp dụng ngay, không cần bấm “Lưu thay đổi”.</p>
+                  <h2 class="t-display" id="appearance-title" data-i18n>Giao diện</h2>
+                  <p data-i18n>Tuỳ chỉnh cách Etsubi hiển thị trên thiết bị này. Thay đổi áp dụng ngay, không cần bấm “Lưu thay đổi”.</p>
                 </div>
                 <div class="settings-list">
                   <!-- Radio thật chỉ bật Sáng; FE đang chờ thiết kế bảng màu tối, không phụ thuộc backend. -->
                   <div class="settings-row">
                     <span class="settings-row__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg></span>
                     <div class="settings-row__copy">
-                      <h3>Chế độ hiển thị</h3>
-                      <p>Sáng, tối hoặc theo cài đặt của máy</p>
+                      <h3 data-i18n>Chế độ hiển thị</h3>
+                      <p data-i18n>Sáng, tối hoặc theo cài đặt của máy</p>
                     </div>
                     <fieldset class="settings-segments" aria-describedby="theme-hint">
-                      <legend class="u-visually-hidden">Chế độ hiển thị</legend>
+                      <legend class="u-visually-hidden" data-i18n>Chế độ hiển thị</legend>
                       <!-- Mỗi nhãn bọc input gốc để hỗ trợ chọn bằng bàn phím và công nghệ hỗ trợ. -->
                       <label class="settings-segments__option">
                         <input class="u-visually-hidden" type="radio" name="theme" value="light" data-theme checked />
-                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>Sáng</span>
+                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg><span data-i18n>Sáng</span></span>
                       </label>
                       <label class="settings-segments__option">
                         <input class="u-visually-hidden" type="radio" name="theme" value="dark" data-theme disabled />
-                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6.25 6.25 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg>Tối</span>
+                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6.25 6.25 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></svg><span data-i18n>Tối</span></span>
                       </label>
                       <label class="settings-segments__option">
                         <input class="u-visually-hidden" type="radio" name="theme" value="system" data-theme disabled />
-                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8m-4-4v4" /></svg>Theo máy</span>
+                        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8m-4-4v4" /></svg><span data-i18n>Theo máy</span></span>
                       </label>
                     </fieldset>
                   </div>
-                  <!-- Ngôn ngữ dùng cùng preferences với header, chỉ lưu lựa chọn khi bản dịch chưa có. -->
+                  <!-- Ngôn ngữ dùng cùng preferences với header, đổi xong trang tự tải lại theo ngôn ngữ mới. -->
                   <div class="settings-row">
                     <span class="settings-row__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6m-7 0 6-6 2-5H2m5-2v2m6 19 5-11 5 11m-8-4h6" /></svg></span>
                     <div class="settings-row__copy">
-                      <h3>Ngôn ngữ giao diện</h3>
-                      <p>Ngôn ngữ của menu và nút bấm</p>
+                      <h3 data-i18n>Ngôn ngữ giao diện</h3>
+                      <p data-i18n>Ngôn ngữ của menu và nút bấm</p>
                     </div>
-                    <fieldset class="settings-segments" aria-describedby="interface-language-hint">
-                      <legend class="u-visually-hidden">Ngôn ngữ giao diện</legend>
+                    <fieldset class="settings-segments">
+                      <legend class="u-visually-hidden" data-i18n>Ngôn ngữ giao diện</legend>
                       <label class="settings-segments__option">
                         <input class="u-visually-hidden" type="radio" name="interface-language" value="vi" data-interface-language checked />
                         <span>VI</span>
@@ -280,55 +280,54 @@
                     </fieldset>
                   </div>
                 </div>
-                <!-- Gợi ý nêu giới hạn hiện tại, tránh hiểu nhầm rằng đã có bảng màu và bản dịch. -->
+                <!-- Gợi ý nêu giới hạn hiện tại, tránh hiểu nhầm rằng đã có bảng màu tối. -->
                 <div class="settings-hints">
-                  <p class="field__hint" id="theme-hint">Chế độ Tối và Theo máy sắp có.</p>
-                  <p class="field__hint" id="interface-language-hint">Bản dịch JA/EN của giao diện sắp có.</p>
+                  <p class="field__hint" id="theme-hint" data-i18n>Chế độ Tối và Theo máy sắp có.</p>
                 </div>
               </section>
               <!-- Một vạch ngăn tách Giao diện khỏi hành động xoá tài khoản vĩnh viễn. -->
               <hr class="settings-divider" />
               <!-- Vùng nguy hiểm cần xác nhận riêng bằng mật khẩu và không tự gửi form hồ sơ. -->
               <section class="edit-danger" id="section-delete" tabindex="-1" aria-labelledby="delete-title">
-                <div><h2 id="delete-title">Xoá tài khoản</h2><p>Tài khoản và dữ liệu hồ sơ của bạn sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác.</p></div>
-                <button class="btn btn--danger-outline" type="button" data-delete-open disabled>Xoá tài khoản</button>
+                <div><h2 id="delete-title" data-i18n>Xoá tài khoản</h2><p data-i18n>Tài khoản và dữ liệu hồ sơ của bạn sẽ bị xoá vĩnh viễn. Hành động này không thể hoàn tác.</p></div>
+                <button class="btn btn--danger-outline" type="button" data-delete-open disabled data-i18n>Xoá tài khoản</button>
               </section>
             </form>
           </section>
           <!-- Tóm tắt cập nhật khi nhập; thanh tiến độ có giá trị số cho công nghệ hỗ trợ. -->
-          <aside class="profile-summary" aria-label="Tóm tắt hồ sơ">
+          <aside class="profile-summary" aria-label="Tóm tắt hồ sơ" data-i18n-attr="aria-label">
             <section class="card profile-summary__card" aria-labelledby="summary-title">
               <div class="profile-summary__top">
-                <p class="profile-eyebrow">HỒ SƠ CỦA BẠN</p><h2 class="t-display" id="summary-title">Hồ sơ của bạn</h2>
-                <div class="profile-meter" role="progressbar" aria-label="Hoàn tất hồ sơ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress><span></span></div>
+                <p class="profile-eyebrow" data-i18n>HỒ SƠ CỦA BẠN</p><h2 class="t-display" id="summary-title" data-i18n>Hồ sơ của bạn</h2>
+                <div class="profile-meter" role="progressbar" aria-label="Hoàn tất hồ sơ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress data-i18n-attr="aria-label"><span></span></div>
                 <p class="profile-summary__percent"><span class="t-display" data-percent>0</span><span>%</span></p>
               </div>
               <div class="profile-summary__body">
-                <p class="profile-eyebrow">THÔNG TIN HIỆN TẠI</p>
+                <p class="profile-eyebrow" data-i18n>THÔNG TIN HIỆN TẠI</p>
                 <dl class="profile-summary__rows">
                   <!-- Hai loại tên tách riêng để tránh nhầm handle với tên hiển thị. -->
-                  <div><dt>Tên hiển thị</dt><dd data-summary="displayname">–</dd></div>
-                  <div><dt>Tên người dùng</dt><dd data-summary="username">–</dd></div>
+                  <div><dt data-i18n>Tên hiển thị</dt><dd data-summary="displayname">–</dd></div>
+                  <div><dt data-i18n>Tên người dùng</dt><dd data-summary="username">–</dd></div>
                   <div><dt>Email</dt><dd data-summary="email">–</dd></div>
-                  <div><dt>Trường</dt><dd data-summary="institute">–</dd></div>
-                  <div><dt>Nơi ở</dt><dd data-summary="address">–</dd></div>
-                  <div><dt>Ngôn ngữ mẹ đẻ</dt><dd data-summary="native">–</dd></div>
+                  <div><dt data-i18n>Trường</dt><dd data-summary="institute">–</dd></div>
+                  <div><dt data-i18n>Nơi ở</dt><dd data-summary="address">–</dd></div>
+                  <div><dt data-i18n>Ngôn ngữ mẹ đẻ</dt><dd data-summary="native">–</dd></div>
                 </dl>
               </div>
             </section>
             <div class="profile-summary__help">
-              <div class="profile-tip profile-tip--quick"><h2>ⓘ Mẹo nhanh</h2><p>Tên và ảnh đại diện mới sẽ hiện trên mọi bài viết, bình luận của bạn ngay sau khi lưu.</p></div>
+              <div class="profile-tip profile-tip--quick"><h2 data-i18n>ⓘ Mẹo nhanh</h2><p data-i18n>Tên và ảnh đại diện mới sẽ hiện trên mọi bài viết, bình luận của bạn ngay sau khi lưu.</p></div>
               <!-- Liên kết hồ sơ công khai dùng mã tài khoản thật sau khi tải thành công. -->
               <div class="profile-support">
-                <p class="profile-eyebrow">HỒ SƠ CÔNG KHAI</p>
-                <a class="btn btn--secondary btn--block" href="/pages/profile/index.html" data-profile-link>Xem hồ sơ công khai</a>
-                <p class="profile-support__note">Xem trang hồ sơ của bạn đúng như thành viên khác đang thấy.</p>
+                <p class="profile-eyebrow" data-i18n>HỒ SƠ CÔNG KHAI</p>
+                <a class="btn btn--secondary btn--block" href="/pages/profile/index.html" data-profile-link data-i18n>Xem hồ sơ công khai</a>
+                <p class="profile-support__note" data-i18n>Xem trang hồ sơ của bạn đúng như thành viên khác đang thấy.</p>
               </div>
             </div>
           </aside>
         </div>
         <!-- Khi JavaScript bị tắt, giải thích rõ vì hồ sơ cần xác thực qua API. -->
-        <noscript><p class="alert alert--info">Vui lòng bật JavaScript để tải và lưu hồ sơ Etsubi.</p></noscript>
+        <noscript><p class="alert alert--info" data-i18n>Vui lòng bật JavaScript để tải và lưu hồ sơ Etsubi.</p></noscript>
       </div>
     </main>
     <!-- Dialog rời trang dùng lớp phủ và phong cách của hộp viết bài, không thay hành vi Diễn đàn. -->
@@ -336,26 +335,26 @@
       <div class="settings-leave-dialog__content">
         <!-- Nút đóng và Escape đều tương đương ở lại trang, không bỏ dữ liệu đang sửa. -->
         <div class="settings-leave-dialog__heading">
-          <h2 class="t-display" id="leave-dialog-title">Bạn có thay đổi chưa lưu</h2>
-          <button class="settings-leave-dialog__close" type="button" data-leave-close aria-label="Đóng"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12" /></svg></button>
+          <h2 class="t-display" id="leave-dialog-title" data-i18n>Bạn có thay đổi chưa lưu</h2>
+          <button class="settings-leave-dialog__close" type="button" data-leave-close aria-label="Đóng" data-i18n-attr="aria-label"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12" /></svg></button>
         </div>
         <p class="settings-leave-dialog__description" id="leave-dialog-description" data-leave-description></p>
         <!-- JS đổi thứ tự DOM ở mobile để nút Ở lại đứng trước cả về thị giác lẫn thứ tự Tab. -->
         <div class="settings-leave-dialog__actions" data-leave-actions>
-          <button class="btn btn--danger-outline" type="button" data-leave-discard>Rời trang, bỏ thay đổi</button>
-          <button class="btn btn--primary" type="button" data-leave-stay autofocus>Ở lại trang</button>
+          <button class="btn btn--danger-outline" type="button" data-leave-discard data-i18n>Rời trang, bỏ thay đổi</button>
+          <button class="btn btn--primary" type="button" data-leave-stay autofocus data-i18n>Ở lại trang</button>
         </div>
       </div>
     </dialog>
     <!-- Dialog gốc giữ focus trong hộp xác nhận; không lưu mật khẩu vào bộ nhớ trình duyệt. -->
     <dialog class="edit-dialog" data-delete-dialog aria-labelledby="delete-dialog-title" aria-describedby="delete-dialog-description">
       <form class="edit-dialog__form" data-delete-form novalidate>
-        <h2 class="t-display" id="delete-dialog-title">Xoá tài khoản vĩnh viễn?</h2>
-        <p id="delete-dialog-description">Tài khoản và dữ liệu hồ sơ của bạn sẽ bị xoá vĩnh viễn. Bạn không thể hoàn tác hành động này. Nhập mật khẩu hiện tại để xác nhận.</p>
+        <h2 class="t-display" id="delete-dialog-title" data-i18n>Xoá tài khoản vĩnh viễn?</h2>
+        <p id="delete-dialog-description" data-i18n>Tài khoản và dữ liệu hồ sơ của bạn sẽ bị xoá vĩnh viễn. Bạn không thể hoàn tác hành động này. Nhập mật khẩu hiện tại để xác nhận.</p>
                     <!-- Mật khẩu hiện tại: nhãn thật, nút mắt riêng và gợi ý để đọc lỗi bằng bàn phím. -->
-                    <div class="field"><label class="field__label" for="delete-password">Mật khẩu hiện tại</label><div class="input-group"><input class="input" id="delete-password" name="delete-password" type="password" autocomplete="current-password" aria-describedby="delete-password-hint" /><button class="input-group__button" type="button" data-password-toggle="delete-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="delete-password"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="delete-password-hint" data-delete-password-hint>Nhập mật khẩu để xác nhận xoá tài khoản</p></div>
+                    <div class="field"><label class="field__label" for="delete-password" data-i18n>Mật khẩu hiện tại</label><div class="input-group"><input class="input" id="delete-password" name="delete-password" type="password" autocomplete="current-password" aria-describedby="delete-password-hint" /><button class="input-group__button" type="button" data-password-toggle="delete-password" aria-label="Hiện mật khẩu" aria-pressed="false" aria-controls="delete-password" data-i18n-attr="aria-label"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="field__hint" id="delete-password-hint" data-delete-password-hint data-i18n>Nhập mật khẩu để xác nhận xoá tài khoản</p></div>
         <p class="alert alert--error" id="delete-error" role="alert" data-delete-error hidden></p>
-        <div class="edit-dialog__actions"><button class="btn btn--secondary" type="button" data-delete-cancel>Huỷ</button><button class="btn btn--primary" type="submit" data-delete-submit disabled>Xoá vĩnh viễn</button></div>
+        <div class="edit-dialog__actions"><button class="btn btn--secondary" type="button" data-delete-cancel data-i18n>Huỷ</button><button class="btn btn--primary" type="submit" data-delete-submit disabled data-i18n>Xoá vĩnh viễn</button></div>
       </form>
     </dialog>
     <!-- Chân trang rút gọn được dựng từ component chung, không sao chép nội dung. -->

@@ -9,15 +9,16 @@ import { createLanguageMenu } from '/components/header/language-menu.js';
 import { initials } from '/utils/format.js';
 import { getUnreadCount } from '/services/api/notifications.js';
 import { createNotificationMenu, notificationIcon } from '/components/notification-menu/notification-menu.js';
+import { t } from '/utils/i18n.js';
 
 // Lưu bộ huỷ theo vùng gắn để dựng lại header không nhân đôi bộ lắng nghe.
 const mounts = new WeakMap();
 let headerCount = 0;
 const items = [
-  ['home', 'Trang chủ'],
-  ['forum', 'Diễn đàn'],
-  ['support', 'Hỗ trợ'],
-  ['about', 'Giới thiệu'],
+  ['home', t('Trang chủ')],
+  ['forum', t('Diễn đàn')],
+  ['support', t('Hỗ trợ')],
+  ['about', t('Giới thiệu')],
 ];
 
 /** Tạo ảnh biểu tượng cố định với alt rỗng vì nút hoặc liên kết đã có tên truy cập. */
@@ -60,11 +61,11 @@ function fillAvatar(target, user, signal) {
 /** Chỉ hiện ngôn ngữ mẹ đẻ có dữ liệu; tiếng Anh dùng nhãn vì chưa có cờ phù hợp. */
 function nativeBadge(native) {
   if (native === 'en') {
-    return el('span', { className: 'site-header__profile-native', 'aria-label': 'Ngôn ngữ mẹ đẻ: tiếng Anh' }, 'EN');
+    return el('span', { className: 'site-header__profile-native', 'aria-label': t('Ngôn ngữ mẹ đẻ: tiếng Anh') }, 'EN');
   }
   const flags = {
-    vi: ['flag-vn.svg', 'Ngôn ngữ mẹ đẻ: tiếng Việt'],
-    ja: ['flag-jp.svg', 'Ngôn ngữ mẹ đẻ: tiếng Nhật'],
+    vi: ['flag-vn.svg', t('Ngôn ngữ mẹ đẻ: tiếng Việt')],
+    ja: ['flag-jp.svg', t('Ngôn ngữ mẹ đẻ: tiếng Nhật')],
   };
   // Giá trị thiếu hoặc không hợp lệ không được thay bằng một quốc kỳ phỏng đoán.
   if (!flags[native]) {
@@ -112,7 +113,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   // Trang thông báo dùng thanh tác vụ riêng trong cùng component, không sao chép header vào HTML.
   if (variant === 'notifications') {
     target.classList.add('site-header', 'site-header--notifications');
-    const back = el('button', { type: 'button', className: 'site-header__icon', 'aria-label': 'Quay lại' }, notificationIcon('back'));
+    const back = el('button', { type: 'button', className: 'site-header__icon', 'aria-label': t('Quay lại') }, notificationIcon('back'));
     // Chỉ quay lại lịch sử trong ứng dụng; truy cập trực tiếp thì về Trang chủ.
     back.addEventListener('click', () => {
       if (history.length > 1 && document.referrer.startsWith(location.origin + '/')) {
@@ -122,10 +123,10 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       }
     }, { signal });
     const readAll = options.notificationReadAll;
-    readAll.textContent = 'Đọc hết';
+    readAll.textContent = t('Đọc hết');
     readAll.classList.add('site-header__read-all');
     target.replaceChildren(el('div', { className: 'site-header__notification-nav' }, back,
-      el('h1', { className: 'site-header__notification-title', id: 'notifications-title' }, 'Thông báo'), readAll));
+      el('h1', { className: 'site-header__notification-title', id: 'notifications-title' }, t('Thông báo')), readAll));
     return target;
   }
   const searchForm = options.searchForm === true && variant !== 'search';
@@ -153,14 +154,14 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   const brand = el('a', {
     className: 'site-header__brand',
     href: routes.home,
-    'aria-label': 'Etsubi – Trang chủ',
+    'aria-label': t('Etsubi – Trang chủ'),
   },
   el('img', { src: '/assets/icons/etsubi-logo.svg', alt: '', width: 36, height: 36 }),
   el('span', { className: 'brand-word' }, 'Etsubi')
   );
   const nav = el('nav', {
     className: 'site-header__nav',
-    'aria-label': 'Chính',
+    'aria-label': t('Chính'),
   }, navLinks(active));
   const utils = el('div', { className: 'site-header__utils' });
   // Trang Đăng nhập/Đăng ký (hideAuthLink) theo Figma chỉ có huy hiệu ngôn ngữ, không có nút tìm kiếm.
@@ -168,7 +169,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     utils.append(el('a', {
       className: 'site-header__icon site-header__search',
       href: routes.search,
-      'aria-label': 'Tìm kiếm',
+      'aria-label': t('Tìm kiếm'),
     }, icon('search-white')));
   }
 
@@ -183,13 +184,13 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   const mobileNav = el('nav', {
     id: menuId,
     className: 'site-header__mobile-nav',
-    'aria-label': 'Điều hướng di động',
+    'aria-label': t('Điều hướng di động'),
     hidden: true,
   }, navLinks(active));
   const menuButton = el('button', {
     type: 'button',
     className: 'site-header__icon site-header__menu-button',
-    'aria-label': 'Mở điều hướng',
+    'aria-label': t('Mở điều hướng'),
     'aria-expanded': 'false',
     'aria-controls': menuId,
   });
@@ -212,7 +213,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }
     mobileNav.hidden = true;
     menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'Mở điều hướng');
+    menuButton.setAttribute('aria-label', t('Mở điều hướng'));
     if (profile) {
       profile.hidden = true;
     }
@@ -229,7 +230,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     closeMenus();
     mobileNav.hidden = !open;
     menuButton.setAttribute('aria-expanded', String(open));
-    menuButton.setAttribute('aria-label', open ? 'Đóng điều hướng' : 'Mở điều hướng');
+    menuButton.setAttribute('aria-label', open ? t('Đóng điều hướng') : t('Mở điều hướng'));
   }, { signal });
 
   /** Hiện liên kết đăng nhập hoặc chuông và avatar tuỳ hồ sơ của phiên hiện tại. */
@@ -253,7 +254,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
         session.append(el('a', {
           className: 'site-header__login',
           href: withRedirect(routes.login, location.pathname + location.search + location.hash),
-        }, 'Đăng nhập'));
+        }, t('Đăng nhập')));
       }
       return;
     }
@@ -262,7 +263,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     const bell = el('a', {
       href: routes.notifications,
       className: 'site-header__icon site-header__bell',
-      'aria-label': 'Thông báo',
+      'aria-label': t('Thông báo'),
       'aria-haspopup': 'true',
       'aria-expanded': 'false',
       'aria-controls': notificationId,
@@ -291,7 +292,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
         return;
       }
       dot.hidden = count <= 0;
-      bell.setAttribute('aria-label', 'Thông báo' + (count > 0 ? ', ' + count + ' chưa đọc' : ''));
+      bell.setAttribute('aria-label', count > 0 ? t('Thông báo, {count} chưa đọc', { count }) : t('Thông báo'));
       notifications.setUnreadCount(count);
       return count;
     }
@@ -346,7 +347,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       type: 'button',
       className: 'avatar site-header__avatar',
       'data-avatar-button': '',
-      'aria-label': 'Tài khoản ' + (getAuthorLabel(user) || '–'),
+      'aria-label': t('Tài khoản {name}', { name: getAuthorLabel(user) || '–' }),
       'aria-expanded': 'false',
       'aria-controls': profileId,
     });
@@ -370,7 +371,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     const signOut = el('button', {
       type: 'button',
       className: 'site-header__profile-action site-header__profile-action--logout',
-    }, profileIcon('logout'), 'Đăng xuất');
+    }, profileIcon('logout'), t('Đăng xuất'));
     const menu = el('div', {
       id: profileId,
       className: 'site-header__profile-menu',
@@ -379,8 +380,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     },
     heading,
     el('div', { className: 'site-header__profile-links' },
-      el('a', { href: routes.profile, className: 'site-header__profile-action' }, profileIcon('user'), 'Hồ sơ của tôi'),
-      el('a', { href: routes.settings, className: 'site-header__profile-action' }, profileIcon('settings'), 'Cài đặt')
+      el('a', { href: routes.profile, className: 'site-header__profile-action' }, profileIcon('user'), t('Hồ sơ của tôi')),
+      el('a', { href: routes.settings, className: 'site-header__profile-action' }, profileIcon('settings'), t('Cài đặt'))
     ),
     el('div', { className: 'site-header__profile-exit' }, signOut)
     );
@@ -417,7 +418,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   if (searchForm) {
     const input = el('input', {
       type: 'search', name: 'q', 'data-search-input': '',
-      placeholder: 'Tìm kiếm bài viết, chủ đề...', 'aria-label': 'Tìm kiếm',
+      placeholder: t('Tìm kiếm bài viết, chủ đề...'), 'aria-label': t('Tìm kiếm'),
       autocomplete: 'off', autocorrect: 'off', spellcheck: 'false',
     });
     const submit = el('button', {
@@ -425,10 +426,10 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     });
     // Lucide search có khung vuông 24 và nét tròn chuẩn, hiển thị ở 16px theo Figma 292:2401.
     submit.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
-    submit.append('Tìm kiếm');
+    submit.append(t('Tìm kiếm'));
     const form = el('form', {
       className: 'site-header__home-search', role: 'search', action: routes.search,
-    }, el('label', { className: 'u-visually-hidden', for: 'home-search-' + headerCount }, 'Tìm kiếm'),
+    }, el('label', { className: 'u-visually-hidden', for: 'home-search-' + headerCount }, t('Tìm kiếm')),
     el('span', { className: 'site-header__home-search-icon', 'aria-hidden': 'true' }), input, submit);
     input.id = 'home-search-' + headerCount;
     /** Chỉ bật nút khi có chữ sau trim; không tải dữ liệu trong lúc đang gõ. */

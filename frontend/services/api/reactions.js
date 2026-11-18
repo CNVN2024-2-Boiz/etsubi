@@ -2,6 +2,7 @@
 import { request } from '/services/api/client.js';
 import { notifyPostAfter } from '/services/api/notify-actions.js';
 import { LIKE_EMOJI, REACTION_EMOJIS, isAllowedReaction } from '/services/api/reaction-emojis.js';
+import { t } from '/utils/i18n.js';
 
 // Trang đọc bài dùng một cảm xúc duy nhất cho nút thích trong Figma; xuất lại để nơi cũ không phải đổi import.
 export { LIKE_EMOJI, REACTION_EMOJIS, isAllowedReaction };
@@ -38,7 +39,7 @@ export async function getMyReaction(postId) {
 export async function reactToPost(postId, emoji = LIKE_EMOJI, { authorId, previousEmoji } = {}) {
   // Chặn từ phía trình duyệt mọi emoji ngoài danh sách; backend vẫn là chốt chặn cuối bằng CHECK constraint.
   if (!isAllowedReaction(emoji)) {
-    throw Object.assign(new Error('Hiện chỉ hỗ trợ thả tim cho bài viết.'), { status: 400 });
+    throw Object.assign(new Error(t('Hiện chỉ hỗ trợ thả tim cho bài viết.')), { status: 400 });
   }
   emoji = emoji.trim();
   // Trang truyền cảm xúc cũ nếu đã tải; nơi khác chỉ cần đọc một lần để tránh thông báo khi gửi lại cùng emoji.

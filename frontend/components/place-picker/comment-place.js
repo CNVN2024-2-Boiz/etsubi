@@ -3,6 +3,7 @@ import { el } from '/utils/dom.js';
 import { editorIcon } from '/components/rich-editor/rich-editor.js';
 import { createPlaceMap } from '/components/place-picker/place-map.js';
 import { reversePlace } from '/services/geo/nominatim.js';
+import { t } from '/utils/i18n.js';
 
 /** Không dựng giao diện khi thiếu toạ độ thật; caller dọn map khi thay danh sách bình luận. */
 export function createCommentPlace(comment) {
@@ -12,18 +13,18 @@ export function createCommentPlace(comment) {
   let loaded = false;
   let disposed = false;
   const controller = new AbortController();
-  const nameText = comment.place_name || 'Vị trí đã chọn';
+  const nameText = comment.place_name || t('Vị trí đã chọn');
   const addressText = comment.place?.address || comment.address || comment.place?.city || comment.city || '';
   const name = el('strong', {}, nameText);
   const city = el('span', { className: 'comment-place__city' }, addressText ? '· ' + addressText.split(',')[0] : '');
   const chip = el('button', { type: 'button', className: 'comment-place__chip', 'aria-expanded': 'false' }, editorIcon('pin', 14), name, city, editorIcon('chevron', 14));
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(latitude + ',' + longitude);
-  const map = el('div', { className: 'place-map comment-place__map', 'aria-label': 'Bản đồ địa điểm bình luận' });
+  const map = el('div', { className: 'place-map comment-place__map', 'aria-label': t('Bản đồ địa điểm bình luận') });
   const fullName = el('strong', {}, nameText);
   const address = el('p', { className: 'comment-place__address' }, addressText);
   const card = el('div', { className: 'comment-place__card', hidden: true },
-    el('div', { className: 'post-map' }, map, el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Mở trong Maps ↗')),
-    fullName, address, el('a', { className: 'comment-place__link', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Xem trên Google Maps ↗'));
+    el('div', { className: 'post-map' }, map, el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, t('Mở trong Maps ↗'))),
+    fullName, address, el('a', { className: 'comment-place__link', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, t('Xem trên Google Maps ↗')));
   const root = el('div', { className: 'comment-place' }, chip, card);
   /** Mở lần đầu mới tải map/reverse; lần sau chỉ đổi hidden và đo lại kích thước. */
   async function toggle() {
@@ -36,7 +37,7 @@ export function createCommentPlace(comment) {
     void createPlaceMap(map, { latitude, longitude, zoom: 16, interactive: false }).then(result => {
       if (disposed) { result.destroy(); return; }
       view = result; view.map.invalidateSize({ animate: false });
-    }).catch(() => { if (!disposed) map.textContent = 'Không tải được bản đồ.'; });
+    }).catch(() => { if (!disposed) map.textContent = t('Không tải được bản đồ.'); });
     try {
       const place = await reversePlace(latitude, longitude, { signal: controller.signal });
       if (disposed || !place) return;

@@ -29,6 +29,7 @@ import { createCommentPlace } from '/components/place-picker/comment-place.js';
 import { reversePlace } from '/services/geo/nominatim.js';
 import { toVietnameseMessage, translationErrorMessage } from '/utils/errors.js';
 import { routes, searchUrl } from '/utils/routes.js';
+import { currentLocale, t } from '/utils/i18n.js';
 
 // Header có tab Diễn đàn đang chọn và ô tìm kiếm trong suốt như frame Figma; footer đầy đủ.
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
@@ -93,7 +94,7 @@ function showActionStatus(message, isError = false) {
 /** Đổi ngày ISO thành "25/03/2026" theo giờ máy người xem. */
 function formatDate(value) {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString(currentLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 /** Đổi thời gian bình luận thành "25/03 · 14:20"; thêm năm khi khác năm hiện tại. */
@@ -125,13 +126,13 @@ function createFlag(native, small = false) {
     return el('img', {
       className: sizeClass,
       src: '/assets/icons/flag-' + country + '.svg',
-      alt: native === 'vi' ? 'Việt Nam' : 'Nhật Bản',
+      alt: native === 'vi' ? t('Việt Nam') : t('Nhật Bản'),
       width: small ? 26 : 29,
       height: small ? 18 : 20,
     });
   }
   if (native === 'en') {
-    return el('span', { className: sizeClass + ' post-flag--label', title: 'Tiếng Anh' }, 'EN');
+    return el('span', { className: sizeClass + ' post-flag--label', title: t('Tiếng Anh') }, 'EN');
   }
   return null;
 }
@@ -192,7 +193,7 @@ function renderAuthorRow() {
     info.append(placeholder('u-placeholder-bar--title post-author__bar'));
   }
   info.append(el('p', { className: 'post-author__meta' },
-    (author ? getAuthorHandle(author) + ' · ' : '') + formatDate(post.created_at) + ' · ' + readingMinutes(post.content) + ' phút đọc'));
+    (author ? getAuthorHandle(author) + ' · ' : '') + formatDate(post.created_at) + ' · ' + t('{count} phút đọc', { count: readingMinutes(post.content) })));
   row.replaceChildren(avatar, info, createPostMenu() || '');
 }
 
@@ -201,7 +202,7 @@ function renderBody(content, language) {
   const body = qs('[data-body]');
   body.lang = ['ja', 'en'].includes(language) ? language : 'vi';
   renderPostedContent(body, content);
-  if (!richToPlainText(content) && !body.querySelector('img')) body.append(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
+  if (!richToPlainText(content) && !body.querySelector('img')) body.append(el('p', { className: 'post-body__empty' }, t('Bài viết chưa có nội dung.')));
 }
 
 /** Hiện tiêu đề và thân bài theo bản gốc hoặc bản dịch đang chọn. */
@@ -218,7 +219,7 @@ function renderContent() {
   renderBody(useTranslation ? translated.content : post.content, useTranslation ? translated.language : post.language);
   const button = qs('[data-translate]');
   button.setAttribute('aria-pressed', String(Boolean(useTranslation)));
-  qs('[data-translate-label]').textContent = useTranslation ? 'Xem bản gốc' : 'Dịch bài viết';
+  qs('[data-translate-label]').textContent = useTranslation ? t('Xem bản gốc') : t('Dịch bài viết');
 }
 
 /** Bấm "Dịch bài viết": gọi API một lần, lần sau chỉ đổi qua lại giữa bản gốc và bản dịch. */
@@ -237,7 +238,7 @@ async function toggleTranslation() {
     }
     const button = qs('[data-translate]');
     button.disabled = true;
-    status.textContent = 'Đang dịch…';
+    status.textContent = t('Đang dịch…');
     try {
       state.translated = await translatePost(state.post.id);
     } catch (error) {
@@ -250,7 +251,7 @@ async function toggleTranslation() {
   }
   state.showTranslation = true;
   // API báo translated=false khi bài đã ở đúng ngôn ngữ của người xem.
-  status.textContent = state.translated.translated ? 'Đang xem bản dịch.' : 'Bài viết đã ở ngôn ngữ của bạn.';
+  status.textContent = state.translated.translated ? t('Đang xem bản dịch.') : t('Bài viết đã ở ngôn ngữ của bạn.');
   renderContent();
 }
 
@@ -269,19 +270,19 @@ function createPostMenu() {
   }
   const items = [];
   if (isAuthor) {
-    items.push({ icon: 'pencil', label: 'Chỉnh sửa bài viết', onSelect: startEdit });
+    items.push({ icon: 'pencil', label: t('Chỉnh sửa bài viết'), onSelect: startEdit });
   }
   if (staff) {
     items.push(post.status === 'hidden'
-      ? { icon: 'eye', label: 'Hiện lại bài viết', onSelect: () => changePostStatus('published') }
-      : { icon: 'eyeOff', label: 'Ẩn bài viết', onSelect: () => changePostStatus('hidden') });
+      ? { icon: 'eye', label: t('Hiện lại bài viết'), onSelect: () => changePostStatus('published') }
+      : { icon: 'eyeOff', label: t('Ẩn bài viết'), onSelect: () => changePostStatus('hidden') });
   }
   items.push(post.comments_locked
-    ? { icon: 'unlock', label: 'Mở khoá bình luận', onSelect: () => toggleCommentsLock(false) }
-    : { icon: 'lock', label: 'Khoá bình luận', onSelect: () => toggleCommentsLock(true) });
-  items.push('divider', { icon: 'trash', label: 'Xoá bài viết…', danger: true, onSelect: confirmDeletePost });
-  const header = staff ? { icon: 'shield', text: 'Kiểm duyệt bài viết' } : { text: 'Bài viết của bạn' };
-  const menu = createMenu(createMoreButton('Tuỳ chọn bài viết'), { header, items });
+    ? { icon: 'unlock', label: t('Mở khoá bình luận'), onSelect: () => toggleCommentsLock(false) }
+    : { icon: 'lock', label: t('Khoá bình luận'), onSelect: () => toggleCommentsLock(true) });
+  items.push('divider', { icon: 'trash', label: t('Xoá bài viết…'), danger: true, onSelect: confirmDeletePost });
+  const header = staff ? { icon: 'shield', text: t('Kiểm duyệt bài viết') } : { text: t('Bài viết của bạn') };
+  const menu = createMenu(createMoreButton(t('Tuỳ chọn bài viết')), { header, items });
   menu.classList.add('post-author__menu');
   return menu;
 }
@@ -298,12 +299,12 @@ function renderPostModeration() {
   }
   if (deleted) {
     slot.append(createStaffBox(el('div', { className: 'staff-box__top post-staff-row' }, createStaffTag(),
-      el('span', { className: 'post-staff-row__text' }, 'Đã xoá lúc ' + formatUntilFull(state.deletedAt)),
-      createStaffButton('restore', 'Khôi phục', confirmRestorePost))));
+      el('span', { className: 'post-staff-row__text' }, t('Đã xoá lúc {time}', { time: formatUntilFull(state.deletedAt) })),
+      createStaffButton('restore', t('Khôi phục'), confirmRestorePost))));
   } else if (hidden) {
     slot.append(createStaffBox(el('div', { className: 'staff-box__top post-staff-row' }, createStaffTag(),
-      el('span', { className: 'post-staff-row__text' }, 'Bài viết đang bị ẩn khỏi mọi người.'),
-      createStaffButton('eye', 'Hiện lại', () => changePostStatus('published')))));
+      el('span', { className: 'post-staff-row__text' }, t('Bài viết đang bị ẩn khỏi mọi người.')),
+      createStaffButton('eye', t('Hiện lại'), () => changePostStatus('published')))));
   }
 }
 
@@ -320,12 +321,12 @@ function changePostStatus(status) {
   const hiding = status === 'hidden';
   openConfirmDialog({
     icon: hiding ? 'eyeOff' : 'eye',
-    title: hiding ? 'Ẩn bài viết này?' : 'Hiện lại bài viết này?',
+    title: hiding ? t('Ẩn bài viết này?') : t('Hiện lại bài viết này?'),
     subtitle: '“' + state.post.title + '” · ' + (getAuthorLabel(state.author) || ''),
     body: [el('p', { className: 'mod-dialog__text' }, hiding
-      ? 'Thành viên thường mở liên kết sẽ gặp trang không tìm thấy. Điều hành viên và Quản trị viên vẫn thấy bài và có thể hiện lại.'
-      : 'Bài viết sẽ hiện lại với mọi người như trước khi bị ẩn.')],
-    confirmLabel: hiding ? 'Ẩn bài viết' : 'Hiện lại',
+      ? t('Thành viên thường mở liên kết sẽ gặp trang không tìm thấy. Điều hành viên và Quản trị viên vẫn thấy bài và có thể hiện lại.')
+      : t('Bài viết sẽ hiện lại với mọi người như trước khi bị ẩn.'))],
+    confirmLabel: hiding ? t('Ẩn bài viết') : t('Hiện lại'),
     confirmIcon: hiding ? 'eyeOff' : 'eye',
     onConfirm: async () => {
       state.post = { ...state.post, ...await setPostStatus(state.post.id, status, { authorId: state.post.author_id, title: state.post.title }) };
@@ -338,12 +339,12 @@ function changePostStatus(status) {
 function toggleCommentsLock(locked) {
   openConfirmDialog({
     icon: locked ? 'lock' : 'unlock',
-    title: locked ? 'Khoá bình luận?' : 'Mở khoá bình luận?',
+    title: locked ? t('Khoá bình luận?') : t('Mở khoá bình luận?'),
     subtitle: '“' + state.post.title + '”',
     body: [el('p', { className: 'mod-dialog__text' }, locked
-      ? 'Ô viết bình luận được thay bằng thông báo; các bình luận cũ vẫn hiện.'
-      : 'Mọi người bình luận lại được trên bài viết này.')],
-    confirmLabel: locked ? 'Khoá bình luận' : 'Mở khoá',
+      ? t('Ô viết bình luận được thay bằng thông báo; các bình luận cũ vẫn hiện.')
+      : t('Mọi người bình luận lại được trên bài viết này.'))],
+    confirmLabel: locked ? t('Khoá bình luận') : t('Mở khoá'),
     confirmIcon: locked ? 'lock' : 'unlock',
     onConfirm: async () => {
       state.post = { ...state.post, ...await setCommentsLocked(state.post.id, locked, { authorId: state.post.author_id }) };
@@ -357,10 +358,10 @@ function confirmDeletePost() {
   const staff = isStaff(state.viewer);
   openConfirmDialog({
     icon: 'trash',
-    title: 'Xoá bài viết này?',
+    title: t('Xoá bài viết này?'),
     subtitle: '“' + state.post.title + '” · ' + (getAuthorLabel(state.author) || ''),
-    body: [el('p', { className: 'mod-dialog__text' }, 'Bài viết và toàn bộ bình luận sẽ không còn hiển thị với mọi người. Điều hành viên và Quản trị viên vẫn có thể khôi phục trong trang quản lý.')],
-    confirmLabel: 'Xoá bài viết',
+    body: [el('p', { className: 'mod-dialog__text' }, t('Bài viết và toàn bộ bình luận sẽ không còn hiển thị với mọi người. Điều hành viên và Quản trị viên vẫn có thể khôi phục trong trang quản lý.'))],
+    confirmLabel: t('Xoá bài viết'),
     confirmIcon: 'trash',
     onConfirm: async () => {
       await deletePost(state.post.id, { authorId: state.post.author_id, title: state.post.title });
@@ -378,10 +379,10 @@ function confirmDeletePost() {
 function confirmRestorePost() {
   openConfirmDialog({
     icon: 'restore',
-    title: 'Khôi phục bài viết?',
+    title: t('Khôi phục bài viết?'),
     subtitle: '“' + state.post.title + '”',
-    body: [el('p', { className: 'mod-dialog__text' }, 'Bài viết và bình luận hiện lại với mọi người như trước khi bị xoá.')],
-    confirmLabel: 'Khôi phục',
+    body: [el('p', { className: 'mod-dialog__text' }, t('Bài viết và bình luận hiện lại với mọi người như trước khi bị xoá.'))],
+    confirmLabel: t('Khôi phục'),
     confirmIcon: 'restore',
     onConfirm: async () => {
       state.post = { ...state.post, ...await restorePost(state.post.id) };
@@ -399,20 +400,20 @@ function startEdit() {
   }
   const titleInput = el('input', { id: 'edit-title', className: 'input', type: 'text', maxlength: '255', value: state.post.title, 'aria-describedby': 'post-edit-status' });
   let place = Number.isFinite(state.post.latitude) && Number.isFinite(state.post.longitude)
-    ? { latitude: state.post.latitude, longitude: state.post.longitude, name: state.post.place_name || 'Vị trí đã chọn' } : null;
-  const editEditor = createRichEditor({ label: 'Nội dung bài viết' });
+    ? { latitude: state.post.latitude, longitude: state.post.longitude, name: state.post.place_name || t('Vị trí đã chọn') } : null;
+  const editEditor = createRichEditor({ label: t('Nội dung bài viết') });
   editEditor.setHtml(state.post.content || '');
   editEditor.area.setAttribute('aria-describedby', 'post-edit-status');
   const status = el('p', { id: 'post-edit-status', className: 'field__hint', role: 'alert' });
-  const save = el('button', { type: 'submit', className: 'btn btn--primary' }, 'Lưu thay đổi');
-  const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Huỷ');
-  const imageButton = el('button', { type: 'button', className: 'compose-tools__button' }, editorIcon('image', 20), 'Ảnh');
-  const mapButton = el('button', { type: 'button', className: 'compose-tools__button', 'aria-pressed': String(Boolean(place)) }, editorIcon('pin', 20), 'Bản đồ');
+  const save = el('button', { type: 'submit', className: 'btn btn--primary' }, t('Lưu thay đổi'));
+  const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, t('Huỷ'));
+  const imageButton = el('button', { type: 'button', className: 'compose-tools__button' }, editorIcon('image', 20), t('Ảnh'));
+  const mapButton = el('button', { type: 'button', className: 'compose-tools__button', 'aria-pressed': String(Boolean(place)) }, editorIcon('pin', 20), t('Bản đồ'));
   const placeRow = el('div', { className: 'rich-media' });
   const form = el('form', { className: 'post-edit', 'data-edit-form': '', novalidate: true },
-    el('div', { className: 'field' }, el('label', { className: 'field__label', for: 'edit-title' }, 'Tiêu đề'), titleInput),
-    el('div', { className: 'field' }, el('span', { className: 'field__label' }, 'Nội dung'), editEditor.root),
-    placeRow, el('p', { className: 'field__hint' }, 'Ảnh được chèn trong nội dung bằng link. Bấm Bản đồ để chọn hoặc đổi địa điểm.'), status,
+    el('div', { className: 'field' }, el('label', { className: 'field__label', for: 'edit-title' }, t('Tiêu đề')), titleInput),
+    el('div', { className: 'field' }, el('span', { className: 'field__label' }, t('Nội dung')), editEditor.root),
+    placeRow, el('p', { className: 'field__hint' }, t('Ảnh được chèn trong nội dung bằng link. Bấm Bản đồ để chọn hoặc đổi địa điểm.')), status,
     el('div', { className: 'compose-tools' }, imageButton, mapButton, el('span', { className: 'compose-tools__spacer' }), cancel, save));
   const parts = ['[data-title]', '.post-translate', '[data-body]'].map(selector => qs(selector, article));
   /** Chip và trạng thái nhấn đồng bộ ngay sau chọn hoặc gỡ vị trí. */
@@ -441,16 +442,16 @@ function startEdit() {
   /** Lưu nội dung cùng địa điểm trong form; chỉ khi người dùng bấm gỡ thì toạ độ mới bị bỏ. */
   async function submit(event) {
     event.preventDefault();
-    const validation = validateRichBytes(titleInput.value.trim(), 255, 'Tiêu đề') || validateRichBytes(editEditor.getHtml(), 100000);
+    const validation = validateRichBytes(titleInput.value.trim(), 255, t('Tiêu đề')) || validateRichBytes(editEditor.getHtml(), 100000);
     if (!titleInput.value.trim() || editEditor.isEmpty() || validation) {
       // Gắn lỗi với vùng nhập để trình đọc màn hình đọc được thông báo giới hạn byte hoặc thiếu chữ.
       titleInput.setAttribute('aria-invalid', String(!titleInput.value.trim() || Boolean(validateRichBytes(titleInput.value.trim(), 255))));
       editEditor.area.setAttribute('aria-invalid', String(editEditor.isEmpty() || Boolean(validateRichBytes(editEditor.getHtml(), 100000))));
-      status.textContent = validation || 'Vui lòng nhập tiêu đề và nội dung.'; return;
+      status.textContent = validation || t('Vui lòng nhập tiêu đề và nội dung.'); return;
     }
     save.disabled = true;
     form.inert = true;
-    save.textContent = 'Đang lưu…';
+    save.textContent = t('Đang lưu…');
     try {
       const updated = await updatePost(state.post.id, buildPostEdit(state.post, {
         title: titleInput.value.trim(), content: editEditor.getHtml(), place,
@@ -469,7 +470,7 @@ function startEdit() {
     } finally {
       save.disabled = false;
       form.inert = false;
-      save.textContent = 'Lưu thay đổi';
+      save.textContent = t('Lưu thay đổi');
     }
   }
 
@@ -493,39 +494,39 @@ function createCommentMenu(comment, author, text, note) {
   const items = [];
   // Bình luận đã xoá chỉ staff có thao tác khôi phục; không cho sửa/dịch nội dung đã xoá.
   if (!comment.is_deleted) {
-    items.push({ icon: 'languages', label: comment.showTranslation ? 'Xem bản gốc' : 'Dịch bình luận',
+    items.push({ icon: 'languages', label: comment.showTranslation ? t('Xem bản gốc') : t('Dịch bình luận'),
       onSelect: button => toggleCommentTranslation(comment, button, text, note) });
-    if (own) items.push({ icon: 'pencil', label: 'Sửa bình luận', disabled: isMutedNow(state.viewer?.mutedUntil),
+    if (own) items.push({ icon: 'pencil', label: t('Sửa bình luận'), disabled: isMutedNow(state.viewer?.mutedUntil),
       onSelect: () => startCommentEdit(comment) }, 'divider',
-      { icon: 'trash', label: 'Xoá bình luận…', danger: true,
+      { icon: 'trash', label: t('Xoá bình luận…'), danger: true,
         onSelect: button => isStaff(state.viewer) ? moderateComment(comment, 'delete') : handleDelete(comment, button, note) });
   }
   // Cùng một menu giữ đầy đủ ẩn/hiện, xoá/khôi phục và tắt tiếng như batch trước.
   if (isStaff(state.viewer)) {
     if (items.length) items.push('divider');
-    if (comment.is_deleted) items.push({ icon: 'restore', label: 'Khôi phục bình luận', onSelect: () => moderateComment(comment, 'restore') });
+    if (comment.is_deleted) items.push({ icon: 'restore', label: t('Khôi phục bình luận'), onSelect: () => moderateComment(comment, 'restore') });
     else {
-      items.push({ icon: comment.status === 'hidden' ? 'eye' : 'eyeOff', label: comment.status === 'hidden' ? 'Hiện lại bình luận' : 'Ẩn bình luận',
+      items.push({ icon: comment.status === 'hidden' ? 'eye' : 'eyeOff', label: comment.status === 'hidden' ? t('Hiện lại bình luận') : t('Ẩn bình luận'),
         onSelect: () => moderateComment(comment, comment.status === 'hidden' ? 'show' : 'hide') });
-      if (!own) items.push({ icon: 'trash', label: 'Xoá bình luận…', danger: true, onSelect: () => moderateComment(comment, 'delete') });
+      if (!own) items.push({ icon: 'trash', label: t('Xoá bình luận…'), danger: true, onSelect: () => moderateComment(comment, 'delete') });
     }
     items.push(
       canMute
-        ? { icon: 'mute', label: 'Tắt tiếng người viết…', onSelect: () => muteAuthor(author) }
-        : { icon: 'mute', label: 'Tắt tiếng người viết…', sub: 'Không thể với người cùng cấp hoặc cao hơn', disabled: true });
+        ? { icon: 'mute', label: t('Tắt tiếng người viết…'), onSelect: () => muteAuthor(author) }
+        : { icon: 'mute', label: t('Tắt tiếng người viết…'), sub: t('Không thể với người cùng cấp hoặc cao hơn'), disabled: true });
   }
   if (!items.length) return null;
-  return createMenu(el('button', { type: 'button', className: 'post-comment__more', 'aria-label': 'Tuỳ chọn bình luận',
+  return createMenu(el('button', { type: 'button', className: 'post-comment__more', 'aria-label': t('Tuỳ chọn bình luận'),
     disabled: activeCommentEdit?.id === comment.id && activeCommentEdit.sending }, modIcon('moreVertical', 18)), { items });
 }
 
 /** Ẩn, hiện lại, xoá hoặc khôi phục một bình luận (staff), luôn qua hộp thoại xác nhận. */
 function moderateComment(comment, action) {
   const texts = {
-    hide: ['eyeOff', 'Ẩn bình luận này?', 'Thành viên thường không còn thấy bình luận. Staff vẫn thấy và có thể hiện lại.', 'Ẩn bình luận'],
-    show: ['eye', 'Hiện lại bình luận?', 'Bình luận hiện lại với mọi người.', 'Hiện lại'],
-    delete: ['trash', 'Xoá bình luận này?', 'Mọi người thấy dòng giữ chỗ "Bình luận này đã bị xoá". Staff vẫn khôi phục được.', 'Xoá bình luận'],
-    restore: ['restore', 'Khôi phục bình luận?', 'Bình luận hiện lại với mọi người như trước khi bị xoá.', 'Khôi phục'],
+    hide: ['eyeOff', t('Ẩn bình luận này?'), t('Thành viên thường không còn thấy bình luận. Staff vẫn thấy và có thể hiện lại.'), t('Ẩn bình luận')],
+    show: ['eye', t('Hiện lại bình luận?'), t('Bình luận hiện lại với mọi người.'), t('Hiện lại')],
+    delete: ['trash', t('Xoá bình luận này?'), t('Mọi người thấy dòng giữ chỗ "Bình luận này đã bị xoá". Staff vẫn khôi phục được.'), t('Xoá bình luận')],
+    restore: ['restore', t('Khôi phục bình luận?'), t('Bình luận hiện lại với mọi người như trước khi bị xoá.'), t('Khôi phục')],
   };
   const [iconName, title, text, label] = texts[action];
   const author = state.commentAuthors.get(comment.user_id);
@@ -557,7 +558,7 @@ function muteAuthor(author) {
   openMuteDialog(author, async until => {
     const updated = await setUserMute(author.id, until);
     state.commentAuthors.set(author.id, { ...author, ...updated });
-    showActionStatus(getAuthorLabel(author) + ' bị tắt tiếng đến ' + formatUntil(updated.muted_until) + '.');
+    showActionStatus(t('{name} bị tắt tiếng đến {date}.', { name: getAuthorLabel(author), date: formatUntil(updated.muted_until) }));
   });
 }
 
@@ -599,7 +600,7 @@ async function toggleLike() {
 /** Cập nhật pill lưu bài: "Lưu" hoặc "Đã lưu" kèm aria-pressed. */
 function renderBookmark() {
   qs('[data-bookmark]').setAttribute('aria-pressed', String(state.bookmarked));
-  qs('[data-bookmark-label]').textContent = state.bookmarked ? 'Đã lưu' : 'Lưu';
+  qs('[data-bookmark-label]').textContent = state.bookmarked ? t('Đã lưu') : t('Lưu');
 }
 
 /** Bấm lưu: gọi POST hoặc DELETE /posts/{id}/bookmark rồi đổi trạng thái. */
@@ -617,7 +618,7 @@ async function toggleBookmark() {
     }
     state.bookmarked = !state.bookmarked;
     renderBookmark();
-    showActionStatus(state.bookmarked ? 'Đã lưu bài viết.' : 'Đã bỏ lưu bài viết.');
+    showActionStatus(state.bookmarked ? t('Đã lưu bài viết.') : t('Đã bỏ lưu bài viết.'));
   } catch (error) {
     showActionStatus(toVietnameseMessage(error), true);
   } finally {
@@ -634,11 +635,11 @@ async function sharePost() {
       return;
     }
     await navigator.clipboard.writeText(url);
-    showActionStatus('Đã sao chép liên kết bài viết.');
+    showActionStatus(t('Đã sao chép liên kết bài viết.'));
   } catch (error) {
     // Người dùng tự đóng bảng chia sẻ thì không cần báo lỗi.
     if (error?.name !== 'AbortError') {
-      showActionStatus('Không sao chép được, hãy sao chép địa chỉ trên thanh trình duyệt.', true);
+      showActionStatus(t('Không sao chép được, hãy sao chép địa chỉ trên thanh trình duyệt.'), true);
     }
   }
 }
@@ -651,13 +652,13 @@ function startCommentEdit(comment) {
   activeCommentEdit?.destroy();
   let original = sanitizeRichHtml(comment.content, { allowLinks: true });
   let place = Number.isFinite(comment.latitude) && Number.isFinite(comment.longitude)
-    ? { latitude: comment.latitude, longitude: comment.longitude, name: comment.place_name || 'Vị trí đã chọn' } : null;
+    ? { latitude: comment.latitude, longitude: comment.longitude, name: comment.place_name || t('Vị trí đã chọn') } : null;
   const originalPlace = JSON.stringify(place);
   const spoilerInput = el('input', { type: 'checkbox', className: 'checkbox', checked: Boolean(comment.is_spoiler) });
   const status = el('p', { id: 'comment-edit-error', className: 'field__hint field__hint--error', role: 'alert' });
-  const save = el('button', { type: 'submit', className: 'btn btn--primary', disabled: true }, 'Lưu thay đổi');
-  const cancel = el('button', { type: 'button', className: 'btn btn--ghost' }, 'Huỷ');
-  const editor = createRichEditor({ label: 'Sửa bình luận', allowLinks: true, counter: 'comment',
+  const save = el('button', { type: 'submit', className: 'btn btn--primary', disabled: true }, t('Lưu thay đổi'));
+  const cancel = el('button', { type: 'button', className: 'btn btn--ghost' }, t('Huỷ'));
+  const editor = createRichEditor({ label: t('Sửa bình luận'), allowLinks: true, counter: 'comment',
     tools: ['emoji', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'link', 'image', 'pin', '|', 'removeFormat'],
     onChange: sync, onTool: tool });
   const placeBox = el('div', { className: 'rich-media' });
@@ -665,7 +666,7 @@ function startCommentEdit(comment) {
   editor.area.setAttribute('aria-describedby', status.id);
   const form = el('form', { className: 'post-comment-editor post-comment-editor--edit', novalidate: true }, editor.root, status);
   editor.root.append(el('div', { className: 'post-comment-editor__footer' },
-    el('label', { className: 'post-comment-editor__spoiler' }, spoilerInput, 'Bình luận này chứa spoiler'), cancel, save));
+    el('label', { className: 'post-comment-editor__spoiler' }, spoilerInput, t('Bình luận này chứa spoiler')), cancel, save));
   const session = { id: comment.id, root: form, sending: false, destroy: () => editor.destroy() };
   activeCommentEdit = session;
 
@@ -705,22 +706,22 @@ function startCommentEdit(comment) {
     event.preventDefault();
     if (save.disabled || session.sending) return;
     const content = editor.getHtml();
-    const error = validateRichBytes(content, 10000, 'Bình luận');
+    const error = validateRichBytes(content, 10000, t('Bình luận'));
     if (error) { status.textContent = error; editor.area.setAttribute('aria-invalid', 'true'); return; }
-    session.sending = true; form.inert = true; save.disabled = true; save.textContent = 'Đang lưu...';
+    session.sending = true; form.inert = true; save.disabled = true; save.textContent = t('Đang lưu...');
     // Vẽ lại nút menu để khoá thao tác ngoài form trong lúc PATCH đang gửi.
     renderComments();
     try {
       const updated = await updateComment(comment.id, content, place ? { latitude: place.latitude, longitude: place.longitude } : {});
       state.comments = state.comments.map(item => item.id === comment.id ? { ...item, ...updated, translation: null, showTranslation: false } : item);
       session.sending = false; close();
-      showActionStatus('Đã lưu bình luận.'
-        + (spoilerInput.checked !== Boolean(comment.is_spoiler) ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : ''));
+      showActionStatus(t('Đã lưu bình luận.')
+        + (spoilerInput.checked !== Boolean(comment.is_spoiler) ? ' ' + t('Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.') : ''));
     } catch (failure) {
       status.textContent = toVietnameseMessage(failure);
       editor.area.setAttribute('aria-invalid', 'true');
     } finally {
-      session.sending = false; form.inert = false; save.disabled = false; save.textContent = 'Lưu thay đổi';
+      session.sending = false; form.inert = false; save.disabled = false; save.textContent = t('Lưu thay đổi');
       if (activeCommentEdit === session) renderComments();
     }
   }
@@ -757,7 +758,7 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
     }
     button.disabled = true;
     note.classList.remove('is-error');
-    note.textContent = 'Đang dịch…';
+    note.textContent = t('Đang dịch…');
     try {
       comment.translation = await translateComment(comment.id);
     } catch (error) {
@@ -771,7 +772,7 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
   comment.showTranslation = true;
   renderPostedContent(textNode, comment.translation.content, { allowLinks: true });
   note.classList.remove('is-error');
-  note.textContent = comment.translation.translated ? 'Đang xem bản dịch.' : 'Bình luận đã ở ngôn ngữ của bạn.';
+  note.textContent = comment.translation.translated ? t('Đang xem bản dịch.') : t('Bình luận đã ở ngôn ngữ của bạn.');
   renderComments();
 }
 
@@ -779,7 +780,7 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
 async function handleDelete(comment, button, note) {
   if (button.dataset.confirm !== 'true') {
     button.dataset.confirm = 'true';
-    button.textContent = 'Xác nhận xoá';
+    button.textContent = t('Xác nhận xoá');
     return;
   }
   button.disabled = true;
@@ -808,12 +809,12 @@ function createCommentNode(comment, replies = []) {
       el('span', { className: 'post-comment__handle' }, getAuthorHandle(author)))
       : placeholder('post-comment__name-bar'),
     el('time', { className: 'post-comment__time', datetime: comment.created_at }, formatCommentTime(comment.created_at)
-      + (isCommentEdited(comment.created_at, comment.updated_at) ? ' · đã sửa' : '')));
+      + (isCommentEdited(comment.created_at, comment.updated_at) ? ' · ' + t('đã sửa') : '')));
   const staff = isStaff(state.viewer);
   const text = el('div', { className: 'post-comment__text' + (comment.is_deleted ? ' post-comment__text--deleted' : '') });
-  if (comment.is_deleted) text.textContent = 'Bình luận này đã bị xoá.';
+  if (comment.is_deleted) text.textContent = t('Bình luận này đã bị xoá.');
   else renderPostedContent(text, comment.showTranslation ? comment.translation.content : comment.content, { allowLinks: true });
-  const note = el('p', { className: 'post-comment__note', role: 'status' }, comment.showTranslation ? 'Đang xem bản dịch.' : '');
+  const note = el('p', { className: 'post-comment__note', role: 'status' }, comment.showTranslation ? t('Đang xem bản dịch.') : '');
   const tools = el('div', { className: 'post-comment__tools' });
   const menu = createCommentMenu(comment, author, text, note);
   if (menu) tools.append(menu);
@@ -878,7 +879,7 @@ function renderComments() {
   if (!state.comments.length) {
     // Bài đã khoá bình luận thì không mời người đọc viết bình luận đầu tiên.
     box.replaceChildren(el('p', { className: 'post-comments__note' }, state.post.comments_locked
-      ? 'Chưa có bình luận nào.' : 'Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận.'));
+      ? t('Chưa có bình luận nào.') : t('Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm nhận.')));
     return;
   }
   const order = qs('[data-comment-sort]').value;
@@ -956,7 +957,7 @@ async function jumpToHashComment({ reload = true } = {}) {
   commentJumpSettling = revealTargetComment();
   if (!commentJumpSettling) {
     commentJumpNotice = true;
-    showActionStatus('Không tìm thấy bình luận này. Có thể bình luận đã bị xoá hoặc ẩn.', true);
+    showActionStatus(t('Không tìm thấy bình luận này. Có thể bình luận đã bị xoá hoặc ẩn.'), true);
   }
 }
 
@@ -1000,7 +1001,7 @@ async function loadComments() {
     }
   } catch (error) {
     qs('[data-comments]').replaceChildren(el('p', { className: 'post-comments__note' },
-      'Chưa tải được bình luận: ' + toVietnameseMessage(error)));
+      t('Chưa tải được bình luận: {message}', { message: toVietnameseMessage(error) })));
   }
 }
 
@@ -1013,16 +1014,16 @@ const commentForm = qs('[data-comment-form]');
 const commentInput = qs('[data-comment-input]');
 const commentSubmit = qs('[data-comment-submit]');
 const expandedComment = qs('[data-comment-expanded]');
-const commentEditor = createRichEditor({ label: 'Viết bình luận', placeholder: 'Chia sẻ cảm nhận của bạn…', allowLinks: true, counter: 'comment',
+const commentEditor = createRichEditor({ label: t('Viết bình luận'), placeholder: t('Chia sẻ cảm nhận của bạn…'), allowLinks: true, counter: 'comment',
   tools: ['emoji', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'link', 'image', 'pin', '|', 'removeFormat'],
   onChange: commentContentChanged, onTool: handleCommentTool });
 commentEditor.area.setAttribute('aria-describedby', 'comment-hint');
 const commentPlaceBox = el('div', { className: 'rich-media' });
 commentEditor.media.append(commentPlaceBox);
 const spoiler = el('input', { type: 'checkbox', className: 'checkbox', 'data-comment-spoiler': '' });
-const cancelComment = el('button', { type: 'button', className: 'btn btn--ghost', 'data-comment-cancel': '' }, 'Huỷ');
+const cancelComment = el('button', { type: 'button', className: 'btn btn--ghost', 'data-comment-cancel': '' }, t('Huỷ'));
 const commentFooter = el('div', { className: 'post-comment-editor__footer' },
-  el('label', { className: 'post-comment-editor__spoiler' }, spoiler, 'Bình luận này chứa spoiler'), cancelComment);
+  el('label', { className: 'post-comment-editor__spoiler' }, spoiler, t('Bình luận này chứa spoiler')), cancelComment);
 commentEditor.root.append(commentFooter);
 expandedComment.append(commentEditor.root);
 
@@ -1034,7 +1035,7 @@ function openCommentEditor() {
   commentInput.hidden = true;
   expandedComment.hidden = false;
   commentFooter.append(commentSubmit);
-  commentSubmit.textContent = 'Đăng bình luận';
+  commentSubmit.textContent = t('Đăng bình luận');
   if (commentInput.value) { commentEditor.setHtml(commentInput.value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')); commentInput.value = ''; }
   syncCommentForm();
   commentEditor.focus();
@@ -1051,7 +1052,7 @@ function resetCommentEditor() {
   expandedComment.hidden = true;
   commentForm.classList.remove('is-open');
   expandedComment.after(commentSubmit);
-  commentSubmit.textContent = 'Gửi';
+  commentSubmit.textContent = t('Gửi');
   syncCommentForm();
 }
 
@@ -1097,14 +1098,14 @@ async function submitComment(event) {
   if (commentSending || state.post.comments_locked || commentInput.disabled || commentEditor.isEmpty() || !await ensureSignedIn()) return;
   const hint = qs('[data-comment-hint]');
   const content = commentEditor.getHtml();
-  const validation = validateRichBytes(content, 10000, 'Bình luận');
+  const validation = validateRichBytes(content, 10000, t('Bình luận'));
   if (validation) { hint.textContent = validation; commentEditor.area.setAttribute('aria-invalid', 'true'); return; }
   state.viewer = getCachedUser();
   commentSending = true;
   commentForm.inert = true;
   commentSubmit.disabled = true;
   commentSubmit.classList.add('is-loading');
-  commentSubmit.textContent = 'Đang đăng...';
+  commentSubmit.textContent = t('Đang đăng...');
   const omittedSpoiler = spoiler.checked;
   try {
     const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id,
@@ -1114,8 +1115,8 @@ async function submitComment(event) {
       state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, displayname: state.viewer.displayname, avatar_url: state.viewer.avatarUrl });
     }
     resetCommentEditor();
-    hint.textContent = 'Đã đăng bình luận.'
-      + (omittedSpoiler ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : '');
+    hint.textContent = t('Đã đăng bình luận.')
+      + (omittedSpoiler ? ' ' + t('Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.') : '');
     renderComments();
   } catch (error) {
     commentEditor.area.setAttribute('aria-invalid', 'true');
@@ -1125,7 +1126,7 @@ async function submitComment(event) {
     commentSending = false;
     commentForm.inert = false;
     commentSubmit.classList.remove('is-loading');
-    commentSubmit.textContent = commentOpen ? 'Đăng bình luận' : 'Gửi';
+    commentSubmit.textContent = commentOpen ? t('Đăng bình luận') : t('Gửi');
     syncCommentForm();
   }
 }
@@ -1161,11 +1162,11 @@ function applyCommentPermissions() {
   if (locked) {
     // Khoá bình luận: thay ô nhập bằng thông báo xám có ổ khoá.
     notice.className = 'post-notice post-notice--locked';
-    notice.replaceChildren(modIcon('lock', 16), el('span', {}, 'Bình luận đã bị khoá cho bài viết này.'));
+    notice.replaceChildren(modIcon('lock', 16), el('span', {}, t('Bình luận đã bị khoá cho bài viết này.')));
   } else if (muted) {
     // Bị tắt tiếng: thông báo vàng, ô nhập vẫn hiện nhưng bị khoá như Figma.
     notice.className = 'post-notice post-notice--muted';
-    notice.replaceChildren(modIcon('mute', 16), el('span', {}, 'Bạn đang bị tắt tiếng đến ' + formatUntil(state.viewer.mutedUntil) + ' nên chưa thể bình luận.'));
+    notice.replaceChildren(modIcon('mute', 16), el('span', {}, t('Bạn đang bị tắt tiếng đến {date} nên chưa thể bình luận.', { date: formatUntil(state.viewer.mutedUntil) })));
   }
   form.hidden = locked;
   form.classList.toggle('is-disabled', muted);
@@ -1186,23 +1187,23 @@ function renderSideAuthor() {
   const { author, viewer } = state;
   const body = qs('[data-side-author]');
   if (!author) {
-    body.replaceChildren(el('p', { className: 'post-side-card__note' }, 'Chưa tải được thông tin tác giả.'));
+    body.replaceChildren(el('p', { className: 'post-side-card__note' }, t('Chưa tải được thông tin tác giả.')));
     return;
   }
   const stats = el('dl', { className: 'post-side-author__stats' },
-    el('div', { className: 'post-side-author__stat' }, el('dt', {}, 'Bài viết'), el('dd', { 'data-stat-posts': '' }, state.postCount ?? '–')),
-    el('div', { className: 'post-side-author__stat' }, el('dt', {}, 'Người theo dõi'), el('dd', { 'data-stat-followers': '' }, state.followerCount ?? '–')));
+    el('div', { className: 'post-side-author__stat' }, el('dt', {}, t('Bài viết')), el('dd', { 'data-stat-posts': '' }, state.postCount ?? '–')),
+    el('div', { className: 'post-side-author__stat' }, el('dt', {}, t('Người theo dõi')), el('dd', { 'data-stat-followers': '' }, state.followerCount ?? '–')));
   let action;
   if (viewer && viewer.id === author.id) {
     // Bài của chính mình: thay nút theo dõi bằng lối tắt tới Cài đặt để chỉnh sửa hồ sơ.
-    action = el('a', { className: 'btn btn--secondary btn--block post-side-author__action', href: routes.settings }, 'Chỉnh sửa hồ sơ');
+    action = el('a', { className: 'btn btn--secondary btn--block post-side-author__action', href: routes.settings }, t('Chỉnh sửa hồ sơ'));
   } else {
     action = el('button', {
       type: 'button',
       className: 'btn btn--block post-side-author__action ' + (state.following ? 'btn--secondary' : 'btn--primary'),
       'aria-pressed': String(state.following),
       'data-follow': '',
-    }, state.following ? 'Đang theo dõi' : '+  Theo dõi');
+    }, state.following ? t('Đang theo dõi') : t('+  Theo dõi'));
     action.addEventListener('click', toggleFollow);
   }
   body.replaceChildren(
@@ -1210,7 +1211,7 @@ function renderSideAuthor() {
     el('p', { className: 'post-side-author__handle' }, getAuthorHandle(author)),
     author.bio
       ? el('p', { className: 'post-side-author__bio' }, wrapJapanese(author.bio))
-      : el('p', { className: 'post-side-author__bio post-side-author__bio--empty' }, 'Tác giả chưa viết giới thiệu.'),
+      : el('p', { className: 'post-side-author__bio post-side-author__bio--empty' }, t('Tác giả chưa viết giới thiệu.')),
     el('hr', { className: 'post-divider' }),
     stats,
     el('hr', { className: 'post-divider' }),
@@ -1259,18 +1260,18 @@ async function renderPlace() {
   const place = getPostPlace(post);
   const name = el('p', { className: 'post-place__name' }, place?.name ? wrapJapanese(place.name) : placeholder('u-placeholder-bar--title'));
   const address = el('p', { className: 'post-place__line' }, place?.address ? wrapJapanese(place.address) : placeholder());
-  const map = el('div', { className: 'place-map post-map__leaflet', 'aria-label': 'Bản đồ địa điểm văn hóa' });
+  const map = el('div', { className: 'place-map post-map__leaflet', 'aria-label': t('Bản đồ địa điểm văn hóa') });
   qs('[data-side-place]').replaceChildren(
     el('div', { className: 'post-map' }, map,
-      el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Mở trong Maps ↗')),
+      el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, t('Mở trong Maps ↗'))),
     el('div', { className: 'post-place' }, name, address),
-    el('a', { className: 'post-place__link', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, 'Xem trên Google Maps ↗'));
+    el('a', { className: 'post-place__link', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, t('Xem trên Google Maps ↗')));
   // Map và reverse độc lập; lỗi dịch vụ ngoài chỉ giữ placeholder và liên kết Maps.
   void createPlaceMap(map, { latitude: post.latitude, longitude: post.longitude, zoom: 16, interactive: false }).then(view => {
     if (current !== placeVersion) { view.destroy(); return; }
     readingMap = view;
     view.map.invalidateSize({ animate: false });
-  }).catch(() => { map.textContent = 'Không tải được bản đồ.'; });
+  }).catch(() => { map.textContent = t('Không tải được bản đồ.'); });
   try {
     const reverse = await reversePlace(post.latitude, post.longitude);
     if (current !== placeVersion || !reverse) return;
@@ -1292,7 +1293,7 @@ function createRelatedItem(item) {
   if (item) {
     text.append(el('a', { className: 'post-related__title', href: routes.post(item.id) }, wrapJapanese(item.title)),
       el('p', { className: 'post-related__meta' },
-        (Number.isFinite(item.comment_count) ? item.comment_count : '–') + ' bình luận',
+        t('{count} bình luận', { count: Number.isFinite(item.comment_count) ? item.comment_count : '–' }),
         item.tag ? wrapJapanese(' · ' + item.tag.name) : null));
   } else {
     text.append(placeholder('u-placeholder-bar--title'), placeholder('u-placeholder-bar--short'));
@@ -1307,9 +1308,9 @@ async function loadRelated() {
   try {
     const items = await getRelatedPosts(state.post, state.tags);
     box.replaceChildren(...(items.length ? items.map(createRelatedItem)
-      : [el('p', { className: 'post-side-card__note' }, 'Chưa có bài viết cùng chủ đề.')]));
+      : [el('p', { className: 'post-side-card__note' }, t('Chưa có bài viết cùng chủ đề.'))]));
   } catch {
-    box.replaceChildren(el('p', { className: 'post-side-card__note' }, 'Chưa tải được bài viết liên quan.'));
+    box.replaceChildren(el('p', { className: 'post-side-card__note' }, t('Chưa tải được bài viết liên quan.')));
   }
 }
 
@@ -1317,7 +1318,7 @@ async function loadRelated() {
 function renderTopics() {
   const box = qs('[data-side-topics]');
   if (!state.tags.length) {
-    box.replaceChildren(el('p', { className: 'post-side-card__note' }, 'Bài viết chưa gắn chủ đề.'));
+    box.replaceChildren(el('p', { className: 'post-side-card__note' }, t('Bài viết chưa gắn chủ đề.')));
     return;
   }
   box.replaceChildren(...state.tags.map(tag => el('a', {
@@ -1333,11 +1334,11 @@ function showNotFound(message) {
   const article = qs('[data-article]');
   article.setAttribute('aria-busy', 'false');
   article.replaceChildren(
-    el('h1', { className: 't-display post-article__title' }, 'Không tìm thấy bài viết'),
+    el('h1', { className: 't-display post-article__title' }, t('Không tìm thấy bài viết')),
     el('p', { className: 'post-body__empty' }, message),
-    el('a', { className: 'btn btn--primary', href: routes.forum }, 'Về Diễn đàn'));
-  qs('[data-breadcrumb-title]').textContent = 'Không tìm thấy';
-  document.title = 'Không tìm thấy bài viết · Etsubi';
+    el('a', { className: 'btn btn--primary', href: routes.forum }, t('Về Diễn đàn')));
+  qs('[data-breadcrumb-title]').textContent = t('Không tìm thấy');
+  document.title = t('Không tìm thấy bài viết · Etsubi');
   qs('.post-sidebar').hidden = true;
 }
 
@@ -1378,7 +1379,7 @@ async function loadAuthorStats() {
 async function initialize() {
   mountPetals();
   if (!postId) {
-    showNotFound('Đường dẫn thiếu mã bài viết.');
+    showNotFound(t('Đường dẫn thiếu mã bài viết.'));
     return;
   }
   try {
@@ -1392,7 +1393,7 @@ async function initialize() {
       state.deletedAt = staffPost.deleted_at || null;
     } else {
       showNotFound(error.status === 404 || error.status === 400
-        ? 'Bài viết có thể đã bị xoá, bị ẩn hoặc đường dẫn không đúng.' : toVietnameseMessage(error));
+        ? t('Bài viết có thể đã bị xoá, bị ẩn hoặc đường dẫn không đúng.') : toVietnameseMessage(error));
       return;
     }
   }

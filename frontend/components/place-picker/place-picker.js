@@ -3,6 +3,7 @@ import { el } from '/utils/dom.js';
 import { editorIcon } from '/components/rich-editor/rich-editor.js';
 import { createPlaceMap } from '/components/place-picker/place-map.js';
 import { searchPlaces, reversePlace } from '/services/geo/nominatim.js';
+import { t } from '/utils/i18n.js';
 
 let previousPoint = null;
 
@@ -24,24 +25,24 @@ export function pickPlace(existing = null) {
     let fullscreen = false;
     const titleId = 'place-picker-title';
     const dialog = el('dialog', { className: 'place-picker', 'aria-labelledby': titleId, 'data-place-picker': '' });
-    const close = el('button', { type: 'button', className: 'place-picker__close', 'aria-label': 'Đóng địa điểm' }, editorIcon('close', 24));
-    const input = el('input', { id: 'place-query', type: 'search', className: 'place-picker__input', placeholder: 'Tìm địa điểm…',
+    const close = el('button', { type: 'button', className: 'place-picker__close', 'aria-label': t('Đóng địa điểm') }, editorIcon('close', 24));
+    const input = el('input', { id: 'place-query', type: 'search', className: 'place-picker__input', placeholder: t('Tìm địa điểm…'),
       autocomplete: 'off', role: 'combobox', 'aria-controls': 'place-results', 'aria-expanded': 'false', 'aria-autocomplete': 'list' });
-    const list = el('div', { id: 'place-results', className: 'place-picker__results', role: 'listbox', 'aria-label': 'Kết quả địa điểm', hidden: true });
+    const list = el('div', { id: 'place-results', className: 'place-picker__results', role: 'listbox', 'aria-label': t('Kết quả địa điểm'), hidden: true });
     const status = el('p', { className: 'place-picker__status', role: 'status' });
-    const map = el('div', { className: 'place-map place-picker__map', 'aria-label': 'Bản đồ chọn địa điểm' });
-    const expand = el('button', { type: 'button', className: 'place-picker__fullscreen', 'aria-pressed': 'false' }, editorIcon('maximize', 16), 'Toàn màn hình');
+    const map = el('div', { className: 'place-map place-picker__map', 'aria-label': t('Bản đồ chọn địa điểm') });
+    const expand = el('button', { type: 'button', className: 'place-picker__fullscreen', 'aria-pressed': 'false' }, editorIcon('maximize', 16), t('Toàn màn hình'));
     const coordinates = el('strong', { 'data-place-coordinates': '' }, '–');
-    const locate = el('button', { type: 'button', className: 'place-picker__locate' }, editorIcon('locate', 16), 'Dùng vị trí của tôi');
+    const locate = el('button', { type: 'button', className: 'place-picker__locate' }, editorIcon('locate', 16), t('Dùng vị trí của tôi'));
     const error = el('p', { className: 'place-picker__error', role: 'alert' });
-    const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Huỷ');
-    const apply = el('button', { type: 'button', className: 'btn btn--primary', disabled: !point }, 'Gắn địa điểm');
-    dialog.append(el('div', { className: 'place-picker__heading' }, el('h2', { id: titleId, className: 't-display' }, 'Gắn địa điểm'), close),
-      el('label', { className: 'u-visually-hidden', for: 'place-query' }, 'Tìm địa điểm'),
+    const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, t('Huỷ'));
+    const apply = el('button', { type: 'button', className: 'btn btn--primary', disabled: !point }, t('Gắn địa điểm'));
+    dialog.append(el('div', { className: 'place-picker__heading' }, el('h2', { id: titleId, className: 't-display' }, t('Gắn địa điểm')), close),
+      el('label', { className: 'u-visually-hidden', for: 'place-query' }, t('Tìm địa điểm')),
       el('div', { className: 'place-picker__search' }, editorIcon('search'), input), list, status,
-      el('div', { className: 'place-picker__map-wrap' }, map, el('span', { className: 'place-picker__map-hint' }, 'Kéo ghim hoặc bấm vào bản đồ để chỉnh vị trí'), expand),
+      el('div', { className: 'place-picker__map-wrap' }, map, el('span', { className: 'place-picker__map-hint' }, t('Kéo ghim hoặc bấm vào bản đồ để chỉnh vị trí')), expand),
       el('div', { className: 'place-picker__location' },
-        el('div', { className: 'place-picker__coordinates' }, el('span', {}, 'Toạ độ ', coordinates), locate), error),
+        el('div', { className: 'place-picker__coordinates' }, el('span', {}, t('Toạ độ'), ' ', coordinates), locate), error),
       el('div', { className: 'place-picker__actions' }, cancel, apply));
 
     /** Kết thúc một lần, dọn mạng/map và resolve trực tiếp thay vì phụ thuộc sự kiện close. */
@@ -65,7 +66,7 @@ export function pickPlace(existing = null) {
       fullscreen = !fullscreen;
       dialog.classList.toggle('is-fullscreen', fullscreen);
       expand.setAttribute('aria-pressed', String(fullscreen));
-      expand.replaceChildren(editorIcon(fullscreen ? 'minimize' : 'maximize', 16), fullscreen ? 'Thu nhỏ' : 'Toàn màn hình');
+      expand.replaceChildren(editorIcon(fullscreen ? 'minimize' : 'maximize', 16), fullscreen ? t('Thu nhỏ') : t('Toàn màn hình'));
       resizeMap();
     }
     /** Toạ độ luôn cập nhật ngay, kể cả khi reverse đang chờ hoặc bị lỗi. */
@@ -108,20 +109,20 @@ export function pickPlace(existing = null) {
       const current = ++version;
       searchController?.abort();
       searchController = new AbortController();
-      status.textContent = 'Đang tìm…';
+      status.textContent = t('Đang tìm…');
       try {
         const found = await searchPlaces(query, { signal: searchController.signal });
         if (finished || current !== version || query !== input.value.trim()) return;
         results = found;
         selectedIndex = -1;
         renderResults();
-        status.textContent = results.length ? '' : 'Không tìm thấy địa điểm phù hợp.';
+        status.textContent = results.length ? '' : t('Không tìm thấy địa điểm phù hợp.');
       } catch (failure) {
         if (finished || current !== version || searchController.signal.aborted) return;
         lastQuery = '';
         results = [];
         renderResults();
-        status.textContent = failure.message || 'Không kết nối được dịch vụ địa điểm.';
+        status.textContent = failure.message || t('Không kết nối được dịch vụ địa điểm.');
       }
     }
     /** Kéo ghim hoặc định vị giữ tên đã chọn; chỉ tra ngược khi chưa có tên thật. */
@@ -133,13 +134,13 @@ export function pickPlace(existing = null) {
         longitude: Number((((longitude + 180) % 360 + 360) % 360 - 180).toFixed(6)) };
       selectedIndex = -1;
       renderResults(); syncPoint(center);
-      if (point.name && point.name !== 'Vị trí đã chọn') return;
+      if (point.name && point.name !== t('Vị trí đã chọn')) return;
       reverseController = new AbortController();
       try {
         const reverse = await reversePlace(point.latitude, point.longitude, { signal: reverseController.signal });
-        if (!finished && current === moveVersion) point = { ...point, name: reverse?.name || 'Vị trí đã chọn', address: reverse?.address || '' };
+        if (!finished && current === moveVersion) point = { ...point, name: reverse?.name || t('Vị trí đã chọn'), address: reverse?.address || '' };
       } catch {
-        if (!finished && current === moveVersion) point.name = 'Vị trí đã chọn';
+        if (!finished && current === moveVersion) point.name = t('Vị trí đã chọn');
       }
     }
     // Thay query vô hiệu hoá ngay phản hồi cũ, không để kết quả query trước chen vào lúc debounce.
@@ -161,7 +162,7 @@ export function pickPlace(existing = null) {
     // Geolocation chỉ chạy từ nút người dùng, không tự xin quyền khi mở dialog.
     locate.addEventListener('click', () => {
       error.textContent = '';
-      if (!navigator.geolocation) { error.textContent = 'Trình duyệt không hỗ trợ lấy vị trí.'; return; }
+      if (!navigator.geolocation) { error.textContent = t('Trình duyệt không hỗ trợ lấy vị trí.'); return; }
       locate.disabled = true;
       navigator.geolocation.getCurrentPosition(position => {
         if (finished) return;
@@ -170,12 +171,12 @@ export function pickPlace(existing = null) {
       }, failure => {
         if (finished) return;
         locate.disabled = false;
-        error.textContent = 'Không lấy được vị trí: ' + (failure.code === 1 ? 'bạn đã từ chối quyền truy cập.' : failure.code === 3 ? 'hết thời gian chờ.' : 'vị trí hiện không khả dụng.');
+        error.textContent = t('Không lấy được vị trí: {reason}', { reason: failure.code === 1 ? t('bạn đã từ chối quyền truy cập.') : failure.code === 3 ? t('hết thời gian chờ.') : t('vị trí hiện không khả dụng.') });
       }, { timeout: 10000 });
     });
     cancel.addEventListener('click', () => finish(null));
     close.addEventListener('click', () => finish(null));
-    apply.addEventListener('click', () => { if (point) { previousPoint = { ...point }; finish({ ...point, name: point.name || 'Vị trí đã chọn' }); } });
+    apply.addEventListener('click', () => { if (point) { previousPoint = { ...point }; finish({ ...point, name: point.name || t('Vị trí đã chọn') }); } });
     expand.addEventListener('click', toggleFullscreen);
     window.addEventListener('resize', resizeMap);
     dialog.addEventListener('cancel', event => { event.preventDefault(); event.stopPropagation(); if (fullscreen) toggleFullscreen(); else finish(null); });
@@ -193,6 +194,6 @@ export function pickPlace(existing = null) {
       mapView = view;
       mapView.map.invalidateSize({ animate: false });
       syncPoint(Boolean(point));
-    }).catch(() => { if (!finished) error.textContent = 'Không tải được bản đồ. Bạn vẫn có thể tìm địa điểm hoặc dùng vị trí của mình.'; });
+    }).catch(() => { if (!finished) error.textContent = t('Không tải được bản đồ. Bạn vẫn có thể tìm địa điểm hoặc dùng vị trí của mình.'); });
   });
 }

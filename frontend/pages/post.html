@@ -4,7 +4,7 @@
     <!-- Tài nguyên tĩnh và phông chung giữ nhận diện đồng nhất với các trang đã làm. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Đọc bài · Etsubi</title>
+    <title data-i18n>Đọc bài · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,7 +22,7 @@
   </head>
   <body class="page page--post">
     <!-- Header do component dựng (tab Diễn đàn đang chọn, ô tìm kiếm trong suốt như Figma). -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <header class="site-header" data-component="header" data-active="forum"></header>
 
     <main id="main" class="post-page">
@@ -31,9 +31,9 @@
 
       <div class="container post-page__inner">
         <!-- Đường dẫn vị trí: Diễn đàn › tiêu đề bài, giúp quay lại danh sách. -->
-        <nav class="post-breadcrumb" aria-label="Vị trí trang">
+        <nav class="post-breadcrumb" aria-label="Vị trí trang" data-i18n-attr="aria-label">
           <ol class="post-breadcrumb__list">
-            <li><a class="post-breadcrumb__link" href="/pages/forum.html">Diễn đàn</a></li>
+            <li><a class="post-breadcrumb__link" href="/pages/forum.html" data-i18n>Diễn đàn</a></li>
             <li class="post-breadcrumb__current" aria-current="page" data-breadcrumb-title>
               <span class="u-placeholder-bar post-breadcrumb__placeholder" aria-hidden="true"></span>
             </li>
@@ -61,14 +61,14 @@
             <!-- Tiêu đề bài: phông Etsubi Display 40px; JS điền chữ thật sau khi tải. -->
             <h1 id="post-title" class="t-display post-article__title" data-title>
               <span class="u-placeholder-bar u-placeholder-bar--title post-article__title-bar" aria-hidden="true"></span>
-              <span class="u-visually-hidden">Đang tải bài viết…</span>
+              <span class="u-visually-hidden" data-i18n>Đang tải bài viết…</span>
             </h1>
 
             <!-- Nút dịch bài: gọi API dịch, bấm lần nữa để xem bản gốc. -->
             <div class="post-translate">
               <button type="button" class="post-translate__button" data-translate disabled aria-pressed="false">
                 <svg class="post-translate__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-                <span data-translate-label>Dịch bài viết</span>
+                <span data-translate-label data-i18n>Dịch bài viết</span>
               </button>
               <p class="post-translate__status" role="status" data-translate-status></p>
             </div>
@@ -83,19 +83,19 @@
             <hr class="post-divider" />
 
             <!-- Ba nút thao tác: thích (đếm cảm xúc thật), lưu bài và chia sẻ liên kết. -->
-            <div class="post-actions" role="group" aria-label="Thao tác với bài viết">
+            <div class="post-actions" role="group" aria-label="Thao tác với bài viết" data-i18n-attr="aria-label">
               <button type="button" class="post-pill" data-like aria-pressed="false" disabled>
                 <svg class="post-pill__icon post-pill__icon--heart" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M10 17.0833C10 17.0833 3.91667 13.3333 2.25 9.58333C1.08333 6.83333 2.83333 3.75 5.91667 3.75C7.58333 3.75 8.83333 4.66667 10 6.08333C11.1667 4.66667 12.4167 3.75 14.0833 3.75C17.1667 3.75 18.9167 6.83333 17.75 9.58333C16.0833 13.3333 10 17.0833 10 17.0833Z"/></svg>
                 <span data-like-count>–</span>
-                <span class="u-visually-hidden">lượt thích</span>
+                <span class="u-visually-hidden" data-i18n>lượt thích</span>
               </button>
               <button type="button" class="post-pill" data-bookmark aria-pressed="false" disabled>
                 <svg class="post-pill__icon post-pill__icon--bookmark" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M5.41667 2.91667H14.5833V17.0833L10 13.9167L5.41667 17.0833V2.91667Z"/></svg>
-                <span data-bookmark-label>Lưu</span>
+                <span data-bookmark-label data-i18n>Lưu</span>
               </button>
               <button type="button" class="post-pill" data-share disabled>
                 <svg class="post-pill__icon" viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="15" cy="4.58" r="2.08"/><circle cx="5" cy="10" r="2.08"/><circle cx="15" cy="15.42" r="2.08"/><path d="m6.8 11.05 6.4 3.32M13.2 5.63 6.8 8.95"/></svg>
-                <span>Chia sẻ</span>
+                <span data-i18n>Chia sẻ</span>
               </button>
               <p class="post-actions__status" role="status" data-action-status></p>
             </div>
@@ -106,30 +106,30 @@
             <section class="post-discussion" aria-labelledby="discussion-title">
               <div class="post-discussion__head">
                 <div class="post-discussion__title-row">
-                  <h2 id="discussion-title" class="t-display post-discussion__title">Thảo luận (<span data-comment-count>–</span>)</h2>
+                  <h2 id="discussion-title" class="t-display post-discussion__title"><span data-i18n>Thảo luận</span> (<span data-comment-count>–</span>)</h2>
                   <!-- Nhãn "Đã khoá bình luận" khi tác giả hoặc staff khoá bình luận. -->
                   <span data-locked-badge></span>
                 </div>
                 <label class="post-discussion__sort">
-                  <span class="u-visually-hidden">Thứ tự bình luận</span>
+                  <span class="u-visually-hidden" data-i18n>Thứ tự bình luận</span>
                   <select class="post-discussion__select" data-comment-sort>
-                    <option value="newest">Mới nhất</option>
-                    <option value="oldest">Cũ nhất</option>
+                    <option value="newest" data-i18n>Mới nhất</option>
+                    <option value="oldest" data-i18n>Cũ nhất</option>
                   </select>
                 </label>
               </div>
 
               <div class="post-comments" data-comments aria-live="polite">
-                <p class="post-comments__note">Đang tải bình luận…</p>
+                <p class="post-comments__note" data-i18n>Đang tải bình luận…</p>
               </div>
 
               <!-- Ô viết bình luận: chưa đăng nhập thì nút Gửi đưa tới trang đăng nhập. -->
               <form class="post-comment-form" data-comment-form novalidate>
-                <label class="u-visually-hidden" for="comment-input">Viết bình luận</label>
-                <input id="comment-input" class="input post-comment-form__input" name="content" type="text"  autocomplete="off" placeholder="Chia sẻ cảm nhận của bạn…" aria-describedby="comment-hint" data-comment-input />
+                <label class="u-visually-hidden" for="comment-input" data-i18n>Viết bình luận</label>
+                <input id="comment-input" class="input post-comment-form__input" name="content" type="text"  autocomplete="off" placeholder="Chia sẻ cảm nhận của bạn…" aria-describedby="comment-hint" data-comment-input / data-i18n-attr="placeholder">
                 <!-- Editor mở rộng được dựng một lần; cùng nút gửi chuyển vào thanh footer khi mở. -->
                 <div class="post-comment-form__expanded" data-comment-expanded hidden></div>
-                <button type="submit" class="btn btn--primary post-comment-form__submit" data-comment-submit disabled>Gửi</button>
+                <button type="submit" class="btn btn--primary post-comment-form__submit" data-comment-submit disabled data-i18n>Gửi</button>
                 <p id="comment-hint" class="field__hint post-comment-form__hint" data-comment-hint role="alert"></p>
               </form>
               <p class="alert alert--info post-discussion__notice" role="status" data-comment-notice hidden></p>
@@ -137,12 +137,12 @@
           </article>
 
           <!-- Cột phải: bốn thẻ có dải đỏ và cổng torii nhỏ như Figma. -->
-          <aside class="post-sidebar" aria-label="Thông tin thêm">
+          <aside class="post-sidebar" aria-label="Thông tin thêm" data-i18n-attr="aria-label">
             <!-- Về tác giả: tên, giới thiệu, số bài và người theo dõi, nút theo dõi. -->
             <section class="post-side-card" aria-labelledby="side-author-title">
               <h2 id="side-author-title" class="post-side-card__band">
                 <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
-                Về tác giả
+                <span data-i18n>Về tác giả</span>
               </h2>
               <div class="post-side-card__body" data-side-author>
                 <span class="u-placeholder-bar u-placeholder-bar--title"></span>
@@ -155,7 +155,7 @@
             <section class="post-side-card" aria-labelledby="side-place-title" data-side-place-card hidden>
               <h2 id="side-place-title" class="post-side-card__band">
                 <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
-                Địa điểm văn hóa
+                <span data-i18n>Địa điểm văn hóa</span>
               </h2>
               <div class="post-side-card__body" data-side-place></div>
             </section>
@@ -164,7 +164,7 @@
             <section class="post-side-card" aria-labelledby="side-related-title">
               <h2 id="side-related-title" class="post-side-card__band">
                 <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
-                Bài viết liên quan
+                <span data-i18n>Bài viết liên quan</span>
               </h2>
               <div class="post-side-card__body post-related" data-side-related>
                 <span class="u-placeholder-bar u-placeholder-bar--title"></span>
@@ -176,7 +176,7 @@
             <section class="post-side-card" aria-labelledby="side-topics-title">
               <h2 id="side-topics-title" class="post-side-card__band">
                 <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
-                Chủ đề liên quan
+                <span data-i18n>Chủ đề liên quan</span>
               </h2>
               <div class="post-side-card__body post-topics" data-side-topics>
                 <span class="u-placeholder-bar u-placeholder-bar--short"></span>
