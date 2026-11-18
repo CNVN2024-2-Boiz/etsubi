@@ -8,17 +8,21 @@
 /* Định dạng đang bật và hover dùng nền hồng nhẹ, không dịch chuyển. */
 .rich-editor__tool:hover, .rich-editor__tool[aria-pressed='true'], .rich-editor__tool[aria-expanded='true'] { background: var(--color-sakura); color: var(--color-red); }
 /* Mọi nút/icon và editor đều có vòng focus bàn phím chung. */
-.rich-editor__tool:focus-visible, .rich-editor__area:focus-visible, .place-chip__remove:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.rich-editor__tool:focus-visible, .place-chip__remove:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* Vùng gõ luôn khớp :focus-visible kể cả khi bấm chuột, nên vòng focus vẽ quanh cả khung để không lấn viền đỏ. */
+.rich-editor__area:focus-visible { outline: none; box-shadow: none; }
+.rich-editor:has(.rich-editor__area:focus-visible) { box-shadow: var(--focus-ring); }
 /* Nét phân nhóm và SVG không bị co, giữ tỷ lệ Lucide. */
 .rich-editor__separator { width: 1px; height: var(--space-5); margin-inline: var(--rich-toolbar-padding); background: var(--color-border); }
 .rich-icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; }
 .rich-icon svg { flex-shrink: 0; }
 /* Vùng nhập nhiều dòng có khoảng đệm và chiều cao tối thiểu như thiết kế. */
 .rich-editor__body { display: flex; flex-direction: column; min-height: var(--rich-body-height); }
-.rich-editor__area { flex: 1; min-height: var(--space-9); padding: var(--rich-body-padding) var(--space-4); outline: none; font: inherit; font-size: var(--rich-font-size); line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
-/* Đoạn và placeholder giữ nhịp văn bản, không chiếm caret khi editor rỗng. */
+.rich-editor__area { position: relative; flex: 1; min-height: var(--space-9); padding: var(--rich-body-padding) var(--space-4); outline: none; font: inherit; font-size: var(--rich-font-size); line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
+/* Đoạn văn giữ nhịp khoảng cách giữa các đoạn. */
 .rich-editor__area p + p, .rich-content__paragraph + .rich-content__paragraph { margin-top: var(--space-3); }
-.rich-editor__area[data-empty='true']::before { content: attr(data-placeholder); color: var(--color-muted); pointer-events: none; }
+/* Placeholder nằm absolute tại vị trí gốc (theo padding) để caret đứng ở đầu dòng, không bị đẩy ra sau chữ. */
+.rich-editor__area[data-empty='true']::before { content: attr(data-placeholder); position: absolute; color: var(--color-muted); pointer-events: none; }
 /* Bộ đếm nằm góc phải bên trong viền đỏ. */
 .rich-editor__counter { padding: var(--rich-toolbar-padding) var(--space-4) var(--space-2); color: var(--color-muted); font-size: var(--rich-counter-size); text-align: right; }
 /* Popover luôn ở dưới thanh công cụ, có thể cuộn ngang trong giới hạn editor. */
