@@ -11,7 +11,8 @@ CREATE TABLE notifications (
         'muted',
         'banned',
         'post_locked',
-        'post_removed'
+        'post_removed',
+        'mention'
     )),
     message TEXT NOT NULL,
     link TEXT NOT NULL,
@@ -30,3 +31,7 @@ CREATE INDEX idx_notifications_actor ON notifications (actor_id);
 CREATE UNIQUE INDEX idx_notifications_post_created_dedup
     ON notifications (user_id, link)
     WHERE kind = 'post_created';
+
+CREATE UNIQUE INDEX idx_notifications_mention_dedup
+    ON notifications (user_id, actor_id, link)
+    WHERE kind = 'mention';

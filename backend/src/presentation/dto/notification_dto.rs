@@ -33,6 +33,18 @@ impl From<NotificationContextDto> for NotificationContext {
     }
 }
 
+#[derive(Deserialize, ToSchema)]
+pub struct CreateMentionNotificationsRequest {
+    pub post_id: Option<Uuid>,
+    pub comment_id: Option<Uuid>,
+    pub mentioned_usernames: Vec<String>,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct CreateMentionNotificationsResponse {
+    pub created: usize,
+}
+
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct ListNotificationsQuery {
     pub limit: Option<i64>,
