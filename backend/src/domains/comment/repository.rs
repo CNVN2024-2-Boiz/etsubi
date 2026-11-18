@@ -14,4 +14,5 @@ pub trait CommentRepository: Send + Sync {
     fn find_by_post(&self, post_id: Uuid) -> Result<Vec<Comment>>;
     fn find_visible_by_post(&self, post_id: Uuid) -> Result<Vec<Comment>>;
     fn find_by_author(&self, author_id: Uuid) -> Result<Vec<Comment>>;
+    fn count_visible_by_post(&self, post_id: Uuid) -> Result<i64>;
 }

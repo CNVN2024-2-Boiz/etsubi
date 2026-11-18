@@ -111,6 +111,8 @@ impl PostService {
         requester_id: Uuid,
         title: &str,
         content: &str,
+        latitude: Option<f64>,
+        longitude: Option<f64>,
     ) -> Result<Post, PostError> {
         let mut post = self.get_active(id)?;
         let requester = self
@@ -139,6 +141,8 @@ impl PostService {
 
         post.title = title.to_string();
         post.content = content.to_string();
+        post.latitude = latitude;
+        post.longitude = longitude;
 
         let text_to_detect = format!("{} {}", title, content);
 
@@ -279,12 +283,6 @@ impl PostService {
         Ok(posts)
     }
 
-    pub fn list_popular_posts(&self) -> Result<Vec<Post>, PostError> {
-        let mut posts = self.post_repo.list_popular_posts()?;
-        posts.truncate(3);
-        Ok(posts)
-    }
-
     pub fn list_following_user_posts(&self, user_id: Uuid) -> Result<Vec<Post>, PostError> {
         let mut posts = self.post_repo.list_following_user_posts(user_id)?;
         posts.truncate(3);
@@ -295,5 +293,13 @@ impl PostService {
         let mut posts = self.post_repo.list_question_and_answer_posts()?;
         posts.truncate(3);
         Ok(posts)
+    }
+
+    pub fn list_highlight_posts(&self) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_top_ranked_posts(12, 0)?)
+    }
+
+    pub fn list_popular_posts(&self) -> Result<Vec<Post>, PostError> {
+        Ok(self.post_repo.list_top_ranked_posts(3, 12)?)
     }
 }

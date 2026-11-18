@@ -25,8 +25,16 @@ impl UserService {
         self.user_repo.find_by_id(id)?.ok_or(UserError::NotFound)
     }
 
+    pub fn find_by_id(&self, id: Uuid) -> Result<Option<User>, UserError> {
+        Ok(self.user_repo.find_by_id(id)?)
+    }
+
     pub fn find_by_email(&self, email: &str) -> Result<Option<User>, UserError> {
         Ok(self.user_repo.find_by_email(email)?)
+    }
+
+    pub fn find_by_username(&self, username: &str) -> Result<Option<User>, UserError> {
+        Ok(self.user_repo.find_by_username(username)?)
     }
 
     #[allow(clippy::too_many_arguments)]

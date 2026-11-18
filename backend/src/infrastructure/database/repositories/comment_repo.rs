@@ -32,6 +32,8 @@ impl CommentRepository for PostgresCommentRepo {
             post_id: comment.post_id,
             user_id: comment.user_id,
             language: &comment.language,
+            latitude: comment.latitude,
+            longitude: comment.longitude,
             content: &comment.content,
             status: &comment.status,
         };
@@ -213,5 +215,21 @@ impl CommentRepository for PostgresCommentRepo {
             .load(&mut conn)?;
 
         Ok(comments)
+    }
+
+    fn count_visible_by_post(&self, post_id: Uuid) -> Result<i64> {
+        use diesel::dsl::count_star;
+        use diesel::prelude::*;
+
+        use crate::infrastructure::database::schema::comments;
+
+        let mut conn = self.pool.get()?;
+
+        Ok(comments::table
+            .filter(comments::post_id.eq(post_id))
+            .filter(comments::deleted_at.is_null())
+            .filter(comments::status.eq("visible"))
+            .select(count_star())
+            .first::<i64>(&mut conn)?)
     }
 }

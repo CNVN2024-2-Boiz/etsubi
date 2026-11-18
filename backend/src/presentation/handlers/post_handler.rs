@@ -137,6 +137,8 @@ pub async fn update_post(
             requester_id,
             &req.title,
             req.content.as_deref().unwrap_or(""),
+            req.latitude,
+            req.longitude,
         )
     })
     .await
@@ -232,7 +234,7 @@ pub async fn list_newest_posts(state: web::Data<AppState>) -> Result<HttpRespons
     get,
     path = "/api/v1/posts/popular",
     tag = "post",
-    responses((status = 200, description = "20 posts with most reactions", body = [PostResponse])),
+    responses((status = 200, description = "3 posts with most reactions", body = [PostResponse])),
 )]
 #[get("/posts/popular")]
 pub async fn list_popular_posts(state: web::Data<AppState>) -> Result<HttpResponse, Error> {
@@ -285,6 +287,26 @@ pub async fn list_following_user_posts(
     let user_id = user.id;
 
     let posts = web::block(move || service.list_following_user_posts(user_id))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
+    Ok(HttpResponse::Ok().json(resp))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/posts/highlight",
+    tag = "post",
+    responses(
+        (status = 200, description = "Top 12 highlighted posts (home)", body = [PostResponse]),
+    ),
+)]
+#[get("/posts/highlight")]
+pub async fn list_highlight_posts(state: web::Data<AppState>) -> Result<HttpResponse, Error> {
+    let service = state.post_service.clone();
+
+    let posts = web::block(move || service.list_highlight_posts())
         .await
         .map_err(ErrorInternalServerError)??;
 

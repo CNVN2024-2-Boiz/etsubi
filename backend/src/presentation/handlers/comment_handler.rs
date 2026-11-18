@@ -9,7 +9,8 @@ use crate::{
     presentation::dto::{
         auth_dto::AuthUser,
         comment_dto::{
-            CommentResponse, CreateCommentRequest, LockCommentsRequest, UpdateCommentRequest,
+            CommentCountResponse, CommentResponse, CreateCommentRequest, LockCommentsRequest,
+            UpdateCommentRequest,
         },
         post_dto::PostResponse,
     },
@@ -99,10 +100,18 @@ pub async fn create_comment(
     let req = body.into_inner();
     let requester_id = user.id;
 
-    let created =
-        web::block(move || service.create(requester_id, post_id, req.parent_id, &req.content))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let created = web::block(move || {
+        service.create(
+            requester_id,
+            post_id,
+            req.parent_id,
+            &req.content,
+            req.latitude,
+            req.longitude,
+        )
+    })
+    .await
+    .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Created().json(CommentResponse::from(created)))
 }
@@ -135,10 +144,17 @@ pub async fn update_comment(
     let req = body.into_inner();
     let requester_id = user.id;
 
-    let updated =
-        web::block(move || service.update_content(comment_id, requester_id, &req.content))
-            .await
-            .map_err(ErrorInternalServerError)??;
+    let updated = web::block(move || {
+        service.update_content(
+            comment_id,
+            requester_id,
+            &req.content,
+            req.latitude,
+            req.longitude,
+        )
+    })
+    .await
+    .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(CommentResponse::from(updated)))
 }
@@ -206,4 +222,29 @@ pub async fn lock_post_comments(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(PostResponse::from(updated)))
+}
+
+#[utoipa::path(
+    get,
+    path = "/api/v1/posts/{id}/comments/count",
+    tag = "comment",
+    params(("id" = Uuid, Path, description = "Post ID")),
+    responses(
+        (status = 200, description = "Number of visible comments", body = CommentCountResponse),
+        (status = 404, description = "Post not found or not published"),
+    ),
+)]
+#[get("/posts/{id}/comments/count")]
+pub async fn count_post_comments(
+    state: web::Data<AppState>,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse, Error> {
+    let service = state.comment_service.clone();
+    let post_id = path.into_inner();
+
+    let count = web::block(move || service.count_visible_by_post(post_id))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    Ok(HttpResponse::Ok().json(CommentCountResponse { count }))
 }
