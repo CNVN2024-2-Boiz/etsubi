@@ -201,9 +201,11 @@ env.context.fetch = async (url, options) => {
   }
   return new Response(JSON.stringify({ id: 'fixture', username: 'nguyenvanan', displayname: 'Nguyễn Văn An', role: 'moderator', status: 'active', native: 'vi', language: 'ja', avatar_url: '/assets/avatars/preset.svg', muted_until: '2030-01-01T00:00:00Z' }));
 };
-const user = await auth.registerAndLogin({ username: 'nguyenvanan', displayname: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'vi', language: 'ja' });
+const user = await auth.registerAndLogin({ username: 'nguyenvanan', displayname: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'ja' });
 assert.deepEqual(calls.map(call => call.pathname.split('/').at(-1)), ['register','login','my']);
-assert.equal(calls[0].body.native, 'vi');
+// Đăng ký luôn gửi language bằng ngôn ngữ mẹ đẻ, không lấy theo nút ngôn ngữ trên header.
+assert.equal(calls[0].body.native, 'ja');
+assert.equal(calls[0].body.language, 'ja');
 assert.equal(user.avatarUrl, '/assets/avatars/preset.svg');
 assert.equal(user.isStaff, true);
 assert.equal(user.isAdmin, false);
@@ -220,6 +222,15 @@ env.context.fetch = async () => {
 };
 await Promise.all([users.getUser('fixture-public'), users.getUser('fixture-public')]);
 assert.equal(userRequests, 1);
+// Đổi ngôn ngữ mẹ đẻ gửi kèm language; lưu mục khác không được đụng tới ngôn ngữ dịch.
+const profilePatches = [];
+env.context.fetch = async (url, options) => {
+  profilePatches.push(JSON.parse(options.body));
+  return new Response('{"id":"fixture"}');
+};
+await users.updateMe({ native: 'en' });
+await users.updateMe({ bio: 'Giới thiệu' });
+assert.deepEqual(profilePatches, [{ native: 'en', language: 'en' }, { bio: 'Giới thiệu' }]);
 // Hết phiên phải xoá hồ sơ và giữ URL hiện tại để quay lại sau đăng nhập.
 env.context.location.pathname = '/pages/forum.html';
 env.context.location.search = '?page=2';

@@ -206,8 +206,8 @@ export const auth = {
   requireAuth,
   getUser: getCachedUser,
   /** Gửi đăng ký kiểu cũ, mặc định tiếng mẹ đẻ là tiếng Việt. */
-  register(username, email, password, language = 'vi') {
-    return api.register({ username, email, password, native: 'vi', language });
+  register(username, email, password, native = 'vi') {
+    return api.register({ username, email, password, native });
   },
   /** Kiểm tra thời hạn cấm viết để trang nội dung quyết định hiện thông báo. */
   isMuted() {

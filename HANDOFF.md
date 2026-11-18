@@ -61,7 +61,7 @@ Frame IDs below are in the personal file. The shared team file (source of truth)
 | Page | Figma frame | Notes |
 |---|---|---|
 | Mod/Admin views | board `260:1891` | `/manage/*` endpoints; staff badge colour `--color-staff`. RBAC summary in AGENTS.md §8. |
-| i18n (VI/JA/EN) | – | The header badge and Cài đặt › Giao diện only store `localStorage.etsubi_lang` (through `utils/preferences.js`); no dictionaries yet. |
+| i18n (VI/JA/EN) | – | The header language dropdown (Đợt 13, `components/header/language-menu.js`, Figma `466:3644`, shared `239:4071`) and Cài đặt › Giao diện only store `localStorage.etsubi_lang` (through `utils/preferences.js`); no dictionaries yet. |
 | Dark theme | – | Cài đặt › Giao diện shows Tối and Theo máy disabled ("sắp có"). Waiting for a dark palette in Figma (front-end/design work, not back end). When it exists: add dark tokens, apply `etsubi_theme` on every page, enable the two options. |
 
 Sau môn học: ảnh dạng lưới kiểu Facebook, bấm xem full
@@ -377,7 +377,7 @@ The back end will be adjusted to the front end. Every agent adds a row here when
 | Reading page "Địa điểm văn hoá" | POST/PATCH/GET posts | place_name đã được Phong đồng ý thêm; hiện chỉ gửi toạ độ, dùng reverse/cache cho tên/địa chỉ | BE đã đồng ý |
 | Reading page comments | `GET /posts/{id}/comments` | embed `author: { id, username, avatar_url, native }` in each comment, so the page does not call `GET /users/{id}` per commenter; read by `getEmbeddedAuthor()` behind flag `commentAuthors` | cần làm |
 | Reading page author card | `GET /users/{id}` | `post_count` and `follower_count`, so the page does not download the full post and follower lists just to count them | cần làm |
-| Reading page translate | POST post/comment translate | Target là language của người đọc; native chỉ để hiển thị. FE dùng API dịch hiện tại | đã xác nhận |
+| Reading page translate | POST post/comment translate | Target là language của người đọc. Theo Phong (2026-11-18), không đổi backend: FE gửi `language` cùng giá trị với `native` khi đăng ký và khi đổi Ngôn ngữ mẹ đẻ. Cờ cạnh tên vẫn đọc `native`; nút ngôn ngữ trên header và Ngôn ngữ giao diện chỉ lưu `etsubi_lang` trong trình duyệt. Tài khoản cũ bị lệch sẽ hết khi reset DB hoặc đổi lại ngôn ngữ mẹ đẻ | đã có |
 | Diễn đàn compose: Ảnh (uploads/attachments) | Không cần endpoint upload/attachments | Batch 10 chèn ảnh bằng HTTPS link trực tiếp trong content đã lọc | đã đóng |
 | Legacy poll contract (no current composer UI) | poll on posts | `POST /posts` accepts `poll: { question, options: [string], closes_at? }`; `GET /posts/{id}` returns the poll with per-option votes and the viewer's choice; `POST /posts/{id}/poll/votes { option_index }`; `supportsPolls()` behind flag `postPolls` | cần làm |
 | Diễn đàn feed paging | `GET /posts` | total count (same request as Search) so "Tải thêm bài viết" can hide exactly at the end instead of guessing from a short page | cần làm |
@@ -399,7 +399,7 @@ The back end will be adjusted to the front end. Every agent adds a row here when
 | Migrations | `backend/migrations/` | Phong xác nhận được sửa migration tại chỗ vì chưa triển khai. Volume cũ vẫn cần vá tay các cột/index như §4 batch 4/7/8 hoặc tạo lại DB | đã thống nhất |
 | Đăng ký: tên hiển thị | `POST /auth/register` | Done in upstream PR #64 (9f484ae, batch 8): the handler passes `body.displayname`; the service trims it, falls back to `username` when empty and returns 400 "Display name too long (max 50 characters)" above 50 characters. FE limit is 50 too (`validateDisplayName`), the 400 is shown on the Tên hiển thị field | đã có |
 | Cài đặt / Register Advanced: tên hiển thị | `PATCH /my` | Done in upstream PR #65 (9f484ae, batch 8): `PATCH /my` and `update_user` store the trimmed `displayname`; empty → 400 "Display name cannot be empty", above 50 → 400 "Display name too long (max 50 characters)"; the first update also sets `profile_completed_at`. Both 400s are mapped to Vietnamese on the Tên hiển thị field. The "Máy chủ chưa lưu được tên hiển thị." note stays only as a fallback if a response ever returns another name | đã có |
-| Đăng ký: ngôn ngữ giao diện | `POST /auth/register` | `auth_handler::register` passed `&body.native` for both `native` and `language`, so `language` always equalled `native`. Fixed in upstream PR #64 (`&body.language`) | đã có |
+| Đăng ký: ngôn ngữ dịch | `POST /auth/register` | Backend lưu riêng `native` và `language` từ PR #64. FE gửi hai trường cùng giá trị (mặc định `vi`), không lấy theo ngôn ngữ giao diện | đã có |
 | Tên người dùng (@handle) | register và PATCH /my | PR 70: username mới theo ^[a-z0-9_]{3,30}$ ở cả FE, service và ràng buộc `users_username_format`; tài khoản cũ có dấu chấm vẫn giữ tên và lưu được các mục khác. Migration sửa tại chỗ nên DB cũ không có ràng buộc này, không thêm tay vì dữ liệu cũ có dấu chấm. | đã có |
 | Hồ sơ lists, comments | follow lists / comments | FollowUserResponse đã có displayname, chưa paging; nhúng author/tags/counts làm sau. Thông báo đã có actor_* (đợt 11) | chờ BE phần còn lại |
 | Search | socket transport | deferred by team, HTTP stays for now | hoãn |
