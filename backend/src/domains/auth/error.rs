@@ -10,7 +10,7 @@ pub enum AuthError {
     #[error("Username too short")]
     UsernameTooShort,
 
-    #[error("Username must be 3-30 characters, lowercase a-z, 0-9, dot or underscore")]
+    #[error("Username must be 3-30 characters, lowercase a-z, 0-9 or underscore")]
     InvalidUsername,
 
     #[error("Email already exists")]
