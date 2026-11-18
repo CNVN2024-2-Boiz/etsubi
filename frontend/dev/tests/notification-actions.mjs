@@ -58,7 +58,7 @@ async function request(path, options = {}) {
   if (method === 'DELETE' || path.includes('/tags/')) {
     return null;
   }
-  if (method === 'GET' && ['/posts', '/posts/popular', '/posts/qa', '/my/following/posts'].includes(path)) {
+  if (method === 'GET' && ['/posts', '/posts/highlight', '/posts/popular', '/posts/qa', '/my/following/posts'].includes(path)) {
     return [{ id: 'p', author_id: 'other' }];
   }
   return { id: 'p', author_id: 'other', title: 'Tiêu đề thật', ...options.body };
@@ -284,11 +284,11 @@ await check('bài không có điểm không gửi toạ độ rỗng', async () 
   assert.equal(Object.hasOwn(calls[0].body, 'latitude'), false);
   assert.equal(Object.hasOwn(calls[0].body, 'longitude'), false);
 });
-await check('bình luận rich chỉ gửi content và parent_id theo hợp đồng hiện có', async () => {
+await check('bình luận rich gửi content, parent_id và toạ độ, chưa gửi spoiler', async () => {
   const content = '<p><a href="https://example.com/">Link</a><img src="https://example.com/a.png" alt="Ảnh"></p>';
   await comments.createComment('p', content, null, { postAuthorId: 'other', latitude: 35, longitude: 135, is_spoiler: true });
   assert.equal(calls[0].body.content, content);
-  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,parent_id');
+  assert.equal(Object.keys(calls[0].body).sort().join(','), 'content,latitude,longitude,parent_id');
 });
 
 // Sửa bình luận và gỡ địa điểm bài viết phải đúng body PATCH, không gửi notification phụ khi sửa.
@@ -344,7 +344,8 @@ await check('endpoint mới không gửi tham số phân trang và Search giữ 
   // Backend đã sửa route /my/following/posts (upstream 8fee464) nên bảng tin theo dõi gửi request thật, không kèm phân trang.
   await posts.listFollowingFeed({ limit: 5, offset: 10 });
   await posts.listQuestionPosts();
-  assert.equal(calls.map(call => call.path).join(','), '/posts/popular,/my/following/posts,/posts/qa');
+  // Tab Phổ biến ghép bảng xếp hạng từ highlight (hạng 1-12) và popular (hạng 13-15).
+  assert.equal(calls.map(call => call.path).join(','), '/posts/highlight,/posts/popular,/my/following/posts,/posts/qa');
   assert.ok(calls.every(call => call.query === undefined));
   await posts.searchPosts({ q: 'từ khoá', tagIds: ['tag'], limit: 10, offset: 20 });
   assert.equal(calls.at(-1).path, '/posts');

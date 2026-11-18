@@ -4,6 +4,7 @@ import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
 import { initials, relativeTime } from '/utils/format.js';
 import { makeExcerpt, wrapJapanese } from '/utils/text.js';
+import { markMentions } from '/utils/mention.js';
 import { getAuthorLabel, getAuthorHandle, getAuthorDisplayName } from '/services/api/posts.js';
 
 /** Tạo icon cố định đúng kích thước thật; tên thao tác do phần tử cha cung cấp. */
@@ -71,7 +72,7 @@ export function createFeaturedCard({ post, rank, author = post.author, tags = po
       (Number.isFinite(commentCount) ? commentCount : '–') + ' bình luận'), createDetail(post.id));
   return el('article', { className: 'featured-card' }, createBand(rank),
     el('div', { className: 'featured-card__body' }, title,
-      el('p', { className: 'featured-card__excerpt' }, wrapJapanese(makeExcerpt(post.content, '', 220))),
+      markMentions(el('p', { className: 'featured-card__excerpt' }, wrapJapanese(makeExcerpt(post.content, '', 220)))),
       tagRow, el('div', { className: 'featured-card__spacer' }), meta, actions));
 }
 

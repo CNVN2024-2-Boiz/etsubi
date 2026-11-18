@@ -484,6 +484,20 @@
   background: var(--color-page);
 }
 
+/* Bình luận được nhảy tới từ thông báo: nền hồng nhạt tĩnh, không hoạt ảnh; focus do code đặt nên không cần viền. */
+.post-comment__row.is-target {
+  margin: calc(var(--space-2) * -1);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+}
+
+/* Khối bình luận chỉ nhận focus từ code khi nhảy tới, nền hồng đã đánh dấu vị trí nên bỏ cả viền lẫn vòng focus chung. */
+.post-comment:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 /* Đường kẻ giữa hai bình luận gốc (không kẻ trước bình luận đầu tiên). */
 .post-comment + .post-comment {
   padding-top: 20px;
@@ -679,7 +693,7 @@
 .post-comment-form__expanded .rich-editor { border-width: 2px; }
 .post-comment-form__expanded .rich-editor__body { min-height: var(--comment-body-height); }
 .post-comment-form__expanded .rich-editor__area { font-size: 14px; padding-block: var(--space-3); }
-.post-comment-form__expanded .rich-editor__counter { min-height: var(--comment-counter-height); padding-top: 0; }
+.post-comment-form__expanded .rich-editor__footer { min-height: var(--comment-counter-height); padding-top: 0; }
 .post-comment-form__expanded .place-chip { font-size: var(--rich-counter-size); padding-block: 0; }
 
 /* Thanh gửi nền trang nhạt, checkbox thật ở trái và Huỷ/Đăng ở phải, có thể xuống hàng. */

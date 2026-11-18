@@ -2,7 +2,7 @@
 import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
-import { getPost, getPostTags, listUserPosts, translatePost, getRelatedPosts, getPostPlace, updatePost, deletePost } from '/services/api/posts.js';
+import { getPost, getPostTags, listUserPosts, translatePost, getRelatedPosts, getPostPlace, updatePost, buildPostEdit, deletePost } from '/services/api/posts.js';
 import { listComments, createComment, updateComment, deleteComment, translateComment, getEmbeddedAuthor, setCommentsLocked } from '/services/api/comment.js';
 import { setPostStatus, restorePost, getPostForStaff, listCommentsForStaff, setCommentStatus, restoreComment, setUserMute } from '/services/api/manage.js';
 import {
@@ -17,7 +17,8 @@ import { fetchCurrentUser, getCachedUser, requireAuth } from '/utils/auth.js';
 import { el, qs } from '/utils/dom.js';
 import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
-import { renderRichContent, richToPlainText, sanitizeRichHtml, validateRichBytes } from '/utils/rich-text.js';
+import { richToPlainText, sanitizeRichHtml, validateRichBytes } from '/utils/rich-text.js';
+import { renderPostedContent } from '/utils/mention.js';
 import { isCommentEdited } from '/utils/comment-time.js';
 import { createRichEditor, editorIcon } from '/components/rich-editor/rich-editor.js';
 import { createPlaceChip } from '/components/rich-editor/place-chip.js';
@@ -55,12 +56,20 @@ const state = {
   showTranslation: false,
   // Thời điểm bài bị xoá trong phiên này (staff vẫn thấy bài và có nút Khôi phục).
   deletedAt: null,
+  // Bình luận đang được trỏ tới bằng #comment-{id} trên URL (từ thông báo).
+  targetCommentId: commentIdFromHash(),
 };
 // Một bình luận được sửa tại một thời điểm; các map con được dọn trước khi vẽ lại danh sách.
 let activeCommentEdit = null;
 let commentPlaceViews = [];
 
 /* ===== Tiện ích hiển thị ===== */
+
+/** Đọc mã bình luận từ hash; chỉ nhận đúng định dạng UUID để không dùng dữ liệu lạ làm id phần tử. */
+function commentIdFromHash() {
+  const match = location.hash.match(/^#comment-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/iu);
+  return match ? match[1].toLowerCase() : null;
+}
 
 /** Thanh chờ tĩnh dùng khi dữ liệu chưa có, không giả nội dung. */
 function placeholder(extraClass = '') {
@@ -191,7 +200,7 @@ function renderAuthorRow() {
 function renderBody(content, language) {
   const body = qs('[data-body]');
   body.lang = ['ja', 'en'].includes(language) ? language : 'vi';
-  renderRichContent(body, content);
+  renderPostedContent(body, content);
   if (!richToPlainText(content) && !body.querySelector('img')) body.append(el('p', { className: 'post-body__empty' }, 'Bài viết chưa có nội dung.'));
 }
 
@@ -429,7 +438,7 @@ function startEdit() {
     });
   }
 
-  /** Lưu nội dung và toạ độ nháp; bỏ cả hai trường khi gỡ địa điểm theo hợp đồng backend. */
+  /** Lưu nội dung cùng địa điểm trong form; chỉ khi người dùng bấm gỡ thì toạ độ mới bị bỏ. */
   async function submit(event) {
     event.preventDefault();
     const validation = validateRichBytes(titleInput.value.trim(), 255, 'Tiêu đề') || validateRichBytes(editEditor.getHtml(), 100000);
@@ -443,20 +452,15 @@ function startEdit() {
     form.inert = true;
     save.textContent = 'Đang lưu…';
     try {
-      const updated = await updatePost(state.post.id, {
-        title: titleInput.value.trim(), content: editEditor.getHtml(), ...(place ? { latitude: place.latitude, longitude: place.longitude } : {}),
-      });
+      const updated = await updatePost(state.post.id, buildPostEdit(state.post, {
+        title: titleInput.value.trim(), content: editEditor.getHtml(), place,
+      }));
       state.post = { ...state.post, latitude: null, longitude: null, place_name: null, place: null, ...updated };
       state.translated = null;
       state.showTranslation = false;
       close();
       renderContent();
       void renderPlace();
-      // CẦN BACKEND: PATCH /posts/{id} hiện bỏ qua latitude/longitude; nếu toạ độ trả về khác lựa chọn thì báo thật cho người dùng.
-      const wanted = place ? [place.latitude, place.longitude].map(Number) : [null, null];
-      const saved = [state.post.latitude, state.post.longitude].map(value => (Number.isFinite(value) ? Number(value) : null));
-      const placeKept = wanted.every((value, index) => (value === null ? saved[index] === null : Math.abs(value - saved[index]) < 1e-6));
-      if (!placeKept) showActionStatus('Đã lưu bài. Địa điểm chưa được cập nhật vì máy chủ chưa lưu thay đổi toạ độ khi sửa bài.', true);
       qs('[data-breadcrumb-title]').replaceChildren(wrapJapanese(state.post.title));
       document.title = richToPlainText(state.post.title) + ' · Etsubi';
     } catch (error) {
@@ -672,7 +676,7 @@ function startCommentEdit(comment) {
     editor.area.removeAttribute('aria-invalid');
     status.textContent = '';
   }
-  /** Gắn hoặc bỏ địa điểm đồng bộ nút pin; hiện chỉ gửi content vì API chưa có toạ độ. */
+  /** Gắn hoặc bỏ địa điểm đồng bộ nút pin; toạ độ được gửi cùng nội dung khi lưu. */
   function renderEditPlace() {
     placeBox.replaceChildren(...(place ? [createPlaceChip(place, () => { place = null; renderEditPlace(); sync(); })] : []));
     editor.setToolPressed('pin', Boolean(place));
@@ -707,10 +711,10 @@ function startCommentEdit(comment) {
     // Vẽ lại nút menu để khoá thao tác ngoài form trong lúc PATCH đang gửi.
     renderComments();
     try {
-      const updated = await updateComment(comment.id, content);
+      const updated = await updateComment(comment.id, content, place ? { latitude: place.latitude, longitude: place.longitude } : {});
       state.comments = state.comments.map(item => item.id === comment.id ? { ...item, ...updated, translation: null, showTranslation: false } : item);
       session.sending = false; close();
-      showActionStatus('Đã lưu bình luận.' + (place ? ' Địa điểm chưa được lưu vì máy chủ chưa hỗ trợ.' : '')
+      showActionStatus('Đã lưu bình luận.'
         + (spoilerInput.checked !== Boolean(comment.is_spoiler) ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : ''));
     } catch (failure) {
       status.textContent = toVietnameseMessage(failure);
@@ -742,7 +746,7 @@ function renderCommentCount() {
 async function toggleCommentTranslation(comment, button, textNode, note) {
   if (comment.showTranslation) {
     comment.showTranslation = false;
-    renderRichContent(textNode, comment.content, { allowLinks: true });
+    renderPostedContent(textNode, comment.content, { allowLinks: true });
     note.textContent = '';
     renderComments();
     return;
@@ -765,7 +769,7 @@ async function toggleCommentTranslation(comment, button, textNode, note) {
     }
   }
   comment.showTranslation = true;
-  renderRichContent(textNode, comment.translation.content, { allowLinks: true });
+  renderPostedContent(textNode, comment.translation.content, { allowLinks: true });
   note.classList.remove('is-error');
   note.textContent = comment.translation.translated ? 'Đang xem bản dịch.' : 'Bình luận đã ở ngôn ngữ của bạn.';
   renderComments();
@@ -808,7 +812,7 @@ function createCommentNode(comment, replies = []) {
   const staff = isStaff(state.viewer);
   const text = el('div', { className: 'post-comment__text' + (comment.is_deleted ? ' post-comment__text--deleted' : '') });
   if (comment.is_deleted) text.textContent = 'Bình luận này đã bị xoá.';
-  else renderRichContent(text, comment.showTranslation ? comment.translation.content : comment.content, { allowLinks: true });
+  else renderPostedContent(text, comment.showTranslation ? comment.translation.content : comment.content, { allowLinks: true });
   const note = el('p', { className: 'post-comment__note', role: 'status' }, comment.showTranslation ? 'Đang xem bản dịch.' : '');
   const tools = el('div', { className: 'post-comment__tools' });
   const menu = createCommentMenu(comment, author, text, note);
@@ -823,18 +827,42 @@ function createCommentNode(comment, replies = []) {
     if (place) { commentPlaceViews.push(place); content.append(place.root); }
   }
   content.append(note);
+  const isTarget = state.targetCommentId === comment.id;
   let node = el('div', { className: 'post-comment' + (comment.status === 'hidden' ? ' post-comment--hidden' : '') },
-    el('div', { className: 'post-comment__row' }, avatar, content));
+    el('div', { className: 'post-comment__row' + (isTarget ? ' is-target' : '') }, avatar, content));
   if (staff && comment.status === 'hidden' && !comment.is_deleted) {
     // Bình luận đang ẩn nằm trong khối viền đứt chỉ staff thấy, kèm nhãn "Đã ẩn".
     node = el('div', { className: 'post-comment' }, createStaffBox(
       el('div', { className: 'staff-box__top' }, createStaffTag(), createStatusBadge('hidden')), node));
+  }
+  // Id gắn ở khối ngoài cùng để link #comment-{id} tới được cả bình luận gốc, trả lời và khối staff.
+  node.id = 'comment-' + comment.id;
+  if (isTarget) {
+    node.tabIndex = -1;
   }
   if (replies.length) {
     node.append(el('div', { className: 'post-comment__replies' },
       replies.map(reply => createCommentNode(reply))));
   }
   return node;
+}
+
+/** Gom mọi cấp trả lời của một bình luận gốc để trả lời lồng nhau không bị mất và vẫn nhảy tới được. */
+function collectReplies(rootId) {
+  const replies = [];
+  const seen = new Set([rootId]);
+  const parents = [rootId];
+  while (parents.length) {
+    const parentId = parents.pop();
+    for (const comment of state.comments) {
+      if (comment.parent_id === parentId && !seen.has(comment.id)) {
+        seen.add(comment.id);
+        replies.push(comment);
+        parents.push(comment.id);
+      }
+    }
+  }
+  return replies;
 }
 
 /** Vẽ lại danh sách: bình luận gốc theo thứ tự đã chọn, trả lời luôn cũ trước dưới bình luận cha. */
@@ -861,11 +889,83 @@ function renderComments() {
   if (order === 'newest') {
     roots.reverse();
   }
-  box.replaceChildren(...roots.map(root => createCommentNode(root,
-    state.comments.filter(comment => comment.parent_id === root.id).sort(byTime))));
+  box.replaceChildren(...roots.map(root => createCommentNode(root, collectReplies(root.id).sort(byTime))));
 }
 
-/** Tải hồ sơ người bình luận lần lượt (tôn trọng giới hạn 4 yêu cầu/giây), vẽ lại sau mỗi người. */
+// Trạng thái nhảy tới bình luận: danh sách đã tải chưa, lượt nhảy mới nhất và còn được căn lại hay không.
+let commentsReady = false;
+let commentJumpVersion = 0;
+let commentJumpSettling = false;
+let commentJumpNotice = false;
+
+/** Cuộn tới bình luận đang trỏ tới, đặt focus để trình đọc màn hình đọc đúng chỗ. */
+function revealTargetComment() {
+  const target = state.targetCommentId && document.getElementById('comment-' + state.targetCommentId);
+  if (!target) {
+    return false;
+  }
+  target.scrollIntoView({ block: 'center' });
+  target.focus({ preventScroll: true });
+  return true;
+}
+
+/** Tải lại danh sách khi bình luận mới xuất hiện sau lúc mở trang, giữ bản dịch đang xem của bình luận cũ. */
+async function refreshComments() {
+  const previous = new Map(state.comments.map(comment => [comment.id, comment]));
+  const fresh = await (isStaff(state.viewer) ? listCommentsForStaff(state.post.id) : listComments(state.post.id)) || [];
+  state.comments = fresh.map(comment => ({
+    ...comment,
+    translation: previous.get(comment.id)?.translation,
+    showTranslation: previous.get(comment.id)?.showTranslation,
+  }));
+  renderComments();
+  await loadCommentAuthors();
+}
+
+/** Nhảy tới #comment-{id}: không thấy trong danh sách thì tải lại một lần rồi mới báo không tìm thấy. */
+async function jumpToHashComment({ reload = true } = {}) {
+  const version = ++commentJumpVersion;
+  const id = commentIdFromHash();
+  const changed = state.targetCommentId !== id;
+  state.targetCommentId = id;
+  if (!commentsReady) {
+    return;
+  }
+  // Lượt nhảy mới thay thế lời báo "không tìm thấy" của lượt trước, không xoá các thông báo khác.
+  if (commentJumpNotice) {
+    showActionStatus('');
+    commentJumpNotice = false;
+  }
+  if (changed) {
+    renderComments();
+  }
+  if (!id) {
+    return;
+  }
+  if (reload && !document.getElementById('comment-' + id)) {
+    try {
+      await refreshComments();
+    } catch (error) {
+      if (version === commentJumpVersion) showActionStatus(toVietnameseMessage(error), true);
+      return;
+    }
+    if (version !== commentJumpVersion) {
+      return;
+    }
+  }
+  commentJumpSettling = revealTargetComment();
+  if (!commentJumpSettling) {
+    commentJumpNotice = true;
+    showActionStatus('Không tìm thấy bình luận này. Có thể bình luận đã bị xoá hoặc ẩn.', true);
+  }
+}
+
+// Người đọc tự cuộn hoặc thao tác thì không kéo trang về bình luận nữa khi tên tác giả tải xong.
+for (const type of ['wheel', 'touchmove', 'keydown', 'pointerdown']) {
+  window.addEventListener(type, () => { commentJumpSettling = false; }, { passive: true });
+}
+
+/** Tải hồ sơ người bình luận lần lượt (không gửi dồn để tránh vượt giới hạn của máy chủ), vẽ lại sau mỗi người. */
 async function loadCommentAuthors() {
   for (const comment of state.comments) {
     const embedded = getEmbeddedAuthor(comment);
@@ -891,14 +991,20 @@ async function loadComments() {
     // Staff thấy cả bình luận đang ẩn và đã xoá (để hiện lại hoặc khôi phục); người thường chỉ thấy bình luận đang hiện.
     state.comments = await (isStaff(state.viewer) ? listCommentsForStaff(state.post.id) : listComments(state.post.id)) || [];
     renderComments();
+    commentsReady = true;
+    await jumpToHashComment({ reload: false });
     await loadCommentAuthors();
+    // Tên tác giả làm đổi chiều cao các dòng phía trên, căn lại một lần nếu người đọc chưa tự cuộn.
+    if (commentJumpSettling) {
+      revealTargetComment();
+    }
   } catch (error) {
     qs('[data-comments]').replaceChildren(el('p', { className: 'post-comments__note' },
       'Chưa tải được bình luận: ' + toVietnameseMessage(error)));
   }
 }
 
-// Editor bình luận dùng cùng ảnh HTTPS với bài viết; địa điểm và spoiler còn ở nháp.
+// Editor bình luận dùng cùng ảnh HTTPS với bài viết; spoiler còn ở nháp.
 let commentOpen = false;
 let commentSending = false;
 let restoringCommentFocus = false;
@@ -955,7 +1061,7 @@ function renderCommentPlace() {
   commentEditor.setToolPressed('pin', Boolean(commentPlace));
 }
 
-/** Ảnh chèn vào HTML, địa điểm vẫn nằm trong nháp cho đến khi API hỗ trợ. */
+/** Ảnh chèn vào HTML, địa điểm giữ trong nháp và gửi kèm khi đăng bình luận. */
 async function handleCommentTool(tool) {
   if (commentSending) return;
   if (tool === 'image') {
@@ -984,7 +1090,7 @@ function commentContentChanged() {
   syncCommentForm();
 }
 
-/** Gửi HTML gồm ảnh HTTPS và link an toàn; chưa gửi địa điểm hoặc spoiler khi API chưa hỗ trợ. */
+/** Gửi HTML gồm ảnh HTTPS, link an toàn và toạ độ đang gắn; spoiler chưa gửi vì API chưa hỗ trợ. */
 async function submitComment(event) {
   event.preventDefault();
   if (!commentOpen) { openCommentEditor(); return; }
@@ -999,16 +1105,16 @@ async function submitComment(event) {
   commentSubmit.disabled = true;
   commentSubmit.classList.add('is-loading');
   commentSubmit.textContent = 'Đang đăng...';
-  const omittedPlace = Boolean(commentPlace);
   const omittedSpoiler = spoiler.checked;
   try {
-    const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id });
+    const comment = await createComment(state.post.id, content, null, { postAuthorId: state.post.author_id,
+      latitude: commentPlace?.latitude, longitude: commentPlace?.longitude });
     state.comments.push(comment);
     if (state.viewer && !state.commentAuthors.has(state.viewer.id)) {
       state.commentAuthors.set(state.viewer.id, { id: state.viewer.id, username: state.viewer.username, displayname: state.viewer.displayname, avatar_url: state.viewer.avatarUrl });
     }
     resetCommentEditor();
-    hint.textContent = 'Đã đăng bình luận.' + (omittedPlace ? ' Địa điểm chưa được lưu vì máy chủ chưa hỗ trợ.' : '')
+    hint.textContent = 'Đã đăng bình luận.'
       + (omittedSpoiler ? ' Spoiler chưa được lưu vì máy chủ chưa hỗ trợ.' : '');
     renderComments();
   } catch (error) {
@@ -1339,5 +1445,7 @@ qs('[data-share]').addEventListener('click', sharePost);
 qs('[data-comment-sort]').addEventListener('change', renderComments);
 qs('[data-comment-input]').addEventListener('input', syncCommentForm);
 qs('[data-comment-form]').addEventListener('submit', submitComment);
+// Bấm thông báo khi đang ở sẵn bài này chỉ đổi hash, trang không tải lại.
+window.addEventListener('hashchange', () => { void jumpToHashComment(); });
 
 initialize().catch(error => showPageError(toVietnameseMessage(error)));

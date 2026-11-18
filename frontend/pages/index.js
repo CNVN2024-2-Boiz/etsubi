@@ -37,6 +37,10 @@ let user = getCachedUser();
 let tags = [];
 let featured = null;
 let featuredPage = 0;
+// Thông tin phụ của thẻ nổi bật: chỉ tải khi thẻ đang hiện, trang đã xem thì dùng lại khi quay về.
+const featuredExtras = new Map();
+const featuredRequests = new Map();
+let featuredVersion = 0;
 let selectedFeed = 'newest';
 let feedVersion = 0;
 let feedController = null;
@@ -83,6 +87,72 @@ function featuredPageSize() {
   return compactFeatured.matches ? 1 : 3;
 }
 
+/** Dựng thẻ nổi bật từ bài và phần thông tin phụ đã tải; mã bài giúp thay đúng thẻ khi có dữ liệu mới. */
+function createFeaturedNode(post, rank) {
+  const card = createFeaturedCard({ post, rank, ...featuredExtras.get(post.id) });
+  card.dataset.featuredPostId = post.id;
+  return card;
+}
+
+/** Tải tác giả, tag và số bình luận của một bài đúng một lần; phần lỗi để trống và được thử lại khi thẻ hiện lần sau. */
+function loadFeaturedExtra(post) {
+  if (!featuredRequests.has(post.id)) {
+    const pending = Promise.all([
+      getUser(post.author_id).catch(() => undefined),
+      getPostTags(post.id).catch(() => undefined),
+      getPostStats(post.id, post),
+    ]).then(([author, postTags, stats]) => {
+      featuredExtras.set(post.id, { author, tags: postTags, commentCount: stats?.comment_count ?? undefined });
+      // Thiếu phần nào thì bỏ dấu đã tải, lần sau thẻ hiện lại sẽ thử lại phần đó.
+      if (!author || !postTags) {
+        featuredRequests.delete(post.id);
+      }
+    });
+    featuredRequests.set(post.id, pending);
+  }
+  return featuredRequests.get(post.id);
+}
+
+/** Thay thẻ đang hiện bằng bản đủ dữ liệu; thẻ giữ focus thì chờ focus rời đi để không mất vị trí bàn phím. */
+function refreshFeaturedCard(post, rank, version) {
+  const target = qs('[data-featured-post-id="' + CSS.escape(String(post.id)) + '"]', qs('[data-featured-cards]'));
+  if (!target) {
+    return;
+  }
+  if (target.contains(document.activeElement)) {
+    /** Cập nhật thẻ khi focus đã rời khỏi thẻ và trang nổi bật chưa đổi. */
+    function updateAfterFocusLeaves(event) {
+      if (!target.contains(event.relatedTarget)) {
+        target.removeEventListener('focusout', updateAfterFocusLeaves);
+        if (version === featuredVersion && target.isConnected) {
+          target.replaceWith(createFeaturedNode(post, rank));
+        }
+      }
+    }
+    target.addEventListener('focusout', updateAfterFocusLeaves);
+    return;
+  }
+  target.replaceWith(createFeaturedNode(post, rank));
+}
+
+/** Chỉ bổ sung các thẻ của trang đang xem, lần lượt từng thẻ; đổi trang thì dừng lượt cũ. */
+async function enrichVisibleFeatured() {
+  const version = ++featuredVersion;
+  const size = featuredPageSize();
+  const start = featuredPage * size;
+  for (const [offset, post] of featured.slice(start, start + size).entries()) {
+    // Thẻ đã đủ dữ liệu được vẽ sẵn từ bộ nhớ, không gọi lại máy chủ khi quay về trang cũ.
+    if (featuredExtras.has(post.id) && featuredRequests.has(post.id)) {
+      continue;
+    }
+    await loadFeaturedExtra(post);
+    if (version !== featuredVersion) {
+      return;
+    }
+    refreshFeaturedCard(post, start + offset + 1, version);
+  }
+}
+
 /** Vẽ trang nổi bật bằng bài thật có thứ hạng hoặc ba khung chờ khi chưa có hợp đồng. */
 function renderFeatured(restoreDotFocus = false) {
   const size = featuredPageSize();
@@ -93,8 +163,7 @@ function renderFeatured(restoreDotFocus = false) {
   row.replaceChildren();
   // Chỉ gắn thẻ thuộc trang hiện tại nên liên kết của trang ẩn không nhận focus.
   for (let index = featuredPage * size; index < Math.min((featuredPage + 1) * size, available ? featured.length : 3); index += 1) {
-    row.append(available ? createFeaturedCard({ post: featured[index], rank: index + 1 })
-      : createFeaturedPlaceholder(index + 1));
+    row.append(available ? createFeaturedNode(featured[index], index + 1) : createFeaturedPlaceholder(index + 1));
   }
   const note = qs('[data-featured-note]');
   note.hidden = available;
@@ -117,6 +186,9 @@ function renderFeatured(restoreDotFocus = false) {
   }
   if (restoreDotFocus) {
     qs('[data-featured-page="' + featuredPage + '"]', dots)?.focus();
+  }
+  if (available) {
+    void enrichVisibleFeatured();
   }
 }
 
@@ -403,7 +475,7 @@ async function loadFeed() {
       showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.' : 'Chưa có bài viết nào.');
       return;
     }
-    // Tự giới hạn trong lúc chờ endpoint riêng của Trang chủ nhận limit.
+    // Mới nhất, Hỏi đáp và Theo dõi tự giới hạn trong lúc chờ endpoint riêng của Trang chủ nhận limit.
     const visiblePosts = posts.slice(0, HOME_LATEST_LIMIT);
     feedList.replaceChildren(...visiblePosts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
@@ -522,6 +594,7 @@ async function initialize() {
 function leavePage(event) {
   if (!event.persisted) {
     feedVersion += 1;
+    featuredVersion += 1;
     feedController?.abort();
   }
 }

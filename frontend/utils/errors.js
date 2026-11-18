@@ -35,6 +35,10 @@ export function toVietnameseMessage(error) {
   if (/username too short/i.test(message)) {
     return 'Tên người dùng cần ít nhất 3 ký tự.';
   }
+  // Máy chủ từ chối @tên có chữ hoa, khoảng trắng, ký tự lạ hoặc dài quá 30 ký tự.
+  if (/username must be/i.test(message)) {
+    return '@tên người dùng gồm 3-30 ký tự: chữ thường a-z, số hoặc dấu gạch dưới.';
+  }
   if (/password too weak|weak password|password.*(?:8|short)/i.test(message)) {
     return 'Mật khẩu cần ít nhất 8 ký tự.';
   }

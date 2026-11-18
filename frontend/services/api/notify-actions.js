@@ -10,11 +10,13 @@
  * Staff cấm tài khoản              | banned        | Thành viên biết tài khoản bị cấm; gỡ cấm không gửi.
  * Staff khoá bình luận bài khác    | post_locked   | Tác giả biết bình luận bị khoá; mở khoá không gửi.
  * Staff ẩn hoặc xoá bài khác       | post_removed  | Tác giả biết bài nào bị gỡ; hiện lại không gửi.
+ * Đăng hoặc sửa nội dung có @tên   | mention       | Người được nhắc, tối đa 10 tên mỗi lần.
  * Mọi loại đều bỏ qua chính mình; lỗi phụ được bắt kín để thao tác đã lưu vẫn thành công.
  */
 import { request } from '/services/api/client.js';
-import { createNotification, notifyFollowers } from '/services/api/notifications.js';
+import { createMentions, createNotification, notifyFollowers } from '/services/api/notifications.js';
 import { getCachedUser, fetchCurrentUser } from '/utils/auth.js';
+import { listMentions, MENTION_LIMIT } from '/utils/mention.js';
 
 // Các thông báo quản trị chỉ được gửi khi hồ sơ hiện tại có vai trò staff.
 const staffKinds = new Set(['muted', 'banned', 'post_locked', 'post_removed']);
@@ -35,6 +37,23 @@ export async function notifyAfter(kind, details) {
     await createNotification({ kind, ...notification });
   } catch {
     // Thông báo là tác dụng phụ: không báo lỗi, ghi console hay đảo ngược thao tác chính.
+  }
+}
+
+/** Gửi thông báo cho các tên được nhắc sau khi lưu bài hoặc bình luận; lỗi không làm mất nội dung đã lưu. */
+export async function notifyMentions(target, content) {
+  try {
+    const names = listMentions(content);
+    if (!names.length) {
+      return;
+    }
+    const actor = getCachedUser() || await fetchCurrentUser();
+    const usernames = names.filter(name => name !== actor?.username).slice(0, MENTION_LIMIT);
+    if (actor && usernames.length) {
+      await createMentions({ ...target, usernames });
+    }
+  } catch {
+    // Nội dung đã lưu thành công, thiếu thông báo không được báo lỗi cho người viết.
   }
 }
 

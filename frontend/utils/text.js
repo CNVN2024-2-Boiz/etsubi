@@ -78,7 +78,8 @@ export function makeExcerpt(content, query = '', max = 220) {
   const text = richToPlainText(content)
     .replace(/!?\[([^\]]*)\]\([^)]*\)/gu, '$1')
     .replace(/^[ \t]*[>#\-+]+\s*/gmu, '')
-    .replace(/[`*_~]/gu, '')
+    // Bỏ ký hiệu Markdown nhưng giữ nguyên dấu _ trong @username.
+    .replace(/(@[a-z0-9_]{3,30})|[`*_~]/gu, (match, username) => username || '')
     .replace(/\s+/gu, ' ')
     .trim();
   const needle = String(query).trim().toLocaleLowerCase('vi');

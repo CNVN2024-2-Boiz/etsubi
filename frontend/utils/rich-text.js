@@ -221,6 +221,18 @@ export function richToPlainText(html) {
     .replace(/\n{3,}/g, '\n\n').trim();
 }
 
+/** Liệt kê các đoạn chữ nằm ngoài liên kết, dùng để nhận diện tên được nhắc trong nội dung. */
+export function richTextOutsideLinks(html) {
+  const pieces = [];
+  let linkDepth = 0;
+  for (const token of sanitizeTokens(html, { allowLinks: true })) {
+    if (token.open === 'a') linkDepth += 1;
+    else if (token.close === 'a') linkDepth -= 1;
+    else if (token.text !== undefined && !linkDepth) pieces.push(token.text);
+  }
+  return pieces;
+}
+
 /** Đếm từ theo khoảng trắng, riêng từng chữ Hán/Hiragana/Katakana tính một từ. */
 export function countWords(text) {
   // Token ch\u1ec9 g\u1ed3m d\u1ea5u c\u00e2u (d\u1ea5u ch\u1ea5m sau ch\u1eef Nh\u1eadt, g\u1ea1ch n\u1ed1i \u0111\u1ee9ng ri\u00eang) kh\u00f4ng t\u00ednh l\u00e0 t\u1eeb.

@@ -1,5 +1,15 @@
 /* Định dạng components cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
 
+/* Tên được nhắc trong nội dung đã đăng: nền hồng nhạt, chữ đỏ đậm; khung soạn không dùng lớp này. */
+.rich-content__mention {
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ===== Nút bấm (Button) ===== */
 
 /* Nút dùng inline-flex để căn giữa nhãn và biểu tượng; đệm và bo góc lấy từ token, chỉ chuyển nền ngắn khi tương tác. */

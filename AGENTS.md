@@ -51,6 +51,7 @@ frontend/
 │   ├── format.js                 # relative time, initials, highlight
 │   ├── rich-text.js              # sanitized HTML, safe DOM rendering, plain text and counters
 │   ├── html-entities.js          # HTML5 entity table for the pure sanitizer
+│   ├── mention.js                # @username detection, composer hint and highlight on published content
 │   ├── routes.js                 # every page URL + searchUrl({q, tags})
 │   └── preferences.js            # interface language + theme saved in the browser (header + Cài đặt)
 ├── styles/
@@ -208,7 +209,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
   - `API_BASE` defaults to `http://localhost:11432/api/v1`; override with `window.ETSUBI_API_BASE` or `localStorage['etsubi_api_base']`. (The front-end Dockerfile rewrites this default URL with `sed`, so keep the literal string.)
   - `request(path, { method, body, query, auth })` → parsed JSON or `null`; throws `ApiError { status, message, data }`. `status 0` = network/CORS error.
   - Adds `Authorization: Bearer <token>` when a token exists.
-  - The back end rate-limits **4 requests/s per IP (burst 7)**. `client.js` queues requests (max 3 in flight, ~250 ms spacing) and retries `429` up to 2 times with back-off. Do not fire unbounded parallel requests; enrich lists progressively.
+  - The back end rate-limits **20 requests/s per IP (burst 50)**. `client.js` queues requests (max 3 in flight, ~250 ms spacing), pauses the whole queue after a `429` and retries it up to 2 times with back-off. Do not fire unbounded parallel requests; enrich lists progressively.
 - **Token storage:** key `etsubi_token`. "Ghi nhớ đăng nhập" checked → `localStorage`; unchecked → `sessionStorage`. `getToken()` reads both. There is no refresh token: the JWT lives `JWT_EXPIRY_HOURS` (24h). Any `401` from a protected call clears the token and sends the user to Login with `?redirect=`.
 - **Error handling:** catch `ApiError` in the page module and show a Vietnamese message in the page's alert/field hint. Map known back-end messages (`Invalid credentials`, `Email already exists`, `Username already taken`, `Username too short`, `Account is banned`…) to Vietnamese in one place (`utils/errors.js`). Never `alert()`.
 - Build DOM with `document.createElement` / `<template>` or with template strings **only after** `escapeHtml()` on every dynamic value. Never inject API text with `innerHTML` unescaped.
@@ -342,13 +343,13 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 
 ### Users
 
-`users`: `id, username (unique @handle, e.g. `minhanh`; the front end allows `^[a-z0-9._]{3,30}$`, lower-cases and strips spaces while typing; 409 when taken), displayname (full name "Họ và tên", editable, shown everywhere a person appears; fall back to `@username` only when an API omits it), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint planned**: `avatar_url` stays a preset path or small resized data URL. Post/comment images use HTTPS links inside sanitized `content`. The server always lower-cases `username`. Phong will remove `email`, `language`, `muted_until` from the public `GET /users/{id}` response; private `GET /my` keeps them.
+`users`: `id, username (unique @handle, e.g. `minhanh`; new names must match `^[a-z0-9_]{3,30}$` (no dot, older accounts keep theirs), the front end lower-cases and strips spaces while typing; 409 when taken), displayname (full name "Họ và tên", editable, shown everywhere a person appears; fall back to `@username` only when an API omits it), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (UI language, default vi), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint planned**: `avatar_url` stays a preset path or small resized data URL. Post/comment images use HTTPS links inside sanitized `content`. The server rejects an invalid `username` with `400` and does not convert it, so the front end lower-cases and strips spaces before sending. New names cannot contain a dot on either side. Phong will remove `email`, `language`, `muted_until` from the public `GET /users/{id}` response; private `GET /my` keeps them.
 
 ### Hỗ trợ và nội dung (batch 10)
 
 - Hỗ trợ chỉ mở email tới `contact@etsubi.vn` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
 - Không có đặt lại mật khẩu bằng email. FAQ nói khôi phục mật khẩu đang phát triển và hướng dẫn liên hệ từ email đã đăng ký; link Quên mật khẩu ở Login giữ nguyên.
-- Dịch bài/bình luận theo `language` của người đọc; `native` chỉ dùng hiển thị. Bình luận sửa bằng `PATCH /comments/{id}` chỉ nhận `{ content }`; toạ độ và `place_name` của bình luận có thể bổ sung sau. `place_name` của bài viết đã được Phong đồng ý thêm.
+- Dịch bài/bình luận theo `language` của người đọc; `native` chỉ dùng hiển thị. Đăng và sửa bình luận gửi `{ content, latitude?, longitude? }`, `CommentResponse` trả lại toạ độ; `PATCH /comments/{id}` thiếu toạ độ là gỡ địa điểm của bình luận. `PATCH /posts/{id}` thiếu toạ độ là xoá địa điểm, nên luôn dựng dữ liệu bằng `buildPostEdit()`. `place_name` của bài viết đã được Phong đồng ý thêm.
 
 ### Search
 
@@ -364,6 +365,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 - The back end stores notifications but **does not create them**. After a successful user action, the front end sends the second request through `services/api/notify-actions.js` (never from a page): follow → `follow`, reaction → `reaction` (+ `emoji`), comment → `comment`, reply → `reply`, new post → `POST /posts/{id}/notify-followers`, staff mute/ban/lock/hide/delete → `muted` / `banned` / `post_locked` / `post_removed`. Skip when the target is the actor; swallow failures (a missed notification must never undo the action). Any new action that should notify someone goes through the same helper.
 - The header bell's red dot shows only when the unread count is above 0; it is hidden at 0, when signed out (no request), and when the request fails. Read/read-all/delete refresh the count.
 - Server links are back-end style (`/posts/{id}`, `/users/{id}`); always open them through `notificationHref()`.
+- **Mentions:** writers type `@username` by hand; there is no user suggestion list. Composers keep it as plain text. Render published content with `renderPostedContent()` or `markMentions()` from `utils/mention.js`, and send notifications through `notifyMentions()` after a successful save (10 names at most).
 
 ### RBAC summary
 

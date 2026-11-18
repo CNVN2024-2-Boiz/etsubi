@@ -289,6 +289,30 @@
   font-size: 13px;
 }
 
+/* Khung ngoài dùng flex để nút thẳng hàng với các ô số liệu bên cạnh. */
+.postcard-feed__share-box {
+  display: inline-flex;
+}
+
+/* Nút chia sẻ link cùng cỡ với ô số liệu nhưng không có số; hover đổi màu, không có chuyển động. */
+.postcard-feed__share {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-muted);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+/* Hover dùng màu thương hiệu giống các nút biểu tượng khác trên thẻ. */
+.postcard-feed__share:hover {
+  color: var(--color-red);
+}
+
 /* Nút chi tiết nhận khoảng trống linh hoạt để canh về phía bookmark. */
 .postcard-feed__detail {
   margin-left: auto;

@@ -7,7 +7,7 @@ import { requireAuth, login, logout, fetchCurrentUser } from '/utils/auth.js';
 import { toVietnameseMessage, fieldForError } from '/utils/errors.js';
 import { registerLeaveGuard, confirmLeave } from '/utils/leave-guard.js';
 import { initials } from '/utils/format.js';
-import { bindUsernameInput, normalizeUsername, isValidUsername, validateUsername, validateDisplayName, formatHandle } from '/utils/username.js';
+import { bindUsernameInput, normalizeUsername, validateUsername, validateDisplayName, formatHandle } from '/utils/username.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { vietnamPlaces, japanPlaces } from '/utils/places.js';
@@ -64,10 +64,16 @@ let localSavedAt = null;
 // Giữ mục vừa mở bằng neo khi cuối trang không còn đủ khoảng trống để cuộn đề mục lên sát trên.
 let navigationSection = location.hash.slice(1);
 
+/** Tài khoản cũ còn dấu chấm vẫn lưu được các mục khác; quy tắc mới chỉ áp dụng khi người dùng đổi @tên. */
+function usernameError(value) {
+  const username = normalizeUsername(value);
+  return username === serverValues?.username ? '' : validateUsername(username);
+}
+
 // Gợi ý mặc định được khôi phục khi huỷ hoặc khi người dùng sửa ô đang có lỗi.
 const defaultHints = {
   displayname: 'Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào',
-  username: 'Duy nhất · chữ thường, số, dấu . và _ · tối thiểu 3 ký tự',
+  username: 'Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự',
   email: 'Dùng để đăng nhập · đổi email áp dụng từ lần đăng nhập sau',
   bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
   native: 'Hiển thị bằng lá cờ cạnh tên bạn trên bài viết và bình luận',
@@ -259,7 +265,7 @@ function markSaved() {
 /** Đồng bộ tóm tắt và bộ đếm theo dữ liệu hiện tại, giữ phản hồi khi nhập của trang cũ. */
 function renderProfilePreview() {
   const values = readValues();
-  const complete = [Boolean(avatarUrl), isValidUsername(values.username) && !validateDisplayName(values.displayname), Boolean(values.institute), Boolean(values.address), Boolean(values.bio), Object.hasOwn(nativeLabels, values.native)];
+  const complete = [Boolean(avatarUrl), !usernameError(values.username) && !validateDisplayName(values.displayname), Boolean(values.institute), Boolean(values.address), Boolean(values.bio), Object.hasOwn(nativeLabels, values.native)];
   const percent = Math.round(complete.filter(Boolean).length / 6 * 100);
   const meter = qs('[data-progress]');
   meter.style.setProperty('--progress', percent + '%');
@@ -360,7 +366,7 @@ function validateSection(section) {
   const errors = {};
   if (section === 'account') {
     errors.displayname = validateDisplayName(values.displayname);
-    errors.username = validateUsername(normalizeUsername(values.username));
+    errors.username = usernameError(values.username);
     errors.email = values.email.trim() && input('email').validity.valid ? '' : 'Vui lòng nhập địa chỉ email hợp lệ.';
     errors.bio = values.bio.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.';
   } else if (section === 'native') {

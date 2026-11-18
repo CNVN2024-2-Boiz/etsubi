@@ -26,7 +26,7 @@ import { routes, withRedirect } from '/utils/routes.js';
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
 mountFooter();
 
-// Tab Mới nhất tải từng trang 10 bài; các endpoint riêng phục vụ Diễn đàn không phân trang, hiện backend tạm cắt 3 bài.
+// Tab Mới nhất tải từng trang 10 bài; tab Phổ biến hiện cả danh sách ghép tối đa 15 bài, không có trang tiếp theo.
 const PAGE_SIZE = 10;
 const feedList = qs('[data-feed-list]');
 const feedStatus = qs('[data-feed-status]');
@@ -147,7 +147,7 @@ function feedCard(post, author, postTags = [], stats = null, bookmarked = null) 
   });
 }
 
-/** Bổ sung tác giả, tag và số lượt thích cho từng bài lần lượt (tôn trọng giới hạn 4 yêu cầu/giây). */
+/** Bổ sung tác giả, tag và số lượt thích cho từng bài lần lượt (không gửi dồn để tránh vượt giới hạn của máy chủ). */
 async function enrichFeed(posts, version) {
   for (const post of posts) {
     if (version !== feedVersion) {

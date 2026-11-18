@@ -5,9 +5,9 @@ export function normalizeUsername(value) {
   return String(value ?? '').toLowerCase().replace(/\s/gu, '').replace(/^@+/u, '');
 }
 
-/** Handle chỉ nhận chữ Latin thường, số, dấu chấm và gạch dưới trong 3 đến 30 ký tự. */
+/** Handle mới chỉ nhận chữ Latin thường, số và gạch dưới trong 3 đến 30 ký tự; không có dấu chấm để @tag cuối câu không bị dính. */
 export function isValidUsername(value) {
-  return typeof value === 'string' && /^[a-z0-9._]{3,30}$/u.test(value);
+  return typeof value === 'string' && /^[a-z0-9_]{3,30}$/u.test(value);
 }
 
 /** Trả lời nhắc tiếng Việt riêng cho từng nguyên nhân để các biểu mẫu dùng cùng quy tắc. */
@@ -23,7 +23,7 @@ export function validateUsername(value) {
     return 'Tên người dùng không được vượt quá 30 ký tự.';
   }
   if (!isValidUsername(text)) {
-    return 'Tên người dùng chỉ gồm chữ thường, số, dấu . và _.';
+    return 'Tên người dùng chỉ gồm chữ thường, số và dấu _.';
   }
   return '';
 }

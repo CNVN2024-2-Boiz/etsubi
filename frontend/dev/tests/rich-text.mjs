@@ -180,7 +180,7 @@ assert.equal(edited(null, null), false);
 const labelModule = await load('/utils/stat-label.js'); await labelModule.evaluate();
 const label = labelModule.namespace.statLabel;
 assert.equal(label(12, 'Số bình luận'), '12 bình luận');
-assert.equal(label(3, 'Số lượt chia sẻ'), '3 lượt chia sẻ');
+assert.equal(label(3, 'Số lượt thích'), '3 lượt thích');
 assert.equal(label(1, 'lượt thích'), '1 lượt thích');
 assert.equal(label(0, 'bình luận'), '0 bình luận');
 for (const value of [undefined, null, NaN, Infinity, '12']) assert.equal(label(value, 'bình luận'), 'Số bình luận · chưa có dữ liệu');

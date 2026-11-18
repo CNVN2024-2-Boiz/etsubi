@@ -2,6 +2,7 @@
 import { el } from '/utils/dom.js';
 import { sanitizeRichHtml, renderRichContent, richToPlainText, countWords, countChars, safeRichUrl, safeImageUrl, imageDimension } from '/utils/rich-text.js';
 import { openImageDialog } from '/components/rich-editor/image-dialog.js';
+import { mentionHint } from '/utils/mention.js';
 
 // Các nét Lucide cố định, không chứa dữ liệu người dùng hoặc HTML API.
 const PATHS = {
@@ -48,10 +49,13 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   const toolbar = el('div', { className: 'rich-editor__toolbar', role: 'toolbar', 'aria-label': 'Định dạng ' + label });
   const media = el('div', { className: 'rich-media rich-editor__media', 'data-editor-media': '' });
   const count = el('p', { className: 'rich-editor__counter' });
+  // Dòng gợi ý chỉ nhắc cú pháp @username; khi soạn, tên được nhắc vẫn là chữ thường.
+  const mentionNote = el('p', { className: 'rich-editor__mention-hint', role: 'status' }, mentionHint('').text);
+  const footer = el('div', { className: 'rich-editor__footer' }, mentionNote, count);
   const popover = el('div', { className: 'rich-editor__popover', hidden: true });
   const toolGroup = el('div', { className: 'rich-editor__tools' }, toolbar, popover);
   const body = el('div', { className: 'rich-editor__body' }, area, media);
-  const root = el('div', { className: 'rich-editor', 'data-rich-editor': '' }, toolGroup, body, count);
+  const root = el('div', { className: 'rich-editor', 'data-rich-editor': '' }, toolGroup, body, footer);
   const buttons = new Map();
   let savedRange = null;
   let activePopover = null;
@@ -83,6 +87,9 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
     const text = getPlainText();
     area.dataset.empty = String(!text.trim() && !area.querySelector('img'));
     count.textContent = counter === 'comment' ? countWords(text) + ' chữ' : countWords(text) + ' từ · ' + countChars(text) + ' ký tự';
+    const hint = mentionHint(getHtml());
+    mentionNote.textContent = hint.text;
+    mentionNote.classList.toggle('is-warning', hint.warning);
     rememberSelection();
     updatePressed();
     onChange();

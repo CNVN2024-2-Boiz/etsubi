@@ -150,11 +150,11 @@ assert.equal(focused, 'input:username');
 
 // Chỉ mục account gửi hai tên, không kéo native đang sửa vào PATCH.
 input('displayname').value = 'Tên mới';
-input('username').value = 'next.handle';
+input('username').value = 'next_handle';
 input('native').value = 'ja';
-response = { ...base, username: 'next.handle' };
+response = { ...base, username: 'next_handle' };
 await testing.saveSection('account');
-assert.deepEqual(requests[0], { displayname: 'Tên mới', username: 'next.handle' });
+assert.deepEqual(requests[0], { displayname: 'Tên mới', username: 'next_handle' });
 assert.equal(testing.snapshot().displayname, base.displayname);
 assert.equal(input('displayname').value, base.displayname);
 assert.equal(input('native').value, 'ja');
@@ -164,7 +164,7 @@ assert.equal(testing.sectionIsDirty('native'), true);
 assert.equal(node('[data-displayname-note]').hidden, false);
 assert.equal(node('[data-displayname-note]').textContent, 'Máy chủ chưa lưu được tên hiển thị.');
 assert.equal(node('summary:displayname').textContent, base.displayname);
-assert.equal(node('summary:username').textContent, '@next.handle');
+assert.equal(node('summary:username').textContent, '@next_handle');
 
 // Khi backend sửa xong thì tên thật được chấp nhận và ghi chú tự biến mất.
 input('displayname').value = 'Tên đã lưu';
@@ -176,14 +176,14 @@ assert.equal(node('[data-displayname-note]').hidden, true);
 assert.equal(testing.sectionIsDirty('native'), true);
 
 // 409 giữ nguyên dữ liệu đang sửa, gắn vào username; huỷ chỉ phục hồi mục account.
-input('username').value = 'taken.handle';
+input('username').value = 'taken_handle';
 failure = { status: 409, message: 'Username already taken' };
 await testing.saveSection('account');
 assert.equal(input('username').getAttribute('aria-invalid'), 'true');
-assert.equal(input('username').value, 'taken.handle');
-assert.equal(testing.snapshot().username, 'next.handle');
+assert.equal(input('username').value, 'taken_handle');
+assert.equal(testing.snapshot().username, 'next_handle');
 testing.resetSection('account');
-assert.equal(input('username').value, 'next.handle');
+assert.equal(input('username').value, 'next_handle');
 assert.equal(input('native').value, 'ja');
 assert.equal(testing.sectionIsDirty('account'), false);
 // Phản hồi thiếu hồ sơ cũng không được nhận patch.displayname như dữ liệu đã lưu.

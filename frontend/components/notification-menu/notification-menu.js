@@ -13,6 +13,7 @@ const iconPaths = Object.freeze({
   reaction: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/>',
   comment: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
   reply: '<path d="m9 10-5 5 5 5M4 15h11a5 5 0 0 0 0-10h-1"/>',
+  mention: '<circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/>',
   muted: '<path d="m11 5-5 4H3v6h3l5 4Z"/><path d="m23 9-6 6m0-6 6 6"/>',
   banned: '<circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/>',
   post_locked: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
@@ -45,8 +46,8 @@ export function createNotificationItem(notification, { signal, page = false, onF
     'aria-hidden': 'true',
   }, formatted.isSystem ? 'QT' : formatted.initials);
   // Chỉ dùng ảnh thật khi API đã cung cấp; ảnh lỗi trở về chữ, không gọi thêm API cho từng hàng.
-  if (!formatted.isSystem && notification.actor?.avatar_url) {
-    const image = el('img', { src: notification.actor.avatar_url, alt: formatted.actorName || '' });
+  if (formatted.avatarUrl) {
+    const image = el('img', { src: formatted.avatarUrl, alt: formatted.actorName || '' });
     image.addEventListener('error', () => avatar.replaceChildren(formatted.initials), { once: true, signal });
     avatar.replaceChildren(image);
   }
