@@ -15,7 +15,9 @@ export function getMe() {
  * @returns {Promise<object>} Hồ sơ sau cập nhật.
  */
 export function updateMe(patch) {
-  return request('/my', { method: 'PATCH', body: patch });
+  // Backend dịch bài theo language, nên đổi ngôn ngữ mẹ đẻ thì gửi kèm language cùng giá trị.
+  const body = Object.hasOwn(patch, 'native') ? { ...patch, language: patch.native } : patch;
+  return request('/my', { method: 'PATCH', body });
 }
 
 // Lưu cả Promise để nhiều thẻ cùng tác giả không gửi trùng yêu cầu đang chờ.

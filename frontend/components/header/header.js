@@ -5,7 +5,7 @@ import { routes, searchUrl, withRedirect } from '/utils/routes.js';
 import { getCachedUser, fetchCurrentUser, logout } from '/utils/auth.js';
 // Guard dùng chung cho các trang có dữ liệu chưa lưu, không import trực tiếp trang Cài đặt.
 import { confirmLeave } from '/utils/leave-guard.js';
-import { getInterfaceLanguage, setInterfaceLanguage, onInterfaceLanguageChange } from '/utils/preferences.js';
+import { createLanguageMenu } from '/components/header/language-menu.js';
 import { initials } from '/utils/format.js';
 import { getUnreadCount } from '/services/api/notifications.js';
 import { createNotificationMenu, notificationIcon } from '/components/notification-menu/notification-menu.js';
@@ -138,6 +138,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   const menuId = 'header-menu-' + (++headerCount);
   const profileId = 'header-profile-' + headerCount;
   const notificationId = 'header-notifications-' + headerCount;
+  const languageId = 'header-language-' + headerCount;
   let notificationMenu = null;
   let bellButton = null;
   let sessionEvents = null;
@@ -171,23 +172,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }, icon('search-white')));
   }
 
-  // Dùng nguồn tuỳ chọn chung để header và Cài đặt đồng bộ cả trong trang lẫn giữa các tab.
-  const languages = ['vi', 'ja', 'en'];
-  let language = getInterfaceLanguage();
-  const languageButton = el('button', {
-    type: 'button',
-    className: 'site-header__language',
-    'aria-label': 'Đổi ngôn ngữ',
-  }, language.toUpperCase());
-  // Hàm đăng ký tự huỷ cùng header để việc dựng lại không nhân đôi lắng nghe.
-  onInterfaceLanguageChange(next => {
-    language = next;
-    languageButton.textContent = language.toUpperCase();
-  }, signal);
-  // Bấm nút luân phiên VI, JA, EN qua API tuỳ chọn, chưa dịch nội dung khi thiếu từ điển.
-  languageButton.addEventListener('click', () => {
-    setInterfaceLanguage(languages[(languages.indexOf(language) + 1) % languages.length]);
-  }, { signal });
+  // Dropdown dùng nguồn tuỳ chọn chung với Cài đặt, mở ra thì các menu khác của header tự đóng.
+  const languageMenu = createLanguageMenu({ id: languageId, signal, beforeOpen: () => closeMenus() });
 
   // Menu dùng id riêng cho mỗi header để aria-controls luôn trỏ đúng vùng.
   const session = el('div', {
@@ -213,7 +199,9 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
   /** Đóng mọi menu; Escape hoặc click ngoài trả focus về nút đã mở bảng. */
   function closeMenus(restoreFocus = false) {
     const profile = qs('[data-profile-menu]', session);
-    if (restoreFocus) {
+    const languageWasOpen = languageMenu.isOpen();
+    languageMenu.close(restoreFocus);
+    if (restoreFocus && !languageWasOpen) {
       if (!mobileNav.hidden) {
         menuButton.focus();
       } else if (profile && !profile.hidden) {
@@ -260,7 +248,7 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     session.replaceChildren();
     if (!user) {
       // Chưa đăng nhập: nút ngôn ngữ đứng ngay trước liên kết "Đăng nhập".
-      utils.insertBefore(languageButton, session);
+      utils.insertBefore(languageMenu.element, session);
       if (!hideAuthLink) {
         session.append(el('a', {
           className: 'site-header__login',
@@ -419,11 +407,11 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
       }
     }, { signal: sessionSignal });
     // Thứ tự đúng Figma Home 4: chuông, huy hiệu ngôn ngữ (VI/JA/EN), rồi avatar.
-    session.append(bell, languageButton, avatar, menu);
+    session.append(bell, languageMenu.element, avatar, menu);
   }
 
   // Thứ tự nút và liên kết giữ nguyên theo thiết kế để tab bàn phím đi đúng thứ tự.
-  utils.append(languageButton, session, menuButton);
+  utils.append(languageMenu.element, session, menuButton);
   target.replaceChildren(brand);
   // Form chỉ chuyển trang khi gửi; input chỉ bật tắt nút, không gửi yêu cầu gợi ý.
   if (searchForm) {
@@ -479,7 +467,8 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     const profile = qs('[data-profile-menu]', session);
     const outsideProfile = profile && !profile.hidden
       && !path.includes(profile) && !path.includes(qs('[data-avatar-button]', session));
-    if (!path.includes(target) || outsideNotifications || outsideProfile) {
+    const outsideLanguage = languageMenu.isOpen() && !path.includes(languageMenu.element);
+    if (!path.includes(target) || outsideNotifications || outsideProfile || outsideLanguage) {
       closeMenus(true);
     }
   }, { signal });
@@ -502,10 +491,12 @@ export function mountHeader(target = qs('[data-component="header"]'), options = 
     }
   }, { signal });
 
-  // Khi trở lại desktop, đóng menu di động để không giữ bảng nổi không còn cần thiết.
+  // Khi trở lại desktop, đóng menu di động; màn hẹp ẩn nút ngôn ngữ nên cũng đóng danh sách của nút.
   window.addEventListener('resize', () => {
     if (window.innerWidth > 960) {
       closeMenus();
+    } else if (window.innerWidth <= 600) {
+      languageMenu.close();
     }
   }, { signal });
   return target;

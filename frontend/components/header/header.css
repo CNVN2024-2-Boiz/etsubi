@@ -130,17 +130,119 @@
   background: var(--color-white-15);
 }
 
-/* Nhãn ngôn ngữ có khung cố định, bo góc và nền trắng trong để VI, JA, EN không đổi chiều rộng. */
+/* Vùng bao làm mốc cho danh sách; lề trên 1px đưa nút về số điểm ảnh nguyên để chữ không lệch lên. */
+.site-header__language-picker {
+  position: relative;
+  display: inline-flex;
+  margin-top: var(--header-language-nudge);
+}
+
+/* Nút có khung cố định để VI, JA, EN không đổi chiều rộng; đệm trái bù phần trống trong icon mũi tên. */
 .site-header__language {
-  width: 72px;
-  height: 36px;
-  padding: var(--space-1) var(--button-small-y);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: var(--header-language-width);
+  height: var(--header-language-height);
+  padding: 0 0 0 var(--header-language-icon-offset);
   border: 0;
   border-radius: var(--radius-language);
   background: var(--color-white-15);
   color: var(--color-white);
   font-size: 13px;
   font-weight: 600;
+  line-height: var(--header-language-line-height);
+}
+
+/* Nền sáng hơn khi rê chuột cho thấy nút bấm được mà không làm nút dịch chuyển. */
+.site-header__language:hover {
+  background: var(--color-white-24);
+}
+
+/* Trạng thái đang mở sáng nhất để nối nút với danh sách bên dưới. */
+.site-header__language[aria-expanded="true"] {
+  background: var(--color-white-28);
+}
+
+/* Mũi tên quay lên khi danh sách đang mở, không dùng chuyển động. */
+.site-header__language[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+/* Vòng focus màu trắng vì vòng đỏ chung không nhìn thấy trên nền header đỏ. */
+.site-header__language:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-header);
+}
+
+/* Danh sách rộng 168px, căn phải theo nút và cách đáy header 8px giống menu tài khoản. */
+.site-header__language-menu {
+  position: absolute;
+  top: calc(100% + (var(--header-height) - var(--header-language-height) - var(--header-language-nudge)) / 2 + var(--space-2));
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--header-language-menu-gap);
+  width: var(--header-language-menu-width);
+  padding: var(--header-language-menu-padding);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--notif-panel-radius);
+  box-shadow: var(--shadow-card);
+}
+
+/* Giữ danh sách ẩn thật sự vì quy tắc flex phía trên có thể ghi đè thuộc tính hidden. */
+.site-header__language-menu[hidden] {
+  display: none;
+}
+
+/* Mỗi dòng cao 40px, tên nằm bên trái và dấu tick nằm bên phải. */
+.site-header__language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--header-language-option-height);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-transparent);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Rê chuột hoặc dùng bàn phím chỉ đổi nền và màu chữ, dòng không đổi kích thước. */
+.site-header__language-option:hover,
+.site-header__language-option:focus-visible {
+  background: var(--color-sakura);
+  color: var(--color-red);
+}
+
+/* Vòng focus chung giúp thấy dòng đang đứng khi dùng phím mũi tên. */
+.site-header__language-option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Dòng đang chọn có nền hồng, chữ đỏ đậm hơn để phân biệt với dòng đang rê chuột. */
+.site-header__language-option[aria-checked="true"] {
+  background: var(--color-sakura);
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+/* Dấu tick giữ nguyên kích thước khi tên ngôn ngữ thay đổi. */
+.site-header__language-option svg {
+  flex-shrink: 0;
+}
+
+/* Dòng chưa chọn ẩn dấu tick nhưng vẫn giữ chỗ để chữ các dòng thẳng hàng. */
+.site-header__language-option[aria-checked="false"] svg {
+  visibility: hidden;
 }
 
 /* Liên kết đăng nhập dùng chữ trắng đậm vừa và không xuống dòng để nằm gọn trong nhóm công cụ. */
@@ -421,8 +523,8 @@
     background: var(--color-white-20);
   }
 
-  /* Ẩn huy hiệu ngôn ngữ trên mobile, giữ chuông để vẫn đọc thông báo được. */
-  .site-header__language {
+  /* Ẩn nút ngôn ngữ trên mobile, người dùng đổi trong Cài đặt và vẫn giữ chuông để đọc thông báo. */
+  .site-header__language-picker {
     display: none;
   }
 

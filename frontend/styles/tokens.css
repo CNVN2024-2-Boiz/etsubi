@@ -402,6 +402,9 @@
   --color-white-85: rgba(255,255,255,.85);
   --color-white-70: rgba(255,255,255,.7);
   --color-white-68: rgba(255,255,255,.68);
+  --color-white-60: rgba(255,255,255,.6);
+  --color-white-28: rgba(255,255,255,.28);
+  --color-white-24: rgba(255,255,255,.24);
   --color-white-20: rgba(255,255,255,.2);
   --color-white-15: rgba(255,255,255,.15);
   --color-red-40: rgba(194,69,79,.4);
@@ -686,6 +689,18 @@
   --header-avatar-size: 38px;
   --header-profile-width: 280px;
   --header-profile-avatar-size: 44px;
+  /* Kích thước nút và danh sách ngôn ngữ giao diện theo Figma Đợt 13. */
+  --header-language-width: 72px;
+  --header-language-height: 36px;
+  --header-language-line-height: 20px;
+  --header-language-nudge: 1px;
+  --header-language-icon-offset: 3px;
+  --header-language-menu-width: 168px;
+  /* Đệm 5px cộng viền 1px bằng đúng 6px tính từ mép ngoài như Figma. */
+  --header-language-menu-padding: 5px;
+  --header-language-menu-gap: 2px;
+  --header-language-option-height: 40px;
+  --focus-ring-header: 0 0 0 3px var(--color-white-60);
   --shadow-header-avatar-open: 0 0 0 5px var(--color-white-20);
 
   /* Nút Google ở Login/Register: lùi 10px mỗi bên so với form, rộng 398.4px như Figma. */

@@ -1,7 +1,6 @@
 /** Khởi tạo trang đăng ký, tự đăng nhập rồi chuyển sang bước bổ sung hồ sơ. */
 import { initAuthPage } from '/utils/auth-page.js';
 import { registerAndLogin, login, safeRedirect } from '/utils/auth.js';
-import { readStorage } from '/services/api/client.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { qs } from '/utils/dom.js';
 
@@ -12,10 +11,8 @@ let createdEmail = null;
 initAuthPage({
   mode: 'register',
   copyLines: ['Cùng khám phá văn hoá Việt – Nhật', 'cùng cộng đồng sinh viên.'],
-  /** Đăng ký với ngôn ngữ đã chọn; nếu tài khoản đã tạo thì chỉ thử đăng nhập lại. */
+  /** Đăng ký với tiếng Việt mặc định, người dùng chọn ngôn ngữ mẹ đẻ ở bước sau; tài khoản đã tạo thì chỉ thử đăng nhập lại. */
   async onSubmit(values, { redirect, showInfo }) {
-    const storedLanguage = readStorage('etsubi_lang');
-    const language = ['vi', 'ja', 'en'].includes(storedLanguage) ? storedLanguage : 'vi';
     try {
       if (createdEmail === values.email) {
         await login(values.email, values.password, { remember: true });
@@ -26,7 +23,6 @@ initAuthPage({
           email: values.email,
           password: values.password,
           native: 'vi',
-          language,
         }, { remember: true });
       }
     } catch (error) {
