@@ -10,6 +10,9 @@ pub enum AuthError {
     #[error("Username too short")]
     UsernameTooShort,
 
+    #[error("Username must be 3-30 characters, lowercase a-z, 0-9, dot or underscore")]
+    InvalidUsername,
+
     #[error("Email already exists")]
     EmailAlreadyExists,
 
@@ -48,6 +51,7 @@ impl ResponseError for AuthError {
             AuthError::AccountBanned => StatusCode::FORBIDDEN,
             AuthError::UserNotFound => StatusCode::NOT_FOUND,
             AuthError::UsernameTooShort
+            | AuthError::InvalidUsername
             | AuthError::WeakPassword
             | AuthError::InvalidLanguage
             | AuthError::DisplaynameTooLong
