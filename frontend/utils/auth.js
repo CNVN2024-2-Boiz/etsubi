@@ -3,6 +3,7 @@ import * as api from '/services/api/auth.js';
 import { getMe } from '/services/api/users.js';
 import { getToken, setToken, clearToken, onUnauthorized, ApiError } from '/services/api/client.js';
 import { routes, withRedirect } from '/utils/routes.js';
+import { t } from '/utils/i18n.js';
 
 // Giữ các tên cũ để những trang đang dùng tiện ích auth không bị đứt liên kết.
 export const LOGIN_URL = routes.login;
@@ -129,7 +130,7 @@ export async function fetchCurrentUser() {
 export async function login(email, password, { remember = true } = {}) {
   const result = await api.login({ email, password });
   if (!result?.token) {
-    throw new ApiError(502, 'Máy chủ không trả về phiên đăng nhập.');
+    throw new ApiError(502, t('Máy chủ không trả về phiên đăng nhập.'));
   }
   setToken(result.token, { remember });
   try {

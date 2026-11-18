@@ -93,6 +93,11 @@ stub('/utils/preferences.js', {
   getThemePreference: () => 'light', setThemePreference() {}, getInterfaceLanguage: () => 'vi',
   setInterfaceLanguage() {}, onInterfaceLanguageChange() {},
 });
+// Test chạy bằng tiếng Việt nên t() chỉ điền giá trị vào câu gốc.
+stub('/utils/i18n.js', {
+  t: (source, params = {}) => source.replace(/\{(\w+)\}/g, (match, name) => params[name] ?? match),
+  currentLocale: () => 'vi-VN', currentLanguage: () => 'vi', changeInterfaceLanguage() {}, translatePage() {},
+});
 stub('/services/api/users.js', {
   getMe() {}, changeMyPassword() {}, deleteMyAccount() {}, getProfileUpdatedAt: () => null,
   /** Ghi PATCH và mô phỏng cả phản hồi bỏ qua displayname lẫn lỗi trùng username. */

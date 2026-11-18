@@ -1,5 +1,6 @@
 /** Bản đồ dùng Leaflet vendored, chỉ nạp khi thật sự cần hiển thị bản đồ. */
 import { editorIcon } from '/components/rich-editor/rich-editor.js';
+import { t } from '/utils/i18n.js';
 
 /** Tạo map không hiệu ứng; icon DOM cố định tránh marker xanh mặc định của Leaflet. */
 export async function createPlaceMap(container, { latitude = 10.7769, longitude = 106.7009, zoom = 12, interactive = true, onMove = () => {} } = {}) {
@@ -30,7 +31,7 @@ export async function createPlaceMap(container, { latitude = 10.7769, longitude 
   /** Cập nhật ghim không pan hoạt ảnh, tuỳ chọn đưa tâm về kết quả tìm kiếm. */
   function setPoint(lat, lon, center = false) {
     if (!marker) {
-      marker = L.marker([lat, lon], { icon, draggable: interactive, keyboard: interactive, title: 'Địa điểm đã chọn', autoPan: false }).addTo(map);
+      marker = L.marker([lat, lon], { icon, draggable: interactive, keyboard: interactive, title: t('Địa điểm đã chọn'), autoPan: false }).addTo(map);
       marker.on('dragend', () => { const point = marker.getLatLng(); onMove(point.lat, point.lng); });
     } else marker.setLatLng([lat, lon]);
     if (center) map.setView([lat, lon], 16, { animate: false });

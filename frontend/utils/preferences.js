@@ -2,7 +2,24 @@
  * Tuỳ chọn giao diện lưu trong trình duyệt (ngôn ngữ giao diện, chế độ hiển thị).
  * Header và trang Cài đặt cùng đọc/ghi ở đây để hai nơi luôn khớp nhau.
  */
-import { readStorage, writeStorage } from '/services/api/client.js';
+
+/** Đọc tuỳ chọn trong trình duyệt; bộ nhớ bị chặn thì coi như chưa chọn. */
+function readStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+/** Ghi tuỳ chọn trong trình duyệt; bộ nhớ bị chặn thì trang vẫn hoạt động bình thường. */
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Chế độ riêng tư có thể chặn ghi, lựa chọn chỉ có hiệu lực trong lần xem này.
+  }
+}
 
 // Khoá lưu trữ dùng chung; header đã dùng etsubi_lang từ batch 1 nên giữ nguyên tên.
 const LANGUAGE_KEY = 'etsubi_lang';

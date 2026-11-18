@@ -6,6 +6,7 @@
 import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { el } from '/utils/dom.js';
 import { toVietnameseMessage } from '/utils/errors.js';
+import { t } from '/utils/i18n.js';
 
 // Biểu tượng Lucide (24 viewBox, nét 2px, theo màu chữ); chuỗi cố định, không chứa dữ liệu người dùng.
 const ICONS = {
@@ -48,7 +49,7 @@ export function modIcon(name, size = 16) {
 
 // Thứ bậc vai trò: admin > moderator > user.
 const ROLE_RANK = { user: 0, moderator: 1, admin: 2 };
-export const ROLE_LABELS = { user: 'Thành viên', moderator: 'Điều hành viên', admin: 'Quản trị viên' };
+export const ROLE_LABELS = { user: t('Thành viên'), moderator: t('Điều hành viên'), admin: t('Quản trị viên') };
 
 /** Người xem có phải staff (Điều hành viên hoặc Quản trị viên) không. */
 export function isStaff(viewer) {
@@ -89,9 +90,9 @@ export function formatRemaining(value) {
   const days = Math.floor(minutes / 1440);
   const hours = Math.floor((minutes % 1440) / 60);
   if (days) {
-    return 'Còn ' + days + ' ngày' + (hours ? ' ' + hours + ' giờ' : '');
+    return hours ? t('Còn {days} ngày {hours} giờ', { days, hours }) : t('Còn {days} ngày', { days });
   }
-  return 'Còn ' + (hours ? hours + ' giờ ' : '') + (minutes % 60) + ' phút';
+  return hours ? t('Còn {hours} giờ {minutes} phút', { hours, minutes: minutes % 60 }) : t('Còn {minutes} phút', { minutes: minutes % 60 });
 }
 
 /** Người dùng đang bị tắt tiếng (muted_until còn trong tương lai). */
@@ -103,16 +104,16 @@ export function isMutedNow(mutedUntil) {
 
 /** Nhãn đen "Chỉ Mod/Admin thấy" với icon khiên. */
 export function createStaffTag() {
-  return el('span', { className: 'staff-tag' }, modIcon('shield', 12), 'Chỉ Mod/Admin thấy');
+  return el('span', { className: 'staff-tag' }, modIcon('shield', 12), t('Chỉ Mod/Admin thấy'));
 }
 
 // Icon và chữ mặc định của từng loại nhãn trạng thái.
 const BADGES = {
-  muted: ['mute', 'Đang bị tắt tiếng'],
-  banned: ['ban', 'Đã bị cấm'],
-  hidden: ['eyeOff', 'Đã ẩn'],
-  deleted: ['trash', 'Đã xoá'],
-  locked: ['lock', 'Đã khoá bình luận'],
+  muted: ['mute', t('Đang bị tắt tiếng')],
+  banned: ['ban', t('Đã bị cấm')],
+  hidden: ['eyeOff', t('Đã ẩn')],
+  deleted: ['trash', t('Đã xoá')],
+  locked: ['lock', t('Đã khoá bình luận')],
 };
 
 /**
@@ -280,8 +281,8 @@ export function openConfirmDialog({ icon, tone = 'red', title, subtitle, body = 
   return new Promise(resolve => {
     const error = el('p', { className: 'mod-dialog__error', role: 'alert', hidden: true });
     const confirm = el('button', { type: 'submit', className: 'mod-dialog__confirm' }, confirmIcon ? modIcon(confirmIcon, 16) : null, el('span', {}, confirmLabel));
-    const cancel = el('button', { type: 'button', className: 'mod-dialog__cancel' }, 'Huỷ');
-    const close = el('button', { type: 'button', className: 'mod-dialog__close', 'aria-label': 'Đóng' }, modIcon('x', 20));
+    const cancel = el('button', { type: 'button', className: 'mod-dialog__cancel' }, t('Huỷ'));
+    const close = el('button', { type: 'button', className: 'mod-dialog__close', 'aria-label': t('Đóng') }, modIcon('x', 20));
     const titleId = 'mod-dialog-title-' + (++menuCount);
     const form = el('form', { className: 'mod-dialog__panel', method: 'dialog', novalidate: true },
       el('div', { className: 'mod-dialog__head' },
@@ -357,13 +358,13 @@ export function openConfirmDialog({ icon, tone = 'red', title, subtitle, body = 
  * @param {boolean} extend true nếu đang gia hạn (đổi tiêu đề).
  */
 export function openMuteDialog(user, onConfirm, extend = false) {
-  const options = [['1 giờ', 1], ['24 giờ', 24], ['7 ngày', 24 * 7], ['30 ngày', 24 * 30]];
+  const options = [[t('1 giờ'), 1], [t('24 giờ'), 24], [t('7 ngày'), 24 * 7], [t('30 ngày'), 24 * 30]];
   let hours = 24;
   let custom = null;
   const until = el('p', { className: 'mod-dialog__until' }, modIcon('clock', 16), el('span', {}));
-  const customInput = el('input', { type: 'datetime-local', className: 'input mod-dialog__custom', 'aria-label': 'Thời điểm hết hạn tuỳ chỉnh', hidden: true });
-  const chips = el('div', { className: 'mod-dialog__chips', role: 'radiogroup', 'aria-label': 'Thời hạn' });
-  const confirmLabel = () => (custom ? 'Tắt tiếng đến mốc đã chọn' : 'Tắt tiếng ' + options.find(([, value]) => value === hours)?.[0]);
+  const customInput = el('input', { type: 'datetime-local', className: 'input mod-dialog__custom', 'aria-label': t('Thời điểm hết hạn tuỳ chỉnh'), hidden: true });
+  const chips = el('div', { className: 'mod-dialog__chips', role: 'radiogroup', 'aria-label': t('Thời hạn') });
+  const confirmLabel = () => (custom ? t('Tắt tiếng đến mốc đã chọn') : t('Tắt tiếng {duration}', { duration: options.find(([, value]) => value === hours)?.[0] }));
 
   /** Thời điểm hết hạn đang chọn. */
   function target() {
@@ -379,14 +380,14 @@ export function openMuteDialog(user, onConfirm, extend = false) {
     }
     customInput.hidden = custom === null;
     const date = target();
-    until.lastChild.textContent = Number.isNaN(date.getTime()) ? 'Chọn thời điểm hết hạn' : 'Hết hạn lúc ' + formatUntilFull(date);
+    until.lastChild.textContent = Number.isNaN(date.getTime()) ? t('Chọn thời điểm hết hạn') : t('Hết hạn lúc {time}', { time: formatUntilFull(date) });
     const label = document.querySelector('.mod-dialog .mod-dialog__confirm span');
     if (label) {
       label.textContent = confirmLabel();
     }
   }
 
-  for (const [label, value] of [...options, ['Tuỳ chỉnh…', 'custom']]) {
+  for (const [label, value] of [...options, [t('Tuỳ chỉnh…'), 'custom']]) {
     const chip = el('button', { type: 'button', role: 'radio', className: 'mod-dialog__chip', 'data-value': String(value), 'data-autofocus': value === 24 ? '' : null }, label);
     // Bấm chip: chọn thời hạn có sẵn, hoặc mở ô chọn ngày giờ tuỳ chỉnh.
     chip.addEventListener('click', () => {
@@ -408,11 +409,11 @@ export function openMuteDialog(user, onConfirm, extend = false) {
   const promise = openConfirmDialog({
     icon: 'mute',
     tone: 'amber',
-    title: (extend ? 'Gia hạn tắt tiếng ' : 'Tắt tiếng ') + getAuthorLabel(user),
-    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · ' + getAuthorHandle(user),
+    title: extend ? t('Gia hạn tắt tiếng {name}', { name: getAuthorLabel(user) }) : t('Tắt tiếng {name}', { name: getAuthorLabel(user) }),
+    subtitle: (ROLE_LABELS[user.role] || t('Thành viên')) + ' · ' + getAuthorHandle(user),
     body: [
-      el('p', { className: 'mod-dialog__text' }, 'Thành viên vẫn đọc được nội dung nhưng không thể đăng bài, bình luận hay thả cảm xúc cho đến khi hết hạn.'),
-      el('p', { className: 'mod-dialog__label' }, 'Thời hạn'),
+      el('p', { className: 'mod-dialog__text' }, t('Thành viên vẫn đọc được nội dung nhưng không thể đăng bài, bình luận hay thả cảm xúc cho đến khi hết hạn.')),
+      el('p', { className: 'mod-dialog__label' }, t('Thời hạn')),
       chips, customInput, until,
     ],
     confirmLabel: confirmLabel(),
@@ -430,21 +431,21 @@ export function openMuteDialog(user, onConfirm, extend = false) {
  * @param {Function} onConfirm Gọi API cấm.
  */
 export function openBanDialog(user, onConfirm) {
-  const input = el('input', { type: 'text', className: 'input mod-dialog__input', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Nhập tên người dùng để xác nhận', 'data-autofocus': '' });
+  const input = el('input', { type: 'text', className: 'input mod-dialog__input', autocomplete: 'off', spellcheck: 'false', 'aria-label': t('Nhập tên người dùng để xác nhận'), 'data-autofocus': '' });
   const consequences = [
-    'Không truy cập được các chức năng cần đăng nhập.',
-    'Mọi thao tác đăng bài, bình luận, theo dõi đều bị chặn.',
-    'Hồ sơ hiển thị nhãn “Đã bị cấm”. Có thể gỡ cấm bất cứ lúc nào.',
+    t('Không truy cập được các chức năng cần đăng nhập.'),
+    t('Mọi thao tác đăng bài, bình luận, theo dõi đều bị chặn.'),
+    t('Hồ sơ hiển thị nhãn “Đã bị cấm”. Có thể gỡ cấm bất cứ lúc nào.'),
   ];
   return openConfirmDialog({
     icon: 'ban',
-    title: 'Cấm tài khoản ' + getAuthorLabel(user) + '?',
-    subtitle: (ROLE_LABELS[user.role] || 'Thành viên') + ' · ' + getAuthorHandle(user),
+    title: t('Cấm tài khoản {name}?', { name: getAuthorLabel(user) }),
+    subtitle: (ROLE_LABELS[user.role] || t('Thành viên')) + ' · ' + getAuthorHandle(user),
     body: [
       el('ul', { className: 'mod-dialog__list' }, consequences.map(text => el('li', {}, modIcon('alert', 16), el('span', {}, text)))),
-      el('label', { className: 'mod-dialog__label' }, 'Nhập “' + user.username + '” để xác nhận', input),
+      el('label', { className: 'mod-dialog__label' }, t('Nhập “{name}” để xác nhận', { name: user.username }), input),
     ],
-    confirmLabel: 'Cấm tài khoản',
+    confirmLabel: t('Cấm tài khoản'),
     confirmIcon: 'ban',
     isReady: () => input.value.trim() === user.username,
     onConfirm,
@@ -458,11 +459,11 @@ export function openBanDialog(user, onConfirm) {
  */
 export function openRoleDialog(user, onConfirm) {
   const choices = [
-    ['user', 'Thành viên', 'Đọc, đăng bài, bình luận và theo dõi.'],
-    ['moderator', 'Điều hành viên', 'Ẩn / xoá / khôi phục nội dung, tắt tiếng và cấm thành viên.'],
-    ['admin', 'Quản trị viên', 'Không thể gán vai trò này.'],
+    ['user', t('Thành viên'), t('Đọc, đăng bài, bình luận và theo dõi.')],
+    ['moderator', t('Điều hành viên'), t('Ẩn / xoá / khôi phục nội dung, tắt tiếng và cấm thành viên.')],
+    ['admin', t('Quản trị viên'), t('Không thể gán vai trò này.')],
   ];
-  const fieldset = el('fieldset', { className: 'mod-dialog__roles' }, el('legend', { className: 'u-visually-hidden' }, 'Vai trò mới'),
+  const fieldset = el('fieldset', { className: 'mod-dialog__roles' }, el('legend', { className: 'u-visually-hidden' }, t('Vai trò mới')),
     choices.map(([value, label, desc]) => el('label', { className: 'radio-card' + (value === 'admin' ? ' is-disabled' : '') },
       el('input', { type: 'radio', name: 'role', value, className: 'radio-card__input', checked: user.role === value, disabled: value === 'admin', 'data-autofocus': user.role === value ? '' : null }),
       el('span', { className: 'radio-card__circle', 'aria-hidden': 'true' }),
@@ -470,10 +471,10 @@ export function openRoleDialog(user, onConfirm) {
   const selected = () => fieldset.querySelector('input:checked')?.value;
   return openConfirmDialog({
     icon: 'userCog',
-    title: 'Đổi vai trò ' + getAuthorLabel(user),
-    subtitle: 'Hiện tại: ' + (ROLE_LABELS[user.role] || 'Thành viên'),
+    title: t('Đổi vai trò {name}', { name: getAuthorLabel(user) }),
+    subtitle: t('Hiện tại: {role}', { role: ROLE_LABELS[user.role] || t('Thành viên') }),
     body: [fieldset],
-    confirmLabel: 'Lưu thay đổi',
+    confirmLabel: t('Lưu thay đổi'),
     confirmIcon: 'check',
     isReady: () => Boolean(selected()) && selected() !== user.role,
     onConfirm: () => onConfirm(selected()),

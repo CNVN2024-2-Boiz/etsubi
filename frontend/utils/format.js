@@ -1,4 +1,5 @@
 /** Định dạng tên và thời gian cho avatar, header và thẻ bài viết. */
+import { currentLocale, t } from '/utils/i18n.js';
 
 /**
  * Lấy chữ đầu hai từ cuối để làm avatar dự phòng trong header và trang nội dung.
@@ -13,7 +14,7 @@ export function initials(name) {
 }
 
 /**
- * Diễn đạt thời gian tiếng Việt cho kết quả tìm kiếm và thẻ bài viết.
+ * Diễn đạt thời gian theo ngôn ngữ giao diện cho kết quả tìm kiếm và thẻ bài viết.
  * @param {string|number|Date} date Thời điểm cần hiển thị.
  * @returns {string} Thời gian tương đối, ngày đầy đủ hoặc rỗng khi đầu vào sai.
  */
@@ -25,23 +26,23 @@ export function relativeTime(date) {
   // Không hiện thời gian âm nếu đồng hồ máy người dùng chậm hơn máy chủ.
   const minutes = Math.max(0, Math.floor((Date.now() - value.getTime()) / 60000));
   if (minutes < 1) {
-    return 'vừa xong';
+    return t('vừa xong');
   }
   if (minutes < 60) {
-    return minutes + ' phút trước';
+    return t('{count} phút trước', { count: minutes });
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return hours + ' giờ trước';
+    return t('{count} giờ trước', { count: hours });
   }
   const days = Math.floor(hours / 24);
   if (days < 7) {
-    return days + ' ngày trước';
+    return t('{count} ngày trước', { count: days });
   }
   if (days < 35) {
-    return Math.floor(days / 7) + ' tuần trước';
+    return t('{count} tuần trước', { count: Math.floor(days / 7) });
   }
-  return value.toLocaleDateString('vi-VN', {
+  return value.toLocaleDateString(currentLocale(), {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

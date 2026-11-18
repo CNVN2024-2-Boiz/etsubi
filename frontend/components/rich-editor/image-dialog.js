@@ -2,6 +2,7 @@
 import { el } from '/utils/dom.js';
 import { safeImageUrl, imageDimension } from '/utils/rich-text.js';
 import { editorIcon } from '/components/rich-editor/rich-editor.js';
+import { t } from '/utils/i18n.js';
 
 let imageDialogId = 0;
 
@@ -10,7 +11,7 @@ export function openImageDialog(existing = null) {
   return new Promise(resolve => {
     const id = 'image-dialog-' + (++imageDialogId);
     const dialog = el('dialog', { className: 'image-dialog', 'data-image-dialog': '', 'aria-labelledby': id + '-title' });
-    const close = el('button', { type: 'button', className: 'image-dialog__close', 'aria-label': 'Đóng' }, editorIcon('close', 24));
+    const close = el('button', { type: 'button', className: 'image-dialog__close', 'aria-label': t('Đóng') }, editorIcon('close', 24));
     const url = el('input', { id: id + '-url', type: 'url', className: 'image-dialog__url', placeholder: 'https://…',
       autocomplete: 'off', 'aria-describedby': id + '-url-hint ' + id + '-error' });
     const error = el('p', { id: id + '-error', className: 'field__hint field__hint--error', role: 'alert' });
@@ -20,9 +21,9 @@ export function openImageDialog(existing = null) {
     const width = el('input', { id: id + '-width', type: 'number', className: 'image-dialog__number', min: 1, max: 4000, step: 1, 'aria-describedby': id + '-dimensions-hint ' + id + '-dimensions-error' });
     const height = el('input', { id: id + '-height', type: 'number', className: 'image-dialog__number', min: 1, max: 4000, step: 1, 'aria-describedby': id + '-dimensions-hint ' + id + '-dimensions-error' });
     const dimensionError = el('p', { id: id + '-dimensions-error', className: 'field__hint field__hint--error', role: 'alert' });
-    const lock = el('button', { type: 'button', className: 'image-dialog__lock', 'aria-label': 'Giữ tỉ lệ ảnh', 'aria-pressed': 'true' }, editorIcon('lock'));
-    const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, 'Huỷ');
-    const apply = el('button', { type: 'submit', className: 'btn btn--primary', disabled: true }, existing ? 'Lưu' : 'Chèn ảnh');
+    const lock = el('button', { type: 'button', className: 'image-dialog__lock', 'aria-label': t('Giữ tỉ lệ ảnh'), 'aria-pressed': 'true' }, editorIcon('lock'));
+    const cancel = el('button', { type: 'button', className: 'btn btn--secondary' }, t('Huỷ'));
+    const apply = el('button', { type: 'submit', className: 'btn btn--primary', disabled: true }, existing ? t('Lưu') : t('Chèn ảnh'));
     let loadedUrl = null;
     let ratio = null;
     let version = 0;
@@ -38,14 +39,14 @@ export function openImageDialog(existing = null) {
         el('div', { className: 'image-dialog__dimension' }, input, el('span', {}, 'px')));
     }
     const form = el('form', { className: 'image-dialog__form', novalidate: true },
-      el('div', { className: 'image-dialog__heading' }, el('h2', { id: id + '-title', className: 't-display' }, existing ? 'Sửa ảnh' : 'Chèn ảnh'), close),
-      el('div', { className: 'field' }, el('label', { className: 'field__label', for: url.id }, 'Đường dẫn ảnh'),
+      el('div', { className: 'image-dialog__heading' }, el('h2', { id: id + '-title', className: 't-display' }, existing ? t('Sửa ảnh') : t('Chèn ảnh')), close),
+      el('div', { className: 'field' }, el('label', { className: 'field__label', for: url.id }, t('Đường dẫn ảnh')),
         el('div', { className: 'image-dialog__url-wrap' }, editorIcon('link'), url),
-        el('p', { id: id + '-url-hint', className: 'field__hint' }, 'Dán link ảnh bắt đầu bằng https://. Ảnh không được lưu trên máy chủ Etsubi.'), error),
+        el('p', { id: id + '-url-hint', className: 'field__hint' }, t('Dán link ảnh bắt đầu bằng https://. Ảnh không được lưu trên máy chủ Etsubi.')), error),
       preview, caption,
-      field('Mô tả ảnh (alt)', alt, el('p', { id: id + '-alt-hint', className: 'field__hint' }, 'Giúp trình đọc màn hình và hiện khi ảnh không tải được.')),
-      el('div', { className: 'image-dialog__dimensions' }, dimension('Rộng', width), dimension('Cao', height), lock),
-      el('p', { id: id + '-dimensions-hint', className: 'field__hint' }, 'Để trống thì ảnh tự co theo khung (tối đa 100% chiều rộng). Nút ổ khoá giữ đúng tỉ lệ khi đổi một chiều.'), dimensionError,
+      field(t('Mô tả ảnh (alt)'), alt, el('p', { id: id + '-alt-hint', className: 'field__hint' }, t('Giúp trình đọc màn hình và hiện khi ảnh không tải được.'))),
+      el('div', { className: 'image-dialog__dimensions' }, dimension(t('Rộng'), width), dimension(t('Cao'), height), lock),
+      el('p', { id: id + '-dimensions-hint', className: 'field__hint' }, t('Để trống thì ảnh tự co theo khung (tối đa 100% chiều rộng). Nút ổ khoá giữ đúng tỉ lệ khi đổi một chiều.')), dimensionError,
       el('div', { className: 'image-dialog__actions' }, cancel, apply));
     dialog.append(form);
 
@@ -54,14 +55,14 @@ export function openImageDialog(existing = null) {
       const dimensionsValid = [width, height].every(input => !input.validity.badInput && (!input.value || imageDimension(input.value)));
       apply.disabled = loadedUrl !== safeImageUrl(url.value) || !loadedUrl || !dimensionsValid;
       for (const input of [width, height]) input.setAttribute('aria-invalid', String(input.validity.badInput || Boolean(input.value && !imageDimension(input.value))));
-      dimensionError.textContent = dimensionsValid ? '' : 'Rộng và cao phải là số nguyên từ 1 đến 4000 px, hoặc để trống.';
+      dimensionError.textContent = dimensionsValid ? '' : t('Rộng và cao phải là số nguyên từ 1 đến 4000 px, hoặc để trống.');
     }
     /** Báo lỗi URL hoặc ảnh tải lỗi bằng cùng một thông báo tiếng Việt. */
     function fail() {
       loadedUrl = null;
       url.setAttribute('aria-invalid', 'true');
-      error.textContent = 'Đường dẫn phải bắt đầu bằng https:// và trỏ tới một ảnh.';
-      caption.textContent = 'Ảnh xem trước';
+      error.textContent = t('Đường dẫn phải bắt đầu bằng https:// và trỏ tới một ảnh.');
+      caption.textContent = t('Ảnh xem trước');
       sync();
     }
     /** Mỗi lần nhập tạo ảnh mới và đánh số để sự kiện của URL cũ không bật nhầm nút lưu. */
@@ -69,7 +70,7 @@ export function openImageDialog(existing = null) {
       const current = ++version;
       loadedUrl = null; ratio = null;
       preview.replaceChildren(editorIcon('image', 32));
-      caption.textContent = 'Ảnh xem trước';
+      caption.textContent = t('Ảnh xem trước');
       error.textContent = '';
       url.removeAttribute('aria-invalid');
       sync();
@@ -82,7 +83,7 @@ export function openImageDialog(existing = null) {
         loadedUrl = src;
         ratio = image.naturalWidth / image.naturalHeight;
         preview.replaceChildren(image);
-        caption.textContent = 'Ảnh xem trước · ' + image.naturalWidth + ' × ' + image.naturalHeight;
+        caption.textContent = t('Ảnh xem trước · {width} × {height}', { width: image.naturalWidth, height: image.naturalHeight });
         sync();
       });
       image.addEventListener('error', () => { if (!finished && current === version) fail(); });

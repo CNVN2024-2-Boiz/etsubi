@@ -19,14 +19,16 @@ import {
   createStaffTag, createStatusBadge, createStaffBox, createStaffButton, createMenu, modIcon,
   openConfirmDialog, openMuteDialog, openBanDialog, openRoleDialog,
 } from '/components/moderation/moderation.js';
+import { t } from '/utils/i18n.js';
 
 // Header theo frame Figma (tab Trang chủ đang chọn, ô tìm kiếm trong suốt); footer đầy đủ.
 mountHeader(qs('[data-component="header"]'), { active: 'home', searchForm: true });
 mountFooter();
 
 // Tên hiển thị của vai trò và tiếng mẹ đẻ.
-const ROLE_LABELS = { moderator: 'Điều hành viên', admin: 'Quản trị viên' };
-const NATIVE_LABELS = { vi: 'Tiếng Việt', ja: '日本語', en: 'English' };
+const ROLE_LABELS = { moderator: t('Điều hành viên'), admin: t('Quản trị viên') };
+// Tên ngôn ngữ tự gọi nên không dịch.
+const NATIVE_LABELS = { vi: 'Tiếng Việt', ja: '日本語', en: 'English' }; // i18n-ignore
 
 // Biểu tượng Lucide 14px cho hàng thông tin phụ và 14px cho nút theo dõi (chuỗi cố định).
 const ICONS = {
@@ -122,11 +124,12 @@ function createFollowButton(user, size = 'sm', fresh = false) {
     type: 'button',
     className: 'follow-btn' + (size === 'md' ? ' follow-btn--md' : '') + (following ? ' is-following' : '') + (fresh ? ' is-fresh' : ''),
     'aria-pressed': String(following),
-    'aria-label': following ? 'Bỏ theo dõi ' + getAuthorLabel(user) : (relation === 'back' ? 'Theo dõi lại ' : 'Theo dõi ') + getAuthorLabel(user),
+    'aria-label': following ? t('Bỏ theo dõi {name}', { name: getAuthorLabel(user) })
+      : relation === 'back' ? t('Theo dõi lại {name}', { name: getAuthorLabel(user) }) : t('Theo dõi {name}', { name: getAuthorLabel(user) }),
   },
   icon(following ? 'check' : 'plus', 14),
-  el('span', { className: 'follow-btn__label' }, following ? 'Đang theo dõi' : relation === 'back' ? 'Theo dõi lại' : 'Theo dõi'),
-  el('span', { className: 'follow-btn__unfollow' }, 'Bỏ theo dõi'));
+  el('span', { className: 'follow-btn__label' }, following ? t('Đang theo dõi') : relation === 'back' ? t('Theo dõi lại') : t('Theo dõi')),
+  el('span', { className: 'follow-btn__unfollow' }, t('Bỏ theo dõi')));
   // Vừa bấm theo dõi thì không đổi ngay thành "Bỏ theo dõi"; chỉ đổi sau khi chuột rời nút (theo mô tả Figma).
   button.addEventListener('mouseleave', () => button.classList.remove('is-fresh'));
   // Bấm nút: gửi theo dõi hoặc bỏ theo dõi cho đúng người của dòng này.
@@ -182,12 +185,12 @@ function renderProfile() {
   role.textContent = ROLE_LABELS[profile.role] || '';
   const bio = qs('[data-profile-bio]');
   bio.classList.toggle('profile-card__bio--empty', !profile.bio);
-  bio.replaceChildren(profile.bio ? wrapJapanese(profile.bio) : 'Chưa có giới thiệu');
+  bio.replaceChildren(profile.bio ? wrapJapanese(profile.bio) : t('Chưa có giới thiệu'));
   // Chỉ hiện những thông tin người dùng đã điền, không đoán thay.
   const meta = [
     profile.institute && ['graduation', profile.institute],
     profile.address && ['pin', profile.address],
-    NATIVE_LABELS[profile.native] && ['globe', 'Tiếng mẹ đẻ: ' + NATIVE_LABELS[profile.native]],
+    NATIVE_LABELS[profile.native] && ['globe', t('Tiếng mẹ đẻ: {language}', { language: NATIVE_LABELS[profile.native] })],
   ].filter(Boolean);
   qs('[data-profile-meta]').replaceChildren(...meta.map(([name, text]) => el('li', {}, icon(name, 14), el('span', {}, wrapJapanese(text)))));
   qs('[data-camera]').hidden = !isOwn;
@@ -216,7 +219,7 @@ function renderModeration() {
   if (banned) {
     status.append(createStatusBadge('banned'));
   } else if (muted && (staff || isOwn)) {
-    status.append(createStatusBadge('muted', 'Tắt tiếng đến ' + formatUntil(profile.muted_until)));
+    status.append(createStatusBadge('muted', t('Tắt tiếng đến {date}', { date: formatUntil(profile.muted_until) })));
   }
 
   // Khối chỉ staff thấy, có nút gỡ / gia hạn khi người xem được tác động người này.
@@ -225,15 +228,15 @@ function renderModeration() {
   if (staff && banned) {
     box.append(createStaffBox(
       el('div', { className: 'staff-box__top' }, createStaffTag()),
-      el('p', {}, 'Không đăng nhập vào khu vực cần tài khoản được; mọi thao tác ghi đều bị chặn.'),
-      canAct ? el('div', { className: 'staff-box__actions' }, createStaffButton('restore', 'Gỡ cấm', confirmUnban)) : null));
+      el('p', {}, t('Không đăng nhập vào khu vực cần tài khoản được; mọi thao tác ghi đều bị chặn.')),
+      canAct ? el('div', { className: 'staff-box__actions' }, createStaffButton('restore', t('Gỡ cấm'), confirmUnban)) : null));
   } else if (staff && muted) {
     box.append(createStaffBox(
       el('div', { className: 'staff-box__top' }, createStaffTag(), el('span', { className: 'staff-box__strong' }, formatRemaining(profile.muted_until))),
-      el('p', {}, 'Vẫn đọc được nội dung nhưng không thể đăng bài, bình luận hay thả cảm xúc cho đến ' + formatUntilFull(profile.muted_until) + '.'),
+      el('p', {}, t('Vẫn đọc được nội dung nhưng không thể đăng bài, bình luận hay thả cảm xúc cho đến {date}.', { date: formatUntilFull(profile.muted_until) })),
       canAct ? el('div', { className: 'staff-box__actions' },
-        createStaffButton('mute', 'Gỡ tắt tiếng', confirmUnmute),
-        createStaffButton('clock', 'Gia hạn…', () => muteProfile(true), true)) : null));
+        createStaffButton('mute', t('Gỡ tắt tiếng'), confirmUnmute),
+        createStaffButton('clock', t('Gia hạn…'), () => muteProfile(true), true)) : null));
   }
 
   // Hàng nút: Theo dõi (không có với hồ sơ bị cấm) và Quản trị (chỉ staff, không phải hồ sơ của mình).
@@ -250,8 +253,8 @@ function renderModeration() {
 /** Nút "Quản trị" bị khoá với người cùng cấp hoặc cao hơn; rê chuột hoặc focus để xem lý do. */
 function createLockedAdminButton() {
   return el('span', { className: 'staff-locked', tabindex: '0' },
-    el('button', { type: 'button', className: 'staff-trigger', disabled: true, 'aria-describedby': 'staff-locked-tip' }, modIcon('lock', 16), 'Quản trị'),
-    el('span', { id: 'staff-locked-tip', className: 'staff-locked__tip', role: 'tooltip' }, modIcon('lock', 14), 'Không thể tác động lên người cùng cấp hoặc cao hơn'));
+    el('button', { type: 'button', className: 'staff-trigger', disabled: true, 'aria-describedby': 'staff-locked-tip' }, modIcon('lock', 16), t('Quản trị')),
+    el('span', { id: 'staff-locked-tip', className: 'staff-locked__tip', role: 'tooltip' }, modIcon('lock', 14), t('Không thể tác động lên người cùng cấp hoặc cao hơn')));
 }
 
 /** Nút "Quản trị" và menu: tắt tiếng / gia hạn / gỡ, cấm / gỡ cấm, đổi vai trò (chỉ Admin). */
@@ -259,24 +262,24 @@ function createAdminMenu(outline) {
   const { profile, viewer } = state;
   const muted = isMutedNow(profile.muted_until);
   const banned = profile.status === 'banned';
-  const trigger = el('button', { type: 'button', className: 'staff-trigger' + (outline ? ' staff-trigger--outline' : '') }, modIcon('shield', 16), 'Quản trị');
+  const trigger = el('button', { type: 'button', className: 'staff-trigger' + (outline ? ' staff-trigger--outline' : '') }, modIcon('shield', 16), t('Quản trị'));
   const items = [];
   if (!banned) {
     items.push(muted
-      ? { icon: 'clock', label: 'Gia hạn tắt tiếng…', onSelect: () => muteProfile(true) }
-      : { icon: 'mute', label: 'Tắt tiếng…', onSelect: () => muteProfile(false) });
+      ? { icon: 'clock', label: t('Gia hạn tắt tiếng…'), onSelect: () => muteProfile(true) }
+      : { icon: 'mute', label: t('Tắt tiếng…'), onSelect: () => muteProfile(false) });
     if (muted) {
-      items.push({ icon: 'mute', label: 'Gỡ tắt tiếng', onSelect: confirmUnmute });
+      items.push({ icon: 'mute', label: t('Gỡ tắt tiếng'), onSelect: confirmUnmute });
     }
   }
   items.push(banned
-    ? { icon: 'restore', label: 'Gỡ cấm', onSelect: confirmUnban }
-    : { icon: 'ban', label: 'Cấm tài khoản…', danger: true, onSelect: banProfile });
+    ? { icon: 'restore', label: t('Gỡ cấm'), onSelect: confirmUnban }
+    : { icon: 'ban', label: t('Cấm tài khoản…'), danger: true, onSelect: banProfile });
   items.push('divider');
   items.push(viewer.role === 'admin'
-    ? { icon: 'userCog', label: 'Đổi vai trò…', onSelect: changeRole }
-    : { icon: 'userCog', label: 'Đổi vai trò…', sub: 'Chỉ Quản trị viên', disabled: true });
-  return createMenu(trigger, { header: { icon: 'shield', text: 'Quản trị · ' + getAuthorLabel(profile) }, items });
+    ? { icon: 'userCog', label: t('Đổi vai trò…'), onSelect: changeRole }
+    : { icon: 'userCog', label: t('Đổi vai trò…'), sub: t('Chỉ Quản trị viên'), disabled: true });
+  return createMenu(trigger, { header: { icon: 'shield', text: t('Quản trị · {name}', { name: getAuthorLabel(profile) }) }, items });
 }
 
 /** Cập nhật hồ sơ từ phản hồi của API quản trị rồi vẽ lại thẻ (giữ nguyên danh sách theo dõi). */
@@ -294,10 +297,10 @@ function muteProfile(extend) {
 function confirmUnmute() {
   openConfirmDialog({
     icon: 'mute', tone: 'amber',
-    title: 'Gỡ tắt tiếng ' + getAuthorLabel(state.profile) + '?',
-    subtitle: 'Đang tắt tiếng đến ' + formatUntilFull(state.profile.muted_until),
-    body: [el('p', { className: 'mod-dialog__text' }, 'Thành viên sẽ đăng bài, bình luận và thả cảm xúc lại được ngay.')],
-    confirmLabel: 'Gỡ tắt tiếng', confirmIcon: 'check',
+    title: t('Gỡ tắt tiếng {name}?', { name: getAuthorLabel(state.profile) }),
+    subtitle: t('Đang tắt tiếng đến {date}', { date: formatUntilFull(state.profile.muted_until) }),
+    body: [el('p', { className: 'mod-dialog__text' }, t('Thành viên sẽ đăng bài, bình luận và thả cảm xúc lại được ngay.'))],
+    confirmLabel: t('Gỡ tắt tiếng'), confirmIcon: 'check',
     onConfirm: async () => applyProfileUpdate(await setUserMute(state.profile.id, null)),
   });
 }
@@ -311,10 +314,10 @@ function banProfile() {
 function confirmUnban() {
   openConfirmDialog({
     icon: 'restore',
-    title: 'Gỡ cấm ' + getAuthorLabel(state.profile) + '?',
-    subtitle: (MOD_ROLE_LABELS[state.profile.role] || 'Thành viên') + ' · ' + getAuthorHandle(state.profile),
-    body: [el('p', { className: 'mod-dialog__text' }, 'Tài khoản đăng nhập và dùng lại mọi chức năng được ngay.')],
-    confirmLabel: 'Gỡ cấm', confirmIcon: 'check',
+    title: t('Gỡ cấm {name}?', { name: getAuthorLabel(state.profile) }),
+    subtitle: (MOD_ROLE_LABELS[state.profile.role] || t('Thành viên')) + ' · ' + getAuthorHandle(state.profile),
+    body: [el('p', { className: 'mod-dialog__text' }, t('Tài khoản đăng nhập và dùng lại mọi chức năng được ngay.'))],
+    confirmLabel: t('Gỡ cấm'), confirmIcon: 'check',
     onConfirm: async () => applyProfileUpdate(await setUserStatus(state.profile.id, 'active')),
   });
 }
@@ -342,13 +345,13 @@ function createRow(user) {
   const nameRow = el('div', { className: 'profile-row__name-row' },
     el('a', { className: 'profile-row__name', href: profileUrl(user) }, wrapJapanese(highlight(getAuthorLabel(user), state.filter))));
   if (isViewer) {
-    nameRow.append(el('span', { className: 'profile-row__you' }, 'Bạn'));
+    nameRow.append(el('span', { className: 'profile-row__you' }, t('Bạn')));
   }
   return el('li', { className: 'profile-row' },
     fillAvatar(el('a', { className: 'profile-row__avatar', href: profileUrl(user), 'aria-hidden': 'true', tabindex: '-1' }), user),
     el('div', { className: 'profile-row__text' }, nameRow,
       el('p', { className: 'profile-row__handle' }, wrapJapanese(highlight(getAuthorHandle(user), state.filter))),
-      el('p', { className: 'profile-row__bio' }, user.bio ? wrapJapanese(user.bio) : 'Chưa có giới thiệu')),
+      el('p', { className: 'profile-row__bio' }, user.bio ? wrapJapanese(user.bio) : t('Chưa có giới thiệu'))),
     isViewer ? null : createFollowButton(user));
 }
 
@@ -365,12 +368,12 @@ function emptyText() {
   const name = getAuthorLabel(state.profile);
   if (state.tab === 'following') {
     return state.isOwn
-      ? ['Bạn chưa theo dõi ai', 'Theo dõi người khác để không bỏ lỡ bài viết mới của họ.']
-      : [name + ' chưa theo dõi ai', 'Danh sách sẽ hiện ở đây khi họ theo dõi thành viên khác.'];
+      ? [t('Bạn chưa theo dõi ai'), t('Theo dõi người khác để không bỏ lỡ bài viết mới của họ.')]
+      : [t('{name} chưa theo dõi ai', { name }), t('Danh sách sẽ hiện ở đây khi họ theo dõi thành viên khác.')];
   }
   return state.isOwn
-    ? ['Chưa có ai theo dõi bạn', 'Hãy đăng bài và bình luận để mọi người biết đến bạn.']
-    : ['Chưa có ai theo dõi ' + name, 'Hãy là người đầu tiên theo dõi.'];
+    ? [t('Chưa có ai theo dõi bạn'), t('Hãy đăng bài và bình luận để mọi người biết đến bạn.')]
+    : [t('Chưa có ai theo dõi {name}', { name }), t('Hãy là người đầu tiên theo dõi.')];
 }
 
 /** Vẽ danh sách của tab đang chọn, áp dụng từ khoá lọc (không phân biệt hoa thường). */
@@ -378,7 +381,7 @@ function renderList() {
   const list = state.lists[state.tab];
   const box = qs('[data-list]');
   if (!Array.isArray(list)) {
-    box.replaceChildren(el('li', { className: 'profile-list__note' }, 'Đang tải danh sách…'));
+    box.replaceChildren(el('li', { className: 'profile-list__note' }, t('Đang tải danh sách…')));
     return;
   }
   const needle = state.filter.trim().toLocaleLowerCase('vi');
@@ -387,16 +390,16 @@ function renderList() {
   const status = qs('[data-list-status]');
   if (!list.length) {
     box.replaceChildren(createEmpty('users', ...emptyText()));
-    status.textContent = 'Danh sách trống.';
+    status.textContent = t('Danh sách trống.');
     return;
   }
   if (!items.length) {
-    box.replaceChildren(createEmpty('search', 'Không tìm thấy “' + state.filter.trim() + '”', 'Thử tên khác hoặc xóa từ khóa tìm kiếm.'));
-    status.textContent = 'Không có người dùng phù hợp.';
+    box.replaceChildren(createEmpty('search', t('Không tìm thấy “{query}”', { query: state.filter.trim() }), t('Thử tên khác hoặc xóa từ khóa tìm kiếm.')));
+    status.textContent = t('Không có người dùng phù hợp.');
     return;
   }
   box.replaceChildren(...items.map(createRow));
-  status.textContent = items.length + ' người dùng.';
+  status.textContent = t('{count} người dùng.', { count: items.length });
 }
 
 /** Tải lại một danh sách (sau khi theo dõi / bỏ theo dõi) rồi vẽ lại nếu đang xem tab đó. */
@@ -486,7 +489,7 @@ async function initialize() {
     // Không tải được hồ sơ: ẩn hai thẻ đang chờ (thanh xám) và chỉ để lại thông báo lỗi.
     qs('[data-profile-card]').hidden = true;
     qs('.profile-connect').hidden = true;
-    showError(error.status === 404 || error.status === 400 ? 'Không tìm thấy người dùng này.' : toVietnameseMessage(error));
+    showError(error.status === 404 || error.status === 400 ? t('Không tìm thấy người dùng này.') : toVietnameseMessage(error));
     return;
   }
   renderProfile();

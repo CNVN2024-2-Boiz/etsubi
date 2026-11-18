@@ -4,7 +4,7 @@
     <!-- Tài nguyên tĩnh và phông chung giữ nhận diện đồng nhất với các trang đã làm. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hồ sơ · Etsubi</title>
+    <title data-i18n>Hồ sơ · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +18,7 @@
   </head>
   <body class="page page--profile">
     <!-- Header dùng chung; tab Trang chủ đang chọn như frame Figma (Hồ sơ không có tab riêng). -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <header class="site-header" data-component="header" data-active="home"></header>
 
     <main id="main" class="profile">
@@ -35,7 +35,7 @@
             <span class="profile-card__avatar profile-card__avatar--placeholder" data-profile-avatar></span>
           </span>
           <!-- Chỉ hiện ở hồ sơ của mình: dẫn tới Cài đặt để đổi ảnh đại diện. -->
-          <a class="profile-card__camera" href="/pages/settings.html" aria-label="Đổi ảnh đại diện" data-camera hidden>
+          <a class="profile-card__camera" href="/pages/settings.html" aria-label="Đổi ảnh đại diện" data-i18n-attr="aria-label" data-camera hidden>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
           </a>
         </div>
@@ -44,7 +44,7 @@
             <div class="profile-card__name-row">
               <h1 id="profile-name" class="t-display profile-card__name" data-profile-name>
                 <span class="u-placeholder-bar u-placeholder-bar--title profile-card__name-bar" aria-hidden="true"></span>
-                <span class="u-visually-hidden">Đang tải hồ sơ…</span>
+                <span class="u-visually-hidden" data-i18n>Đang tải hồ sơ…</span>
               </h1>
               <span class="profile-card__role" data-profile-role hidden></span>
               <!-- Nhãn trạng thái: "Đã bị cấm" (mọi người) hoặc "Tắt tiếng đến…" (staff và chính người đó). -->
@@ -55,9 +55,9 @@
             <p class="profile-card__bio" data-profile-bio><span class="u-placeholder-bar" aria-hidden="true"></span></p>
             <ul class="profile-card__meta" data-profile-meta></ul>
             <p class="profile-card__stats">
-              <span><strong data-count="followers">–</strong> người theo dõi</span>
+              <span data-i18n-html><strong data-count="followers">–</strong> người theo dõi</span>
               <span aria-hidden="true">·</span>
-              <span><strong data-count="following">–</strong> đang theo dõi</span>
+              <span data-i18n-html><strong data-count="following">–</strong> đang theo dõi</span>
             </p>
             <!-- Khối viền đứt chỉ Mod/Admin thấy: thời hạn tắt tiếng, gỡ cấm... -->
             <div class="profile-card__staff" data-staff-slot></div>
@@ -71,14 +71,14 @@
       <section class="profile-connect" aria-labelledby="connect-title">
         <h2 id="connect-title" class="profile-connect__band">
           <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
-          Kết nối
+          <span data-i18n>Kết nối</span>
         </h2>
         <div class="profile-connect__body">
-          <div class="profile-tabs" role="tablist" aria-label="Danh sách kết nối" data-tabs>
-            <button id="tab-followers" class="profile-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="connect-panel" data-tab="followers">
+          <div class="profile-tabs" role="tablist" aria-label="Danh sách kết nối" data-i18n-attr="aria-label" data-tabs>
+            <button id="tab-followers" class="profile-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="connect-panel" data-tab="followers" data-i18n-html>
               Người theo dõi <span class="profile-tab__badge" data-tab-count="followers">–</span>
             </button>
-            <button id="tab-following" class="profile-tab" type="button" role="tab" aria-selected="false" aria-controls="connect-panel" tabindex="-1" data-tab="following">
+            <button id="tab-following" class="profile-tab" type="button" role="tab" aria-selected="false" aria-controls="connect-panel" tabindex="-1" data-tab="following" data-i18n-html>
               Đang theo dõi <span class="profile-tab__badge" data-tab-count="following">–</span>
             </button>
           </div>
@@ -86,16 +86,16 @@
           <!-- Ô lọc: chỉ lọc danh sách đang hiện, không gửi yêu cầu lên máy chủ. -->
           <div class="profile-filter" data-filter>
             <svg class="profile-filter__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <label class="u-visually-hidden" for="filter-input">Tìm theo tên hoặc @tên người dùng</label>
-            <input id="filter-input" class="profile-filter__input" type="search" autocomplete="off" maxlength="50" placeholder="Tìm theo tên hoặc @tên người dùng" data-filter-input />
-            <button type="button" class="profile-filter__clear" aria-label="Xoá từ khoá" data-filter-clear hidden>
+            <label class="u-visually-hidden" for="filter-input" data-i18n>Tìm theo tên hoặc @tên người dùng</label>
+            <input id="filter-input" class="profile-filter__input" type="search" autocomplete="off" maxlength="50" placeholder="Tìm theo tên hoặc @tên người dùng" data-i18n-attr="placeholder" data-filter-input />
+            <button type="button" class="profile-filter__clear" aria-label="Xoá từ khoá" data-i18n-attr="aria-label" data-filter-clear hidden>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
           </div>
 
           <p class="u-visually-hidden" role="status" data-list-status></p>
           <ul id="connect-panel" class="profile-list" role="tabpanel" aria-labelledby="tab-followers" data-list>
-            <li class="profile-list__note">Đang tải danh sách…</li>
+            <li class="profile-list__note" data-i18n>Đang tải danh sách…</li>
           </ul>
         </div>
       </section>

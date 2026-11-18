@@ -1,5 +1,6 @@
 /** Nominatim công khai: hàng đợi toàn module cách ít nhất một giây, cache để tránh gọi lặp. */
 import { requestExternal, readStorage, writeStorage } from '/services/api/client.js';
+import { t } from '/utils/i18n.js';
 
 const cache = new Map();
 let tail = Promise.resolve();
@@ -26,7 +27,7 @@ function normalize(item) {
   const latitude = Number(item.lat);
   const longitude = Number(item.lon);
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
-  return { name: item.name || item.display_name?.split(',')[0] || 'Vị trí đã chọn',
+  return { name: item.name || item.display_name?.split(',')[0] || t('Vị trí đã chọn'),
     address: String(item.display_name || '').split(',').slice(0, 4).join(',').trim(),
     latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)) };
 }

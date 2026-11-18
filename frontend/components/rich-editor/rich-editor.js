@@ -3,6 +3,7 @@ import { el } from '/utils/dom.js';
 import { sanitizeRichHtml, renderRichContent, richToPlainText, countWords, countChars, safeRichUrl, safeImageUrl, imageDimension } from '/utils/rich-text.js';
 import { openImageDialog } from '/components/rich-editor/image-dialog.js';
 import { mentionHint } from '/utils/mention.js';
+import { t } from '/utils/i18n.js';
 
 // Các nét Lucide cố định, không chứa dữ liệu người dùng hoặc HTML API.
 const PATHS = {
@@ -37,16 +38,16 @@ export function editorIcon(name, size = 18) {
 
 // Bộ đếm ID riêng nối mỗi vùng nhập với nhãn, tránh trùng ID.
 let editorId = 0;
-const LABELS = { bold: 'In đậm', italic: 'In nghiêng', underline: 'Gạch chân', strikeThrough: 'Gạch ngang',
-  removeFormat: 'Xoá định dạng', emoji: 'Biểu tượng cảm xúc', link: 'Liên kết', image: 'Ảnh', pin: 'Gắn địa điểm' };
+const LABELS = { bold: t('In đậm'), italic: t('In nghiêng'), underline: t('Gạch chân'), strikeThrough: t('Gạch ngang'),
+  removeFormat: t('Xoá định dạng'), emoji: t('Biểu tượng cảm xúc'), link: t('Liên kết'), image: t('Ảnh'), pin: t('Gắn địa điểm') };
 
 /** Tạo editor độc lập; form sở hữu xử lý callback ảnh và địa điểm. */
-export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết nội dung…', allowLinks = false,
+export function createRichEditor({ label = t('Nội dung'), placeholder = t('Viết nội dung…'), allowLinks = false,
   tools = ['bold', 'italic', 'underline', 'strikeThrough', '|', 'removeFormat'], counter = 'post', imageActions = true, onChange = () => {}, onTool = () => {} } = {}) {
   const id = 'rich-area-' + (++editorId);
   const area = el('div', { id, className: 'rich-editor__area', contenteditable: 'true', role: 'textbox',
     'aria-multiline': 'true', 'aria-label': label, 'data-placeholder': placeholder, 'data-rich-area': '', 'data-empty': 'true' });
-  const toolbar = el('div', { className: 'rich-editor__toolbar', role: 'toolbar', 'aria-label': 'Định dạng ' + label });
+  const toolbar = el('div', { className: 'rich-editor__toolbar', role: 'toolbar', 'aria-label': t('Định dạng {label}', { label }) });
   const media = el('div', { className: 'rich-media rich-editor__media', 'data-editor-media': '' });
   const count = el('p', { className: 'rich-editor__counter' });
   // Dòng gợi ý chỉ nhắc cú pháp @username; khi soạn, tên được nhắc vẫn là chữ thường.
@@ -60,9 +61,9 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   let savedRange = null;
   let activePopover = null;
   let selectedImage = null;
-  const imageBar = el('div', { className: 'rich-editor__image-bar', hidden: true, role: 'group', 'aria-label': 'Thao tác ảnh' });
-  const editImage = el('button', { type: 'button' }, editorIcon('pencil', 14), 'Sửa ảnh');
-  const removeImage = el('button', { type: 'button', className: 'rich-editor__image-remove' }, editorIcon('trash', 14), 'Gỡ ảnh');
+  const imageBar = el('div', { className: 'rich-editor__image-bar', hidden: true, role: 'group', 'aria-label': t('Thao tác ảnh') });
+  const editImage = el('button', { type: 'button' }, editorIcon('pencil', 14), t('Sửa ảnh'));
+  const removeImage = el('button', { type: 'button', className: 'rich-editor__image-remove' }, editorIcon('trash', 14), t('Gỡ ảnh'));
   imageBar.append(editImage, removeImage);
   root.append(imageBar);
 
@@ -86,7 +87,7 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   function changed() {
     const text = getPlainText();
     area.dataset.empty = String(!text.trim() && !area.querySelector('img'));
-    count.textContent = counter === 'comment' ? countWords(text) + ' chữ' : countWords(text) + ' từ · ' + countChars(text) + ' ký tự';
+    count.textContent = counter === 'comment' ? t('{count} chữ', { count: countWords(text) }) : t('{words} từ · {chars} ký tự', { words: countWords(text), chars: countChars(text) });
     const hint = mentionHint(getHtml());
     mentionNote.textContent = hint.text;
     mentionNote.classList.toggle('is-warning', hint.warning);
@@ -190,7 +191,7 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   function showEmoji() {
     popover.className = 'rich-editor__popover rich-editor__emoji';
     for (const emoji of ['😀', '😊', '😂', '🥰', '😍', '🤔', '😢', '😭', '😮', '😎', '🙏', '👍', '👎', '👏', '🙌', '💪', '❤️', '💖', '🎉', '✨', '🌸', '🍵', '🍁', '🇯🇵']) {
-      const button = el('button', { type: 'button', className: 'rich-editor__tool', 'aria-label': 'Chèn ' + emoji }, emoji);
+      const button = el('button', { type: 'button', className: 'rich-editor__tool', 'aria-label': t('Chèn {emoji}', { emoji }) }, emoji);
       // Chèn tại con trỏ đã lưu và đóng bảng để tiếp tục gõ ngay.
       button.addEventListener('click', () => { command('insertText', emoji); closePopover(); });
       popover.append(button);
@@ -201,13 +202,13 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
   function showLink() {
     popover.className = 'rich-editor__popover rich-editor__link';
     const input = el('input', { id: id + '-url', className: 'input', type: 'text', placeholder: 'https://…', 'aria-describedby': id + '-url-error' });
-    const apply = el('button', { type: 'button', className: 'btn btn--primary btn--sm' }, 'Áp dụng');
+    const apply = el('button', { type: 'button', className: 'btn btn--primary btn--sm' }, t('Áp dụng'));
     const error = el('p', { id: id + '-url-error', className: 'field__hint field__hint--error', role: 'alert' });
     /** Giữ vùng chọn khi tạo link; không có selection thì chèn URL bằng nút DOM an toàn. */
     function applyLink() {
       const typed = input.value.trim();
       const href = safeRichUrl(/^[a-z][a-z\d+.-]*:/i.test(typed) || typed.startsWith('//') ? typed : 'https://' + typed);
-      if (!href) { input.setAttribute('aria-invalid', 'true'); error.textContent = 'Vui lòng nhập liên kết http hoặc https hợp lệ.'; return; }
+      if (!href) { input.setAttribute('aria-invalid', 'true'); error.textContent = t('Vui lòng nhập liên kết http hoặc https hợp lệ.'); return; }
       restoreSelection();
       const selection = document.getSelection();
       if (selection.isCollapsed) {
@@ -228,7 +229,7 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
     apply.addEventListener('click', applyLink);
     // Enter chỉ áp dụng link, không gửi toàn bộ form bao ngoài.
     input.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); applyLink(); } });
-    popover.append(el('label', { for: id + '-url' }, 'Liên kết'), input, apply, error);
+    popover.append(el('label', { for: id + '-url' }, t('Liên kết')), input, apply, error);
     input.focus();
   }
   /** Mở một popover duy nhất, bấm lại nút sẽ đóng. */
@@ -327,7 +328,7 @@ export function createRichEditor({ label = 'Nội dung', placeholder = 'Viết n
     closeImageBar();
   }
   // Khởi tạo bộ đếm mà chưa phát callback khi caller chưa nhận được editor.
-  count.textContent = counter === 'comment' ? '0 chữ' : '0 từ · 0 ký tự';
+  count.textContent = counter === 'comment' ? t('0 chữ') : t('0 từ · 0 ký tự');
   return { root, area, toolbar, media, getHtml, getPlainText, setHtml, destroy, insertImage, rememberSelection,
     clear: () => setHtml(''), focus: focusEnd, isEmpty: () => !getPlainText().trim() && !area.querySelector('img'),
     setToolPressed: (name, pressed) => buttons.get(name)?.setAttribute('aria-pressed', String(pressed)) };

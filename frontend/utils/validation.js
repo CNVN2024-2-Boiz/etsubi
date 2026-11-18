@@ -1,5 +1,6 @@
 /** Kiểm tra biểu mẫu đăng nhập và đăng ký, trả gợi ý tiếng Việt cho từng trường. */
 import { validateUsername, validateDisplayName } from '/utils/username.js';
+import { t } from '/utils/i18n.js';
 
 /**
  * Kiểm tra một trường của trang login hoặc register trước khi gọi API.
@@ -18,25 +19,25 @@ export function authFieldMessage(name, { value = '', password = '', checked = fa
     return validateUsername(value);
   }
   if (name === 'terms') {
-    return checked ? '' : 'Bạn cần đồng ý với điều khoản sử dụng.';
+    return checked ? '' : t('Bạn cần đồng ý với điều khoản sử dụng.');
   }
   if (!text) {
     const instructions = {
-      email: 'nhập email.',
-      password: 'nhập mật khẩu.',
-      confirm: 'xác nhận mật khẩu.',
+      email: t('Vui lòng nhập email.'),
+      password: t('Vui lòng nhập mật khẩu.'),
+      confirm: t('Vui lòng xác nhận mật khẩu.'),
     };
-    return 'Vui lòng ' + instructions[name];
+    return instructions[name];
   }
   if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(text)) {
-    return 'Vui lòng nhập địa chỉ email hợp lệ.';
+    return t('Vui lòng nhập địa chỉ email hợp lệ.');
   }
   // Chỉ áp dụng độ dài mật khẩu khi tạo mới, tránh chặn tài khoản đã có.
   if (name === 'password' && register && Array.from(text).length < 8) {
-    return 'Mật khẩu cần ít nhất 8 ký tự.';
+    return t('Mật khẩu cần ít nhất 8 ký tự.');
   }
   if (name === 'confirm' && text !== password) {
-    return 'Mật khẩu xác nhận không khớp.';
+    return t('Mật khẩu xác nhận không khớp.');
   }
   return '';
 }

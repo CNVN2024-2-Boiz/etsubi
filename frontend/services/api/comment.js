@@ -3,6 +3,7 @@ import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { notifyAfter, notifyMentions, notifyPostAfter } from '/services/api/notify-actions.js';
 import { sanitizeRichHtml, validateRichBytes } from '/utils/rich-text.js';
+import { t } from '/utils/i18n.js';
 
 /** Chỉ gửi toạ độ khi có đủ cặp số hợp lệ, tránh lưu nửa vị trí. */
 function commentCoordinates(latitude, longitude) {
@@ -58,7 +59,7 @@ export function deleteComment(commentId) {
 /** Sửa bình luận gồm HTML đã lọc và toạ độ đang gắn; không gửi toạ độ nghĩa là gỡ địa điểm khỏi bình luận. */
 export async function updateComment(commentId, content, { latitude, longitude } = {}) {
   const safe = sanitizeRichHtml(content, { allowLinks: true });
-  const error = validateRichBytes(safe, 10000, 'Bình luận');
+  const error = validateRichBytes(safe, 10000, t('Bình luận'));
   if (error) throw new Error(error);
   const updated = await request('/comments/' + encodeURIComponent(commentId), {
     method: 'PATCH', body: { content: safe, ...commentCoordinates(latitude, longitude) },

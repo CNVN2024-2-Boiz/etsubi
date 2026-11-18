@@ -6,6 +6,7 @@ import { initials, relativeTime } from '/utils/format.js';
 import { makeExcerpt, wrapJapanese } from '/utils/text.js';
 import { markMentions } from '/utils/mention.js';
 import { getAuthorLabel, getAuthorHandle, getAuthorDisplayName } from '/services/api/posts.js';
+import { t } from '/utils/i18n.js';
 
 /** Tạo icon cố định đúng kích thước thật; tên thao tác do phần tử cha cung cấp. */
 function icon(name) {
@@ -15,8 +16,8 @@ function icon(name) {
 /** Giữ dải đỏ và thứ hạng giống nhau ở cả thẻ thật lẫn thẻ chờ. */
 function createBand(rank) {
   return el('div', { className: 'featured-card__band' },
-    el('span', { className: 'featured-card__badge' }, '★ Nổi bật'),
-    el('span', { className: 'featured-card__rank', 'aria-label': 'Hạng ' + rank }, String(rank).padStart(2, '0')));
+    el('span', { className: 'featured-card__badge' }, t('★ Nổi bật')),
+    el('span', { className: 'featured-card__rank', 'aria-label': t('Hạng {rank}', { rank }) }, String(rank).padStart(2, '0')));
 }
 
 /** Tạo nút chi tiết bằng liên kết thật hoặc nút khoá khi chưa có mã bài viết. */
@@ -27,7 +28,7 @@ function createDetail(postId) {
     type: postId ? null : 'button',
     disabled: !postId,
     'aria-disabled': postId ? null : 'true',
-  }, 'Xem chi tiết', icon('arrow-right'));
+  }, t('Xem chi tiết'), icon('arrow-right'));
 }
 
 /** Hiển thị avatar thật, dự phòng chữ đầu khi ảnh hỏng để không có ô ảnh lỗi. */
@@ -63,13 +64,13 @@ export function createFeaturedCard({ post, rank, author = post.author, tags = po
   // Tên và handle tách thành hai dòng, thời gian giữ trong dòng phụ.
   const identity = el('div', { className: 'featured-card__identity' },
     name ? el('span', { className: 'featured-card__name' }, wrapJapanese(name))
-      : el('span', { className: 'u-placeholder-bar u-placeholder-bar--short', 'aria-label': 'Chưa có tác giả' }),
+      : el('span', { className: 'u-placeholder-bar u-placeholder-bar--short', 'aria-label': t('Chưa có tác giả') }),
     el('p', { className: 'featured-card__sub' }, getAuthorHandle(author), ' · ',
       el('time', { datetime: post.created_at }, relativeTime(post.created_at))));
   const meta = el('div', { className: 'featured-card__meta' }, createAvatar(author), identity);
   const actions = el('div', { className: 'featured-card__actions' },
-    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(commentCount, 'bình luận') }, icon('comment'),
-      (Number.isFinite(commentCount) ? commentCount : '–') + ' bình luận'), createDetail(post.id));
+    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(commentCount, 'comments') }, icon('comment'),
+      t('{count} bình luận', { count: Number.isFinite(commentCount) ? commentCount : '–' })), createDetail(post.id));
   return el('article', { className: 'featured-card' }, createBand(rank),
     el('div', { className: 'featured-card__body' }, title,
       markMentions(el('p', { className: 'featured-card__excerpt' }, wrapJapanese(makeExcerpt(post.content, '', 220)))),
@@ -95,7 +96,7 @@ export function createFeaturedPlaceholder(rank) {
     el('span', { className: 'featured-card__avatar featured-card__avatar--placeholder' }),
     el('span', { className: 'u-placeholder-bar u-placeholder-bar--short' })),
   el('div', { className: 'featured-card__actions' },
-    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(null, 'bình luận') }, icon('comment'), '– bình luận'), createDetail()),
-  el('span', { className: 'u-visually-hidden' }, 'Đang chờ dữ liệu bài nổi bật'));
+    el('span', { className: 'featured-card__comments stat-tooltip', tabindex: '0', 'aria-label': statLabel(null, 'comments') }, icon('comment'), t('{count} bình luận', { count: '–' })), createDetail()),
+  el('span', { className: 'u-visually-hidden' }, t('Đang chờ dữ liệu bài nổi bật')));
   return el('article', { className: 'featured-card featured-card--placeholder' }, createBand(rank), body);
 }

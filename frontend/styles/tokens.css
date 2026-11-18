@@ -423,9 +423,9 @@
   --torii-plaque-text: #FFEBCC;
 
   /* Phông chữ cho nội dung, tiếng Nhật, tiêu đề và chữ thương hiệu. */
-  --font-body: 'Be Vietnam Pro', sans-serif;
+  --font-body: 'Be Vietnam Pro', 'Noto Sans JP', sans-serif;
   --font-jp: 'Noto Sans JP', sans-serif;
-  --font-display: 'Etsubi Display', 'Be Vietnam Pro', sans-serif;
+  --font-display: 'Etsubi Display', 'Be Vietnam Pro', 'Noto Sans JP', sans-serif;
   --font-logo: 'Etsubi Logo', 'Be Vietnam Pro', sans-serif;
 
   /* Thang khoảng cách 4px dùng để căn lề, đệm và khoảng trống giữa thành phần. */

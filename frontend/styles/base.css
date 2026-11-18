@@ -90,8 +90,8 @@ fieldset {
   display: none;
 }
 
-/* Chữ tiếng Nhật dùng phông có đủ ký tự để tránh lỗi hiển thị. */
-:lang(ja) {
+/* Cụm chữ Nhật được đánh dấu riêng dùng phông có đủ ký tự; không áp cho cả trang khi giao diện là tiếng Nhật. */
+[lang="ja"]:not(html) {
   font-family: var(--font-jp);
 }
 

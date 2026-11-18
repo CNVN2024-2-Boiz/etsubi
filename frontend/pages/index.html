@@ -4,7 +4,7 @@
     <!-- Tài nguyên tĩnh và phông chung giữ nhận diện đồng nhất với các trang đã làm. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Trang chủ · Etsubi</title>
+    <title data-i18n>Trang chủ · Etsubi</title>
     <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,7 +19,7 @@
   </head>
   <body class="page page--home">
     <!-- Header do component dựng; skip link đưa bàn phím tới nội dung chính. -->
-    <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
     <header class="site-header" data-component="header" data-active="home"></header>
 
     <!-- Ảnh và lớp phủ tạo lời chào dễ đọc; cánh hoa chỉ trang trí. -->
@@ -29,10 +29,10 @@
         <div class="home-hero__copy">
           <span class="home-hero__accent" aria-hidden="true"></span>
           <p class="home-hero__kicker"><span lang="ja">越日</span> · <span class="brand-word">Etsubi</span></p>
-          <h1 id="home-title" class="t-display home-hero__title">Chào mừng đến Etsubi</h1>
-          <p class="home-hero__description">Cầu nối văn hoá Việt – Nhật cho sinh viên đại học: chia sẻ, hỏi đáp và kết bạn bằng chính ngôn ngữ của bạn.</p>
+          <h1 id="home-title" class="t-display home-hero__title" data-i18n>Chào mừng đến Etsubi</h1>
+          <p class="home-hero__description" data-i18n>Cầu nối văn hoá Việt – Nhật cho sinh viên đại học: chia sẻ, hỏi đáp và kết bạn bằng chính ngôn ngữ của bạn.</p>
           <div class="home-hero__actions">
-            <a class="btn btn--primary" href="/pages/forum.html?compose=1" data-write-post>Đăng bài <img src="/assets/icons/arrow-right.svg" width="18" height="18" alt="" /></a>
+            <a class="btn btn--primary" href="/pages/forum.html?compose=1" data-write-post><span data-i18n>Đăng bài</span> <img src="/assets/icons/arrow-right.svg" width="18" height="18" alt="" /></a>
           </div>
         </div>
         <div class="home-hero__petals" data-hero-petals aria-hidden="true"></div>
@@ -51,20 +51,20 @@
         <!-- Bài nổi bật giữ đủ khung chờ API, đổi trang bằng chấm không có chuyển động. -->
         <section class="home-featured" aria-labelledby="featured-title">
           <header class="home-section-heading">
-            <h2 id="featured-title" class="t-display home-section-heading__title">Bài viết nổi bật</h2>
-            <p>Những chủ đề được cộng đồng Việt – Nhật quan tâm nhiều nhất tuần này</p>
+            <h2 id="featured-title" class="t-display home-section-heading__title" data-i18n>Bài viết nổi bật</h2>
+            <p data-i18n>Những chủ đề được cộng đồng Việt – Nhật quan tâm nhiều nhất tuần này</p>
           </header>
           <div class="home-featured__cards" data-featured-cards></div>
-          <p class="home-featured__note" role="note" data-featured-note hidden>Bài viết nổi bật sẽ hiển thị khi máy chủ hỗ trợ xếp hạng.</p>
-          <nav class="home-featured__pagination" aria-label="Phân trang bài nổi bật" data-featured-dots></nav>
+          <p class="home-featured__note" role="note" data-featured-note data-i18n hidden>Bài viết nổi bật sẽ hiển thị khi máy chủ hỗ trợ xếp hạng.</p>
+          <nav class="home-featured__pagination" aria-label="Phân trang bài nổi bật" data-i18n-attr="aria-label" data-featured-dots></nav>
         </section>
 
         <!-- Tablet đổi thứ tự để bảng tin mới được đọc trước gợi ý cá nhân. -->
         <div class="home-columns">
           <section class="home-recommendations" aria-labelledby="recommendations-title">
             <header class="home-section-heading">
-              <h2 id="recommendations-title" class="t-display home-section-heading__title">Có thể bạn quan tâm</h2>
-              <p>Gợi ý từ chủ đề bạn đã chọn khi đăng ký</p>
+              <h2 id="recommendations-title" class="t-display home-section-heading__title" data-i18n>Có thể bạn quan tâm</h2>
+              <p data-i18n>Gợi ý từ chủ đề bạn đã chọn khi đăng ký</p>
             </header>
             <div class="home-recommendations__card" data-recommendations></div>
           </section>
@@ -74,15 +74,15 @@
           <section class="home-feed" aria-labelledby="feed-title">
             <!-- Tiêu đề có link "Xem thêm" ở góc phải như Figma Home 4, dẫn sang trang Diễn đàn để xem toàn bộ bài. -->
             <header class="home-section-heading home-section-heading--with-link">
-              <h2 id="feed-title" class="t-display home-section-heading__title">Bài viết mới</h2>
-              <a class="home-section-heading__more" href="/pages/forum.html" data-route="forum">Xem thêm →</a>
-              <p>Cập nhật liên tục từ cộng đồng Etsubi</p>
+              <h2 id="feed-title" class="t-display home-section-heading__title" data-i18n>Bài viết mới</h2>
+              <a class="home-section-heading__more" href="/pages/forum.html" data-route="forum" data-i18n>Xem thêm →</a>
+              <p data-i18n>Cập nhật liên tục từ cộng đồng Etsubi</p>
             </header>
-            <div class="home-feed__tabs" role="tablist" aria-label="Chọn bảng tin" data-feed-tabs>
-              <button id="feed-tab-newest" class="home-feed__tab is-active" type="button" role="tab" aria-selected="true" aria-controls="home-feed-panel" tabindex="0" data-feed-tab="newest">Mới nhất</button>
-              <button id="feed-tab-popular" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="popular">Phổ biến</button>
-              <button id="feed-tab-following" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="following">Đang theo dõi</button>
-              <button id="feed-tab-question" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="question">Hỏi đáp</button>
+            <div class="home-feed__tabs" role="tablist" aria-label="Chọn bảng tin" data-i18n-attr="aria-label" data-feed-tabs>
+              <button id="feed-tab-newest" class="home-feed__tab is-active" type="button" role="tab" aria-selected="true" aria-controls="home-feed-panel" tabindex="0" data-feed-tab="newest" data-i18n>Mới nhất</button>
+              <button id="feed-tab-popular" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="popular" data-i18n>Phổ biến</button>
+              <button id="feed-tab-following" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="following" data-i18n>Đang theo dõi</button>
+              <button id="feed-tab-question" class="home-feed__tab" type="button" role="tab" aria-selected="false" aria-controls="home-feed-panel" tabindex="-1" data-feed-tab="question" data-i18n>Hỏi đáp</button>
             </div>
             <p class="u-visually-hidden" role="status" data-feed-status></p>
             <div id="home-feed-panel" class="home-feed__list" role="tabpanel" aria-labelledby="feed-tab-newest" tabindex="0" data-feed-list></div>

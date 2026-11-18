@@ -10,11 +10,12 @@ import { bindUsernameInput, normalizeUsername, isValidUsername, validateUsername
 import { routes } from '/utils/routes.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { vietnamPlaces, japanPlaces } from '/utils/places.js';
+import { t, currentLocale } from '/utils/i18n.js';
 
 // Chỉ các trường trong danh sách này được so sánh, lưu nháp và gửi lên API; không lưu JWT vào nháp.
 const profileKeys = ['displayname', 'username', 'institute', 'address', 'bio', 'avatar_url', 'native'];
-const nativeLabels = { vi: 'Tiếng Việt', ja: '日本語', en: 'English' };
-const presetLabels = ['Cổng torii', 'Hoa anh đào', 'Núi Phú Sĩ', 'Đèn lồng', 'Quạt giấy', 'Sóng biển'];
+const nativeLabels = { vi: t('Tiếng Việt'), ja: '日本語', en: 'English' };
+const presetLabels = [t('Cổng torii'), t('Hoa anh đào'), t('Núi Phú Sĩ'), t('Đèn lồng'), t('Quạt giấy'), t('Sóng biển')];
 const form = qs('[data-profile-form]');
 const fields = qs('[data-profile-fields]');
 const submitButton = qs('[data-submit]');
@@ -67,15 +68,18 @@ function normalizeProfile(user) {
 /** Tạo hai nhóm select bằng DOM an toàn; tên lưu kèm quốc gia để tránh trùng tỉnh giữa hai nước. */
 function buildPlaces() {
   // Mỗi nhóm có tên dễ đọc bằng trình đọc màn hình, không thay bằng dropdown tự chế.
-  for (const [country, places] of [['Việt Nam', vietnamPlaces], ['Nhật Bản', japanPlaces]]) {
-    const group = el('optgroup', { label: country });
+  // Giá trị lưu vào address luôn là tiếng Việt; chỉ nhãn hiển thị được dịch bằng t().
+  for (const [country, places] of [['Việt Nam', vietnamPlaces], ['Nhật Bản', japanPlaces]]) { // i18n-ignore
+    const group = el('optgroup', { label: t(country) });
     for (const place of places) {
-      const label = place + ', ' + country;
-      group.append(el('option', { value: label }, label));
+      const value = place + ', ' + country;
+      const label = t('{place}, {country}', { place: t(place), country: t(country) });
+      group.append(el('option', { value }, label));
     }
     input('address').append(group);
   }
-  input('address').append(el('option', { value: 'Khác' }, 'Khác'));
+  // Giá trị 'Khác' được lưu vào address nên giữ tiếng Việt.
+  input('address').append(el('option', { value: 'Khác' }, t('Khác'))); // i18n-ignore
 }
 
 /** Giữ được địa chỉ cũ hoặc địa chỉ tự do từ API khi nó chưa có trong danh sách chọn mới. */
@@ -110,8 +114,8 @@ function draftKey() {
 
 /** Hiện thời gian lưu theo hh:mm sau khi localStorage đã ghi thành công. */
 function showDraftTime(timestamp) {
-  const time = new Date(timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
-  qs('[data-draft-label]').textContent = 'Đã lưu nháp · ' + time;
+  const time = new Date(timestamp).toLocaleTimeString(currentLocale(), { hour: '2-digit', minute: '2-digit', hour12: false });
+  qs('[data-draft-label]').textContent = t('Đã lưu nháp · {time}', { time });
   qs('[data-draft-pill]').hidden = false;
 }
 
@@ -164,7 +168,7 @@ function saveDraft(manual = false) {
     showDraftTime(timestamp);
   } catch {
     if (manual) {
-      showAlert('Không lưu được nháp trên trình duyệt này. Bạn vẫn có thể lưu hồ sơ lên máy chủ.');
+      showAlert(t('Không lưu được nháp trên trình duyệt này. Bạn vẫn có thể lưu hồ sơ lên máy chủ.'));
     }
   }
 }
@@ -196,7 +200,7 @@ function renderAvatar() {
     previewSource = avatarUrl;
     const source = safeAvatarSource(avatarUrl);
     if (source) {
-      const image = el('img', { src: source, alt: input('displayname').value || 'Ảnh đại diện của bạn', width: 90, height: 90 });
+      const image = el('img', { src: source, alt: input('displayname').value || t('Ảnh đại diện của bạn'), width: 90, height: 90 });
       image.addEventListener('error', showAvatarFallback, { once: true });
       avatarPreview.replaceChildren(image);
     } else {
@@ -205,7 +209,7 @@ function renderAvatar() {
   }
   const image = qs('img', avatarPreview);
   if (image) {
-    image.alt = input('displayname').value || 'Ảnh đại diện của bạn';
+    image.alt = input('displayname').value || t('Ảnh đại diện của bạn');
   } else {
     showAvatarFallback();
   }
@@ -232,14 +236,15 @@ function renderState() {
     username: formatHandle(values.username),
     email: input('email').value,
     institute: values.institute,
-    address: values.address.split(',')[0],
+    // Tên nơi ở lưu bằng tiếng Việt; dịch phần tên tỉnh khi hiển thị, địa chỉ tự do từ API giữ nguyên.
+    address: t(values.address.split(',')[0]),
     native: nativeLabels[values.native] || '',
   };
   // textContent giữ API text ở dạng văn bản; title cung cấp giá trị đầy đủ khi nội dung bị ellipsis.
   for (const node of qsa('[data-summary]')) {
     const value = summary[node.dataset.summary];
     node.textContent = value || '–';
-    node.title = value || 'Chưa nhập';
+    node.title = value || t('Chưa nhập');
     node.classList.toggle('is-empty', !value);
     node.lang = node.dataset.summary === 'native' && values.native === 'ja' ? 'ja' : 'vi';
   }
@@ -251,7 +256,7 @@ function renderState() {
     const done = stepsDone[index];
     button.classList.toggle('is-done', done);
     qs('[data-step-dot]', item).textContent = done ? '' : String(index + 1);
-    qs('[data-step-status]', item).textContent = done ? ' · Đã hoàn thành' : ' · Chưa hoàn thành';
+    qs('[data-step-status]', item).textContent = ' · ' + (done ? t('Đã hoàn thành') : t('Chưa hoàn thành'));
     if (index === currentIndex) {
       button.setAttribute('aria-current', 'step');
     } else {
@@ -283,10 +288,10 @@ function setFieldError(name, message = '') {
     return;
   }
   const defaults = {
-    displayname: 'Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào',
-    username: 'Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự',
-    bio: 'Hiển thị công khai trên trang hồ sơ của bạn',
-    native: 'Có thể thay đổi bất cứ lúc nào trong Cài đặt',
+    displayname: t('Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào'),
+    username: t('Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự'),
+    bio: t('Hiển thị công khai trên trang hồ sơ của bạn'),
+    native: t('Có thể thay đổi bất cứ lúc nào trong Cài đặt'),
   };
   hint.textContent = message || defaults[name];
 }
@@ -307,7 +312,7 @@ function setBusy(value) {
   form.setAttribute('aria-busy', String(value));
   submitButton.disabled = value || !ready;
   draftButton.disabled = value || !ready;
-  submitButton.textContent = value ? 'Đang xử lý…' : 'Tạo tài khoản ›';
+  submitButton.textContent = value ? t('Đang xử lý…') : t('Tạo tài khoản ›');
   renderAvatar();
 }
 
@@ -359,13 +364,13 @@ function validateForm() {
   const errors = {
     displayname: validateDisplayName(values.displayname),
     username: validateUsername(values.username),
-    bio: input('bio').value.length <= 300 ? '' : 'Giới thiệu bản thân không được vượt quá 300 ký tự.',
-    native: nativeChosen && Object.hasOwn(nativeLabels, values.native) ? '' : 'Vui lòng chọn ngôn ngữ mẹ đẻ.',
-    terms: input('terms').checked ? '' : 'Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.',
+    bio: input('bio').value.length <= 300 ? '' : t('Giới thiệu bản thân không được vượt quá 300 ký tự.'),
+    native: nativeChosen && Object.hasOwn(nativeLabels, values.native) ? '' : t('Vui lòng chọn ngôn ngữ mẹ đẻ.'),
+    terms: input('terms').checked ? '' : t('Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.'),
   };
   // Gửi lại tên đã báo trùng chỉ sau khi người dùng sửa, tránh xoá mất gợi ý 409.
   if (usernameConflict) {
-    errors.username = '@tên người dùng này đã có người dùng, hãy chọn tên khác.';
+    errors.username = t('@tên người dùng này đã có người dùng, hãy chọn tên khác.');
   }
   let firstInvalid = null;
   for (const [name, message] of Object.entries(errors)) {
@@ -410,7 +415,7 @@ async function submitProfile(event) {
         serverValues = normalizeProfile(serverUser);
         fillValues(serverValues, input('terms').checked, nativeChosen);
         renderState();
-        showAlert('Máy chủ chưa lưu được tên hiển thị. Các trường khác đã được cập nhật. Bạn có thể tiếp tục hoặc sửa lại sau trong Cài đặt.', false, true);
+        showAlert(t('Máy chủ chưa lưu được tên hiển thị. Các trường khác đã được cập nhật. Bạn có thể tiếp tục hoặc sửa lại sau trong Cài đặt.'), false, true);
         return;
       }
     }
@@ -421,7 +426,7 @@ async function submitProfile(event) {
       // Bộ nhớ có thể bị chặn sau khi lưu; hồ sơ trên server vẫn đã được cập nhật thành công.
     }
     qs('[data-draft-pill]').hidden = true;
-    showAlert('Đã lưu hồ sơ!', false, true);
+    showAlert(t('Đã lưu hồ sơ!'), false, true);
     setTimeout(goAfterSave, 600);
   } catch (error) {
     if (error.status === 409 && fieldForError(error) === 'username') {
@@ -496,7 +501,7 @@ function buildPresets() {
       type: 'button',
       className: 'profile-preset',
       'data-preset': path,
-      'aria-label': 'Chọn ảnh ' + label,
+      'aria-label': t('Chọn ảnh {name}', { name: label }),
       'aria-pressed': 'false',
     }, el('img', { src: path, alt: '', width: 80, height: 80 }));
     button.addEventListener('click', choosePreset);
@@ -521,7 +526,7 @@ function decodeImage(url) {
     }
     /** Báo lỗi tiếng Việt khi nội dung file không giải mã được thành ảnh. */
     function failed() {
-      reject(new Error('Không đọc được ảnh này. Vui lòng chọn một ảnh JPG hoặc PNG khác.'));
+      reject(new Error(t('Không đọc được ảnh này. Vui lòng chọn một ảnh JPG hoặc PNG khác.')));
     }
     image.onload = loaded;
     image.onerror = failed;
@@ -540,8 +545,8 @@ async function uploadAvatar() {
   fileInput.removeAttribute('aria-invalid');
   if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 2 * 1024 * 1024) {
     hint.textContent = !['image/jpeg', 'image/png'].includes(file.type)
-      ? 'Vui lòng chọn ảnh JPG hoặc PNG.'
-      : 'Ảnh vượt quá 2MB. Vui lòng chọn ảnh nhỏ hơn.';
+      ? t('Vui lòng chọn ảnh JPG hoặc PNG.')
+      : t('Ảnh vượt quá 2MB. Vui lòng chọn ảnh nhỏ hơn.');
     hint.hidden = false;
     fileInput.setAttribute('aria-invalid', 'true');
     return;
@@ -557,7 +562,7 @@ async function uploadAvatar() {
     canvas.height = 256;
     const context = canvas.getContext('2d');
     if (!context || !side) {
-      throw new Error('Không xử lý được ảnh này. Vui lòng thử một ảnh khác.');
+      throw new Error(t('Không xử lý được ảnh này. Vui lòng thử một ảnh khác.'));
     }
     // PNG trong suốt được ghép lên màu trắng có sẵn trong tokens trước khi xuất JPEG không hỗ trợ alpha.
     context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--color-white').trim();
@@ -566,7 +571,7 @@ async function uploadAvatar() {
     // Back end chưa có endpoint tải file: chỉ gửi chuỗi JPEG nhỏ trong trường avatar_url của PATCH /my.
     avatarUrl = canvas.toDataURL('image/jpeg', 0.85);
   } catch (error) {
-    hint.textContent = error.message || 'Không xử lý được ảnh. Vui lòng thử lại.';
+    hint.textContent = error.message || t('Không xử lý được ảnh. Vui lòng thử lại.');
     hint.hidden = false;
     fileInput.setAttribute('aria-invalid', 'true');
   } finally {

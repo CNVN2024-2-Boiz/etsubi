@@ -1,4 +1,5 @@
 /** Tên người dùng dùng chung: chuẩn hoá handle, kiểm tra và giữ con trỏ khi nhập. */
+import { t } from '/utils/i18n.js';
 
 /** Chuyển chữ thường, bỏ khoảng trắng và tiền tố @ do người dùng tự gõ. */
 export function normalizeUsername(value) {
@@ -14,16 +15,16 @@ export function isValidUsername(value) {
 export function validateUsername(value) {
   const text = String(value ?? '');
   if (!text.trim()) {
-    return 'Vui lòng nhập tên người dùng.';
+    return t('Vui lòng nhập tên người dùng.');
   }
   if (text.length < 3) {
-    return 'Tên người dùng cần ít nhất 3 ký tự.';
+    return t('Tên người dùng cần ít nhất 3 ký tự.');
   }
   if (text.length > 30) {
-    return 'Tên người dùng không được vượt quá 30 ký tự.';
+    return t('Tên người dùng không được vượt quá 30 ký tự.');
   }
   if (!isValidUsername(text)) {
-    return 'Tên người dùng chỉ gồm chữ thường, số và dấu _.';
+    return t('Tên người dùng chỉ gồm chữ thường, số và dấu _.');
   }
   return '';
 }
@@ -38,9 +39,9 @@ export function formatHandle(username) {
 export function validateDisplayName(value) {
   const text = String(value ?? '').trim();
   if (!text) {
-    return 'Vui lòng nhập tên hiển thị.';
+    return t('Vui lòng nhập tên hiển thị.');
   }
-  return Array.from(text).length > 50 ? 'Tên hiển thị không được vượt quá 50 ký tự.' : '';
+  return Array.from(text).length > 50 ? t('Tên hiển thị không được vượt quá 50 ký tự.') : '';
 }
 
 /** Chuẩn hoá cả vùng trước con trỏ để xoá khoảng trắng giữa chuỗi không đẩy con trỏ về cuối. */

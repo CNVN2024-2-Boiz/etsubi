@@ -153,7 +153,7 @@
 }
 
 /* Chữ Nhật dùng nét vừa vì phông thương hiệu không có glyph tiếng Nhật. */
-.auth-hero__brand :lang(ja) {
+.auth-hero__brand [lang="ja"] {
   font-weight: 500;
 }
 

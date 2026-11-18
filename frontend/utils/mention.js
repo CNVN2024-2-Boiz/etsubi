@@ -1,5 +1,6 @@
 /** Nhắc tên bằng @username: nhận diện trong nội dung, gợi ý khi soạn và tô tên sau khi đăng. */
 import { renderRichContent, richTextOutsideLinks } from '/utils/rich-text.js';
+import { t } from '/utils/i18n.js';
 
 // Máy chủ chỉ nhận tối đa 10 tên trong một lần gửi thông báo.
 export const MENTION_LIMIT = 10;
@@ -49,8 +50,8 @@ export function listMentions(html) {
 export function mentionHint(html) {
   const count = listMentions(html).length;
   return count > MENTION_LIMIT
-    ? { text: 'Chỉ ' + MENTION_LIMIT + ' tên đầu tiên được gửi thông báo (đang có ' + count + ' tên)', warning: true }
-    : { text: 'Gõ @username để nhắc đến ai đó', warning: false };
+    ? { text: t('Chỉ {limit} tên đầu tiên được gửi thông báo (đang có {count} tên)', { limit: MENTION_LIMIT, count }), warning: true }
+    : { text: t('Gõ @username để nhắc đến ai đó'), warning: false };
 }
 
 /**

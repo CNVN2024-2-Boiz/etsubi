@@ -1,13 +1,9 @@
 /** Dropdown chọn ngôn ngữ giao diện trên header; chỉ lưu lựa chọn trong trình duyệt, không gọi API. */
 import { el } from '/utils/dom.js';
-import {
-  INTERFACE_LANGUAGES,
-  getInterfaceLanguage,
-  setInterfaceLanguage,
-  onInterfaceLanguageChange,
-} from '/utils/preferences.js';
+import { INTERFACE_LANGUAGES, getInterfaceLanguage, onInterfaceLanguageChange } from '/utils/preferences.js';
+import { changeInterfaceLanguage, t } from '/utils/i18n.js';
 
-// Tên hiển thị của từng ngôn ngữ, viết bằng chính ngôn ngữ đó để người đọc dễ nhận ra.
+// Tên ngôn ngữ giữ nguyên ở mọi giao diện để người đọc luôn nhận ra tiếng của mình. i18n-ignore
 const languageNames = { vi: 'Tiếng Việt', ja: '日本語', en: 'English' };
 
 /** Tạo icon Lucide theo màu chữ; đường nét là hằng số nội bộ, không chứa dữ liệu người dùng. */
@@ -47,7 +43,7 @@ export function createLanguageMenu({ id, signal, beforeOpen }) {
     id,
     className: 'site-header__language-menu',
     role: 'menu',
-    'aria-label': 'Ngôn ngữ giao diện',
+    'aria-label': t('Ngôn ngữ giao diện'),
     hidden: true,
   }, options);
   const element = el('div', { className: 'site-header__language-picker' }, button, menu);
@@ -55,7 +51,7 @@ export function createLanguageMenu({ id, signal, beforeOpen }) {
   /** Đồng bộ mã trên nút, tên đọc cho trình đọc màn hình và dấu tick của mục đang chọn. */
   function render(language) {
     code.textContent = language.toUpperCase();
-    button.setAttribute('aria-label', 'Ngôn ngữ giao diện: ' + languageNames[language]);
+    button.setAttribute('aria-label', t('Ngôn ngữ giao diện: {name}', { name: languageNames[language] }));
     for (const option of options) {
       option.setAttribute('aria-checked', String(option.dataset.language === language));
     }
@@ -101,12 +97,12 @@ export function createLanguageMenu({ id, signal, beforeOpen }) {
     }
   }, { signal });
 
-  // Chọn một dòng thì lưu ngay; sự kiện chung cập nhật nút này và trang Cài đặt.
+  // Chọn một dòng thì lưu ngay rồi tải lại trang để toàn bộ chữ đổi theo ngôn ngữ mới.
   menu.addEventListener('click', event => {
     const option = event.target.closest('[data-language]');
     if (option) {
-      setInterfaceLanguage(option.dataset.language);
       close(true);
+      changeInterfaceLanguage(option.dataset.language);
     }
   }, { signal });
 

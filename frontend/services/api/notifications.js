@@ -5,6 +5,7 @@ import { routes } from '/utils/routes.js';
 import { formatHandle } from '/utils/username.js';
 import { initials } from '/utils/format.js';
 import { isAllowedReaction } from '/services/api/reaction-emojis.js';
+import { t } from '/utils/i18n.js';
 
 /** Đọc số thông báo chưa đọc của tài khoản hiện tại để cập nhật chuông. */
 export function getUnreadCount() {
@@ -69,16 +70,16 @@ export function notificationHref(link) {
 
 /** Bảng câu tiếng Việt theo loại; chỗ trống được điền bằng các nhóm khớp từ thông điệp máy chủ. */
 export const notificationKindText = Object.freeze({
-  follow: '{actor} đã bắt đầu theo dõi bạn',
-  reaction: '{actor} đã bày tỏ cảm xúc {emoji} với bài viết của bạn',
-  comment: '{actor} đã bình luận bài viết của bạn',
-  reply: '{actor} đã trả lời bình luận của bạn',
-  mention: '{actor} đã nhắc đến bạn',
-  post_created: '{actor} vừa đăng bài mới: “{title}”',
-  muted: '{actor} đã tạm khoá chức năng viết của bạn đến {date}',
-  banned: '{actor} đã khoá tài khoản của bạn',
-  post_locked: '{actor} đã khoá bình luận bài viết của bạn',
-  post_removed: '{actor} đã gỡ bài viết “{title}” của bạn',
+  follow: t('{actor} đã bắt đầu theo dõi bạn'),
+  reaction: t('{actor} đã bày tỏ cảm xúc {emoji} với bài viết của bạn'),
+  comment: t('{actor} đã bình luận bài viết của bạn'),
+  reply: t('{actor} đã trả lời bình luận của bạn'),
+  mention: t('{actor} đã nhắc đến bạn'),
+  post_created: t('{actor} vừa đăng bài mới: “{title}”'),
+  muted: t('{actor} đã tạm khoá chức năng viết của bạn đến {date}'),
+  banned: t('{actor} đã khoá tài khoản của bạn'),
+  post_locked: t('{actor} đã khoá bình luận bài viết của bạn'),
+  post_removed: t('{actor} đã gỡ bài viết “{title}” của bạn'),
 });
 
 // Biểu thức cố định bám theo câu tiếng Anh của API, không suy đoán tên hoặc tiêu đề khi câu không khớp.
@@ -129,15 +130,15 @@ export function formatNotification(notification) {
     if (Number.isNaN(date.getTime())) {
       return fallback;
     }
-    values.date = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      + ' ' + date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false });
+    values.date = date.toLocaleDateString(currentLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' })
+      + ' ' + date.toLocaleTimeString(currentLocale(), { hour: '2-digit', minute: '2-digit', hour12: false });
   }
   // Emoji trong câu do người gửi tự khai nên chỉ hiện khi đúng danh sách cho phép, tránh chèn chữ lạ vào thông báo.
   if (kind === 'reaction' && !isAllowedReaction(values.emoji)) {
     values.emoji = '';
   }
   // Chỉ tên người thực hiện được in đậm; nội dung còn lại luôn là text node khi dựng giao diện.
-  const actorName = isSystem ? 'Quản trị viên'
+  const actorName = isSystem ? t('Quản trị viên')
     : actor.displayname || (actor.username ? formatHandle(actor.username) : values.actor);
   values.actor = actorName;
   const suffix = notificationKindText[kind].replace('{actor}', '').replace(/\{(\w+)\}/gu, (placeholder, key) => values[key] ?? placeholder)

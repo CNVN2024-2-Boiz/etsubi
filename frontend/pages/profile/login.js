@@ -3,11 +3,13 @@ import { initAuthPage } from '/utils/auth-page.js';
 import { login, safeRedirect } from '/utils/auth.js';
 import { routes } from '/utils/routes.js';
 import { qs } from '/utils/dom.js';
+import { t } from '/utils/i18n.js';
 
 // Nội dung lời chào riêng của trang; cảnh và tương tác biểu mẫu được dùng chung.
 initAuthPage({
   mode: 'login',
-  copyLines: ['Cầu nối văn hoá Việt – Nhật', 'cho sinh viên đại học.'],
+  title: t('XIN CHÀO'),
+  copyLines: [t('Cầu nối văn hoá Việt – Nhật'), t('cho sinh viên đại học.')],
   /** Gửi email và mật khẩu; chỉ chuyển hướng tới đường dẫn nội bộ đã kiểm tra. */
   async onSubmit(values, { redirect }) {
     await login(values.email, values.password, { remember: values.remember === 'on' });
@@ -23,6 +25,6 @@ qs('[data-google-auth]')?.addEventListener('click', () => {
   if (!note) {
     return;
   }
-  note.textContent = 'Đăng nhập bằng Google sắp có.';
+  note.textContent = t('Đăng nhập bằng Google sắp có.');
   note.hidden = false;
 });

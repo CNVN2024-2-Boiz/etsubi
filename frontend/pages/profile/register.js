@@ -3,6 +3,7 @@ import { initAuthPage } from '/utils/auth-page.js';
 import { registerAndLogin, login, safeRedirect } from '/utils/auth.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { qs } from '/utils/dom.js';
+import { t } from '/utils/i18n.js';
 
 // Ghi nhớ email đã tạo trong lần gửi này để lỗi đăng nhập không dẫn đến đăng ký trùng.
 let createdEmail = null;
@@ -10,7 +11,8 @@ let createdEmail = null;
 // Lời chào và thao tác gửi riêng; các trường và thông báo dùng chung với trang login.
 initAuthPage({
   mode: 'register',
-  copyLines: ['Cùng khám phá văn hoá Việt – Nhật', 'cùng cộng đồng sinh viên.'],
+  title: t('THAM GIA'),
+  copyLines: [t('Cùng khám phá văn hoá Việt – Nhật'), t('cùng cộng đồng sinh viên.')],
   /** Đăng ký với tiếng Việt mặc định, người dùng chọn ngôn ngữ mẹ đẻ ở bước sau; tài khoản đã tạo thì chỉ thử đăng nhập lại. */
   async onSubmit(values, { redirect, showInfo }) {
     try {
@@ -31,7 +33,7 @@ initAuthPage({
         createdEmail = values.email;
       }
       if (createdEmail === values.email) {
-        showInfo('Tài khoản đã được tạo. Vui lòng thử đăng nhập lại hoặc chuyển sang trang Đăng nhập.');
+        showInfo(t('Tài khoản đã được tạo. Vui lòng thử đăng nhập lại hoặc chuyển sang trang Đăng nhập.'));
       }
       throw error;
     }
@@ -47,6 +49,6 @@ qs('[data-google-auth]')?.addEventListener('click', () => {
   if (!note) {
     return;
   }
-  note.textContent = 'Đăng ký bằng Google sắp có.';
+  note.textContent = t('Đăng ký bằng Google sắp có.');
   note.hidden = false;
 });

@@ -21,6 +21,7 @@ import { el, qs, qsa } from '/utils/dom.js';
 import { initials } from '/utils/format.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 import { routes, withRedirect } from '/utils/routes.js';
+import { currentLocale, t } from '/utils/i18n.js';
 
 // Header có tab Diễn đàn đang chọn và ô tìm kiếm trong suốt như Figma; footer đầy đủ.
 mountHeader(qs('[data-component="header"]'), { active: 'forum', searchForm: true });
@@ -53,7 +54,7 @@ let feedController = null;
 // Editor và media thuộc cùng một form, vì vậy chuyển vào dialog không làm mất nháp.
 let composePlace = null;
 let composeSending = false;
-const composeEditor = createRichEditor({ label: 'Nội dung bài viết', onChange: () => {
+const composeEditor = createRichEditor({ label: t('Nội dung bài viết'), onChange: () => {
   // Người viết đã sửa nội dung, bỏ dấu lỗi cũ nhưng vẫn tính lại trạng thái nút Đăng.
   composeEditor.area.removeAttribute('aria-invalid');
   syncComposeSubmit();
@@ -104,7 +105,7 @@ function createFeedPlaceholder() {
 
 /** Liên kết đăng nhập quay lại đúng trang Diễn đàn. */
 function loginLink() {
-  return el('a', { className: 'btn btn--secondary btn--sm', href: withRedirect(routes.login, location.pathname + location.search) }, 'Đăng nhập');
+  return el('a', { className: 'btn btn--secondary btn--sm', href: withRedirect(routes.login, location.pathname + location.search) }, t('Đăng nhập'));
 }
 
 /** Thay bảng tin bằng một thông báo (rỗng, chưa hỗ trợ, cần đăng nhập). */
@@ -220,12 +221,12 @@ async function loadFeed() {
   feedOffset = 0;
   moreBox.hidden = true;
   feedList.setAttribute('aria-busy', 'true');
-  feedStatus.textContent = 'Đang tải bài viết…';
+  feedStatus.textContent = t('Đang tải bài viết…');
   feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
   try {
     // Không gọi endpoint cần JWT nếu chưa có hồ sơ đăng nhập.
     if (selectedFeed === 'following' && !user) {
-      showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
+      showFeedInfo(t('Đăng nhập để xem bài từ những người bạn theo dõi.'), true);
       return;
     }
     const posts = await fetchPage(0, signal);
@@ -234,18 +235,18 @@ async function loadFeed() {
     }
     // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
     if (posts === null) {
-      showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
+      showFeedInfo(t('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.'));
       return;
     }
     if (!posts?.length) {
-      showFeedInfo(selectedFeed === 'following' ? 'Bạn chưa theo dõi ai hoặc họ chưa đăng bài.'
-        : selectedFeed === 'question' ? 'Chưa có bài hỏi đáp nào.' : 'Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!');
+      showFeedInfo(selectedFeed === 'following' ? t('Bạn chưa theo dõi ai hoặc họ chưa đăng bài.')
+        : selectedFeed === 'question' ? t('Chưa có bài hỏi đáp nào.') : t('Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!'));
       return;
     }
     feedOffset = posts.length;
     feedList.replaceChildren(...posts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
-    feedStatus.textContent = 'Đã tải ' + posts.length + ' bài viết.';
+    feedStatus.textContent = t('Đã tải {count} bài viết.', { count: posts.length });
     // Endpoint riêng trả toàn bộ danh sách cho Diễn đàn; chỉ tab Mới nhất có nút tải thêm.
     moreBox.hidden = selectedFeed !== 'newest' || posts.length < PAGE_SIZE;
     await enrichFeed(posts, version);
@@ -253,11 +254,11 @@ async function loadFeed() {
     if (version !== feedVersion || signal.aborted) {
       return;
     }
-    const retry = el('button', { type: 'button', className: 'btn btn--secondary btn--sm' }, 'Thử lại');
+    const retry = el('button', { type: 'button', className: 'btn btn--secondary btn--sm' }, t('Thử lại'));
     retry.addEventListener('click', loadFeed);
     feedList.replaceChildren(el('div', { className: 'alert alert--error forum-feed__info', role: 'alert' },
       el('p', {}, toVietnameseMessage(error)), retry));
-    feedStatus.textContent = 'Không tải được bài viết.';
+    feedStatus.textContent = t('Không tải được bài viết.');
     feedList.setAttribute('aria-busy', 'false');
   }
 }
@@ -270,7 +271,7 @@ async function loadMore() {
   }
   const version = feedVersion;
   moreButton.disabled = true;
-  moreButton.textContent = 'Đang tải…';
+  moreButton.textContent = t('Đang tải…');
   try {
     const posts = await fetchPage(feedOffset, feedController?.signal);
     if (version !== feedVersion) {
@@ -279,14 +280,14 @@ async function loadMore() {
     const fresh = (posts || []).filter(post => !feedList.querySelector('[data-post-id="' + CSS.escape(String(post.id)) + '"]'));
     feedOffset += posts?.length || 0;
     feedList.append(...fresh.map(post => feedCard(post, post.author, post.tags)));
-    feedStatus.textContent = 'Đã tải thêm ' + fresh.length + ' bài viết.';
+    feedStatus.textContent = t('Đã tải thêm {count} bài viết.', { count: fresh.length });
     moreBox.hidden = !posts || posts.length < PAGE_SIZE;
     await enrichFeed(fresh, version);
   } catch (error) {
     showError(error);
   } finally {
     moreButton.disabled = false;
-    moreButton.textContent = 'Tải thêm bài viết';
+    moreButton.textContent = t('Tải thêm bài viết');
   }
 }
 
@@ -424,15 +425,15 @@ function renderComposeIdentity() {
       avatar.replaceChildren(image);
     }
   }
-  title.placeholder = compose.classList.contains('is-open') ? 'Tiêu đề bài viết'
-    : user ? getAuthorLabel(user) + ' ơi, bạn đang nghĩ gì?' : 'Đăng nhập để chia sẻ…';
+  title.placeholder = compose.classList.contains('is-open') ? t('Tiêu đề bài viết')
+    : user ? t('{name} ơi, bạn đang nghĩ gì?', { name: getAuthorLabel(user) }) : t('Đăng nhập để chia sẻ…');
 }
 
 /** Dựng chip Chủ đề theo Figma 394:3090 / 397:3355 từ danh mục GET /tags, không hiện số bài. */
 function renderComposeTags() {
   const box = qs('[data-compose-tags]');
   if (!tags.length) {
-    box.replaceChildren(el('p', { className: 'field__hint' }, 'Chưa tải được danh sách chủ đề.'));
+    box.replaceChildren(el('p', { className: 'field__hint' }, t('Chưa tải được danh sách chủ đề.')));
     return;
   }
   box.replaceChildren(...tags.map(tag => {
@@ -538,7 +539,7 @@ async function submitCompose(event) {
   if (composeMuted || composeSending || !title || composeEditor.isEmpty() || !await requireAuth()) {
     return;
   }
-  const titleError = validateRichBytes(title, 255, 'Tiêu đề');
+  const titleError = validateRichBytes(title, 255, t('Tiêu đề'));
   const validation = titleError || validateRichBytes(content, 100000);
   if (validation) {
     (titleError ? titleInput : composeEditor.area).setAttribute('aria-invalid', 'true');
@@ -549,15 +550,15 @@ async function submitCompose(event) {
   compose.inert = true;
   button.disabled = true;
   button.classList.add('is-loading');
-  button.textContent = 'Đang đăng…';
-  setComposeStatus('Đang đăng bài…');
+  button.textContent = t('Đang đăng…');
+  setComposeStatus(t('Đang đăng bài…'));
   try {
     // Service gắn từng tag rồi báo người theo dõi, trang chỉ hiển thị kết quả và lỗi tag nếu có.
     const post = await createPost({ title, content, ...(composePlace ? { latitude: composePlace.latitude, longitude: composePlace.longitude } : {}) }, { tagIds: [...selectedTags] });
     const failedTags = post.failedTagIds.length;
     resetCompose();
-    setComposeStatus(['Đã đăng bài. ', el('a', { href: routes.post(post.id) }, 'Xem bài'),
-      failedTags ? ' (' + failedTags + ' chủ đề chưa gắn được.)' : ''], 'success');
+    setComposeStatus([t('Đã đăng bài.'), ' ', el('a', { href: routes.post(post.id) }, t('Xem bài')),
+      failedTags ? ' ' + t('({count} chủ đề chưa gắn được.)', { count: failedTags }) : ''], 'success');
     // Chỉ thành công mới đóng dialog; khi lỗi, vùng trạng thái và bản nháp vẫn nằm trước người viết.
     closeComposeDialog();
     // Bài mới nằm ở tab Mới nhất nên chuyển về tab đó để người viết thấy ngay.
@@ -570,7 +571,7 @@ async function submitCompose(event) {
     composeSending = false;
     compose.inert = false;
     button.classList.remove('is-loading');
-    button.textContent = 'Đăng';
+    button.textContent = t('Đăng');
     syncComposeSubmit();
   }
 }
@@ -581,7 +582,7 @@ function applyMute() {
   const muted = Boolean(until && until.getTime() > Date.now());
   const notice = qs('[data-mute-notice]');
   notice.hidden = !muted;
-  notice.textContent = muted ? 'Tài khoản đang bị tạm khoá chức năng viết đến ' + until.toLocaleString('vi-VN') + '. Bạn vẫn có thể đọc bài viết.' : '';
+  notice.textContent = muted ? t('Tài khoản đang bị tạm khoá chức năng viết đến {date}. Bạn vẫn có thể đọc bài viết.', { date: until.toLocaleString(currentLocale()) }) : '';
   compose.classList.toggle('is-disabled', muted);
   compose.setAttribute('aria-disabled', String(muted));
   // Nút nổi cũng phải theo trạng thái khoá viết như form gốc, kể cả lúc form đang ở dialog.
