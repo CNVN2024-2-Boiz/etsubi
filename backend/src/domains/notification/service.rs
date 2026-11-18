@@ -248,19 +248,17 @@ fn contains_mention(content_lower: &str, username: &str) -> bool {
 
     while let Some(rel) = content_lower[search_from..].find(&pattern) {
         let at = search_from + rel;
-
-        let before_ok = at == 0
-            || content_lower[..at]
-                .chars()
-                .next_back()
-                .map_or(true, |c| !is_username_char(c));
-
         let after_byte = at + pattern.len();
-        let after_ok = after_byte >= content_lower.len()
-            || content_lower[after_byte..]
-                .chars()
-                .next()
-                .map_or(true, |c| !is_username_char(c));
+
+        let before_ok = content_lower[..at]
+            .chars()
+            .next_back()
+            .is_none_or(|c| !is_username_char(c));
+
+        let after_ok = content_lower[after_byte..]
+            .chars()
+            .next()
+            .is_none_or(|c| !is_username_char(c));
 
         if before_ok && after_ok {
             return true;

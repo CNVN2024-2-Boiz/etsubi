@@ -379,3 +379,27 @@ pub async fn check_my_follower(
 
     Ok(HttpResponse::Ok().json(FollowerStatusResponse { followed_by }))
 }
+
+#[utoipa::path(
+    get, path = "/api/v1/my/following/posts", tag = "personal",
+    responses(
+        (status = 200, description = "Posts from users I follow", body = [PostResponse]),
+        (status = 401, description = "Not authenticated"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[get("/my/following/posts")]
+pub async fn list_my_following_posts(
+    state: web::Data<AppState>,
+    user: AuthUser,
+) -> Result<HttpResponse, Error> {
+    let service = state.post_service.clone();
+    let user_id = user.id;
+
+    let posts = web::block(move || service.list_following_user_posts(user_id))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    let resp: Vec<PostResponse> = posts.into_iter().map(PostResponse::from).collect();
+    Ok(HttpResponse::Ok().json(resp))
+}

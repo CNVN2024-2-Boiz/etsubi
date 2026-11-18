@@ -66,6 +66,7 @@ use crate::presentation::{
 
         personal_handler::list_my_followers,
         personal_handler::list_my_following,
+        personal_handler::list_my_following_posts,
         personal_handler::check_my_following,
         personal_handler::check_my_follower,
 
