@@ -16,6 +16,9 @@ pub enum UserError {
     #[error("Username too short")]
     UsernameTooShort,
 
+    #[error("Username must be 3-30 characters, lowercase a-z, 0-9, dot or underscore")]
+    InvalidUsername,
+
     #[error("Display name cannot be empty")]
     InvalidDisplayname,
 
@@ -65,6 +68,7 @@ impl ResponseError for UserError {
             UserError::NotFound => StatusCode::NOT_FOUND,
             UserError::EmailAlreadyTaken | UserError::UsernameAlreadyTaken => StatusCode::CONFLICT,
             UserError::UsernameTooShort
+            | UserError::InvalidUsername
             | UserError::InvalidDisplayname
             | UserError::DisplaynameTooLong
             | UserError::InvalidLanguage
