@@ -174,8 +174,7 @@ impl NotificationService {
                 continue;
             }
 
-            let needle = format!("@{}", username.to_lowercase());
-            if !content_lower.contains(&needle) {
+            if !contains_mention(&content_lower, username) {
                 continue;
             }
 
@@ -237,6 +236,40 @@ impl NotificationService {
         }
         Ok(())
     }
+}
+
+fn is_username_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '.' || c == '_'
+}
+
+fn contains_mention(content_lower: &str, username: &str) -> bool {
+    let pattern = format!("@{}", username.to_lowercase());
+    let mut search_from = 0;
+
+    while let Some(rel) = content_lower[search_from..].find(&pattern) {
+        let at = search_from + rel;
+
+        let before_ok = at == 0
+            || content_lower[..at]
+                .chars()
+                .next_back()
+                .map_or(true, |c| !is_username_char(c));
+
+        let after_byte = at + pattern.len();
+        let after_ok = after_byte >= content_lower.len()
+            || content_lower[after_byte..]
+                .chars()
+                .next()
+                .map_or(true, |c| !is_username_char(c));
+
+        if before_ok && after_ok {
+            return true;
+        }
+
+        search_from = at + 1;
+    }
+
+    false
 }
 
 fn build_message(

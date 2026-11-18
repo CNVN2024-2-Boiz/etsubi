@@ -363,11 +363,7 @@ impl PostRepository for PostgresPostRepo {
             .filter(posts::deleted_at.is_null())
             .order_by(
                 sql::<BigInt>(
-                    "((SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id) \
-                     + (SELECT COUNT(*) FROM comments \
-                        WHERE comments.post_id = posts.id \
-                          AND comments.deleted_at IS NULL \
-                          AND comments.status = 'visible'))",
+                    "(SELECT COUNT(*) FROM reactions WHERE reactions.post_id = posts.id)",
                 )
                 .desc(),
             )

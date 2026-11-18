@@ -55,6 +55,8 @@ impl CommentRepository for PostgresCommentRepo {
                 .set((
                     comments::content.eq(&comment.content),
                     comments::language.eq(&comment.language),
+                    comments::latitude.eq(comment.latitude),
+                    comments::longitude.eq(comment.longitude),
                     comments::updated_at.eq(now),
                 ))
                 .returning(Comment::as_returning())
