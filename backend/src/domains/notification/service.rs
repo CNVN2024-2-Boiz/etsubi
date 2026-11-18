@@ -15,6 +15,7 @@ use crate::{
 
 const MAX_LINK_LEN: usize = 500;
 const MAX_TITLE_PREVIEW_CHARS: usize = 60;
+const MAX_MENTIONS_PER_REQUEST: usize = 10;
 
 const VALID_KINDS: &[&str] = &[
     "follow",
@@ -149,6 +150,55 @@ impl NotificationService {
         Ok(n as i64)
     }
 
+    pub fn create_mentions(
+        &self,
+        actor_id: Uuid,
+        content: &str,
+        link: &str,
+        mentioned_usernames: &[String],
+    ) -> Result<usize, NotificationError> {
+        if !link.starts_with('/') || link.len() > MAX_LINK_LEN {
+            return Err(NotificationError::InvalidLink);
+        }
+
+        self.user_repo
+            .find_by_id(actor_id)?
+            .ok_or(NotificationError::UserNotFound)?;
+
+        let content_lower = content.to_lowercase();
+        let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut created = 0usize;
+
+        for username in mentioned_usernames.iter().take(MAX_MENTIONS_PER_REQUEST) {
+            if !seen.insert(username.to_lowercase()) {
+                continue;
+            }
+
+            let needle = format!("@{}", username.to_lowercase());
+            if !content_lower.contains(&needle) {
+                continue;
+            }
+
+            let target = match self.user_repo.find_by_username(username)? {
+                Some(u) => u,
+                None => continue,
+            };
+
+            if target.id == actor_id {
+                continue;
+            }
+
+            if self
+                .create_by_actor(actor_id, "mention", target.id, link, None)
+                .is_ok()
+            {
+                created += 1;
+            }
+        }
+
+        Ok(created)
+    }
+
     pub fn list(
         &self,
         user_id: Uuid,
@@ -187,56 +237,6 @@ impl NotificationService {
         }
         Ok(())
     }
-
-    pub fn create_mentions(
-        &self,
-        actor_id: Uuid,
-        content: &str,
-        link: &str,
-        mentioned_usernames: &[String],
-    ) -> Result<usize, NotificationError> {
-        if !link.starts_with('/') || link.len() > MAX_LINK_LEN {
-            return Err(NotificationError::InvalidLink);
-        }
-
-        let actor = self
-            .user_repo
-            .find_by_id(actor_id)?
-            .ok_or(NotificationError::UserNotFound)?;
-
-        let content_lower = content.to_lowercase();
-        let mut seen = std::collections::HashSet::new();
-        let mut created = 0usize;
-
-        for username in mentioned_usernames.iter().take(10) {
-            if !seen.insert(username.to_lowercase()) {
-                continue;
-            }
-
-            let needle = format!("@{}", username.to_lowercase());
-            if !content_lower.contains(&needle) {
-                continue;
-            }
-
-            let target = match self.user_repo.find_by_username(username)? {
-                Some(u) => u,
-                None => continue,
-            };
-
-            if target.id == actor.id {
-                continue;
-            }
-
-            if self
-                .create_by_actor(actor_id, "mention", target.id, link, None)
-                .is_ok()
-            {
-                created += 1;
-            }
-        }
-
-        Ok(created)
-    }
 }
 
 fn build_message(
@@ -258,7 +258,7 @@ fn build_message(
 
         "reply" => format!("{} replied to your comment", actor_username),
 
-        "mention" => format!("{} mention you", actor_username),
+        "mention" => format!("{} mentioned you", actor_username),
 
         "muted" => {
             let until = ctx

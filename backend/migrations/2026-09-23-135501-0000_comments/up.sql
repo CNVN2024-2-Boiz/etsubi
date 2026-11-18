@@ -5,6 +5,8 @@ CREATE TABLE comments (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     language TEXT NOT NULL,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     status TEXT NOT NULL DEFAULT 'visible'
         CHECK (status IN ('visible', 'hidden')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -20,3 +22,8 @@ CREATE INDEX idx_comments_parent
     ON comments (parent_id) WHERE parent_id IS NOT NULL;
 CREATE INDEX idx_comments_deleted
     ON comments (deleted_at DESC) WHERE deleted_at IS NOT NULL;
+
+ALTER TABLE comments ADD CONSTRAINT comments_location_check CHECK (
+    (latitude IS NULL AND longitude IS NULL)
+    OR (latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180)
+);

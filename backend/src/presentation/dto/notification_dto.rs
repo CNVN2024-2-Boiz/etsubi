@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::{
     domains::notification::service::NotificationContext,
-    infrastructure::database::models::entities::Notification,
+    infrastructure::database::models::entities::{Notification, User},
 };
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -55,6 +55,10 @@ pub struct ListNotificationsQuery {
 pub struct NotificationResponse {
     pub id: Uuid,
     pub kind: String,
+    pub actor_id: Option<Uuid>,
+    pub actor_username: Option<String>,
+    pub actor_displayname: Option<String>,
+    pub actor_avatar_url: Option<String>,
     pub message: String,
     pub link: String,
     pub is_readed: bool,
@@ -81,10 +85,25 @@ impl From<Notification> for NotificationResponse {
         Self {
             id: n.id,
             kind: n.kind,
+            actor_id: n.actor_id,
+            actor_username: None,
+            actor_displayname: None,
+            actor_avatar_url: None,
             message: n.message,
             link: n.link,
             is_readed: n.is_readed,
             created_at: n.created_at,
         }
+    }
+}
+
+impl NotificationResponse {
+    pub fn with_actor(mut self, actor: Option<&User>) -> Self {
+        if let Some(a) = actor {
+            self.actor_username = Some(a.username.clone());
+            self.actor_displayname = Some(a.displayname.clone());
+            self.actor_avatar_url = a.avatar_url.clone();
+        }
+        self
     }
 }
