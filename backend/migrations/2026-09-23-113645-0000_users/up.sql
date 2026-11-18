@@ -29,4 +29,4 @@ CREATE INDEX idx_users_muted ON users (muted_until) WHERE muted_until IS NOT NUL
 CREATE UNIQUE INDEX idx_users_oauth ON users (oauth_provider, oauth_subject) WHERE oauth_provider IS NOT NULL;
 
 ALTER TABLE users ADD CONSTRAINT users_username_format
-    CHECK (username ~ '^[a-z0-9._]{3,30}$');
+    CHECK (username ~ '^[a-z0-9_]{3,30}$');
