@@ -239,7 +239,7 @@ impl NotificationService {
 }
 
 fn is_username_char(c: char) -> bool {
-    c.is_ascii_alphanumeric() || c == '.' || c == '_'
+    c.is_ascii_alphanumeric() || c == '_'
 }
 
 fn contains_mention(content_lower: &str, username: &str) -> bool {
