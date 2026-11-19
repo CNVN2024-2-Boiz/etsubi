@@ -1,5 +1,15 @@
 /* Định dạng components cho các trang Etsubi; giữ nguyên bố cục và trạng thái tĩnh. */
 
+/* Tên được nhắc trong nội dung đã đăng: nền hồng nhạt, chữ đỏ đậm; khung soạn không dùng lớp này. */
+.rich-content__mention {
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ===== Nút bấm (Button) ===== */
 
 /* Nút dùng inline-flex để căn giữa nhãn và biểu tượng; đệm và bo góc lấy từ token, chỉ chuyển nền ngắn khi tương tác. */
@@ -173,6 +183,12 @@ select.input, .input--select {
 /* Chừa khoảng trống bên phải để mật khẩu không nằm dưới nút mắt. */
 .input-group .input {
   padding-right: calc(var(--space-9) + var(--space-4));
+}
+
+/* Dấu chấm che mật khẩu (•) của Be Vietnam Pro nằm hơi cao so với tâm ô,
+   nên riêng ô mật khẩu có đệm trên 4px: chiều cao ô giữ nguyên, các chấm hạ xuống 2px. */
+.input[type='password'] {
+  padding-top: 4px;
 }
 
 /* Ẩn nút hiện mật khẩu có sẵn của Edge/IE, vì trang đã có nút mắt riêng;
@@ -403,6 +419,13 @@ select.input, .input--select {
 }
 
 /* Avatar nhỏ dùng khung 24px và chữ 10px để phù hợp với danh sách hoặc thẻ ngắn. */
+/* Chữ viết tắt trên avatar: font Be Vietnam Pro làm chữ trông nhích lên dù đã căn giữa,
+   nên avatar chỉ có chữ (không có ảnh) được đệm trên 3px để hạ chữ xuống ~1.5px.
+   Avatar có ảnh giữ nguyên để ảnh không bị lệch. */
+.avatar:not(:has(img)) {
+  padding-top: 3px;
+}
+
 .avatar--24, .avatar--sm {
   width: 24px;
   height: 24px;
@@ -435,4 +458,41 @@ select.input, .input--select {
   .btn {
     transition: none;
   }
+}
+
+/* Handle có @ cố định nằm trong ô, tách khỏi value để kiểm tra và gửi API đúng dữ liệu. */
+.username-input {
+  position: relative;
+  min-width: 0;
+}
+
+/* Tiền tố căn giữa với chữ nhập, không bắt chuột để nhấn vào vẫn tới ô thật. */
+.username-input__prefix {
+  position: absolute;
+  inset-block: 0;
+  left: var(--control-padding);
+  display: flex;
+  align-items: center;
+  color: var(--color-muted);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Chừa chỗ cho @ và giữ nguyên focus ring, viền lỗi của input dùng chung. */
+.username-input .input {
+  padding-left: calc(var(--control-padding) + var(--space-5));
+}
+/* Chỉ số nhận focus để đọc nhãn thật hoặc thông báo thiếu dữ liệu mà không gửi thêm request. */
+.stat-tooltip { position: relative; border-radius: var(--radius-sm); }
+.stat-tooltip:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+/* Tooltip tĩnh nằm trên chỉ số, hiện bằng CSS, không chuyển opacity hoặc thêm hoạt ảnh. */
+.stat-tooltip::after { content: attr(aria-label); position: absolute; z-index: var(--z-rich-popover); bottom: calc(100% + var(--space-2)); left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100vw - var(--space-10)); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: var(--color-text); color: var(--color-white); font-family: var(--font-body); font-size: var(--stat-tooltip-size); font-weight: 400; line-height: 1.5; white-space: normal; visibility: hidden; pointer-events: none; }
+.stat-tooltip::before { content: ''; position: absolute; z-index: var(--z-rich-popover); bottom: calc(100% + var(--space-1)); left: 50%; transform: translateX(-50%); border: var(--space-1) solid var(--color-transparent); border-bottom: 0; border-top-color: var(--color-text); visibility: hidden; pointer-events: none; }
+.stat-tooltip:hover::after, .stat-tooltip:hover::before, .stat-tooltip:focus-visible::after, .stat-tooltip:focus-visible::before, .stat-tooltip:focus-within::after, .stat-tooltip:focus-within::before { visibility: visible; }
+/* Chỉ số đầu và cuối neo tooltip vào mép thẻ để không làm trang mobile cuộn ngang. */
+.stat-tooltip:first-child::after { left: 0; transform: none; }
+.stat-tooltip:last-child::after { left: auto; right: 0; transform: none; }
+/* Tooltip mobile ngắt dòng trong khung hẹp, tránh chữ chưa có dữ liệu làm trang cuộn ngang. */
+@media (max-width: 600px) {
+  .stat-tooltip::after { max-width: var(--stat-tooltip-mobile-width); overflow-wrap: anywhere; }
 }

@@ -2,6 +2,7 @@
 import { el } from '/utils/dom.js';
 import { searchUrl } from '/utils/routes.js';
 import { wrapJapanese } from '/utils/text.js';
+import { t } from '/utils/i18n.js';
 
 /**
  * Tạo chip có ngữ nghĩa phù hợp; mọi tên và số đều đi qua nút văn bản an toàn.
@@ -33,7 +34,7 @@ export function createTagChip({ name, state = 'default', count, href, onClick, o
     const remove = el('button', {
       type: 'button',
       className: 'tag-chip__remove',
-      'aria-label': 'Bỏ tag #' + name,
+      'aria-label': t('Bỏ tag #{name}', { name }),
     }, el('img', { src: '/assets/icons/chip-x.svg', alt: '', width: 14, height: 14 }));
     /** Gửi tên thẻ cần xoá để vùng chứa cập nhật trạng thái của chính nó. */
     function removeTag(event) {

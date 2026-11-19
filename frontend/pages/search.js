@@ -4,7 +4,7 @@ import { mountFooter } from '/components/footer/footer.js';
 import { createSearchBar } from '/components/search-bar/search-bar.js';
 import { createTagChip } from '/components/tag-chip/tag-chip.js';
 import { createPostCard } from '/components/postcard/PostCard.js';
-import { searchPosts, getPostTags } from '/services/api/posts.js';
+import { searchPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { listTags, tagIdsFromNames } from '/services/api/tags.js';
 import { getUser } from '/services/api/users.js';
 import { requireAuth } from '/utils/auth.js';
@@ -12,9 +12,12 @@ import { routes, searchUrl } from '/utils/routes.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 import { el, qs, qsa } from '/utils/dom.js';
 import { wrapJapanese } from '/utils/text.js';
+import { t } from '/utils/i18n.js';
 
 // Giữ riêng trạng thái đã gửi và dữ liệu đã tải; bản nháp chỉ nằm trong search-bar.
 const PAGE_SIZE = 10;
+// Ký tự riêng đánh dấu chỗ chèn phần tử HTML vào giữa câu đã dịch.
+const SLOT = '\uE000';
 const title = qs('[data-search-title]');
 const description = qs('[data-search-description]');
 const results = qs('[data-search-results]');
@@ -45,7 +48,7 @@ const searchBar = createSearchBar({ tags, onSubmit: submitSearch });
 mountHeader(qs('[data-component="header"]'), { variant: 'search', active: null, searchSlot: searchBar.element });
 mountFooter(qs('[data-component="footer"]'), { variant: 'full' });
 const backButton = el('button', {
-  type: 'button', className: 'search-back', 'aria-label': 'Quay lại',
+  type: 'button', className: 'search-back', 'aria-label': t('Quay lại'),
 });
 // Mũi tên cố định theo Lucide, màu kế thừa từ header và không chứa HTML động.
 backButton.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>';
@@ -119,7 +122,7 @@ function clearTags() {
 function renderFilters() {
   const filterTags = qs('[data-filter-tags]');
   filterTags.replaceChildren(el('span', { className: 'search-filters__label' },
-    el('img', { src: '/assets/icons/tag.svg', alt: '', width: 16, height: 16 }), 'Tag:'));
+    el('img', { src: '/assets/icons/tag.svg', alt: '', width: 16, height: 16 }), t('Tag:')));
   const mobileTags = qs('[data-mobile-tags]');
   mobileTags.replaceChildren();
   // Tag lạ từ URL vẫn được hiện để người dùng gỡ được, không âm thầm mở rộng phạm vi tìm.
@@ -155,7 +158,7 @@ function renderPopularTags() {
     }));
   }
   if (!tags.length) {
-    target.append(el('p', { className: 'search-sidebar-card__note' }, 'Chưa tải được danh sách tag.'));
+    target.append(el('p', { className: 'search-sidebar-card__note' }, t('Chưa tải được danh sách tag.')));
   }
 }
 
@@ -192,28 +195,42 @@ function renderHeading() {
   title.replaceChildren();
   description.replaceChildren();
   if (!active) {
-    title.append('Tìm kiếm trên Etsubi');
-    description.append('Nhập từ khoá hoặc #tag rồi nhấn Enter / bấm “Tìm kiếm”.');
+    title.append(t('Tìm kiếm trên Etsubi'));
+    description.append(t('Nhập từ khoá hoặc #tag rồi nhấn Enter / bấm “Tìm kiếm”.'));
     return;
   }
   const total = String(posts.length) + (hasMore ? '+' : '');
   if (loading && !posts.length) {
-    title.append('Đang tìm kiếm…');
+    title.append(t('Đang tìm kiếm…'));
   } else if (submitted.q) {
-    title.append(total + ' kết quả cho “', el('span', { className: 'search-heading__query' }, wrapJapanese(submitted.q)), '”');
+    appendSentence(title, t('{count} kết quả cho “{query}”', { count: total, query: SLOT }),
+      el('span', { className: 'search-heading__query' }, wrapJapanese(submitted.q)));
   } else {
-    title.append(total + ' bài viết có tag ',
+    appendSentence(title, t('{count} bài viết có tag {tags}', { count: total, tags: SLOT }),
       el('span', { className: 'search-heading__query' }, submitted.tags.map(prefixedTag).join(', ')));
   }
   if (submitted.tags.length) {
-    description.append('Lọc theo ');
+    // Danh sách tag là phần tử riêng nằm giữa câu đã dịch.
+    const tagList = document.createDocumentFragment();
     for (let index = 0; index < submitted.tags.length; index += 1) {
       if (index) {
-        description.append(' + ');
+        tagList.append(' + ');
       }
-      description.append(el('span', { className: 'search-heading__query' }, '#' + submitted.tags[index]));
+      tagList.append(el('span', { className: 'search-heading__query' }, '#' + submitted.tags[index]));
     }
-    description.append(' · khớp tất cả tag');
+    appendSentence(description, t('Lọc theo {tags} · khớp tất cả tag', { tags: SLOT }), tagList);
+  }
+}
+
+/** Ghép câu đã dịch với một phần tử: chữ trước và sau vị trí SLOT giữ nguyên thứ tự của từng ngôn ngữ. */
+function appendSentence(target, sentence, node) {
+  const [before, after = ''] = sentence.split(SLOT);
+  if (before) {
+    target.append(before);
+  }
+  target.append(node);
+  if (after) {
+    target.append(after);
   }
 }
 
@@ -226,10 +243,10 @@ function prefixedTag(name) {
 function showEmpty(noResults = false) {
   emptyCard.hidden = false;
   emptyCard.classList.toggle('search-empty--no-results', noResults);
-  qs('[data-empty-title]').textContent = noResults ? 'Không tìm thấy bài viết phù hợp' : 'Bạn muốn tìm gì?';
+  qs('[data-empty-title]').textContent = noResults ? t('Không tìm thấy bài viết phù hợp') : t('Bạn muốn tìm gì?');
   qs('[data-empty-description]').textContent = noResults
-    ? 'Thử từ khoá khác, bỏ bớt tag, hoặc kiểm tra chính tả có dấu.'
-    : 'Kết quả chỉ hiển thị sau khi bạn nhấn Enter hoặc bấm “Tìm kiếm”. Gõ # để thêm tag, hoặc dùng nút “Tag” để chọn từ danh sách.';
+    ? t('Thử từ khoá khác, bỏ bớt tag, hoặc kiểm tra chính tả có dấu.')
+    : t('Kết quả chỉ hiển thị sau khi bạn nhấn Enter hoặc bấm “Tìm kiếm”. Gõ # để thêm tag, hoặc dùng nút “Tag” để chọn từ danh sách.');
   qs('[data-search-shortcuts]').hidden = noResults;
   qs('[data-empty-clear]').hidden = !noResults || !submitted.tags.length;
   qs('[data-mobile-info]').hidden = noResults;
@@ -270,8 +287,8 @@ async function enrichPosts(entries, version) {
     try {
       entry.author = await getUser(entry.post.author_id);
     } catch {
-      // Tác giả lỗi không làm mất bài; tên dự phòng thay thanh chờ để không kẹt ở trạng thái tải.
-      entry.author = { username: 'Thành viên' };
+      // Tác giả lỗi không làm mất bài; giữ thanh xám thay vì tạo tên hoặc handle giả.
+      entry.author = null;
     }
     if (version !== requestVersion) {
       return;
@@ -289,6 +306,15 @@ async function enrichPosts(entries, version) {
       return;
     }
     updateEnrichment(entry, false);
+    // Số bình luận thật chỉ tải cho thẻ đã hiện; getPostStats tự trả null khi lỗi nên thẻ giữ dấu gạch.
+    const stats = await getPostStats(entry.post.id, entry.post);
+    if (version !== requestVersion) {
+      return;
+    }
+    if (Number.isFinite(stats?.comment_count)) {
+      entry.post = { ...entry.post, comment_count: stats.comment_count };
+      updateStats(entry);
+    }
   }
 }
 
@@ -311,6 +337,12 @@ function updateEnrichment(entry, authorOnly) {
   qs(hook, entry.card).replaceWith(qs(hook, next));
 }
 
+/** Chỉ thay hàng số liệu của thẻ, giữ nguyên tiêu đề, tác giả và tag đã bổ sung. */
+function updateStats(entry) {
+  const next = createPostCard(entry.post, { query: submitted.q, author: entry.author, tags: entry.tags, onTagHref: postTagHref });
+  qs('[data-post-stats]', entry.card).replaceWith(qs('[data-post-stats]', next));
+}
+
 /** Đảo thứ tự danh sách đã tải cho Cũ nhất, không diễn đạt là thứ tự toàn bộ dữ liệu của máy chủ. */
 function orderPosts() {
   const ordered = sort === 'oldest' ? [...posts].reverse() : posts;
@@ -321,8 +353,8 @@ function orderPosts() {
 
 /** Cập nhật nhãn, trạng thái nhấn và chú giải về giới hạn của sắp xếp cục bộ. */
 function updateSort() {
-  qs('[data-sort-label]').textContent = sort === 'newest' ? 'Mới nhất' : 'Cũ nhất';
-  sortButton.title = 'Sắp xếp các bài viết đã tải';
+  qs('[data-sort-label]').textContent = sort === 'newest' ? t('Mới nhất') : t('Cũ nhất');
+  sortButton.title = t('Sắp xếp các bài viết đã tải');
   for (const option of qsa('[data-sort]')) {
     option.setAttribute('aria-pressed', String(option.dataset.sort === sort));
   }
@@ -334,7 +366,7 @@ function setLoading(value) {
   results.setAttribute('aria-busy', String(value));
   searchBar.setBusy(value);
   moreButton.disabled = value;
-  moreButton.textContent = value ? 'Đang xử lý…' : 'Xem thêm kết quả';
+  moreButton.textContent = value ? t('Đang xử lý…') : t('Xem thêm kết quả');
 }
 
 /**
@@ -370,7 +402,7 @@ async function runSearch(append = false) {
   if (!append) {
     renderSkeletons();
   }
-  status.textContent = 'Đang tìm…';
+  status.textContent = t('Đang tìm…');
   try {
     await ensureTags();
     if (signal.aborted) {
@@ -383,7 +415,7 @@ async function runSearch(append = false) {
         return tag.name === name;
       }
       if (!tags.some(hasName)) {
-        throw new Error('Không có tag #' + name);
+        throw new Error(t('Không có tag #{name}', { name }));
       }
     }
     const tagIds = await tagIdsFromNames(submitted.tags);
@@ -409,7 +441,9 @@ async function runSearch(append = false) {
       showEmpty(true);
     }
     qs('[data-more-container]').hidden = !hasMore;
-    status.textContent = 'Đã tải ' + posts.length + (hasMore ? ' kết quả. Có thể xem thêm kết quả.' : ' kết quả.');
+    status.textContent = hasMore
+      ? t('Đã tải {count} kết quả. Có thể xem thêm kết quả.', { count: posts.length })
+      : t('Đã tải {count} kết quả.', { count: posts.length });
     /** Xếp các trang bài vào cùng chuỗi bổ sung để tải thêm không bỏ dở tác giả của trang trước. */
     async function enrichThisPage() {
       await enrichPosts(newEntries, version);
@@ -426,7 +460,7 @@ async function runSearch(append = false) {
     renderHeading();
     qs('[data-error-message]').textContent = toVietnameseMessage(error);
     errorBox.hidden = false;
-    status.textContent = 'Không thể tải kết quả tìm kiếm.';
+    status.textContent = t('Không thể tải kết quả tìm kiếm.');
   }
 }
 
@@ -525,14 +559,14 @@ async function writePost(event) {
     return;
   }
   link.setAttribute('aria-disabled', 'true');
-  link.textContent = 'Đang xử lý…';
+  link.textContent = t('Đang xử lý…');
   try {
     if (await requireAuth()) {
       location.assign(routes.newPost);
     }
   } finally {
     link.removeAttribute('aria-disabled');
-    link.replaceChildren(el('img', { src: '/assets/icons/plus.svg', alt: '', width: 16, height: 16 }), 'Viết bài');
+    link.replaceChildren(el('img', { src: '/assets/icons/plus.svg', alt: '', width: 16, height: 16 }), el('span', {}, t('Viết bài')));
   }
 }
 

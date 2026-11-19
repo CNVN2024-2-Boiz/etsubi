@@ -2,14 +2,29 @@
 import { initAuthPage } from '/utils/auth-page.js';
 import { login, safeRedirect } from '/utils/auth.js';
 import { routes } from '/utils/routes.js';
+import { qs } from '/utils/dom.js';
+import { t } from '/utils/i18n.js';
 
 // Nội dung lời chào riêng của trang; cảnh và tương tác biểu mẫu được dùng chung.
 initAuthPage({
   mode: 'login',
-  copyLines: ['Cầu nối văn hoá Việt – Nhật', 'cho sinh viên đại học.'],
+  title: t('XIN CHÀO'),
+  copyLines: [t('Cầu nối văn hoá Việt – Nhật'), t('cho sinh viên đại học.')],
   /** Gửi email và mật khẩu; chỉ chuyển hướng tới đường dẫn nội bộ đã kiểm tra. */
   async onSubmit(values, { redirect }) {
     await login(values.email, values.password, { remember: values.remember === 'on' });
     location.assign(safeRedirect(redirect, routes.home));
   },
+});
+
+// CẦN BACKEND: endpoint OAuth Google (ví dụ GET /auth/google chuyển hướng, callback trả token như POST /auth/login)
+// Ghi vào vùng trạng thái riêng dưới nút để không xoá thông báo khác; không gửi form hoặc gọi API.
+// Dùng ?. vì HTML cũ còn trong bộ nhớ đệm có thể chưa có nút hoặc vùng ghi chú này.
+qs('[data-google-auth]')?.addEventListener('click', () => {
+  const note = qs('[data-google-note]');
+  if (!note) {
+    return;
+  }
+  note.textContent = t('Đăng nhập bằng Google sắp có.');
+  note.hidden = false;
 });

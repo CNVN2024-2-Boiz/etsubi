@@ -90,8 +90,8 @@ fieldset {
   display: none;
 }
 
-/* Chữ tiếng Nhật dùng phông có đủ ký tự để tránh lỗi hiển thị. */
-:lang(ja) {
+/* Cụm chữ Nhật được đánh dấu riêng dùng phông có đủ ký tự; không áp cho cả trang khi giao diện là tiếng Nhật. */
+[lang="ja"]:not(html) {
   font-family: var(--font-jp);
 }
 
@@ -191,3 +191,5 @@ fieldset {
     scroll-behavior: auto;
   }
 }
+/* Ảnh đã lọc giữ tỉ lệ tự nhiên, co theo mọi khung đọc/soạn và thẻ feed trên mobile. */
+.rich-content__image { display: inline-block; max-width: 100%; height: auto; border-radius: var(--radius-sm); vertical-align: middle; }

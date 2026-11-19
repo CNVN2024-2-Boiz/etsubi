@@ -7,16 +7,20 @@ import { qs, qsa, el } from '/utils/dom.js';
 import { routes, withRedirect } from '/utils/routes.js';
 import { fieldForError, toVietnameseMessage } from '/utils/errors.js';
 import { authFieldMessage } from '/utils/validation.js';
+import { bindUsernameInput, normalizeUsername, normalizeUsernameInput, formatHandle } from '/utils/username.js';
+import { t } from '/utils/i18n.js';
 
 /**
  * Khởi tạo header, footer, cảnh và kiểm tra biểu mẫu trên trang login hoặc register.
- * @param {object} options mode chọn trang; onSubmit xử lý API; copyLines là lời giới thiệu.
+ * @param {object} options mode chọn trang; onSubmit xử lý API; copyLines là lời giới thiệu; title là lời chào lớn.
  * @returns {HTMLFormElement} Biểu mẫu đã gắn các bộ lắng nghe.
  */
-export function initAuthPage({ mode, onSubmit, copyLines }) {
+export function initAuthPage({ mode, onSubmit, copyLines, title }) {
   mountHeader(undefined, { active: null, hideAuthLink: true });
   mountFooter();
-  mountAuthScene(qs('[data-component="auth-scene"]'), { copyLines });
+  // Lời chào đã dịch được truyền vào; không có thì cảnh tự đọc data-title trong HTML.
+  const sceneContainer = qs('[data-component="auth-scene"]');
+  mountAuthScene(sceneContainer, { copyLines, title: title ?? sceneContainer?.dataset.title ?? '' });
   const scene = qs('[data-auth-scene]');
   /** Co cảnh theo bề rộng màn hình; đây là cập nhật bố cục, không phải animation. */
   function sizeScene() {
@@ -37,6 +41,10 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
   let submitted = false;
   let busy = false;
   const fields = qsa('[data-field]', form);
+  // Tiền tố @ ở ngoài value; chuẩn hoá trước các bước kiểm tra và gửi đăng ký.
+  if (mode === 'register') {
+    bindUsernameInput(form.elements.namedItem('username'));
+  }
 
   /** Tìm điều khiển theo tên biểu mẫu thay vì dùng lớp trang trí CSS. */
   function inputFor(name) {
@@ -60,8 +68,9 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
     input.classList.toggle('is-invalid', Boolean(message));
     field.classList.toggle('is-invalid', Boolean(message));
     input.setAttribute('aria-invalid', String(Boolean(message)));
-    hint.textContent = message || '';
-    hint.hidden = !message;
+    hint.textContent = message || hint.dataset.defaultHint || '';
+    hint.classList.toggle('field__hint--error', Boolean(message));
+    hint.hidden = !hint.textContent;
   }
 
   /** Kiểm tra một trường với cùng quy tắc trước khi gửi và khi người dùng rời trường. */
@@ -109,17 +118,17 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
       const visible = input.type === 'password';
       input.type = visible ? 'text' : 'password';
       button.setAttribute('aria-pressed', String(visible));
-      button.setAttribute('aria-label', visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+      button.setAttribute('aria-label', visible ? t('Ẩn mật khẩu') : t('Hiện mật khẩu'));
     });
   }
 
   // Các chức năng chưa có API dùng thông báo tĩnh để người dùng biết tình trạng.
   qs('[data-forgot]')?.addEventListener('click', event => {
     event.preventDefault();
-    showInfo('Tính năng khôi phục mật khẩu sẽ sớm có.');
+    showInfo(t('Tính năng khôi phục mật khẩu sẽ sớm có.'));
   });
   qs('[data-terms-link]')?.addEventListener('click', () => {
-    showInfo('Điều khoản sử dụng sẽ được cập nhật tại trung tâm trợ giúp.');
+    showInfo(t('Điều khoản sử dụng sẽ được cập nhật tại trung tâm trợ giúp.'));
   });
 
   // Nếu đã đăng nhập, cho phép đăng xuất ngay mà vẫn giữ biểu mẫu hiện tại.
@@ -128,12 +137,15 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
       return;
     }
     const notice = qs('[data-session-notice]');
-    const signOut = el('button', { type: 'button' }, 'đăng xuất');
+    const signOut = el('button', { type: 'button' }, t('đăng xuất'));
     signOut.addEventListener('click', () => {
       signOut.disabled = true;
       void logout();
     });
-    notice.replaceChildren('Bạn đang đăng nhập với tên ' + user.username + '. Tiếp tục hoặc ', signOut, '.');
+    // Một khoá dịch cho cả câu; {action} giữ chỗ cho nút đăng xuất rồi tách đôi để chèn nút vào đúng vị trí.
+    const name = user.displayname || formatHandle(user.username);
+    const [before, after] = t('Bạn đang đăng nhập với tên {name}. Tiếp tục hoặc {action}.', { name, action: '{action}' }).split('{action}');
+    notice.replaceChildren(before, signOut, after ?? '');
     notice.hidden = false;
   });
 
@@ -142,6 +154,10 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
     event.preventDefault();
     if (busy) {
       return;
+    }
+    // Autofill có thể không phát input, nên chuẩn hoá lại trước khi kiểm tra gửi.
+    if (mode === 'register') {
+      normalizeUsernameInput(inputFor('username'));
     }
     submitted = true;
     formAlert.hidden = true;
@@ -155,18 +171,21 @@ export function initAuthPage({ mode, onSubmit, copyLines }) {
     busy = true;
     submit.disabled = true;
     submit.classList.add('is-loading');
-    submit.textContent = 'Đang xử lý…';
+    submit.textContent = t('Đang xử lý…');
     form.setAttribute('aria-busy', 'true');
     try {
       const values = Object.fromEntries(new FormData(form));
       values.email = values.email.trim();
       if (values.username) {
-        values.username = values.username.trim();
+        values.username = normalizeUsername(values.username);
+        values.displayname = values.displayname.trim();
       }
       await onSubmit(values, { redirect, showInfo });
     } catch (error) {
       const field = fieldForError(error);
-      const message = toVietnameseMessage(error);
+      // 409 không chỉ rõ trường phải nằm ở lỗi chung; lỗi rõ email/username vẫn vào đúng ô.
+      const message = error.status === 409 && !field
+        ? t('Email hoặc @tên người dùng đã được dùng.') : toVietnameseMessage(error);
       if (field && inputFor(field)) {
         markField(field, message);
         inputFor(field).focus();

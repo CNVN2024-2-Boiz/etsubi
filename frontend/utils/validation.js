@@ -1,4 +1,6 @@
 /** Kiểm tra biểu mẫu đăng nhập và đăng ký, trả gợi ý tiếng Việt cho từng trường. */
+import { validateUsername, validateDisplayName } from '/utils/username.js';
+import { t } from '/utils/i18n.js';
 
 /**
  * Kiểm tra một trường của trang login hoặc register trước khi gọi API.
@@ -9,31 +11,33 @@
 export function authFieldMessage(name, { value = '', password = '', checked = false, register = false } = {}) {
   // Không cắt khoảng trắng mật khẩu vì đây là một phần thông tin đăng nhập.
   const text = ['password', 'confirm'].includes(name) ? value : value.trim();
+  // Tên hiển thị và handle có quy tắc riêng, dùng chung cả ba trang nhập hồ sơ.
+  if (name === 'displayname') {
+    return validateDisplayName(value);
+  }
+  if (name === 'username') {
+    return validateUsername(value);
+  }
   if (name === 'terms') {
-    return checked ? '' : 'Bạn cần đồng ý với điều khoản sử dụng.';
+    return checked ? '' : t('Bạn cần đồng ý với điều khoản sử dụng.');
   }
   if (!text) {
     const instructions = {
-      username: 'nhập họ và tên.',
-      email: 'nhập email.',
-      password: 'nhập mật khẩu.',
-      confirm: 'xác nhận mật khẩu.',
+      email: t('Vui lòng nhập email.'),
+      password: t('Vui lòng nhập mật khẩu.'),
+      confirm: t('Vui lòng xác nhận mật khẩu.'),
     };
-    return 'Vui lòng ' + instructions[name];
-  }
-  // Rust kiểm tra tên theo số byte UTF-8: một chữ Nhật có thể đã đủ ba byte.
-  if (name === 'username' && new TextEncoder().encode(text).length < 3) {
-    return 'Tên cần ít nhất 3 ký tự.';
+    return instructions[name];
   }
   if (name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(text)) {
-    return 'Vui lòng nhập địa chỉ email hợp lệ.';
+    return t('Vui lòng nhập địa chỉ email hợp lệ.');
   }
   // Chỉ áp dụng độ dài mật khẩu khi tạo mới, tránh chặn tài khoản đã có.
   if (name === 'password' && register && Array.from(text).length < 8) {
-    return 'Mật khẩu cần ít nhất 8 ký tự.';
+    return t('Mật khẩu cần ít nhất 8 ký tự.');
   }
   if (name === 'confirm' && text !== password) {
-    return 'Mật khẩu xác nhận không khớp.';
+    return t('Mật khẩu xác nhận không khớp.');
   }
   return '';
 }

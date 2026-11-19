@@ -289,6 +289,30 @@
   font-size: 13px;
 }
 
+/* Khung ngoài dùng flex để nút thẳng hàng với các ô số liệu bên cạnh. */
+.postcard-feed__share-box {
+  display: inline-flex;
+}
+
+/* Nút chia sẻ link cùng cỡ với ô số liệu nhưng không có số; hover đổi màu, không có chuyển động. */
+.postcard-feed__share {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-muted);
+  font-family: inherit;
+  font-size: 13px;
+}
+
+/* Hover dùng màu thương hiệu giống các nút biểu tượng khác trên thẻ. */
+.postcard-feed__share:hover {
+  color: var(--color-red);
+}
+
 /* Nút chi tiết nhận khoảng trống linh hoạt để canh về phía bookmark. */
 .postcard-feed__detail {
   margin-left: auto;
@@ -387,3 +411,9 @@
     margin-left: auto;
   }
 }
+/* Ảnh nội dung xếp dọc như Figma, chỉ lấy node qua renderer an toàn dùng chung. */
+.postcard-feed__images { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.postcard-feed__images:empty { display: none; }
+/* Thống kê Search nằm trên liên kết phủ toàn thẻ để hover/focus hiện được tooltip. */
+.postcard__stats .stat-tooltip { z-index: 2; }
+.postcard__stats .stat-tooltip:nth-child(3)::after { left: auto; right: 0; transform: none; }

@@ -130,6 +130,7 @@
   color: var(--color-text);
   font-size: 13px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 /* Hàng chân thẻ tự xuống dòng khi cần, không ép số bình luận và nút đè lên nhau. */
@@ -166,4 +167,17 @@
   width: 64px;
   height: 24px;
   border-radius: var(--radius-pill);
+}
+
+/* Tên và handle nằm hai dòng; cột có thể co khi handle hoặc tên thật dài. */
+.featured-card__identity {
+  min-width: 0;
+  flex: 1;
+}
+
+/* Dòng phụ giữ handle và thời gian ở cỡ chú thích, không giả @ từ tên hiển thị. */
+.featured-card__sub {
+  color: var(--color-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }

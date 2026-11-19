@@ -1,3 +1,39 @@
+/* HeaderSearchSubmit 292:2401 và menu thông báo: kích thước riêng, không đổi token đang dùng. */
+:root {
+  --header-search-gap: 10px;
+  --header-search-padding-y: 10px;
+  --header-search-padding-right: 5px;
+  --header-search-submit-height: 32px;
+  --header-search-submit-radius: 16px;
+  --header-search-submit-gap: 6px;
+  --header-search-submit-right: 14px;
+  --profile-skip-gap: 10px;
+}
+
+/* Thông báo: màu trạng thái và kích thước theo panel 299:2591, trang mobile 300:2518. */
+:root {
+  --color-reaction: #E1648C;
+  --color-notif-unread: rgba(252,236,240,.6);
+  --notif-panel-width: 400px;
+  --notif-panel-radius: 8px;
+  --notif-list-max-height: 560px;
+  --notif-viewport-reserve: 140px;
+  --notif-row-padding-y: 14px;
+  --notif-row-min-height: 72px;
+  --notif-dot-top: 6px;
+  --notif-chip-padding-y: 2px;
+  --notif-bell-size: 36px;
+  --notif-badge-offset: 24px;
+  --notif-empty-copy-width: 300px;
+  --notif-page-width: 640px;
+  --notif-topbar-height: 64px;
+  --notif-action-menu-width: 190px;
+  --notif-placeholder-width: 260px;
+  --notif-placeholder-middle-width: 180px;
+  --notif-placeholder-short-width: 70px;
+  --notif-placeholder-line-height: 10px;
+}
+
 /* Bộ giá trị thiết kế dùng chung cho toàn bộ giao diện Etsubi. */
 /* Trang chủ: toạ độ tĩnh của hoa theo khung 1920px, lấy tâm viewport làm mốc ngang. */
 :root {
@@ -161,6 +197,173 @@
   --home-search-placeholder: rgba(255,255,255,.6);
 }
 
+/* Trang đọc bài (Figma Reading Page 1:1337): màu, kích thước và vị trí cánh hoa riêng. */
+:root {
+  /* Màu chữ thân bài, khối trích dẫn, nền bản đồ và bóng nhẹ của thẻ bên phải. */
+  --color-post-body: #37302C;
+  --color-post-quote-bg: #FDEEF0;
+  --color-post-quote-text: #5A282D;
+  --color-post-map-label: #FFFCF7;
+  --shadow-post-side: 0 4px 16px rgba(194,69,79,.08);
+  --shadow-map-button: 0 2px 6px rgba(0,0,0,.12);
+  /* Lưới hai cột 997 + 40 + 403 = 1440px và đệm khung bài viết đo trong Figma. */
+  --post-sidebar-width: 403px;
+  --post-sidebar-laptop: 320px;
+  --post-columns-gap: 40px;
+  --post-card-border: 1.2px;
+  --post-card-padding-top: 44px;
+  --post-card-padding-x: 66px;
+  --post-card-padding-bottom: 48px;
+  --post-flow-gap: 24px;
+  --post-side-gap: 20px;
+  --post-side-padding: 22px;
+  --post-avatar-size: 56px;
+  --post-comment-avatar: 40px;
+  --post-map-height: 182px;
+  --post-map-radius: 8px;
+  /* Mười cánh hoa: vị trí so với tâm trang (ngang) và đỉnh vùng nội dung (dọc), góc xoay tĩnh. */
+  --post-petal-1-x: -810px;  --post-petal-1-y: 183px;  --post-petal-1-rotate: 0deg;
+  --post-petal-2-x: -844.8px; --post-petal-2-y: 442.1px; --post-petal-2-rotate: -74deg;
+  --post-petal-3-x: -756.1px; --post-petal-3-y: 824.8px; --post-petal-3-rotate: -32deg;
+  --post-petal-4-x: 806.3px;  --post-petal-4-y: 225.4px; --post-petal-4-rotate: -42deg;
+  --post-petal-5-x: 865.7px;  --post-petal-5-y: 563.4px; --post-petal-5-rotate: -64deg;
+  --post-petal-6-x: -826.8px; --post-petal-6-y: 1165px;  --post-petal-6-rotate: -10deg;
+  --post-petal-7-x: -761.3px; --post-petal-7-y: 1484.7px; --post-petal-7-rotate: -57deg;
+  --post-petal-8-x: 816.5px;  --post-petal-8-y: 1006.4px; --post-petal-8-rotate: -25deg;
+  --post-petal-9-x: 776.1px;  --post-petal-9-y: 1340.3px; --post-petal-9-rotate: -81deg;
+  --post-petal-10-x: 886.9px; --post-petal-10-y: 1623.1px; --post-petal-10-rotate: -67deg;
+}
+
+/* Trang Diễn đàn (Figma Diễn đàn 1:1587): cột bảng tin 880px, ô viết bài và cánh hoa. */
+:root {
+  /* Cột bảng tin rộng 880px ở giữa trang, cách header 48px, khe giữa các khối 20px. */
+  --forum-width: 880px;
+  /* Nút viết nổi ở Diễn đàn (Figma ForumComposeFab 344:2712): thấp hơn header/menu (30), dialog ở lớp trên cùng của trình duyệt. */
+  --z-compose-fab: 20;
+  --forum-compose-fab-height: 52px;
+  --forum-compose-fab-mobile-size: 56px;
+  --forum-top: 48px;
+  --forum-bottom: 96px;
+  --forum-gap: 20px;
+  /* Ô viết bài: avatar 48px có bóng hồng nhẹ, ô nhập bo 24px. */
+  --forum-avatar-size: 48px;
+  --shadow-forum-avatar: 0 3px 4px rgba(194,69,79,.18);
+  --forum-pill-radius: 24px;
+  /* Mười cánh hoa: vị trí so với tâm trang (ngang) và đỉnh vùng nội dung (dọc), cùng góc xoay với trang đọc bài. */
+  --forum-petal-1-x: -700px;   --forum-petal-1-y: 163px;
+  --forum-petal-2-x: -774.8px; --forum-petal-2-y: 442.1px;
+  --forum-petal-3-x: -626.1px; --forum-petal-3-y: 804.8px;
+  --forum-petal-4-x: 646.3px;  --forum-petal-4-y: 205.4px;
+  --forum-petal-5-x: 745.7px;  --forum-petal-5-y: 543.4px;
+  --forum-petal-6-x: -736.8px; --forum-petal-6-y: 1165px;
+  --forum-petal-7-x: -651.3px; --forum-petal-7-y: 1424.7px;
+  --forum-petal-8-x: 686.5px;  --forum-petal-8-y: 976.4px;
+  --forum-petal-9-x: 626.1px;  --forum-petal-9-y: 1300.3px;
+  --forum-petal-10-x: 766.9px; --forum-petal-10-y: 1563.1px;
+}
+
+/* Trang Hỗ trợ (Figma "Etsubi Hỗ trợ 2" 1:1966): hero hồng, ô tìm kiếm lớn, lưới chủ đề và FAQ. */
+:root {
+  /* Nền chuyển sắc hồng của hero và bóng của ô tìm kiếm, thẻ chủ đề. */
+  --gradient-support-hero: linear-gradient(193.19deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
+  --shadow-support-search: 0 8px 24px rgba(196,59,87,.18);
+  --shadow-support-card: 0 3px 6px rgba(194,69,79,.06);
+  --color-support-chip-bg: rgba(255,255,255,.65);
+  --color-support-faq-open: #FDF4F6;
+  --color-dialog-backdrop: rgba(31,26,23,.45);
+  /* Kích thước đo trong Figma: hero cao 450px, ô tìm kiếm 760 × 60, cột FAQ 960 + 40 + 440. */
+  --support-hero-height: 450px;
+  --support-search-width: 760px;
+  --support-search-height: 60px;
+  --support-section-gap: 72px;
+  --support-grid-gap: 32px;
+  --support-sidebar-width: 440px;
+  /* Tám cánh hoa trong hero: vị trí so với tâm trang (ngang) và đỉnh hero (dọc), góc xoay từ Figma. */
+  --support-hero-petal-1-x: 520px;    --support-hero-petal-1-y: 60px;    --support-hero-petal-1-rotate: 0deg;
+  --support-hero-petal-2-x: 607.9px;  --support-hero-petal-2-y: 159.3px; --support-hero-petal-2-rotate: -40deg;
+  --support-hero-petal-3-x: 684.7px;  --support-hero-petal-3-y: 74px;    --support-hero-petal-3-rotate: -80deg;
+  --support-hero-petal-4-x: 758.1px;  --support-hero-petal-4-y: 220.1px; --support-hero-petal-4-rotate: -120deg;
+  --support-hero-petal-5-x: 831.4px;  --support-hero-petal-5-y: 110.5px; --support-hero-petal-5-rotate: -160deg;
+  --support-hero-petal-6-x: -689.4px; --support-hero-petal-6-y: 49.2px;  --support-hero-petal-6-rotate: 160deg;
+  --support-hero-petal-7-x: -780px;   --support-hero-petal-7-y: 220px;   --support-hero-petal-7-rotate: 0deg;
+  --support-hero-petal-8-x: -576.8px; --support-hero-petal-8-y: 297.4px; --support-hero-petal-8-rotate: -10deg;
+  /* Sáu cánh hoa hai bên lề phần nội dung (dọc tính từ đỉnh phần nội dung dưới hero). */
+  --support-petal-1-x: -834.8px; --support-petal-1-y: 92.1px;  --support-petal-1-rotate: -74deg;
+  --support-petal-2-x: -776.1px; --support-petal-2-y: 574.8px; --support-petal-2-rotate: -32deg;
+  --support-petal-3-x: 835.7px;  --support-petal-3-y: 173.4px; --support-petal-3-rotate: -64deg;
+  --support-petal-4-x: -801.3px; --support-petal-4-y: 974.7px; --support-petal-4-rotate: -57deg;
+  --support-petal-5-x: 806.5px;  --support-petal-5-y: 726.4px; --support-petal-5-rotate: -25deg;
+  --support-petal-6-x: 866.1px;  --support-petal-6-y: 1120.3px; --support-petal-6-rotate: -81deg;
+}
+
+/* Trang Giới thiệu (Figma "Etsubi Giới thiệu" 1:1737): banner ảnh, phương trình tên gọi, tính năng, nhóm. */
+:root {
+  /* Kích thước đo trong Figma: banner cao 440px, các khu cách nhau 88px, đệm trên 80px và dưới 96px. */
+  --about-hero-height: 440px;
+  --about-hero-top: 93px;
+  --about-section-gap: 88px;
+  --about-main-top: 80px;
+  --about-main-bottom: 96px;
+  /* Bóng của vòng tròn kết quả "Etsubi" và vòng avatar thành viên. */
+  --shadow-about-result: 0 8px 24px rgba(194,69,79,.25);
+  --shadow-about-avatar-ring: 0 5px 7px rgba(194,69,79,.22);
+  --color-about-hero-text: rgba(255,255,255,.9);
+  --color-about-cta-text: rgba(255,255,255,.85);
+  /* Sáu cánh hoa trong banner (so với tâm trang và đỉnh banner) và bảy cánh bên lề (so với đỉnh phần nội dung). */
+  --about-hero-petal-1-x: 540px;    --about-hero-petal-1-y: 60px;    --about-hero-petal-1-rotate: 0deg;
+  --about-hero-petal-2-x: 607.9px;  --about-hero-petal-2-y: 146.3px; --about-hero-petal-2-rotate: -40deg;
+  --about-hero-petal-3-x: 664.7px;  --about-hero-petal-3-y: 238px;   --about-hero-petal-3-rotate: -80deg;
+  --about-hero-petal-4-x: 718.1px;  --about-hero-petal-4-y: 321.1px; --about-hero-petal-4-rotate: -120deg;
+  --about-hero-petal-5-x: 771.4px;  --about-hero-petal-5-y: 88.5px;  --about-hero-petal-5-rotate: -160deg;
+  --about-hero-petal-6-x: 810.6px;  --about-hero-petal-6-y: 174.2px; --about-hero-petal-6-rotate: 160deg;
+  --about-petal-1-x: -834.8px; --about-petal-1-y: 102.1px;  --about-petal-1-rotate: -74deg;
+  --about-petal-2-x: -786.1px; --about-petal-2-y: 684.8px;  --about-petal-2-rotate: -32deg;
+  --about-petal-3-x: 835.7px;  --about-petal-3-y: 243.4px;  --about-petal-3-rotate: -64deg;
+  --about-petal-4-x: -801.3px; --about-petal-4-y: 1184.7px; --about-petal-4-rotate: -57deg;
+  --about-petal-5-x: 806.5px;  --about-petal-5-y: 786.4px;  --about-petal-5-rotate: -25deg;
+  --about-petal-6-x: 866.1px;  --about-petal-6-y: 1380.3px; --about-petal-6-rotate: -81deg;
+  --about-petal-7-x: 743.2px;  --about-petal-7-y: 1785px;   --about-petal-7-rotate: -10deg;
+}
+
+/* Trang Hồ sơ (Figma "Profile - Màn hình áp dụng" 1:3896): cột 960px, thẻ hồ sơ và thẻ Kết nối. */
+:root {
+  /* Cột nội dung 960px, cách header 56px, cách footer 80px, hai thẻ cách nhau 24px. */
+  --profile-page-width: 960px;
+  --profile-page-top: 56px;
+  --profile-page-bottom: 80px;
+  /* Dải đỏ đầu thẻ hồ sơ cao 96px (64px trên điện thoại), avatar lớn 104px trong vòng kem 112px. */
+  --profile-cover-height: 96px;
+  --profile-cover-mobile: 64px;
+  --profile-avatar-size: 104px;
+  --profile-ring-size: 112px;
+  --shadow-profile-ring: 0 6px 8px rgba(194,69,79,.25);
+  --shadow-profile-avatar-sm: 0 3px 3.5px rgba(194,69,79,.18);
+  --shadow-profile-search: 0 0 0 3px rgba(194,69,79,.12);
+}
+
+/* Góc nhìn Mod/Admin (Figma 1:2435): nhãn trạng thái, khối chỉ staff thấy, menu và hộp thoại xác nhận. */
+:root {
+  /* Nhãn "Đang bị tắt tiếng": nền vàng nhạt, viền vàng, chữ nâu cam. */
+  --color-status-muted-bg: #FDF1DC;
+  --color-status-muted-border: #F3D19C;
+  --color-status-muted-text: #9A5B00;
+  /* Nhãn "Đã bị cấm" nền nâu đen; hồ sơ bị cấm có dải và avatar xám. */
+  --color-status-banned: #3D3532;
+  --color-banned-cover: #7A716B;
+  --color-banned-avatar: #9C928B;
+  /* Nhãn "Đã ẩn": nền xám be. */
+  --color-status-hidden-bg: #EDE7E3;
+  --color-status-hidden-border: #D9D0C7;
+  /* Khối chỉ staff thấy: nền xanh xám nhạt, viền đứt màu slate 55%. */
+  --color-staff-box-bg: #EEF1F6;
+  --color-staff-box-border: rgba(15,23,41,.55);
+  /* Mục menu bị khoá dùng chữ xám nhạt. */
+  --color-disabled-text: #B3A79F;
+  /* Bóng của menu thả xuống và hộp thoại. */
+  --shadow-menu: 0 10px 28px rgba(31,26,23,.16);
+  --shadow-dialog: 0 20px 48px rgba(0,0,0,.25);
+}
+
 /* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
 :root {
   /* Màu thương hiệu, nền, chữ, viền và trạng thái dùng cho nút, trường nhập và thông báo. */
@@ -173,6 +376,8 @@
   --color-sakura: #FCECF0;
   --color-sakura-100: #FAD6E1;
   --color-pink-border: #F5C0D0;
+  /* Chấm báo thông báo mới trên chuông: hồng sakura nhạt để nổi trên nền header đỏ (đỏ sẽ bị chìm). */
+  --color-bell-dot: var(--color-sakura-100);
   --color-text: #1F1A17;
   --color-text-secondary: #4A403B;
   --color-text-body: #59544D;
@@ -197,6 +402,9 @@
   --color-white-85: rgba(255,255,255,.85);
   --color-white-70: rgba(255,255,255,.7);
   --color-white-68: rgba(255,255,255,.68);
+  --color-white-60: rgba(255,255,255,.6);
+  --color-white-28: rgba(255,255,255,.28);
+  --color-white-24: rgba(255,255,255,.24);
   --color-white-20: rgba(255,255,255,.2);
   --color-white-15: rgba(255,255,255,.15);
   --color-red-40: rgba(194,69,79,.4);
@@ -215,9 +423,9 @@
   --torii-plaque-text: #FFEBCC;
 
   /* Phông chữ cho nội dung, tiếng Nhật, tiêu đề và chữ thương hiệu. */
-  --font-body: 'Be Vietnam Pro', sans-serif;
+  --font-body: 'Be Vietnam Pro', 'Noto Sans JP', sans-serif;
   --font-jp: 'Noto Sans JP', sans-serif;
-  --font-display: 'Etsubi Display', 'Be Vietnam Pro', sans-serif;
+  --font-display: 'Etsubi Display', 'Be Vietnam Pro', 'Noto Sans JP', sans-serif;
   --font-logo: 'Etsubi Logo', 'Be Vietnam Pro', sans-serif;
 
   /* Thang khoảng cách 4px dùng để căn lề, đệm và khoảng trống giữa thành phần. */
@@ -270,9 +478,12 @@
 
   /* Kích thước và khoảng cách biểu mẫu xác thực để giữ nguyên khung Figma. */
   --auth-card-width: 504px;
-  --auth-card-login-height: 584px;
-  --auth-card-register-height: 766px;
+  --auth-card-login-height: 684px;
+  /* Register 1a (256:2425) cao 888px từ batch 7 vì hàng Tên hiển thị + @tên người dùng có thêm dòng gợi ý. */
+  --auth-card-register-height: 888px;
   --auth-body-top: 23px;
+  /* Thẻ đăng ký bắt đầu nội dung thấp hơn thẻ đăng nhập 2px theo Figma 256:2425 (tiêu đề ở y 121). */
+  --auth-register-body-top: 25px;
   --auth-body-side: 39.2px;
   --auth-field-gap: 17px;
   --auth-input-height: 52.8px;
@@ -469,4 +680,71 @@
   --profile-gradient-auth: linear-gradient(223deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --profile-container: 1680px;
   --profile-card-width: 1016px;
+
+  /* Trang Chỉnh sửa hồ sơ: nền hồng nhạt của vùng xoá tài khoản và lớp phủ tối sau hộp thoại xác nhận. */
+  --color-danger-zone-bg: #FFF5F6;
+  --edit-dialog-backdrop: rgba(31, 26, 23, .45);
+
+  /* Menu avatar 280px, ảnh đầu panel 44px và vòng mở 48px quanh avatar 38px. */
+  --header-avatar-size: 38px;
+  --header-profile-width: 280px;
+  --header-profile-avatar-size: 44px;
+  /* Kích thước nút và danh sách ngôn ngữ giao diện theo Figma Đợt 13. */
+  --header-language-width: 72px;
+  --header-language-height: 36px;
+  --header-language-line-height: 20px;
+  --header-language-nudge: 1px;
+  --header-language-icon-offset: 3px;
+  --header-language-menu-width: 168px;
+  /* Đệm 5px cộng viền 1px bằng đúng 6px tính từ mép ngoài như Figma. */
+  --header-language-menu-padding: 5px;
+  --header-language-menu-gap: 2px;
+  --header-language-option-height: 40px;
+  --focus-ring-header: 0 0 0 3px var(--color-white-60);
+  --shadow-header-avatar-open: 0 0 0 5px var(--color-white-20);
+
+  /* Nút Google ở Login/Register: lùi 10px mỗi bên so với form, rộng 398.4px như Figma. */
+  --auth-google-inset: 10px;
+  --auth-google-width: 398.4px;
+
+  /* Trang Cài đặt 323:2611: khoảng cách riêng giữa icon, chữ và các lựa chọn trong pill. */
+  --settings-row-gap: 14px;
+  --settings-copy-gap: 2px;
+  --settings-option-gap: 6px;
+  /* Batch 6: chữ báo chưa lưu và chiều rộng dialog lấy từ component Figma 354:2961, 354:2972. */
+  --color-unsaved-text: #5A282D;
+  --settings-leave-dialog-width: 560px;
+  --settings-save-bar-height: 60px;
+  /* Batch 9: kích thước editor, ảnh xem trước, popover và bản đồ theo Figma. */
+  --rich-tool-gap: 2px;
+  --rich-toolbar-padding: 6px;
+  --rich-toolbar-height: 43px;
+  --rich-tool-size: 30px;
+  --rich-body-height: 150px;
+  --rich-body-padding: 14px;
+  --rich-font-size: 16px;
+  --rich-counter-size: 12px;
+  --rich-chip-size: 13px;
+  --rich-remove-bg: rgba(31, 26, 23, .65);
+  --z-rich-popover: 20;
+  --place-dialog-width: 720px;
+  --place-map-height: 420px;
+  --place-search-height: 44px;
+  --place-pin-width: 36px;
+  --place-pin-height: 46px;
+  --comment-body-height: 96px;
+  --comment-counter-height: 23px;
+  --comment-footer-height: 71px;
+}
+
+/* Batch 10: kích thước ảnh, hộp thoại và tooltip từ bảng component. */
+:root {
+  --compose-tool-padding-inline: 10px;
+  --image-dialog-width: 520px;
+  --image-preview-height: 200px;
+  --comment-place-width: 420px;
+  --comment-map-height: 200px;
+  --comment-menu-size: 28px;
+  --stat-tooltip-size: 13px;
+  --stat-tooltip-mobile-width: 160px;
 }

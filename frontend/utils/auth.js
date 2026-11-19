@@ -3,6 +3,7 @@ import * as api from '/services/api/auth.js';
 import { getMe } from '/services/api/users.js';
 import { getToken, setToken, clearToken, onUnauthorized, ApiError } from '/services/api/client.js';
 import { routes, withRedirect } from '/utils/routes.js';
+import { t } from '/utils/i18n.js';
 
 // Giữ các tên cũ để những trang đang dùng tiện ích auth không bị đứt liên kết.
 export const LOGIN_URL = routes.login;
@@ -19,6 +20,7 @@ function normalize(user) {
   return {
     id: user.id,
     username: user.username,
+    displayname: user.displayname,
     email: user.email,
     role: user.role,
     status: user.status,
@@ -128,7 +130,7 @@ export async function fetchCurrentUser() {
 export async function login(email, password, { remember = true } = {}) {
   const result = await api.login({ email, password });
   if (!result?.token) {
-    throw new ApiError(502, 'Máy chủ không trả về phiên đăng nhập.');
+    throw new ApiError(502, t('Máy chủ không trả về phiên đăng nhập.'));
   }
   setToken(result.token, { remember });
   try {
@@ -205,8 +207,8 @@ export const auth = {
   requireAuth,
   getUser: getCachedUser,
   /** Gửi đăng ký kiểu cũ, mặc định tiếng mẹ đẻ là tiếng Việt. */
-  register(username, email, password, language = 'vi') {
-    return api.register({ username, email, password, native: 'vi', language });
+  register(username, email, password, native = 'vi') {
+    return api.register({ username, email, password, native });
   },
   /** Kiểm tra thời hạn cấm viết để trang nội dung quyết định hiện thông báo. */
   isMuted() {

@@ -9,11 +9,20 @@ use crate::infrastructure::database::models::entities::Comment;
 pub struct CreateCommentRequest {
     pub content: String,
     pub parent_id: Option<Uuid>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+}
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct CommentCountResponse {
+    pub count: i64,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct UpdateCommentRequest {
     pub content: String,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -28,6 +37,9 @@ pub struct CommentResponse {
     pub post_id: Uuid,
     pub user_id: Uuid,
     pub content: String,
+    pub language: String,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
     pub status: String,
     pub is_deleted: bool,
     pub created_at: DateTime<Utc>,
@@ -43,6 +55,9 @@ impl From<Comment> for CommentResponse {
             post_id: c.post_id,
             user_id: c.user_id,
             content: c.content,
+            language: c.language,
+            latitude: c.latitude,
+            longitude: c.longitude,
             status: c.status,
             is_deleted: deleted,
             created_at: c.created_at,

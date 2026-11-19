@@ -66,6 +66,15 @@ impl AuthService {
             return Err(AuthError::InvalidLanguage);
         }
 
+        let uname_len = username.chars().count();
+        if !(3..=30).contains(&uname_len)
+            || !username
+                .chars()
+                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+        {
+            return Err(AuthError::InvalidUsername);
+        }
+
         let displayname = displayname
             .map(str::trim)
             .filter(|s| !s.is_empty())

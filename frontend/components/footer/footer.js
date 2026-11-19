@@ -1,6 +1,7 @@
 /** Chân trang dùng chung: bản rút gọn cho xác thực và bản bốn cột cho trang nội dung. */
 import { el, qs } from '/utils/dom.js';
 import { routes } from '/utils/routes.js';
+import { t } from '/utils/i18n.js';
 
 /** Đánh dấu riêng chữ Nhật để dùng đúng phông có ký tự tiếng Nhật. */
 function japan() {
@@ -29,7 +30,7 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
   // Bản xác thực chỉ có dòng bản quyền, nhường không gian cho biểu mẫu.
   if (variant === 'slim') {
     const copy = el('p', { className: 'site-footer__slim-copy' },
-      '© 2025 Etsubi · ', japan(), '  |  IE104 – UIT  |  Cầu nối văn hoá Việt – Nhật'
+      '© 2026 Etsubi · ', japan(), '  |  IE104 – UIT  |  ', t('Cầu nối văn hoá Việt – Nhật')
     );
     target.replaceChildren(copy, mobile);
     return target;
@@ -51,9 +52,9 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
   const intro = el('div', { className: 'site-footer__column' },
     el('a', { className: 'site-footer__brand', href: routes.home }, brand(), ' · ', japan()),
     el('p', { className: 'site-footer__description' },
-      'Nền tảng kết nối sinh viên Việt – Nhật.',
+      t('Nền tảng kết nối sinh viên Việt – Nhật.'),
       el('br'),
-      'Chia sẻ kiến thức, xây dựng cộng đồng.'
+      t('Chia sẻ kiến thức, xây dựng cộng đồng.')
     ),
     socials
   );
@@ -72,22 +73,22 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
   // Các đường dẫn tập trung trong routes để footer luôn thống nhất với header.
   const grid = el('div', { className: 'site-footer__grid' },
     intro,
-    column('Liên kết', [
-      ['Trang chủ', routes.home],
-      ['Diễn đàn', routes.forum],
-      ['Bài viết', routes.forum],
-      ['Cộng đồng', routes.forum],
+    column(t('Liên kết'), [
+      [t('Trang chủ'), routes.home],
+      [t('Diễn đàn'), routes.forum],
+      [t('Bài viết'), routes.forum],
+      [t('Cộng đồng'), routes.forum],
     ]),
-    column('Tài nguyên', [
-      ['Trung tâm trợ giúp', routes.support],
-      ['Điều khoản sử dụng', routes.support + '#terms'],
-      ['Chính sách bảo mật', routes.support + '#privacy'],
-      ['Phản hồi', routes.support + '#feedback'],
+    column(t('Tài nguyên'), [
+      [t('Trung tâm trợ giúp'), routes.support],
+      [t('Điều khoản sử dụng'), routes.support + '#terms'],
+      [t('Chính sách bảo mật'), routes.support + '#privacy'],
+      [t('Phản hồi'), routes.support + '#feedback'],
     ]),
-    column('Liên hệ', [
+    column(t('Liên hệ'), [
       ['contact@etsubi.vn', 'mailto:contact@etsubi.vn'],
       ['+84 28 1234 5678', 'tel:+842812345678'],
-      ['TP. Hồ Chí Minh, Việt Nam', null],
+      [t('TP. Hồ Chí Minh, Việt Nam'), null],
     ])
   );
   const content = el('div', { className: 'container site-footer__content' },

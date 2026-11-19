@@ -1,3 +1,4 @@
+import { richToPlainText } from '/utils/rich-text.js';
 /** Xử lý văn bản bằng nút DOM để kết quả tìm kiếm không chèn được HTML từ API. */
 
 /**
@@ -74,11 +75,11 @@ export function wrapJapanese(fragmentOrText) {
  * @returns {string} Đoạn trích thuần văn bản, có dấu ba chấm khi bị cắt.
  */
 export function makeExcerpt(content, query = '', max = 220) {
-  const text = String(content ?? '')
-    .replace(/<[^>]*>/gu, ' ')
+  const text = richToPlainText(content)
     .replace(/!?\[([^\]]*)\]\([^)]*\)/gu, '$1')
     .replace(/^[ \t]*[>#\-+]+\s*/gmu, '')
-    .replace(/[`*_~]/gu, '')
+    // Bỏ ký hiệu Markdown nhưng giữ nguyên dấu _ trong @username.
+    .replace(/(@[a-z0-9_]{3,30})|[`*_~]/gu, (match, username) => username || '')
     .replace(/\s+/gu, ' ')
     .trim();
   const needle = String(query).trim().toLocaleLowerCase('vi');

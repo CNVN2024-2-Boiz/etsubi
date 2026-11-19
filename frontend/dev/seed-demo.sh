@@ -6,8 +6,9 @@
 # Demo accounts (local only, never use in production):
 #   minhanh@demo.etsubi.vn / kenji@demo.etsubi.vn / lanhuong@demo.etsubi.vn
 #   password for all: etsubi-demo-123
+#   handles (unique username): @minhanh, @kenji.tanaka, @lanhuong; displayname = full name
 # QA account created by hand through the Register page during manual tests:
-#   qa-register@demo.etsubi.vn / etsubi-demo-123 (name "QA Đăng Ký")
+#   qa-register@demo.etsubi.vn / etsubi-demo-123 (@qa.dangky, name "QA Đăng Ký")
 set -euo pipefail
 API="${1:-http://localhost:21432/api/v1}"
 PASS="etsubi-demo-123"
@@ -16,10 +17,13 @@ pause() { sleep 0.35; }
 
 json() { python -c "import sys,json;print(json.load(sys.stdin)$1)"; }
 
-register() { # username email native
+register() { # username(@handle) email native displayname
+  # Since upstream 65c7acd username is the unique @handle and displayname is the full name.
+  # The back end does not read displayname on register yet (HANDOFF §5); it is sent anyway
+  # for when it does. Until then the displayname equals the handle after seeding.
   curl -s -o /dev/null -w "register $2: %{http_code}\n" -X POST "$API/auth/register" \
     -H "Content-Type: application/json" \
-    -d "{\"username\":\"$1\",\"email\":\"$2\",\"password\":\"$PASS\",\"native\":\"$3\",\"language\":\"vi\"}"
+    -d "$(python -c "import json,sys;print(json.dumps({'username':sys.argv[1],'email':sys.argv[2],'password':sys.argv[3],'native':sys.argv[4],'language':'vi','displayname':sys.argv[5]}))" "$1" "$2" "$PASS" "$3" "$4")"
   pause
 }
 login() { # email -> token
@@ -44,9 +48,9 @@ QUESTION=00000000-0000-0000-0000-000000000002
 DISCUSSION=00000000-0000-0000-0000-000000000003
 SHOWCASE=00000000-0000-0000-0000-000000000005
 
-register "Minh Anh" minhanh@demo.etsubi.vn vi
-register "Kenji Tanaka" kenji@demo.etsubi.vn ja
-register "Lan Hương" lanhuong@demo.etsubi.vn vi
+register minhanh minhanh@demo.etsubi.vn vi "Minh Anh"
+register kenji.tanaka kenji@demo.etsubi.vn ja "Kenji Tanaka"
+register lanhuong lanhuong@demo.etsubi.vn vi "Lan Hương"
 
 T1=$(login minhanh@demo.etsubi.vn)
 T2=$(login kenji@demo.etsubi.vn)

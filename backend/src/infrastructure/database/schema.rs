@@ -27,6 +27,8 @@ diesel::table! {
         user_id -> Uuid,
         content -> Text,
         language -> Text,
+        latitude -> Nullable<Float8>,
+        longitude -> Nullable<Float8>,
         status -> Text,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,

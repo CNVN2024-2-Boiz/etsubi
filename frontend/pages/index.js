@@ -1,9 +1,10 @@
 /** Trang chủ Home 4: dữ liệu thật, khung chờ trung tính và thao tác tường minh. */
+import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featured-card/featured-card.js';
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
-import { listPosts, getFeaturedPosts, getPostTags, getPostStats, listFollowingFeed } from '/services/api/posts.js';
+import { listHomeFeed, getFeaturedPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
 import { getMyRecommendations } from '/services/api/recommendations.js';
 import { getReactionSummary } from '/services/api/reactions.js';
@@ -18,6 +19,10 @@ import { initials } from '/utils/format.js';
 import { wrapJapanese } from '/utils/text.js';
 import { toVietnameseMessage } from '/utils/errors.js';
 import { routes, searchUrl, withRedirect } from '/utils/routes.js';
+import { t, currentLocale } from '/utils/i18n.js';
+
+// Figma Home 4 (140:135): mỗi tab của "Bài viết mới" chỉ hiện 3 bài, phần còn lại xem ở Diễn đàn qua "Xem thêm →".
+const HOME_LATEST_LIMIT = 3;
 
 // Header có form riêng của Home, còn footer tái dùng biến thể đầy đủ của trang nội dung.
 mountHeader(qs('[data-component="header"]'), { active: 'home', searchForm: true });
@@ -33,6 +38,10 @@ let user = getCachedUser();
 let tags = [];
 let featured = null;
 let featuredPage = 0;
+// Thông tin phụ của thẻ nổi bật: chỉ tải khi thẻ đang hiện, trang đã xem thì dùng lại khi quay về.
+const featuredExtras = new Map();
+const featuredRequests = new Map();
+let featuredVersion = 0;
 let selectedFeed = 'newest';
 let feedVersion = 0;
 let feedController = null;
@@ -57,7 +66,7 @@ function loginLink() {
   return el('a', {
     className: 'btn btn--secondary btn--sm',
     href: withRedirect(routes.login, location.pathname + location.search),
-  }, 'Đăng nhập');
+  }, t('Đăng nhập'));
 }
 
 /** Cánh hoa là ảnh trang trí tĩnh; vị trí và góc xoay nằm trong CSS để không có inline style. */
@@ -79,6 +88,72 @@ function featuredPageSize() {
   return compactFeatured.matches ? 1 : 3;
 }
 
+/** Dựng thẻ nổi bật từ bài và phần thông tin phụ đã tải; mã bài giúp thay đúng thẻ khi có dữ liệu mới. */
+function createFeaturedNode(post, rank) {
+  const card = createFeaturedCard({ post, rank, ...featuredExtras.get(post.id) });
+  card.dataset.featuredPostId = post.id;
+  return card;
+}
+
+/** Tải tác giả, tag và số bình luận của một bài đúng một lần; phần lỗi để trống và được thử lại khi thẻ hiện lần sau. */
+function loadFeaturedExtra(post) {
+  if (!featuredRequests.has(post.id)) {
+    const pending = Promise.all([
+      getUser(post.author_id).catch(() => undefined),
+      getPostTags(post.id).catch(() => undefined),
+      getPostStats(post.id, post),
+    ]).then(([author, postTags, stats]) => {
+      featuredExtras.set(post.id, { author, tags: postTags, commentCount: stats?.comment_count ?? undefined });
+      // Thiếu phần nào thì bỏ dấu đã tải, lần sau thẻ hiện lại sẽ thử lại phần đó.
+      if (!author || !postTags) {
+        featuredRequests.delete(post.id);
+      }
+    });
+    featuredRequests.set(post.id, pending);
+  }
+  return featuredRequests.get(post.id);
+}
+
+/** Thay thẻ đang hiện bằng bản đủ dữ liệu; thẻ giữ focus thì chờ focus rời đi để không mất vị trí bàn phím. */
+function refreshFeaturedCard(post, rank, version) {
+  const target = qs('[data-featured-post-id="' + CSS.escape(String(post.id)) + '"]', qs('[data-featured-cards]'));
+  if (!target) {
+    return;
+  }
+  if (target.contains(document.activeElement)) {
+    /** Cập nhật thẻ khi focus đã rời khỏi thẻ và trang nổi bật chưa đổi. */
+    function updateAfterFocusLeaves(event) {
+      if (!target.contains(event.relatedTarget)) {
+        target.removeEventListener('focusout', updateAfterFocusLeaves);
+        if (version === featuredVersion && target.isConnected) {
+          target.replaceWith(createFeaturedNode(post, rank));
+        }
+      }
+    }
+    target.addEventListener('focusout', updateAfterFocusLeaves);
+    return;
+  }
+  target.replaceWith(createFeaturedNode(post, rank));
+}
+
+/** Chỉ bổ sung các thẻ của trang đang xem, lần lượt từng thẻ; đổi trang thì dừng lượt cũ. */
+async function enrichVisibleFeatured() {
+  const version = ++featuredVersion;
+  const size = featuredPageSize();
+  const start = featuredPage * size;
+  for (const [offset, post] of featured.slice(start, start + size).entries()) {
+    // Thẻ đã đủ dữ liệu được vẽ sẵn từ bộ nhớ, không gọi lại máy chủ khi quay về trang cũ.
+    if (featuredExtras.has(post.id) && featuredRequests.has(post.id)) {
+      continue;
+    }
+    await loadFeaturedExtra(post);
+    if (version !== featuredVersion) {
+      return;
+    }
+    refreshFeaturedCard(post, start + offset + 1, version);
+  }
+}
+
 /** Vẽ trang nổi bật bằng bài thật có thứ hạng hoặc ba khung chờ khi chưa có hợp đồng. */
 function renderFeatured(restoreDotFocus = false) {
   const size = featuredPageSize();
@@ -89,14 +164,13 @@ function renderFeatured(restoreDotFocus = false) {
   row.replaceChildren();
   // Chỉ gắn thẻ thuộc trang hiện tại nên liên kết của trang ẩn không nhận focus.
   for (let index = featuredPage * size; index < Math.min((featuredPage + 1) * size, available ? featured.length : 3); index += 1) {
-    row.append(available ? createFeaturedCard({ post: featured[index], rank: index + 1 })
-      : createFeaturedPlaceholder(index + 1));
+    row.append(available ? createFeaturedNode(featured[index], index + 1) : createFeaturedPlaceholder(index + 1));
   }
   const note = qs('[data-featured-note]');
   note.hidden = available;
   note.textContent = backendSupports.featuredPosts
-    ? 'Chưa có dữ liệu bài viết nổi bật.'
-    : 'Bài viết nổi bật sẽ hiển thị khi máy chủ hỗ trợ xếp hạng.';
+    ? t('Chưa có dữ liệu bài viết nổi bật.')
+    : t('Bài viết nổi bật sẽ hiển thị khi máy chủ hỗ trợ xếp hạng.');
   const dots = qs('[data-featured-dots]');
   dots.replaceChildren();
   const dotCount = available ? pageCount : compactFeatured.matches ? 3 : 4;
@@ -104,7 +178,7 @@ function renderFeatured(restoreDotFocus = false) {
   for (let index = 0; index < dotCount; index += 1) {
     const dot = el('button', {
       type: 'button', className: 'home-featured__dot' + (index === featuredPage ? ' is-active' : ''),
-      'aria-label': 'Trang nổi bật ' + (index + 1),
+      'aria-label': t('Trang nổi bật {number}', { number: index + 1 }),
       'aria-current': index === featuredPage ? 'page' : null,
       'data-featured-page': index,
       disabled: !available,
@@ -113,6 +187,9 @@ function renderFeatured(restoreDotFocus = false) {
   }
   if (restoreDotFocus) {
     qs('[data-featured-page="' + featuredPage + '"]', dots)?.focus();
+  }
+  if (available) {
+    void enrichVisibleFeatured();
   }
 }
 
@@ -135,12 +212,12 @@ function resizeFeatured(event) {
 
 /** Dựng avatar thành viên thật, dùng chữ đầu khi không có ảnh hoặc ảnh hỏng. */
 function memberAvatar(member) {
-  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.username));
+  const avatar = el('span', { className: 'avatar home-member__avatar' }, initials(member.displayname || member.username));
   if (member.avatar_url) {
-    const image = el('img', { src: member.avatar_url, alt: member.username, width: 40, height: 40, loading: 'lazy' });
+    const image = el('img', { src: member.avatar_url, alt: getAuthorLabel(member), width: 40, height: 40, loading: 'lazy' });
     /** Đổi ảnh hỏng về chữ đầu tên thật để không hiện icon ảnh lỗi. */
     function useInitials() {
-      avatar.replaceChildren(initials(member.username));
+      avatar.replaceChildren(initials(member.displayname || member.username));
     }
     image.addEventListener('error', useInitials, { once: true });
     avatar.replaceChildren(image);
@@ -153,7 +230,7 @@ function createFollowButton(memberId) {
   let following = false;
   const button = el('button', {
     className: 'btn btn--danger-outline btn--sm home-member__follow', type: 'button', 'aria-pressed': 'false',
-  }, 'Theo dõi');
+  }, t('Theo dõi'));
   /** Kiểm tra phiên trước khi theo dõi, chặn nhấn lặp và báo lỗi bằng alert trong trang. */
   async function toggleFollow() {
     button.disabled = true;
@@ -168,7 +245,7 @@ function createFollowButton(memberId) {
         await followUser(memberId);
       }
       following = !following;
-      button.textContent = following ? 'Đang theo dõi' : 'Theo dõi';
+      button.textContent = following ? t('Đang theo dõi') : t('Theo dõi');
       button.setAttribute('aria-pressed', String(following));
     } catch (error) {
       showError(error);
@@ -191,11 +268,11 @@ function createSuggestedPost(post) {
   if (post) {
     text.append(el('a', { className: 'home-suggestion__title', href: routes.post(post.id) }, wrapJapanese(post.title)),
       el('p', { className: 'home-suggestion__meta' },
-        (Number.isFinite(post.comment_count) ? post.comment_count : '–') + ' bình luận',
+        t('{count} bình luận', { count: Number.isFinite(post.comment_count) ? post.comment_count : '–' }),
         post.tag?.name ? wrapJapanese(' · ' + post.tag.name) : null));
   } else {
     text.append(placeholder(false, true), placeholder(true),
-      el('p', { className: 'home-suggestion__meta' }, '– bình luận'));
+      el('p', { className: 'home-suggestion__meta' }, t('{count} bình luận', { count: '–' })));
   }
   return el('div', { className: 'home-suggestion' }, thumb, text);
 }
@@ -204,8 +281,8 @@ function createSuggestedPost(post) {
 function createSuggestedMember(member) {
   const text = el('div', { className: 'home-member__text' });
   if (member) {
-    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(member.username)),
-      el('p', { className: 'home-member__sub' }, wrapJapanese('@' + member.username
+    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(getAuthorLabel(member))),
+      el('p', { className: 'home-member__sub' }, wrapJapanese(getAuthorHandle(member)
         + (member.address ? ' · ' + member.address : member.institute ? ' · ' + member.institute : ''))));
   } else {
     text.append(placeholder(false, true), placeholder(true));
@@ -214,7 +291,7 @@ function createSuggestedMember(member) {
     : el('span', { className: 'home-member__avatar home-member__avatar--placeholder', 'aria-hidden': 'true' }),
   text, member ? createFollowButton(member.id) : el('button', {
     type: 'button', className: 'btn btn--danger-outline btn--sm home-member__follow', disabled: true,
-  }, 'Theo dõi'));
+  }, t('Theo dõi')));
 }
 
 /** Gợi ý vẫn giữ đủ ba khối khi chưa hỗ trợ; danh mục chủ đề là tag thật từ GET /tags. */
@@ -223,7 +300,7 @@ function renderRecommendations(data = null) {
   const body = el('div', { className: 'home-recommendations__body' });
   if (!user) {
     body.append(el('div', { className: 'home-recommendations__signin' },
-      el('p', {}, 'Đăng nhập để nhận gợi ý theo chủ đề bạn đã chọn.'), loginLink()));
+      el('p', {}, t('Đăng nhập để nhận gợi ý theo chủ đề bạn đã chọn.')), loginLink()));
   }
   const topics = el('div', { className: 'home-recommendations__topics' });
   const selectedTopics = personal?.topics ?? tags;
@@ -236,12 +313,12 @@ function renderRecommendations(data = null) {
   if (!selectedTopics.length) {
     topics.append(placeholder(), placeholder(true));
   }
-  body.append(el('section', { className: 'home-recommendations__group', 'aria-label': 'Chủ đề phù hợp' },
-    el('h3', { className: 'home-recommendations__eyebrow' }, 'CHỦ ĐỀ PHÙ HỢP'), topics));
-  const posts = el('section', { className: 'home-recommendations__group', 'aria-label': 'Bài viết gợi ý' },
-    el('h3', { className: 'home-recommendations__eyebrow' }, 'BÀI VIẾT GỢI Ý'));
-  const members = el('section', { className: 'home-recommendations__group', 'aria-label': 'Thành viên nên theo dõi' },
-    el('h3', { className: 'home-recommendations__eyebrow' }, 'THÀNH VIÊN NÊN THEO DÕI'));
+  body.append(el('section', { className: 'home-recommendations__group', 'aria-label': t('Chủ đề phù hợp') },
+    el('h3', { className: 'home-recommendations__eyebrow' }, t('CHỦ ĐỀ PHÙ HỢP')), topics));
+  const posts = el('section', { className: 'home-recommendations__group', 'aria-label': t('Bài viết gợi ý') },
+    el('h3', { className: 'home-recommendations__eyebrow' }, t('BÀI VIẾT GỢI Ý')));
+  const members = el('section', { className: 'home-recommendations__group', 'aria-label': t('Thành viên nên theo dõi') },
+    el('h3', { className: 'home-recommendations__eyebrow' }, t('THÀNH VIÊN NÊN THEO DÕI')));
   // Giữ ba vị trí để bố cục giống Figma cả khi máy chủ trả ít gợi ý hoặc người xem chưa đăng nhập.
   for (let index = 0; index < 3; index += 1) {
     posts.append(createSuggestedPost(personal?.posts?.[index]));
@@ -251,7 +328,7 @@ function renderRecommendations(data = null) {
   qs('[data-recommendations]').replaceChildren(
     el('div', { className: 'home-recommendations__band' },
       el('img', { src: '/assets/icons/torii-mini.svg', alt: '', width: 58, height: 48, 'aria-hidden': 'true' }),
-      el('p', {}, wrapJapanese(user ? 'Dành riêng cho ' + user.username : 'Gợi ý cho bạn'))), body);
+      el('p', {}, wrapJapanese(user ? t('Dành riêng cho {name}', { name: getAuthorLabel(user) }) : t('Gợi ý cho bạn')))), body);
 }
 
 /** Thẻ tải tĩnh giữ chiều cao bảng tin mà không có spinner hoặc shimmer. */
@@ -367,70 +444,53 @@ async function enrichFeed(posts, version) {
   }
 }
 
-/** Tải đúng bảng tin người dùng chọn; không gửi yêu cầu sort hoặc feed khi cờ hỗ trợ còn tắt. */
+/** Tải bảng tin qua endpoint tương ứng; chỉ bảng tin theo dõi yêu cầu đăng nhập. */
 async function loadFeed() {
   const version = ++feedVersion;
   feedController?.abort();
   feedController = new AbortController();
   const { signal } = feedController;
   feedList.setAttribute('aria-busy', 'true');
-  feedStatus.textContent = 'Đang tải bài viết…';
-  feedList.replaceChildren(createFeedPlaceholder(), createFeedPlaceholder(), createFeedPlaceholder());
+  feedStatus.textContent = t('Đang tải bài viết…');
+  // Số khung chờ bằng giới hạn bài thật để giữ bố cục nhất quán khi tải.
+  feedList.replaceChildren(...Array.from({ length: HOME_LATEST_LIMIT }, () => createFeedPlaceholder()));
   try {
-    // Các trạng thái chưa có API là thông báo trong trang, không tạo request thất bại ở console.
-    if (selectedFeed === 'popular' && !backendSupports.popularSort) {
-      showFeedInfo('Sắp xếp theo độ phổ biến sẽ có khi máy chủ hỗ trợ.');
+    // Khách vẫn thấy lời mời đăng nhập, không gửi yêu cầu tới endpoint cần JWT.
+    if (selectedFeed === 'following' && !user) {
+      showFeedInfo(t('Đăng nhập để xem bài từ những người bạn theo dõi.'), true);
       return;
     }
-    if (selectedFeed === 'following') {
-      if (!user) {
-        showFeedInfo('Đăng nhập để xem bài từ những người bạn theo dõi.', true);
-        return;
-      }
-      if (!backendSupports.followingFeed) {
-        showFeedInfo('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.');
-        return;
-      }
-    }
-    let tagIds = [];
-    if (selectedFeed === 'question') {
-      tags = await listTags();
-      if (version !== feedVersion) {
-        return;
-      }
-      const questionTag = tags.find(tag => tag.name === 'question');
-      if (!questionTag) {
-        showFeedInfo('Chưa có bài viết nào.');
-        return;
-      }
-      tagIds = [questionTag.id];
-    }
     const viewerLanguage = getCachedUser()?.language || readStorage('etsubi_lang') || 'vi';
-    const posts = selectedFeed === 'following'
-      ? await listFollowingFeed({ limit: 5, offset: 0, signal })
-      : await listPosts({ limit: 5, tagIds, sort: selectedFeed === 'popular' ? 'popular' : 'newest',
-        lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
+    // Cả bốn tab dùng chung service Trang chủ để đổi endpoint tại một chỗ.
+    const posts = await listHomeFeed(selectedFeed, { limit: HOME_LATEST_LIMIT,
+      lang: backendSupports.autoTranslateFeed ? viewerLanguage : undefined, signal });
     if (version !== feedVersion) {
       return;
     }
-    if (!posts?.length) {
-      showFeedInfo('Chưa có bài viết nào.');
+    // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
+    if (posts === null) {
+      showFeedInfo(t('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.'));
       return;
     }
-    const visiblePosts = posts.slice(0, 5);
+    if (!posts?.length) {
+      showFeedInfo(selectedFeed === 'following' ? t('Bạn chưa theo dõi ai hoặc họ chưa đăng bài.') : t('Chưa có bài viết nào.'));
+      return;
+    }
+    // Mới nhất, Hỏi đáp và Theo dõi tự giới hạn trong lúc chờ endpoint riêng của Trang chủ nhận limit.
+    const visiblePosts = posts.slice(0, HOME_LATEST_LIMIT);
     feedList.replaceChildren(...visiblePosts.map(post => feedCard(post, post.author, post.tags)));
     feedList.setAttribute('aria-busy', 'false');
-    feedStatus.textContent = 'Đã tải ' + visiblePosts.length + ' bài viết.';
+    feedStatus.textContent = t('Đã tải {count} bài viết.', { count: visiblePosts.length });
     await enrichFeed(visiblePosts, version);
   } catch (error) {
     if (version !== feedVersion || signal.aborted) {
       return;
     }
-    const retry = el('button', { type: 'button', className: 'btn btn--secondary btn--sm' }, 'Thử lại');
+    const retry = el('button', { type: 'button', className: 'btn btn--secondary btn--sm' }, t('Thử lại'));
     retry.addEventListener('click', loadFeed);
     feedList.replaceChildren(el('div', { className: 'alert alert--error home-feed__info', role: 'alert' },
       el('p', {}, toVietnameseMessage(error)), retry));
-    feedStatus.textContent = 'Không tải được bài viết.';
+    feedStatus.textContent = t('Không tải được bài viết.');
     feedList.setAttribute('aria-busy', 'false');
   }
 }
@@ -504,8 +564,9 @@ async function initialize() {
   // Chỉ thông báo tạm khoá khi hồ sơ thật có thời hạn còn hiệu lực.
   if (user?.mutedUntil && new Date(user.mutedUntil).getTime() > Date.now()) {
     const notice = qs('[data-mute-notice]');
-    notice.textContent = 'Tài khoản đang bị tạm khoá chức năng viết đến '
-      + new Date(user.mutedUntil).toLocaleString('vi-VN') + '. Bạn vẫn có thể đọc bài viết.';
+    // Ngày giờ theo ngôn ngữ giao diện, cả câu là một khoá dịch.
+    notice.textContent = t('Tài khoản đang bị tạm khoá chức năng viết đến {date}. Bạn vẫn có thể đọc bài viết.',
+      { date: new Date(user.mutedUntil).toLocaleString(currentLocale()) });
     notice.hidden = false;
   }
   try {
@@ -535,6 +596,7 @@ async function initialize() {
 function leavePage(event) {
   if (!event.persisted) {
     feedVersion += 1;
+    featuredVersion += 1;
     feedController?.abort();
   }
 }

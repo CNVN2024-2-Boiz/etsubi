@@ -10,6 +10,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::user_handler::get_user);
 
     cfg.service(presentation::handlers::post_handler::list_newest_posts);
+    cfg.service(presentation::handlers::post_handler::list_highlight_posts);
     cfg.service(presentation::handlers::post_handler::list_popular_posts);
     cfg.service(presentation::handlers::post_handler::list_question_and_answer_posts);
     cfg.service(presentation::handlers::post_handler::search_posts);
@@ -18,6 +19,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::comment_handler::list_post_comments);
     cfg.service(presentation::handlers::comment_handler::get_comment);
+    cfg.service(presentation::handlers::comment_handler::count_post_comments);
 
     cfg.service(presentation::handlers::tag_handler::list_tags);
     cfg.service(presentation::handlers::tag_handler::get_tag);
@@ -49,9 +51,11 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
 
     cfg.service(presentation::handlers::personal_handler::list_my_followers);
     cfg.service(presentation::handlers::personal_handler::list_my_following);
-    cfg.service(presentation::handlers::post_handler::list_following_user_posts);
+    cfg.service(presentation::handlers::personal_handler::list_my_following_posts);
     cfg.service(presentation::handlers::personal_handler::check_my_following);
     cfg.service(presentation::handlers::personal_handler::check_my_follower);
+
+    cfg.service(presentation::handlers::post_handler::list_following_user_posts);
 
     cfg.service(presentation::handlers::user_handler::update_user);
 
@@ -90,6 +94,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::notification_handler::create_notification);
     cfg.service(presentation::handlers::notification_handler::notify_followers);
     cfg.service(presentation::handlers::notification_handler::list_my_notifications);
+    cfg.service(presentation::handlers::notification_handler::create_mentions);
     cfg.service(presentation::handlers::notification_handler::unread_count);
     cfg.service(presentation::handlers::notification_handler::mark_notification_read);
     cfg.service(presentation::handlers::notification_handler::mark_all_read);

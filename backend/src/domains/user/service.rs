@@ -8,7 +8,6 @@ use crate::{
     infrastructure::database::models::entities::User,
 };
 
-const MIN_USERNAME_LEN: usize = 3;
 const MAX_DISPLAYNAME_CHARS: usize = 50;
 const VALID_LANGUAGES: &[&str] = &["vi", "en", "ja"];
 
@@ -25,8 +24,16 @@ impl UserService {
         self.user_repo.find_by_id(id)?.ok_or(UserError::NotFound)
     }
 
+    pub fn find_by_id(&self, id: Uuid) -> Result<Option<User>, UserError> {
+        Ok(self.user_repo.find_by_id(id)?)
+    }
+
     pub fn find_by_email(&self, email: &str) -> Result<Option<User>, UserError> {
         Ok(self.user_repo.find_by_email(email)?)
+    }
+
+    pub fn find_by_username(&self, username: &str) -> Result<Option<User>, UserError> {
+        Ok(self.user_repo.find_by_username(username)?)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -61,9 +68,15 @@ impl UserService {
         if let Some(new_username) = username
             && new_username != user.username
         {
-            if new_username.len() < MIN_USERNAME_LEN {
-                return Err(UserError::UsernameTooShort);
+            let uname_len = new_username.chars().count();
+            if !(3..=30).contains(&uname_len)
+                || !new_username
+                    .chars()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+            {
+                return Err(UserError::InvalidUsername);
             }
+
             if self.user_repo.find_by_username(&new_username)?.is_some() {
                 return Err(UserError::UsernameAlreadyTaken);
             }

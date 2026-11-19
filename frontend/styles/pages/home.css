@@ -238,7 +238,7 @@
 }
 
 /* Cụm Nhật dùng Medium theo thiết kế, không ép sang phông thiếu glyph Nhật. */
-.home-hero__kicker :lang(ja) {
+.home-hero__kicker [lang="ja"] {
   font-weight: 500;
 }
 
