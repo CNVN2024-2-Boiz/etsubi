@@ -13,7 +13,6 @@ export const topics = [
   { id: 'search', icon: 'tag', title: t('Tìm kiếm & Tag'), desc: t('Tìm bài theo từ khoá, lọc nhiều tag cùng lúc và dùng phím tắt.') },
   { id: 'places', icon: 'map-pin', title: t('Địa điểm văn hoá'), desc: t('Xem địa điểm gắn với bài viết và mở bản đồ để tìm đường.') },
   { id: 'rules', icon: 'shield', title: t('Quy tắc cộng đồng'), desc: t('Quy tắc cộng đồng và cách đội kiểm duyệt xử lý nội dung.') },
-  { id: 'privacy', icon: 'lock', title: t('Quyền riêng tư & Bảo mật'), desc: t('Phiên đăng nhập, đăng xuất khỏi mọi thiết bị và bảo vệ tài khoản.') },
 ];
 
 /*
@@ -38,8 +37,6 @@ export const faqs = [
   { topic: 'search', popular: null, q: t('Có phím tắt nào để tìm nhanh không?'), a: t('Nhấn phím "/" ở bất kỳ trang nào để đưa con trỏ vào ô tìm kiếm. Kết quả chỉ hiện khi bạn nhấn Enter hoặc bấm "Tìm kiếm".') },
   { topic: 'places', popular: null, q: t('Thẻ "Địa điểm văn hoá" ở bài viết là gì?'), a: t('Khi bài viết có gắn toạ độ, trang đọc bài hiện thẻ bản đồ ở cột bên phải. Bấm "Mở trong Maps" để xem vị trí và chỉ đường trên Google Maps.') },
   { topic: 'rules', popular: null, q: t('Gặp nội dung vi phạm thì làm sao?'), a: t('Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.vn. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.') },
-  { topic: 'privacy', popular: null, q: t('Làm sao để đăng xuất khỏi mọi thiết bị?'), a: t('Khi bạn đăng xuất, mọi phiên đăng nhập của tài khoản trên các thiết bị khác cũng hết hiệu lực. Hãy đăng xuất nếu nghi ngờ người khác đang dùng tài khoản của bạn.') },
-  { topic: 'privacy', popular: null, q: t('Phiên đăng nhập kéo dài bao lâu?'), a: t('Nếu chọn "Ghi nhớ đăng nhập", phiên được giữ tối đa 24 giờ trên trình duyệt đó; nếu không chọn, phiên kết thúc khi bạn đóng thẻ trình duyệt.') },
 ];
 
 /* Bốn quy tắc ngắn trong thẻ "Quy tắc cộng đồng" (theo Figma). */

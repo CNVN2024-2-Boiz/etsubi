@@ -1,8 +1,11 @@
 /**
  * Trang Hồ sơ (Figma 1:3896). Không có ?id thì là hồ sơ của mình (cần đăng nhập),
- * có ?id thì là hồ sơ người khác; ?tab=followers|following chọn danh sách.
+ * có ?id thì là hồ sơ người khác; ?tab chọn danh sách kết nối, bài viết hoặc bài đã lưu.
  */
-import { getAuthorLabel, getAuthorHandle } from '/services/api/posts.js';
+import { getAuthorLabel, getAuthorHandle, listUserPosts, getPostTags, getPostStats } from '/services/api/posts.js';
+import { listMyBookmarks, bookmarkPost, unbookmarkPost, isPostBookmarked } from '/services/api/bookmarks.js';
+import { getReactionSummary } from '/services/api/reactions.js';
+import { createFeedPostCard } from '/components/postcard/PostCard.js';
 import { mountHeader } from '/components/header/header.js';
 import { mountFooter } from '/components/footer/footer.js';
 import { getUser } from '/services/api/users.js';
@@ -19,7 +22,7 @@ import {
   createStaffTag, createStatusBadge, createStaffBox, createStaffButton, createMenu, modIcon,
   openConfirmDialog, openMuteDialog, openBanDialog, openRoleDialog,
 } from '/components/moderation/moderation.js';
-import { t } from '/utils/i18n.js';
+import { t, currentLocale } from '/utils/i18n.js';
 
 // Header theo frame Figma (tab Trang chủ đang chọn, ô tìm kiếm trong suốt); footer đầy đủ.
 mountHeader(qs('[data-component="header"]'), { active: 'home', searchForm: true });
@@ -38,6 +41,8 @@ const ICONS = {
   plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  // Dấu trang dùng cho cả hai trạng thái rỗng của thẻ bài viết.
+  bookmark: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
   users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
 };
 
@@ -51,6 +56,21 @@ const state = {
   viewerFollowing: new Set(),
   viewerFollowers: new Set(),
   filter: '',
+};
+
+// Hai nhóm tab dùng chung tham số URL nhưng mỗi nhóm giữ lựa chọn và dữ liệu riêng trong phiên.
+const POSTS_PER_PAGE = 10;
+const postState = {
+  tab: 'posts',
+  lists: { posts: null, saved: null },
+  errors: new Map(),
+  visible: { posts: POSTS_PER_PAGE, saved: POSTS_PER_PAGE },
+  extras: new Map(),
+  pending: new Map(),
+  bookmarkOverrides: new Map(),
+  bookmarkWrites: new Set(),
+  listRequests: new Map(),
+  version: 0,
 };
 
 /* ===== Tiện ích ===== */
@@ -360,7 +380,7 @@ function createEmpty(iconName, title, hint) {
   return el('li', { className: 'profile-empty' },
     el('span', { className: 'profile-empty__icon' }, icon(iconName, 20)),
     el('p', { className: 'profile-empty__title' }, title),
-    el('p', { className: 'profile-empty__hint' }, hint));
+    hint ? el('p', { className: 'profile-empty__hint' }, hint) : null);
 }
 
 /** Câu thông báo khi danh sách rỗng, khác nhau giữa hồ sơ của mình và người khác. */
@@ -419,7 +439,7 @@ async function reloadList(key) {
 }
 
 /** Chọn tab: cập nhật ARIA, URL (?tab=) và vẽ lại danh sách. */
-function selectTab(tab) {
+function selectTab(tab, updateUrl = true) {
   state.tab = tab;
   for (const button of qsa('[data-tab]')) {
     const active = button.dataset.tab === tab;
@@ -428,9 +448,7 @@ function selectTab(tab) {
     button.tabIndex = active ? 0 : -1;
   }
   qs('[data-list]').setAttribute('aria-labelledby', 'tab-' + tab);
-  const url = new URL(location.href);
-  url.searchParams.set('tab', tab);
-  history.replaceState(null, '', url.pathname + url.search);
+  if (updateUrl) writeTabUrl(tab);
   renderList();
 }
 
@@ -468,6 +486,226 @@ function clearFilter() {
   input.focus();
 }
 
+/* ===== Bài viết và bài đã lưu ===== */
+
+/** Cập nhật một tham số tab dùng chung, giữ id hồ sơ và hash. */
+function writeTabUrl(tab) {
+  const url = new URL(location.href);
+  url.searchParams.set('tab', tab);
+  history.replaceState(null, '', url.pathname + url.search + url.hash);
+}
+
+/** Chọn tab bài, cập nhật ARIA và giữ tab riêng tư ẩn trên hồ sơ người khác. */
+function selectPostTab(tab, updateUrl = true) {
+  postState.tab = tab === 'saved' && state.isOwn ? 'saved' : 'posts';
+  for (const button of qsa('[data-post-tab]')) {
+    const active = button.dataset.postTab === postState.tab;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-selected', String(active));
+    button.tabIndex = active ? 0 : -1;
+  }
+  qs('[data-post-panel]').setAttribute('aria-labelledby', 'profile-tab-' + postState.tab);
+  if (updateUrl) writeTabUrl(postState.tab);
+  renderPostList();
+}
+
+/** Hai nút tab hỗ trợ chuột và mũi tên, danh sách riêng tư chỉ nằm trên hồ sơ của mình. */
+function handlePostTabs(event) {
+  const button = event.target.closest('[data-post-tab]');
+  if (!button || button.hidden) return;
+  if (event.type === 'click') {
+    selectPostTab(button.dataset.postTab);
+  } else if (state.isOwn && ['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+    event.preventDefault();
+    selectPostTab(button.dataset.postTab === 'posts' ? 'saved' : 'posts');
+    qs('[data-post-tab="' + postState.tab + '"]').focus();
+  }
+}
+
+/** Hiện số đếm từ danh sách đầy đủ, theo cách ghi số của ngôn ngữ giao diện. */
+function renderPostCounts() {
+  for (const key of ['posts', 'saved']) {
+    qs('[data-post-count="' + key + '"]').textContent = postState.lists[key]?.length.toLocaleString(currentLocale()) ?? '–';
+  }
+}
+
+/** Câu rỗng theo từng tab; chỉ hồ sơ người khác cần tên trong gợi ý. */
+function emptyPosts(tab) {
+  if (tab === 'saved') {
+    return createEmpty('bookmark', t('Bạn chưa lưu bài viết nào'), t('Bấm biểu tượng dấu trang ở bài viết để lưu lại đọc sau.'));
+  }
+  return state.isOwn ? createEmpty('bookmark', t('Bạn chưa đăng bài viết nào'), '')
+    : createEmpty('bookmark', t('Chưa có bài viết nào'),
+      wrapJapanese(t('Khi {name} đăng bài, bài viết sẽ hiện ở đây.', { name: getAuthorLabel(state.profile) })));
+}
+
+/** Đọc trạng thái bookmark từ danh sách đã tải hoặc lượt đổi mới nhất trong phiên. */
+function savedState(post) {
+  if (!state.viewer) return false;
+  if (postState.bookmarkOverrides.has(post.id)) return postState.bookmarkOverrides.get(post.id);
+  return postState.lists.saved?.some(item => item.id === post.id)
+    ?? (typeof post.is_bookmarked === 'boolean' ? post.is_bookmarked : null);
+}
+
+/** Lưu hoặc bỏ lưu một lần mỗi bài; bỏ lưu ở tab riêng tư cập nhật thẻ và số đếm ngay. */
+async function togglePostBookmark(post) {
+  if (postState.bookmarkWrites.has(post.id)) return null;
+  postState.bookmarkWrites.add(post.id);
+  try {
+    if (!await requireAuth()) return null;
+    // Chờ danh sách đang tải; nếu thất bại thì hỏi trạng thái chính xác của bài đang bấm.
+    await postState.listRequests.get('saved');
+    const wasSaved = savedState(post) ?? await isPostBookmarked(post.id);
+    await (wasSaved ? unbookmarkPost(post.id) : bookmarkPost(post.id));
+    postState.bookmarkOverrides.set(post.id, !wasSaved);
+    if (postState.lists.saved) {
+      postState.lists.saved = wasSaved ? postState.lists.saved.filter(item => item.id !== post.id)
+        : [post, ...postState.lists.saved];
+    }
+    renderPostCounts();
+    if (postState.tab === 'saved') {
+      const focusInList = qs('[data-profile-post-list]').contains(document.activeElement);
+      renderPostList();
+      if (focusInList) qs('[data-post-panel]').focus();
+    }
+    return !wasSaved;
+  } catch (error) {
+    showError(toVietnameseMessage(error));
+    return null;
+  } finally {
+    postState.bookmarkWrites.delete(post.id);
+  }
+}
+
+/** Tạo thẻ với dữ liệu đã có, dùng lại đúng component của Home và Diễn đàn. */
+function profileFeedCard(post) {
+  const extras = postState.extras.get(post.id);
+  return createFeedPostCard(post, {
+    author: extras?.author ?? (post.author_id === state.profile.id ? state.profile : post.author),
+    tags: extras?.tags ?? post.tags,
+    stats: extras?.stats ?? post,
+    viewerLanguage: state.viewer?.language || currentLocale().split('-')[0],
+    bookmarked: savedState(post),
+    onBookmark: () => togglePostBookmark(post),
+  });
+}
+
+/** Một yêu cầu bổ sung cho mỗi loại dữ liệu, dùng chung cho cùng bài ở hai tab. */
+function loadPostExtras(post) {
+  if (!postState.pending.has(post.id)) {
+    const pending = Promise.all([
+      post.author_id === state.profile.id ? state.profile
+        : post.author_id ? getUser(post.author_id).catch(() => null) : post.author,
+      getPostTags(post.id).catch(() => null),
+      getPostStats(post.id, post),
+      getReactionSummary(post.id).catch(() => null),
+    ]).then(([author, tags, stats, reactions]) => {
+      const likeCount = Array.isArray(reactions)
+        ? reactions.reduce((sum, reaction) => sum + (Number(reaction.count) || 0), 0)
+        : stats?.like_count ?? post.like_count;
+      postState.extras.set(post.id, { author, tags, stats: { ...stats, like_count: likeCount } });
+    }).finally(() => postState.pending.delete(post.id));
+    postState.pending.set(post.id, pending);
+  }
+  return postState.pending.get(post.id);
+}
+
+/** Cập nhật đúng thẻ sau khi có dữ liệu, giữ nguyên vị trí focus và thao tác lưu đang gửi. */
+function refreshProfileCard(post, version) {
+  const list = qs('[data-profile-post-list]');
+  const card = qs('[data-post-id="' + CSS.escape(String(post.id)) + '"]', list);
+  if (!card || postState.bookmarkWrites.has(post.id)) return;
+  if (!card.contains(document.activeElement)) {
+    card.replaceWith(profileFeedCard(post));
+    return;
+  }
+  /** Đợi focus rời khỏi cả thẻ rồi mới thay để người dùng thao tác xong. */
+  function replaceWhenUnfocused(event) {
+    if (card.contains(event.relatedTarget)) return;
+    card.removeEventListener('focusout', replaceWhenUnfocused);
+    if (version === postState.version && card.isConnected && !postState.bookmarkWrites.has(post.id)) {
+      card.replaceWith(profileFeedCard(post));
+    }
+  }
+  card.addEventListener('focusout', replaceWhenUnfocused);
+}
+
+/** Bổ sung lần lượt các bài đang hiện; đổi tab thì dừng lượt cũ sau yêu cầu đang chờ. */
+async function enrichProfilePosts(posts, version) {
+  for (const post of posts) {
+    if (version !== postState.version) return;
+    if (postState.extras.has(post.id)) continue;
+    await loadPostExtras(post);
+    if (version !== postState.version) return;
+    refreshProfileCard(post, version);
+  }
+}
+
+/** Hiện trạng thái chờ, lỗi có nút thử lại, rỗng hoặc tối đa số bài của trang hiện tại. */
+function renderPostList() {
+  const tab = postState.tab;
+  const items = postState.lists[tab];
+  const version = ++postState.version;
+  const list = qs('[data-profile-post-list]');
+  const more = qs('[data-profile-post-more]');
+  const error = postState.errors.get(tab);
+  const loading = !items && !error;
+  qs('[data-post-panel]').setAttribute('aria-busy', String(loading));
+  more.hidden = !items || items.length <= postState.visible[tab];
+  if (error) {
+    const retry = el('button', { className: 'btn btn--secondary btn--sm', type: 'button' }, t('Thử lại'));
+    retry.addEventListener('click', () => { void loadProfilePosts(tab); });
+    list.replaceChildren(el('li', { className: 'alert alert--error', role: 'alert' }, el('p', {}, toVietnameseMessage(error)), retry));
+  } else if (loading) {
+    list.replaceChildren(el('li', { className: 'profile-posts__placeholder', role: 'status' },
+      el('span', { className: 'u-visually-hidden' }, t('Đang tải bài viết…')),
+      el('span', { className: 'u-placeholder-bar u-placeholder-bar--title', 'aria-hidden': 'true' }),
+      el('span', { className: 'u-placeholder-bar', 'aria-hidden': 'true' })));
+  } else if (!items.length) {
+    list.replaceChildren(emptyPosts(tab));
+  } else {
+    const visible = items.slice(0, postState.visible[tab]);
+    list.replaceChildren(...visible.map(post => el('li', {}, profileFeedCard(post))));
+    void enrichProfilePosts(visible, version);
+  }
+}
+
+/** Đọc mỗi danh sách một lần; chỉ tab đang chọn được vẽ khi yêu cầu hoàn tất. */
+function loadProfilePosts(tab) {
+  if (postState.listRequests.has(tab)) return postState.listRequests.get(tab);
+  postState.errors.delete(tab);
+  if (postState.tab === tab) renderPostList();
+  const request = tab === 'saved' ? listMyBookmarks() : listUserPosts(state.profile.id);
+  const pending = request.then(items => {
+    postState.lists[tab] = tab === 'posts'
+      ? (items || []).slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      : items || [];
+  }).catch(error => {
+    postState.errors.set(tab, error);
+  }).finally(() => {
+    postState.listRequests.delete(tab);
+    renderPostCounts();
+    if (postState.tab === tab) {
+      renderPostList();
+    } else if (tab === 'saved' && postState.lists.saved) {
+      // Đã có trạng thái lưu cho Bài viết; không vẽ lại toàn danh sách đang đọc.
+      const visible = postState.lists.posts?.slice(0, postState.visible.posts) || [];
+      for (const post of visible) refreshProfileCard(post, postState.version);
+    }
+  });
+  postState.listRequests.set(tab, pending);
+  return pending;
+}
+
+/** Hiện thêm mười bài và chuyển focus tới bài đầu tiên vừa hiện. */
+function showMorePosts() {
+  const tab = postState.tab;
+  const previous = postState.visible[tab];
+  postState.visible[tab] += POSTS_PER_PAGE;
+  renderPostList();
+  qs('[data-profile-post-list]').children[previous]?.querySelector('a')?.focus();
+}
+
 /* ===== Khởi tạo ===== */
 
 /** Xác định hồ sơ cần xem, tải hồ sơ, hai danh sách và quan hệ theo dõi của người xem. */
@@ -488,12 +726,18 @@ async function initialize() {
   } catch (error) {
     // Không tải được hồ sơ: ẩn hai thẻ đang chờ (thanh xám) và chỉ để lại thông báo lỗi.
     qs('[data-profile-card]').hidden = true;
-    qs('.profile-connect').hidden = true;
+    qs('[data-profile-connect]').hidden = true;
     showError(error.status === 404 || error.status === 400 ? t('Không tìm thấy người dùng này.') : toVietnameseMessage(error));
     return;
   }
   renderProfile();
-  selectTab(state.tab);
+  selectTab(state.tab, false);
+  const requestedTab = params.get('tab');
+  qs('[data-profile-posts]').hidden = false;
+  qs('[data-post-tab="saved"]').hidden = !state.isOwn;
+  selectPostTab(requestedTab, requestedTab === 'saved' && !state.isOwn);
+  if (state.isOwn) void loadProfilePosts('saved');
+  void loadProfilePosts('posts');
   try {
     // Quan hệ của người xem (một yêu cầu mỗi loại) để vẽ đúng nút ở mọi dòng.
     // Hồ sơ của mình thì hai danh sách này cũng chính là nội dung hai tab, không gọi lại lần nữa.
@@ -523,6 +767,9 @@ async function initialize() {
 // Gắn sự kiện một lần cho các điều khiển tĩnh trong HTML.
 qs('[data-tabs]').addEventListener('click', handleTabs);
 qs('[data-tabs]').addEventListener('keydown', handleTabs);
+qs('[data-post-tabs]').addEventListener('click', handlePostTabs);
+qs('[data-post-tabs]').addEventListener('keydown', handlePostTabs);
+qs('[data-profile-post-more]').addEventListener('click', showMorePosts);
 qs('[data-filter-input]').addEventListener('input', handleFilter);
 qs('[data-filter-clear]').addEventListener('click', clearFilter);
 initialize().catch(error => showError(toVietnameseMessage(error)));

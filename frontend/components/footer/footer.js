@@ -82,7 +82,6 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
     column(t('Tài nguyên'), [
       [t('Trung tâm trợ giúp'), routes.support],
       [t('Điều khoản sử dụng'), routes.support + '#terms'],
-      [t('Chính sách bảo mật'), routes.support + '#privacy'],
       [t('Phản hồi'), routes.support + '#feedback'],
     ]),
     column(t('Liên hệ'), [

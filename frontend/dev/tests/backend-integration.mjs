@@ -81,12 +81,12 @@ function ids(list) {
 const commentId = '0a1b2c3d-1111-4222-8333-abcdefabcdef';
 
 await check('notificationHref nhận link bài và link hồ sơ', () => {
-  assert.equal(notices.notificationHref('/posts/abc'), '/pages/post.html?id=abc');
-  assert.equal(notices.notificationHref('/users/u1'), '/pages/profile/index.html?id=u1');
+  assert.equal(notices.notificationHref('/posts/abc'), '/post/?id=abc');
+  assert.equal(notices.notificationHref('/users/u1'), '/profile/?id=u1');
 });
 await check('notificationHref giữ #comment-{uuid} và chuẩn hoá chữ thường', () => {
-  assert.equal(notices.notificationHref('/posts/abc#comment-' + commentId), '/pages/post.html?id=abc#comment-' + commentId);
-  assert.equal(notices.notificationHref('/posts/abc#comment-' + commentId.toUpperCase()), '/pages/post.html?id=abc#comment-' + commentId);
+  assert.equal(notices.notificationHref('/posts/abc#comment-' + commentId), '/post/?id=abc#comment-' + commentId);
+  assert.equal(notices.notificationHref('/posts/abc#comment-' + commentId.toUpperCase()), '/post/?id=abc#comment-' + commentId);
 });
 await check('notificationHref từ chối mọi link sai định dạng', () => {
   const home = notices.notificationHref(null);

@@ -825,3 +825,60 @@
   font-weight: 400;
   overflow-wrap: anywhere;
 }
+
+/* Danh sách dùng lại khung Kết nối, canh đều các thẻ và giữ vùng rỗng ổn định. */
+.profile-posts__list {
+  display: grid;
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+}
+
+.profile-posts__list > li {
+  min-width: 0;
+}
+
+/* Trạng thái rỗng dùng icon 44px, khoảng đệm trên 36px và vẫn giãn khi lời nhắc xuống dòng. */
+.profile-posts__list .profile-empty {
+  min-height: 189px;
+  padding-block: calc(var(--space-7) + var(--space-1)) calc(var(--space-9) + var(--space-2));
+}
+
+.profile-posts__list .profile-empty__icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 0;
+}
+
+.profile-posts__list .profile-empty__title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.profile-posts__list .profile-empty__hint {
+  font-size: 13px;
+  line-height: 19px;
+}
+
+/* Hai thanh xám tĩnh báo lượt tải, không giả số bài và không có hoạt ảnh. */
+.profile-posts__placeholder {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+}
+
+.profile-posts__more {
+  display: flex;
+  width: fit-content;
+  margin-inline: auto;
+  margin-top: var(--space-2);
+  color: var(--color-red);
+  font-size: 14px;
+}
+
+/* Tab riêng tư và nút hiện thêm phải biến mất cả khỏi bố cục và thứ tự bàn phím. */
+.profile-posts .profile-tab[hidden],
+.profile-posts__more[hidden] {
+  display: none;
+}

@@ -2,6 +2,11 @@
 import { request } from '/services/api/client.js';
 import { backendSupports } from '/services/api/capabilities.js';
 
+/** Lấy các bài đã lưu của người đang đăng nhập để dựng tab Đã lưu và xác định trạng thái nút. */
+export function listMyBookmarks() {
+  return request('/my/bookmarks');
+}
+
 /** Lưu bài cho người đang đăng nhập qua endpoint hiện có. */
 export function bookmarkPost(postId) {
   return request('/posts/' + encodeURIComponent(postId) + '/bookmark', { method: 'POST' });
