@@ -1,0 +1,130 @@
+<!doctype html>
+<!-- Trang đăng ký Etsubi: biểu mẫu HTML tĩnh và các vùng component dùng chung. -->
+<html lang="vi">
+  <!-- Khai báo ngôn ngữ hiển thị, tài nguyên dùng chung và module riêng của trang. -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Đăng ký · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+JP:wght@350;400;500;700&display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/auth.css" />
+    <script type="module" src="/pages/profile/register.js"></script>
+  </head>
+  <body class="page page--register">
+    <!-- Liên kết bàn phím đi thẳng tới nội dung, bỏ qua thanh điều hướng. -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <!-- Vùng gắn header dùng chung; module trang gọi mountHeader để dựng điều hướng. -->
+    <header class="site-header" data-component="header" data-variant="default"></header>
+    <!-- Nội dung chính gồm cảnh trang trí và thẻ biểu mẫu HTML, vẫn đọc được khi tắt JavaScript. -->
+    <main id="main" class="auth" data-auth-scene>
+      <!-- Placeholder cảnh và lời chào: component dùng chung dựng phần trang trí khi có JavaScript. -->
+      <div class="auth-scene-mount" data-component="auth-scene" data-title="THAM GIA"></div>
+      <!-- Thẻ xác thực chứa tiêu đề và biểu mẫu thật để giữ cấu trúc ngữ nghĩa và khả năng truy cập. -->
+      <section class="card auth-card auth-card--register" aria-labelledby="auth-title">
+        <!-- Dải đỏ và biểu tượng cổng ở đầu thẻ, giữ bố cục giống bản thiết kế. -->
+        <div class="card__band">
+          <img class="card__torii" src="/assets/icons/torii-mini.svg" alt="" aria-hidden="true" />
+          <p class="card__band-title" data-i18n>Đăng ký</p>
+        </div>
+        <!-- Nội dung thẻ: tiêu đề, biểu mẫu và liên kết chuyển giữa đăng nhập với đăng ký. -->
+        <div class="auth-card__body">
+          <!-- Thông báo phiên đang có, chỉ hiện sau khi tải được hồ sơ người dùng. -->
+          <div class="alert alert--info auth-card__session" role="status" data-session-notice hidden></div>
+          <h1 class="t-display auth-card__title" id="auth-title" data-i18n>Đăng ký</h1>
+          <p class="auth-card__subtitle" data-i18n>Tạo tài khoản mới để bắt đầu</p>
+          <!-- Biểu mẫu dùng kiểm tra tiếng Việt trong module thay cho thông báo mặc định của trình duyệt. -->
+          <form data-auth-form novalidate>
+            <!-- Nhóm trường nhập xếp dọc; mỗi trường có nhãn và vùng gợi ý lỗi riêng. -->
+            <div class="auth-card__fields">
+              <!-- Hai loại tên độc lập: tên hiển thị đổi được và handle duy nhất có tiền tố @ cố định. -->
+              <div class="auth-card__names">
+                <div class="field" data-field="displayname">
+                  <label class="field__label" data-i18n for="displayname">Tên hiển thị</label>
+                  <input class="input" id="displayname" name="displayname" type="text" placeholder="Nguyễn Văn A" data-i18n-attr="placeholder" autocomplete="name" aria-describedby="displayname-hint" required />
+                  <p class="field__hint" id="displayname-hint" data-default-hint="Hiện trên bài viết, đổi được sau" data-i18n>Hiện trên bài viết, đổi được sau</p>
+                </div>
+                <div class="field" data-field="username">
+                  <label class="field__label" data-i18n for="username">Tên người dùng</label>
+                  <div class="username-input">
+                    <span class="username-input__prefix" aria-hidden="true">@</span>
+                    <input class="input" id="username" name="username" type="text" placeholder="nguyenvana" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-hint" required />
+                  </div>
+                  <p class="field__hint" id="username-hint" data-default-hint="Duy nhất · chữ thường, số và _" data-i18n>Duy nhất · chữ thường, số và _</p>
+                </div>
+              </div>
+              <!-- Trường email: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+              <div class="field" data-field="email">
+                <label class="field__label" for="email">Email</label>
+                <input class="input" id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="email-hint" required />
+                <p class="field__hint field__hint--error" id="email-hint" hidden></p>
+              </div>
+              <!-- Trường password: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+              <div class="field" data-field="password">
+                <label class="field__label" data-i18n for="password">Mật khẩu</label>
+                <!-- Ô mật khẩu và nút mắt: nút thật hỗ trợ bàn phím và công bố trạng thái ẩn/hiện. -->
+                <div class="input-group">
+                  <input class="input" id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password" aria-describedby="password-hint" required minlength="8" />
+                  <button type="button" class="input-group__button" data-password-toggle="password" aria-label="Hiện mật khẩu" data-i18n-attr="aria-label" aria-pressed="false" aria-controls="password">
+                    <img src="/assets/icons/eye.svg" alt="" width="24" height="24" />
+                  </button>
+                </div>
+                <p class="field__hint field__hint--error" id="password-hint" hidden></p>
+              </div>
+              <!-- Trường confirm: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+              <div class="field" data-field="confirm">
+                <label class="field__label" data-i18n for="confirm">Xác nhận mật khẩu</label>
+                <!-- Ô mật khẩu và nút mắt: nút thật hỗ trợ bàn phím và công bố trạng thái ẩn/hiện. -->
+                <div class="input-group">
+                  <input class="input" id="confirm" name="confirm" type="password" placeholder="••••••••" autocomplete="new-password" aria-describedby="confirm-hint" required minlength="8" />
+                  <button type="button" class="input-group__button" data-password-toggle="confirm" aria-label="Hiện mật khẩu" data-i18n-attr="aria-label" aria-pressed="false" aria-controls="confirm">
+                    <img src="/assets/icons/eye.svg" alt="" width="24" height="24" />
+                  </button>
+                </div>
+                <p class="field__hint field__hint--error" id="confirm-hint" hidden></p>
+              </div>
+            </div>
+            <!-- Trường terms: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
+            <div class="auth-card__terms" data-field="terms">
+              <label class="checkbox" for="terms">
+                <input class="checkbox__input" type="checkbox" id="terms" name="terms" required aria-describedby="terms-hint" />
+                <span class="checkbox__box" aria-hidden="true">
+                </span>
+                <span data-i18n-html>Tôi đồng ý với <a href="#terms" data-terms-link="">Điều khoản sử dụng</a></span>
+              </label>
+              <p class="field__hint field__hint--error" id="terms-hint" hidden></p>
+            </div>
+            <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
+            <div class="alert alert--info auth-card__message" role="status" data-info-alert hidden></div>
+            <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
+            <div class="alert alert--error auth-card__message" role="alert" data-form-alert hidden></div>
+            <!-- Nút gửi có nhãn gốc để module phục hồi sau trạng thái chờ tĩnh. -->
+            <button class="btn btn--primary btn--block auth-card__submit" type="submit" data-submit data-i18n>Đăng ký</button>
+            <!-- Phân cách hai cách đăng ký bằng chữ và hai vạch tĩnh theo bản tham chiếu. -->
+            <div class="auth-card__or"><span data-i18n>hoặc</span></div>
+            <!-- Nút Google chưa gửi API, chỉ hiện thông báo sắp có trong vùng trạng thái của form. -->
+            <button class="auth-card__google" type="button" data-google-auth>
+              <img src="/assets/icons/google-g.svg" alt="" width="20" height="20" />
+              <span data-i18n>Đăng ký với Google</span>
+            </button>
+            <!-- Vùng trạng thái riêng của nút Google, không dùng chung với thông báo của form hay thông báo phiên. -->
+            <p class="alert alert--info auth-card__message" role="status" data-google-note hidden></p>
+          </form>
+          <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
+          <img class="auth-card__divider" src="/assets/illustrations/card-divider.svg" alt="" aria-hidden="true" />
+          <!-- Liên kết sang biểu mẫu còn lại; module giữ tham số trang quay về nếu có. -->
+          <p class="auth-card__switch"><span data-i18n>Đã có tài khoản?</span> <a href="/login/" data-auth-switch data-i18n>Đăng nhập</a></p>
+        </div>
+        <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
+        <img class="auth-card__bottom-wave" src="/assets/illustrations/card-bottom-wave.svg" alt="" aria-hidden="true" />
+      </section>
+    </main>
+    <!-- Vùng gắn chân trang rút gọn dùng chung cho các trang xác thực. -->
+    <footer class="site-footer" data-component="footer" data-variant="slim"></footer>
+  </body>
+</html>

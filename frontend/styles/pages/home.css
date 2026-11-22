@@ -344,8 +344,41 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--home-card-gap);
+}
+
+/* Khung neo mũi tên theo chiều cao hàng thẻ, không tính chấm và ghi chú. */
+.home-featured__carousel {
+  position: relative;
   margin-top: var(--home-section-gap);
 }
+
+/* Nút 44px đè nửa ra ngoài mép thẻ, căn giữa theo hàng. */
+.home-featured__arrow {
+  position: absolute;
+  inset-block: 0;
+  display: grid;
+  place-items: center;
+  width: var(--home-featured-arrow-size);
+  height: var(--home-featured-arrow-size);
+  margin-block: auto;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-featured-arrow);
+  color: var(--color-red);
+}
+
+.home-featured__arrow--previous { inset-inline-start: calc(var(--home-featured-arrow-size) / -2); }
+.home-featured__arrow--next { inset-inline-end: calc(var(--home-featured-arrow-size) / -2); }
+
+/* Nút giữ cùng vị trí ở mọi trạng thái, nút khoá không nhận click. */
+.home-featured__arrow:enabled:hover {
+  border-color: var(--color-pink-border);
+  background: var(--color-sakura);
+}
+
+.home-featured__arrow:disabled { opacity: .4; }
 
 /* Ghi chú API nhỏ và dịu, giải thích rõ lý do đang có khung chờ. */
 .home-featured__note {
@@ -469,60 +502,14 @@
   gap: var(--space-2);
 }
 
-/* Bài gợi ý có thumbnail tĩnh ở trái và tiêu đề nhận chiều rộng còn lại. */
-.home-suggestion {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-/* Kanji trên nền hồng là trang trí theo loại tag, không phải nội dung giả từ máy chủ. */
-.home-suggestion__thumb {
-  display: grid;
-  flex: 0 0 60px;
-  place-items: center;
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-md);
-  background: var(--gradient-suggest-thumb);
-  color: var(--color-red);
-  font-size: 22px;
-  font-weight: 700;
-}
-
-/* Thumbnail chờ nhạt hơn thumbnail có bài thật. */
-.home-suggestion__thumb--placeholder {
-  opacity: .4;
-}
-
-/* Văn bản và thanh chờ tự co; mọi chuỗi dài đều ngắt được trong sidebar. */
-.home-suggestion__text, .home-member__text {
+/* Tên và thông tin thành viên tự co, ngắt chuỗi dài trong sidebar. */
+.home-member__text {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
   overflow-wrap: anywhere;
-}
-
-/* Tiêu đề bài gợi ý giới hạn hai dòng theo Figma. */
-.home-suggestion__title {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  color: var(--color-text);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-/* Meta gợi ý và thành viên có cỡ nhỏ, dùng màu muted chung. */
-.home-suggestion__meta, .home-member__sub {
-  color: var(--color-muted);
-  font-size: 12px;
 }
 
 /* Thành viên xếp avatar, tên và nút theo dõi cùng hàng với gap 12px. */
@@ -542,9 +529,16 @@
   font-size: 13px;
 }
 
-/* Avatar chờ là hình tròn xám, không có chữ đầu tên tưởng tượng. */
-.home-member__avatar--placeholder {
-  background: var(--color-placeholder-bar);
+/* Liên kết avatar tròn, giữ màu và gạch dưới tên khi người dùng trỏ vào. */
+.home-member__avatar-link {
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+}
+
+.home-member__name:is(:hover, :focus-visible),
+.home-member__avatar-link:is(:hover, :focus-visible) + .home-member__text .home-member__name {
+  color: var(--color-red-dark);
+  text-decoration: underline;
 }
 
 /* Tên thành viên đậm vừa để phân biệt với handle và địa chỉ ở dòng dưới. */
@@ -554,8 +548,10 @@
   font-weight: 600;
 }
 
-/* Địa chỉ được rút bằng ellipsis trực quan, giữ nguyên dữ liệu thật trong DOM. */
+/* Địa chỉ và handle dùng chữ nhỏ, rút gọn khi sidebar hẹp. */
 .home-member__sub {
+  color: var(--color-muted);
+  font-size: 12px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -682,11 +678,11 @@
   }
 }
 
-/* Tablet dùng một thẻ nổi bật mỗi trang, ưu tiên bảng tin rồi tới gợi ý. */
+/* Tablet dùng hai thẻ nổi bật mỗi trang, ưu tiên bảng tin rồi tới gợi ý. */
 @media (max-width: 960px) {
   /* Nội dung Featured do JS phân trang cùng breakpoint, không dùng kéo trượt. */
   .home-featured__cards {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   /* Hai cột trở thành flex dọc để đổi thứ tự mà giữ nguyên cấu trúc ngữ nghĩa. */
@@ -709,6 +705,13 @@
 
 /* Mobile thu tiêu đề và đệm, giữ gutter 16px từ token chung. */
 @media (max-width: 600px) {
+  /* Một thẻ mỗi trang, mũi tên nằm trong lề để không tràn màn hình. */
+  .home-featured__cards { grid-template-columns: minmax(0, 1fr); }
+  /* Nút nhỏ hơn trên điện thoại để che ít nội dung thẻ hơn. */
+  .home-featured__arrow { --home-featured-arrow-size: 36px; }
+  .home-featured__arrow--previous { inset-inline-start: calc(-1 * var(--space-3)); }
+  .home-featured__arrow--next { inset-inline-end: calc(-1 * var(--space-3)); }
+
   /* Hero không ép chiều cao cố định khi đoạn văn xuống nhiều dòng. */
   .home-hero {
     min-height: 360px;

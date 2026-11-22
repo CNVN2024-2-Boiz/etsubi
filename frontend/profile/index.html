@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <!-- Tài nguyên tĩnh và phông chung giữ nhận diện đồng nhất với các trang đã làm. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Hồ sơ · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+JP:wght@350;400;500;700&display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/components/moderation/moderation.css" />
+    <link rel="stylesheet" href="/components/featured-card/featured-card.css" />
+    <link rel="stylesheet" href="/components/postcard/PostCard.css" />
+    <link rel="stylesheet" href="/styles/pages/profile.css" />
+    <script type="module" src="/pages/profile/index.js"></script>
+  </head>
+  <body class="page page--profile">
+    <!-- Header dùng chung; tab Trang chủ đang chọn như frame Figma (Hồ sơ không có tab riêng). -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header" data-active="home"></header>
+
+    <main id="main" class="profile">
+      <!-- Lỗi chung của trang (không tìm thấy người dùng, lỗi mạng). -->
+      <p class="alert alert--error" role="alert" data-profile-error hidden></p>
+
+      <!-- Thẻ hồ sơ: dải đỏ có cánh hoa và torii, avatar lớn, tên, giới thiệu, thông tin và số theo dõi. -->
+      <section class="profile-card" aria-labelledby="profile-name" data-profile-card aria-busy="true">
+        <div class="profile-card__cover" data-cover aria-hidden="true">
+          <img class="profile-card__torii" src="/assets/icons/torii-mini.svg" alt="" />
+        </div>
+        <div class="profile-card__avatar-box">
+          <span class="profile-card__ring">
+            <span class="profile-card__avatar profile-card__avatar--placeholder" data-profile-avatar></span>
+          </span>
+          <!-- Chỉ hiện ở hồ sơ của mình: dẫn tới Cài đặt để đổi ảnh đại diện. -->
+          <a class="profile-card__camera" href="/settings/" aria-label="Đổi ảnh đại diện" data-i18n-attr="aria-label" data-camera hidden>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          </a>
+        </div>
+        <div class="profile-card__row">
+          <div class="profile-card__body">
+            <div class="profile-card__name-row">
+              <h1 id="profile-name" class="t-display profile-card__name" data-profile-name>
+                <span class="u-placeholder-bar u-placeholder-bar--title profile-card__name-bar" aria-hidden="true"></span>
+                <span class="u-visually-hidden" data-i18n>Đang tải hồ sơ…</span>
+              </h1>
+              <span class="profile-card__role" data-profile-role hidden></span>
+              <!-- Nhãn trạng thái: "Đã bị cấm" (mọi người) hoặc "Tắt tiếng đến…" (staff và chính người đó). -->
+              <span class="profile-card__status" data-profile-status></span>
+            </div>
+            <!-- Handle giữ riêng dưới tên hiển thị, không tạo từ họ tên. -->
+            <p class="profile-card__handle" data-profile-handle>–</p>
+            <p class="profile-card__bio" data-profile-bio><span class="u-placeholder-bar" aria-hidden="true"></span></p>
+            <ul class="profile-card__meta" data-profile-meta></ul>
+            <p class="profile-card__stats">
+              <span data-i18n-html><strong data-count="followers">–</strong> người theo dõi</span>
+              <span aria-hidden="true">·</span>
+              <span data-i18n-html><strong data-count="following">–</strong> đang theo dõi</span>
+            </p>
+            <!-- Khối viền đứt chỉ Mod/Admin thấy: thời hạn tắt tiếng, gỡ cấm... -->
+            <div class="profile-card__staff" data-staff-slot></div>
+          </div>
+          <!-- Hồ sơ người khác: nút Theo dõi / Theo dõi lại / Đang theo dõi (cỡ Md) và nút Quản trị (chỉ Mod/Admin). -->
+          <div class="profile-card__action" data-profile-action></div>
+        </div>
+      </section>
+
+      <!-- Thẻ Kết nối: hai tab, ô lọc theo tên và danh sách người dùng. -->
+      <section class="profile-connect" aria-labelledby="connect-title" data-profile-connect>
+        <h2 id="connect-title" class="profile-connect__band">
+          <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
+          <span data-i18n>Kết nối</span>
+        </h2>
+        <div class="profile-connect__body">
+          <div class="profile-tabs" role="tablist" aria-label="Danh sách kết nối" data-i18n-attr="aria-label" data-tabs>
+            <button id="tab-followers" class="profile-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="connect-panel" data-tab="followers" data-i18n-html>
+              Người theo dõi <span class="profile-tab__badge" data-tab-count="followers">–</span>
+            </button>
+            <button id="tab-following" class="profile-tab" type="button" role="tab" aria-selected="false" aria-controls="connect-panel" tabindex="-1" data-tab="following" data-i18n-html>
+              Đang theo dõi <span class="profile-tab__badge" data-tab-count="following">–</span>
+            </button>
+          </div>
+
+          <!-- Ô lọc: chỉ lọc danh sách đang hiện, không gửi yêu cầu lên máy chủ. -->
+          <div class="profile-filter" data-filter>
+            <svg class="profile-filter__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <label class="u-visually-hidden" for="filter-input" data-i18n>Tìm theo tên hoặc @tên người dùng</label>
+            <input id="filter-input" class="profile-filter__input" type="search" autocomplete="off" maxlength="50" placeholder="Tìm theo tên hoặc @tên người dùng" data-i18n-attr="placeholder" data-filter-input />
+            <button type="button" class="profile-filter__clear" aria-label="Xoá từ khoá" data-i18n-attr="aria-label" data-filter-clear hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+
+          <p class="u-visually-hidden" role="status" data-list-status></p>
+          <ul id="connect-panel" class="profile-list" role="tabpanel" aria-labelledby="tab-followers" data-list>
+            <li class="profile-list__note" data-i18n>Đang tải danh sách…</li>
+          </ul>
+        </div>
+      </section>
+      <!-- Thẻ bài viết dưới Kết nối, có tab riêng tư chỉ dành cho chủ hồ sơ. -->
+      <section class="profile-connect profile-posts" aria-labelledby="profile-posts-title" data-profile-posts hidden>
+        <h2 id="profile-posts-title" class="profile-connect__band">
+          <img src="/assets/icons/torii-mini-small.svg" width="24" height="20" alt="" />
+          <span data-i18n>Bài viết</span>
+        </h2>
+        <div class="profile-connect__body">
+          <!-- Số đếm dùng dữ liệu đã tải, để dấu gạch trong lúc chờ. -->
+          <div class="profile-tabs" role="tablist" aria-labelledby="profile-posts-title" data-post-tabs>
+            <button id="profile-tab-posts" class="profile-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="profile-posts-panel" data-post-tab="posts">
+              <span data-i18n>Bài viết</span> <span class="profile-tab__badge" data-post-count="posts">–</span>
+            </button>
+            <button id="profile-tab-saved" class="profile-tab" type="button" role="tab" aria-selected="false" aria-controls="profile-posts-panel" tabindex="-1" data-post-tab="saved" hidden>
+              <span data-i18n>Đã lưu</span> <span class="profile-tab__badge" data-post-count="saved">–</span>
+            </button>
+          </div>
+          <!-- Danh sách bài và nút hiện thêm dùng chung cho cả hai tab. -->
+          <div id="profile-posts-panel" role="tabpanel" aria-labelledby="profile-tab-posts" tabindex="0" data-post-panel>
+            <ul class="profile-posts__list" data-profile-post-list></ul>
+            <button class="btn btn--ghost profile-posts__more" type="button" data-profile-post-more data-i18n hidden>Xem thêm bài viết</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer đầy đủ dùng chung cho trang nội dung. -->
+    <footer class="site-footer" data-component="footer" data-variant="full"></footer>
+  </body>
+</html>

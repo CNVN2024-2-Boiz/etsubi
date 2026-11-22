@@ -306,4 +306,11 @@ export default {
   'Đọc, đăng bài, bình luận và theo dõi.': { ja: '閲覧、投稿、コメント、フォローができます。', en: 'Can read, post, comment and follow.' },
   'Ẩn / xoá / khôi phục nội dung, tắt tiếng và cấm thành viên.': { ja: 'コンテンツの非表示・削除・復元、メンバーのミュートと停止ができます。', en: 'Can hide, delete and restore content, and mute or ban members.' },
   'Tiếng Anh': { ja: '英語', en: 'English' },
+
+  // Trả lời bình luận và giữ nháp khi người viết đổi ý.
+  'Trả lời': { ja: '返信', en: 'Reply' },
+  'Trả lời {name}': { ja: '{name}さんに返信', en: 'Reply to {name}' },
+  'Gửi trả lời': { ja: '返信を送信', en: 'Send reply' },
+  'Bỏ nội dung trả lời?': { ja: '返信の下書きを破棄しますか？', en: 'Discard this reply?' },
+  'Bỏ bản nháp': { ja: '下書きを破棄', en: 'Discard draft' },
 };

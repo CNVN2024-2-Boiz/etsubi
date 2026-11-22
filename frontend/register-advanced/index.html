@@ -1,0 +1,215 @@
+<!doctype html>
+<!-- Hoàn thiện hồ sơ theo frame 159:524: ba bước, chỉ chọn một ngôn ngữ mẹ đẻ. -->
+<html lang="vi">
+  <!-- Dùng tài nguyên chung và module riêng, chạy trực tiếp khi phục vụ thư mục frontend. -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Đăng ký nâng cao · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@350;400;500;700&amp;display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/register-advanced.css" />
+    <script type="module" src="/pages/profile/register-advanced.js"></script>
+  </head>
+  <body class="page page--register-advanced">
+    <!-- Bỏ qua điều hướng bằng bàn phím; header được dựng duy nhất bởi component chung. -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header" data-variant="default"></header>
+    <!-- Nền minh hoạ tĩnh nằm sau nội dung, không nhận tương tác hoặc được đọc thành lời. -->
+    <main id="main" class="profile-setup">
+      <div class="profile-scene" aria-hidden="true"></div>
+      <div class="profile-setup__container">
+        <!-- Đường dẫn và tiêu đề giải thích bước bổ sung hồ sơ; nháp chỉ hiện khi đã lưu. -->
+        <div class="profile-heading">
+          <div class="profile-heading__copy">
+            <nav class="profile-breadcrumb" aria-label="Breadcrumb">
+              <a href="/" data-route="home" data-i18n>Trang chủ</a><span aria-hidden="true">›</span>
+              <a href="/profile/" data-route="profile" data-i18n>Tài khoản</a><span aria-hidden="true">›</span>
+              <span aria-current="page" data-i18n>Đăng ký nâng cao</span>
+            </nav>
+            <span class="profile-heading__accent" aria-hidden="true"></span>
+            <h1 class="t-display" data-i18n>Tạo hồ sơ thành viên Etsubi</h1>
+            <p data-i18n>Hoàn thiện hồ sơ để giao lưu văn hoá, học ngôn ngữ và kết nối với cộng đồng Việt – Nhật.</p>
+          </div>
+          <p class="profile-draft" role="status" data-draft-pill hidden>
+            <img src="/assets/icons/saved-tick.svg" width="16" height="16" alt="" />
+            <span data-draft-label></span>
+          </p>
+        </div>
+        <!-- Ba cột dùng grid; thứ tự DOM giữ tiến trình trước biểu mẫu rồi đến tóm tắt. -->
+        <div class="profile-layout">
+          <!-- Tiến trình dẫn đến từng mục và mẹo đọc bài bằng ngôn ngữ phù hợp. -->
+          <aside class="profile-progress" aria-label="Tiến trình hoàn thiện hồ sơ" data-i18n-attr="aria-label">
+            <div class="card profile-progress__card">
+              <p class="profile-eyebrow" data-i18n>TIẾN TRÌNH</p>
+              <ol class="profile-steps">
+                <li data-step="avatar"><button class="profile-step" type="button" data-section-target="avatar-section"><span class="profile-step__dot" data-step-dot>1</span><span><strong data-i18n>Ảnh đại diện</strong><small data-i18n>Hiển thị công khai</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
+                <li data-step="account"><button class="profile-step" type="button" data-section-target="account-section"><span class="profile-step__dot" data-step-dot>2</span><span><strong data-i18n>Thông tin tài khoản</strong><small data-i18n>Tên · @tên người dùng · Email</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
+                <li data-step="native"><button class="profile-step" type="button" data-section-target="native-section"><span class="profile-step__dot" data-step-dot>3</span><span><strong data-i18n>Ngôn ngữ mẹ đẻ</strong><small data-i18n>Chọn 1 ngôn ngữ</small><span class="u-visually-hidden" data-step-status></span></span></button></li>
+              </ol>
+            </div>
+            <div class="profile-tip">
+              <h2><span lang="ja">越</span> <span data-i18n>Mẹo</span></h2>
+              <p data-i18n>Gặp bài viết bằng ngôn ngữ khác? Bấm “Dịch” ngay dưới bài để đọc bằng ngôn ngữ của bạn.</p>
+            </div>
+          </aside>
+          <!-- Thẻ trung tâm chứa một form thật; fieldset khoá mọi ô trong lúc đọc hoặc gửi API. -->
+          <section class="card profile-card" aria-label="Đăng ký nâng cao" data-i18n-attr="aria-label">
+            <div class="profile-card__band">
+              <img src="/assets/icons/torii-mini.svg" width="58" height="48" alt="" aria-hidden="true" />
+              <p data-i18n>Đăng ký nâng cao</p>
+            </div>
+            <form class="profile-form" data-profile-form novalidate aria-busy="true">
+              <p class="profile-form__loading" role="status" data-loading data-i18n>Đang tải hồ sơ…</p>
+              <fieldset class="profile-form__fields" data-profile-fields disabled>
+                <legend class="u-visually-hidden" data-i18n>Thông tin hồ sơ thành viên</legend>
+                <!-- Ảnh có thể chọn từ máy hoặc sáu mẫu SVG, tất cả đều lưu qua avatar_url. -->
+                <section class="profile-section" id="avatar-section" tabindex="-1" aria-labelledby="avatar-title">
+                  <div class="profile-section__heading">
+                    <h2 class="t-display" id="avatar-title" data-i18n>Ảnh đại diện</h2>
+                    <p data-i18n>Hiển thị cạnh bài viết, bình luận và trên trang hồ sơ của bạn</p>
+                  </div>
+                  <div class="profile-avatar-box">
+                    <div class="profile-avatar">
+                      <div class="avatar avatar--96 profile-avatar__frame" data-avatar-preview></div>
+                      <button class="profile-avatar__camera" type="button" data-upload aria-label="Đổi ảnh đại diện" data-i18n-attr="aria-label"><img src="/assets/icons/camera.svg" width="16" height="16" alt="" /></button>
+                    </div>
+                    <div class="profile-avatar-box__details">
+                      <h3 data-i18n>Cập nhật ảnh đại diện</h3>
+                      <p data-i18n>JPG, PNG · Tối đa 2MB · Ảnh vuông hiển thị đẹp nhất</p>
+                      <div class="profile-avatar-box__actions">
+                        <button class="btn btn--primary btn--sm" type="button" data-upload data-i18n>Tải ảnh lên</button>
+                        <button class="btn btn--secondary btn--sm" type="button" data-presets-toggle aria-expanded="false" aria-controls="avatar-presets" data-i18n>Chọn ảnh mẫu</button>
+                        <button class="btn btn--danger-outline btn--sm" type="button" data-remove-avatar disabled data-i18n>Xoá</button>
+                      </div>
+                    </div>
+                  </div>
+                  <label class="u-visually-hidden" for="avatar-file" data-i18n>Tải ảnh đại diện JPG hoặc PNG</label>
+                  <input id="avatar-file" type="file" accept="image/png,image/jpeg" data-avatar-file aria-describedby="avatar-hint" hidden />
+                  <p class="field__hint field__hint--error" id="avatar-hint" role="status" data-avatar-hint hidden></p>
+                  <!-- Bảng mở ngay trong luồng tài liệu để Tab hoạt động tự nhiên, Escape trả về nút mở. -->
+                  <div class="profile-presets" id="avatar-presets" role="group" aria-label="Chọn ảnh đại diện mẫu" data-i18n-attr="aria-label" data-presets hidden>
+                    <p data-i18n>Chọn một ảnh mẫu</p>
+                    <div class="profile-presets__grid" data-presets-grid></div>
+                    <button class="btn btn--ghost btn--sm" type="button" data-presets-close data-i18n>Đóng bảng ảnh mẫu</button>
+                  </div>
+                </section>
+                <!-- Tài khoản có email chỉ đọc; tên, trường, địa chỉ và giới thiệu được phép cập nhật. -->
+                <section class="profile-section" id="account-section" tabindex="-1" aria-labelledby="account-title">
+                  <div class="profile-section__heading"><h2 class="t-display" id="account-title" data-i18n>Thông tin tài khoản</h2><p data-i18n>Tên hiển thị và @tên người dùng giúp mọi người nhận ra bạn · email dùng để đăng nhập</p></div>
+                  <div class="profile-fields-grid">
+                    <!-- Tên hiển thị nhận tên tự do; username là handle duy nhất, @ không nằm trong value. -->
+                    <div class="field">
+                      <label class="field__label" for="displayname"><span data-i18n>Tên hiển thị</span> <span class="field__required">*</span></label>
+                      <input class="input" id="displayname" name="displayname" autocomplete="name" aria-describedby="displayname-hint" required />
+                      <p class="field__hint" id="displayname-hint" data-displayname-hint data-i18n>Hiện trên bài viết và bình luận · đổi được bất cứ lúc nào</p>
+                    </div>
+                    <div class="field">
+                      <label class="field__label" for="username"><span data-i18n>Tên người dùng</span> <span class="field__required">*</span></label>
+                      <div class="username-input">
+                        <span class="username-input__prefix" aria-hidden="true">@</span>
+                        <input class="input" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-hint" required />
+                      </div>
+                      <p class="field__hint" id="username-hint" data-username-hint data-i18n>Duy nhất · chữ thường, số và dấu _ · tối thiểu 3 ký tự</p>
+                    </div>
+                    <div class="field">
+                      <label class="field__label" for="email">Email <span class="field__required">*</span></label>
+                      <input class="input" id="email" name="email" type="email" autocomplete="email" readonly aria-describedby="email-hint" />
+                      <p class="field__hint" id="email-hint" data-i18n>Email không thể thay đổi sau khi tạo tài khoản</p>
+                    </div>
+                    <div class="field">
+                      <label class="field__label" for="institute" data-i18n>Trường / Tổ chức</label>
+                      <input class="input" id="institute" name="institute" autocomplete="organization" placeholder="Ví dụ: Trường ĐH Công nghệ Thông tin – ĐHQG-HCM" data-i18n-attr="placeholder" aria-describedby="institute-hint" />
+                      <p class="field__hint" id="institute-hint" data-i18n>Hiển thị trên trang hồ sơ, có thể để trống</p>
+                    </div>
+                    <!-- Nơi ở trải hết hàng sau cặp Email và Trường / Tổ chức. -->
+                    <div class="field profile-fields-grid__wide">
+                      <label class="field__label" for="address" data-i18n>Nơi ở</label>
+                      <select class="input profile-select" id="address" name="address" aria-describedby="address-hint"><option value="" data-i18n>Chọn nơi ở…</option></select>
+                      <p class="field__hint" id="address-hint" data-i18n>Chọn tỉnh/thành · dùng cho bản đồ địa điểm văn hoá Việt – Nhật</p>
+                    </div>
+                    <div class="field profile-fields-grid__wide">
+                      <label class="field__label" for="bio" data-i18n>Giới thiệu bản thân</label>
+                      <div class="profile-bio">
+                        <textarea class="input" id="bio" name="bio" maxlength="300" rows="3" aria-describedby="bio-hint bio-counter"></textarea>
+                        <span class="profile-bio__counter" id="bio-counter" data-bio-counter>0 / 300</span>
+                      </div>
+                      <p class="field__hint" id="bio-hint" data-bio-hint data-i18n>Hiển thị công khai trên trang hồ sơ của bạn</p>
+                    </div>
+                  </div>
+                </section>
+                <!-- Radio gốc đảm bảo một ngôn ngữ duy nhất và hỗ trợ phím mũi tên tự nhiên. -->
+                <section class="profile-section" id="native-section" tabindex="-1" aria-labelledby="native-title">
+                  <div class="profile-section__heading"><h2 class="t-display" id="native-title" data-i18n>Ngôn ngữ mẹ đẻ</h2><p data-i18n>Chọn ngôn ngữ mẹ đẻ của bạn – thành viên khác sẽ thấy trên hồ sơ và cạnh tên khi bạn đăng bài.</p></div>
+                  <fieldset class="profile-native" aria-describedby="native-hint" data-native-group>
+                    <legend><span data-i18n>Ngôn ngữ mẹ đẻ</span> <span data-i18n>(chọn 1)</span></legend>
+                    <div class="profile-native__grid">
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="vi" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n>Tiếng Việt</strong><small data-i18n>Cờ Việt Nam hiển thị cạnh tên</small></span></label>
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="ja" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n-html><span lang="ja">日本語</span> · Tiếng Nhật</strong><small data-i18n>Cờ Nhật Bản hiển thị cạnh tên</small></span></label>
+                      <label class="radio-card"><input class="radio-card__input" type="radio" name="native" value="en" aria-describedby="native-hint" required /><span class="radio-card__circle" aria-hidden="true"></span><span><strong data-i18n>English · Tiếng Anh</strong><small data-i18n>Nhãn EN hiển thị cạnh tên</small></span></label>
+                    </div>
+                    <p class="field__hint" id="native-hint" data-native-hint data-i18n>Có thể thay đổi bất cứ lúc nào trong Hồ sơ › Chỉnh sửa hồ sơ</p>
+                  </fieldset>
+                </section>
+                <!-- Điều khoản không mặc định đồng ý; lỗi gắn trực tiếp với checkbox thật. -->
+                <div class="profile-terms">
+                  <label class="checkbox" for="terms"><input class="checkbox__input" id="terms" name="terms" type="checkbox" aria-describedby="terms-hint" required /><span class="checkbox__box" aria-hidden="true"></span><span data-i18n-html>Tôi đồng ý với <a href="#" data-terms-link="">Điều khoản sử dụng</a> và <a href="#" data-terms-link="">Quy tắc cộng đồng Etsubi</a></span></label>
+                  <p class="field__hint field__hint--error" id="terms-hint" data-terms-hint hidden data-i18n>Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.</p>
+                </div>
+              </fieldset>
+              <!-- Thông báo nằm ngoài fieldset khoá để nút thử lại luôn dùng được khi tải lỗi. -->
+              <div class="alert alert--error" role="alert" tabindex="-1" data-form-alert hidden><p data-alert-message></p><button class="btn btn--secondary btn--sm" type="button" data-retry hidden data-i18n>Thử lại</button></div>
+              <div class="profile-actions" data-actions>
+                <button class="btn btn--ghost" type="button" data-back data-i18n>‹ Quay lại</button>
+                <div class="profile-actions__save" data-save-actions>
+                  <button class="btn btn--secondary" type="button" data-save-draft disabled data-i18n>Lưu nháp</button>
+                  <button class="btn btn--primary" type="submit" data-submit disabled data-i18n>Tạo tài khoản ›</button>
+                </div>
+              </div>
+            </form>
+          </section>
+          <!-- Tóm tắt cập nhật khi nhập; thanh tiến độ có giá trị số cho công nghệ hỗ trợ. -->
+          <aside class="profile-summary" aria-label="Tóm tắt hồ sơ" data-i18n-attr="aria-label">
+            <section class="card profile-summary__card" aria-labelledby="summary-title">
+              <div class="profile-summary__top">
+                <p class="profile-eyebrow" data-i18n>HOÀN TẤT HỒ SƠ</p><h2 class="t-display" id="summary-title" data-i18n>Hồ sơ của bạn</h2>
+                <div class="profile-meter" role="progressbar" aria-label="Hoàn tất hồ sơ" data-i18n-attr="aria-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress><span></span></div>
+                <p class="profile-summary__percent"><span class="t-display" data-percent>0</span><span>%</span></p>
+              </div>
+              <div class="profile-summary__body">
+                <p class="profile-eyebrow" data-i18n>DỮ LIỆU ĐÃ NHẬP</p>
+                <dl class="profile-summary__rows">
+                  <!-- Hai loại tên tách riêng để tránh nhầm handle với tên hiển thị. -->
+                  <div><dt data-i18n>Tên hiển thị</dt><dd data-summary="displayname">–</dd></div>
+                  <div><dt data-i18n>Tên người dùng</dt><dd data-summary="username">–</dd></div>
+                  <div><dt>Email</dt><dd data-summary="email">–</dd></div>
+                  <div><dt data-i18n>Trường</dt><dd data-summary="institute">–</dd></div>
+                  <div><dt data-i18n>Nơi ở</dt><dd data-summary="address">–</dd></div>
+                  <div><dt data-i18n>Ngôn ngữ mẹ đẻ</dt><dd data-summary="native">–</dd></div>
+                </dl>
+              </div>
+            </section>
+            <div class="profile-summary__help">
+              <div class="profile-tip profile-tip--quick"><h2 data-i18n>ⓘ Mẹo nhanh</h2><p data-i18n>Hồ sơ có ảnh đại diện và lời giới thiệu giúp thành viên từ nhiều quốc gia dễ làm quen và trò chuyện với bạn hơn.</p></div>
+              <!-- Cho phép bỏ qua bước bổ sung, giải thích nơi quay lại chỉnh sửa theo frame 159:524. -->
+              <div class="profile-support">
+                <p class="profile-eyebrow" data-i18n>CHƯA MUỐN ĐIỀN NGAY?</p>
+                <a class="btn btn--secondary btn--block" href="/" data-route="home" data-i18n>Bỏ qua, hoàn thiện sau</a>
+                <p class="profile-support__note" data-i18n>Bạn có thể hoàn thiện hồ sơ bất cứ lúc nào trong trang Hồ sơ › Chỉnh sửa hồ sơ.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+        <!-- Khi JavaScript bị tắt, giải thích rõ vì hồ sơ cần xác thực qua API. -->
+        <noscript><p class="alert alert--info" data-i18n>Vui lòng bật JavaScript để tải và lưu hồ sơ Etsubi.</p></noscript>
+      </div>
+    </main>
+    <!-- Chân trang rút gọn được dựng từ component chung, không sao chép nội dung. -->
+    <footer class="site-footer" data-component="footer" data-variant="slim"></footer>
+  </body>
+</html>
