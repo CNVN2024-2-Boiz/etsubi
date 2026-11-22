@@ -17,9 +17,9 @@ async fn main() -> std::io::Result<()> {
         .unwrap();
 
     let state = bootstrap::run().expect("Bootstrap failed");
-    let host = state.config.server_host.clone();
-    let port = state.config.server_port;
-    let origins = state.config.cors_allowed_origins.clone();
+    let host = state.config.server.host.clone();
+    let port = state.config.server.port;
+    let origins = state.config.server.cors_allowed_origins.clone();
 
     HttpServer::new(move || {
         App::new()
