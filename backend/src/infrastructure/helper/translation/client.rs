@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use super::error::TranslationError;
+use crate::domains::translation::error::TranslationError;
 
 #[derive(Debug, Clone)]
 pub struct TranslateField {

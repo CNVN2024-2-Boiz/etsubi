@@ -1,5 +1,5 @@
-pub mod deepseek;
-pub mod gemini;
+pub mod client;
+pub mod provider;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -7,15 +7,15 @@ use std::time::Duration;
 use anyhow::{Result, anyhow};
 
 use crate::{
-    bootstrap::config::TranslationConfig,
-    domains::translation::{
-        client::{TranslateRequest, TranslateResult, TranslatedField, TranslationClient},
-        error::TranslationError,
+    bootstrap::config::translation::TranslationConfig,
+    domains::translation::error::TranslationError,
+    infrastructure::helper::translation::client::{
+        TranslateRequest, TranslateResult, TranslatedField, TranslationClient,
     },
 };
 
-pub use deepseek::DeepSeekClient;
-pub use gemini::GeminiClient;
+pub use provider::deepseek::DeepSeekClient;
+pub use provider::gemini::GeminiClient;
 
 pub fn build_client(cfg: &TranslationConfig) -> Result<Option<Arc<dyn TranslationClient>>> {
     if !cfg.is_configured() {

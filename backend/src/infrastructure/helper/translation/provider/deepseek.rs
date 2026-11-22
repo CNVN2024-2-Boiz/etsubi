@@ -4,13 +4,11 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::{
-    bootstrap::config::TranslationConfig,
-    domains::translation::{
-        client::{TranslateRequest, TranslateResult, TranslationClient},
-        error::TranslationError,
-    },
+    bootstrap::config::translation::TranslationConfig,
+    domains::translation::error::TranslationError,
     infrastructure::helper::translation::{
-        build_prompt, client_model, http_client, map_reqwest_error, parse_translated,
+        client::{TranslateRequest, TranslateResult, TranslationClient},
+        {build_prompt, client_model, http_client, map_reqwest_error, parse_translated},
     },
 };
 
