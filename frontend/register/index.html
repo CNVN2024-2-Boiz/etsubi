@@ -89,15 +89,26 @@
                 <p class="field__hint field__hint--error" id="confirm-hint" hidden></p>
               </div>
             </div>
-            <!-- Trường terms: nhãn trỏ đúng id và gợi ý lỗi được nối bằng aria-describedby. -->
-            <div class="auth-card__terms" data-field="terms">
-              <label class="checkbox" for="terms">
-                <input class="checkbox__input" type="checkbox" id="terms" name="terms" required aria-describedby="terms-hint" />
-                <span class="checkbox__box" aria-hidden="true">
-                </span>
-                <span data-i18n-html>Tôi đồng ý với <a href="#terms" data-terms-link="">Điều khoản sử dụng</a></span>
-              </label>
-              <p class="field__hint field__hint--error" id="terms-hint" hidden></p>
+            <!-- Hai ô đồng ý tách riêng (Figma 274:3560), không tích sẵn; link mở tab mới để không mất dữ liệu đang nhập. -->
+            <div class="auth-card__consents">
+              <!-- Ô 1: Điều khoản sử dụng và xác nhận đủ 16 tuổi; lỗi riêng nối bằng aria-describedby. -->
+              <div class="auth-card__terms" data-field="terms">
+                <label class="checkbox" for="terms">
+                  <input class="checkbox__input" type="checkbox" id="terms" name="terms" required aria-describedby="terms-hint" />
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span data-i18n-html>Tôi đồng ý với <a href="/terms/" target="_blank" rel="noopener">Điều khoản sử dụng</a> và xác nhận mình từ đủ 16 tuổi</span>
+                </label>
+                <p class="field__hint field__hint--error" id="terms-hint" hidden></p>
+              </div>
+              <!-- Ô 2: đồng ý xử lý dữ liệu cá nhân theo Chính sách quyền riêng tư (Luật 91/2025/QH15); lỗi riêng của ô này. -->
+              <div class="auth-card__terms" data-field="privacy">
+                <label class="checkbox" for="privacy">
+                  <input class="checkbox__input" type="checkbox" id="privacy" name="privacy" required aria-describedby="privacy-hint" />
+                  <span class="checkbox__box" aria-hidden="true"></span>
+                  <span data-i18n-html>Tôi đồng ý để Etsubi xử lý dữ liệu cá nhân theo <a href="/privacy/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a> (bắt buộc để tạo tài khoản)</span>
+                </label>
+                <p class="field__hint field__hint--error" id="privacy-hint" hidden></p>
+              </div>
             </div>
             <!-- Vùng thông báo ban đầu ẩn, dùng role để trình đọc màn hình nhận biết cập nhật. -->
             <div class="alert alert--info auth-card__message" role="status" data-info-alert hidden></div>

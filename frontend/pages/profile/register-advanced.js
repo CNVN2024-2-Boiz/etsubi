@@ -628,11 +628,6 @@ function goBack() {
   }
 }
 
-/** Chặn liên kết # đang chờ nội dung để không làm nhảy trang hoặc thay đổi checkbox ngoài ý muốn. */
-function keepTermsPosition(event) {
-  event.preventDefault();
-}
-
 /** Đổi thứ tự DOM của nút theo breakpoint để thứ tự Tab luôn trùng bố cục desktop hoặc mobile. */
 function arrangeActions() {
   const actions = qs('[data-actions]');
@@ -664,9 +659,6 @@ function initialize() {
   }
   for (const button of qsa('[data-section-target]')) {
     button.addEventListener('click', focusSection);
-  }
-  for (const link of qsa('[data-terms-link]')) {
-    link.addEventListener('click', keepTermsPosition);
   }
   form.addEventListener('input', profileChanged);
   form.addEventListener('change', profileChanged);
