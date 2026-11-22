@@ -188,6 +188,12 @@ export default {
   'Địa điểm đã chọn': { ja: '選択した場所', en: 'Selected place' },
   'Địa điểm văn hóa': { ja: '文化スポット', en: 'Cultural place' },
   'Bản đồ chọn địa điểm': { ja: '場所を選ぶ地図', en: 'Place picker map' },
+  // Nhãn chủ quyền biển đảo Việt Nam và nút zoom trên bản đồ.
+  'Quần đảo Hoàng Sa (Việt Nam)': { ja: 'ホアンサ諸島（ベトナム）', en: 'Hoang Sa Archipelago (Viet Nam)' },
+  'Quần đảo Trường Sa (Việt Nam)': { ja: 'チュオンサ諸島（ベトナム）', en: 'Truong Sa Archipelago (Viet Nam)' },
+  'Biển Đông': { ja: 'ビエンドン（東海）', en: 'East Sea' },
+  'Phóng to': { ja: '拡大', en: 'Zoom in' },
+  'Thu nhỏ bản đồ': { ja: '縮小', en: 'Zoom out' },
   'Bản đồ địa điểm bình luận': { ja: 'コメントの場所の地図', en: 'Comment place map' },
   'Bản đồ địa điểm văn hóa': { ja: '文化スポットの地図', en: 'Cultural place map' },
   'Tìm địa điểm': { ja: '場所を検索', en: 'Search for a place' },
