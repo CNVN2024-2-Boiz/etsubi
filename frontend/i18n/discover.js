@@ -23,8 +23,6 @@ export default {
   'Đăng nhập để nhận gợi ý theo chủ đề bạn đã chọn.': { ja: 'ログインすると、選んだトピックに合わせたおすすめが表示されます。', en: 'Sign in to get suggestions based on the topics you chose.' },
   'Chủ đề phù hợp': { ja: 'おすすめのトピック', en: 'Matching topics' },
   'CHỦ ĐỀ PHÙ HỢP': { ja: 'おすすめのトピック', en: 'MATCHING TOPICS' },
-  'Bài viết gợi ý': { ja: 'おすすめの投稿', en: 'Suggested posts' },
-  'BÀI VIẾT GỢI Ý': { ja: 'おすすめの投稿', en: 'SUGGESTED POSTS' },
   'Thành viên nên theo dõi': { ja: 'フォローおすすめのメンバー', en: 'Members to follow' },
   'THÀNH VIÊN NÊN THEO DÕI': { ja: 'フォローおすすめのメンバー', en: 'MEMBERS TO FOLLOW' },
   'Dành riêng cho {name}': { ja: '{name}さんへのおすすめ', en: 'Made for {name}' },
@@ -152,4 +150,14 @@ export default {
   'Không thể tác động lên người cùng cấp hoặc cao hơn': { ja: '同じ権限または上位の相手には操作できません', en: 'You cannot act on someone of the same or higher role' },
   'Thành viên sẽ đăng bài, bình luận và thả cảm xúc lại được ngay.': { ja: 'メンバーはすぐに投稿、コメント、リアクションができるようになります。', en: 'The member will be able to post, comment and react again right away.' },
   'Tài khoản đăng nhập và dùng lại mọi chức năng được ngay.': { ja: 'アカウントはすぐにログインしてすべての機能を使えるようになります。', en: 'The account can sign in and use every feature again right away.' },
+
+  // Điều khiển bài nổi bật và trạng thái thẻ bài trên hồ sơ.
+  'Bài viết nổi bật trước': { ja: '前の注目の投稿', en: 'Previous featured posts' },
+  'Bài viết nổi bật tiếp theo': { ja: '次の注目の投稿', en: 'Next featured posts' },
+  'Bạn chưa lưu bài viết nào': { ja: '保存した投稿はありません', en: 'You haven’t saved any posts yet' },
+  'Bấm biểu tượng dấu trang ở bài viết để lưu lại đọc sau.': { ja: '投稿のブックマークアイコンを押すと、後で読めるように保存できます。', en: 'Select the bookmark icon on a post to save it for later.' },
+  'Bạn chưa đăng bài viết nào': { ja: 'まだ投稿していません', en: 'You haven’t posted yet' },
+  'Chưa có bài viết nào': { ja: 'まだ投稿がありません', en: 'No posts yet' },
+  'Khi {name} đăng bài, bài viết sẽ hiện ở đây.': { ja: '{name}さんが投稿すると、ここに表示されます。', en: 'Posts by {name} will appear here.' },
+  'Xem thêm bài viết': { ja: '投稿をもっと見る', en: 'Show more posts' },
 };

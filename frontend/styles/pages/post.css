@@ -514,7 +514,7 @@
 .post-comment__row {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--post-comment-gap);
   min-width: 0;
 }
 
@@ -524,7 +524,20 @@
   flex-direction: column;
   gap: var(--space-4);
   margin-top: var(--space-4);
-  padding-left: 54px;
+  margin-inline-start: calc(var(--post-comment-avatar) + var(--post-comment-gap) - var(--space-4) - 2px);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 2px solid var(--color-sakura-100);
+}
+
+/* Khung soạn của trả lời lồng nằm dưới dòng được bấm trong cùng cột. */
+.post-comment__reply-slot {
+  margin-top: var(--space-3);
+}
+
+/* Cột không có nội dung không được tạo lề dọc hoặc nhận focus. */
+.post-comment__replies[hidden],
+.post-comment__reply-slot[hidden] {
+  display: none;
 }
 
 /* Avatar bình luận 40px, chữ đầu 14px đậm. */
@@ -553,7 +566,6 @@
 /* Hàng tên + thời gian bên trái, nút Dịch/Xoá bên phải. */
 .post-comment__head {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
@@ -576,6 +588,89 @@
   overflow-wrap: anywhere;
 }
 
+/* Liên kết tên và avatar dùng cùng màu và gạch dưới khi trỏ hoặc dùng bàn phím. */
+.post-comment__name:is(:hover, :focus-visible),
+.post-comment__avatar:is(:hover, :focus-visible) + .post-comment__content .post-comment__name {
+  color: var(--color-red-dark);
+  text-decoration: underline;
+}
+
+/* Nút trả lời ngắn nằm sát chữ như các thao tác thảo luận phụ. */
+.post-comment__reply {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-transparent);
+  color: var(--color-muted);
+  font: 600 13px var(--font-body);
+}
+
+.post-comment__reply:is(:hover, :focus-visible) { color: var(--color-red); }
+
+/* Khung trả lời gọn có nhãn, phần nhập và hai nút; editor vẫn giữ xử lý HTML an toàn. */
+.post-comment-reply {
+  display: grid;
+  gap: var(--post-reply-gap);
+  padding: var(--space-3) var(--post-comment-gap);
+  border: 1.5px solid var(--color-input-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+}
+
+.post-comment-reply:focus-within {
+  border-color: var(--color-red);
+  box-shadow: var(--focus-ring);
+}
+
+.post-comment-reply__label {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 17px;
+}
+
+/* Chuyển vòng focus của editor dùng chung ra viền khung trả lời. */
+.post-comment-reply .rich-editor,
+.post-comment-reply .rich-editor:has(.rich-editor__area:focus-visible) {
+  border: 0;
+  background: var(--color-transparent);
+  box-shadow: none;
+}
+
+.post-comment-reply .rich-editor__tools,
+.post-comment-reply .rich-editor__footer,
+.post-comment-reply .field__hint:empty { display: none; }
+
+.post-comment-reply .rich-editor__body,
+.post-comment-reply .rich-editor__area {
+  min-height: 0;
+  padding: 0;
+}
+
+/* Chữ trong editor trả lời cùng cỡ dòng mẫu, nội dung dài tự ngắt trên điện thoại. */
+.post-comment-reply .rich-editor__area {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+/* Nút gọn nằm bên phải, vẫn xuống hàng khi văn bản dịch dài. */
+.post-comment-reply__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.post-comment-reply__actions .btn {
+  min-height: var(--space-7);
+  padding: var(--space-1) var(--space-4);
+  font-size: 13px;
+}
+
 /* Thanh chờ tên khi chưa tải hồ sơ. */
 .post-comment__name-bar {
   width: 100px;
@@ -590,6 +685,7 @@
 /* Nhóm nút chữ Dịch/Xoá cách nhau 12px. */
 .post-comment__tools {
   display: flex;
+  flex-shrink: 0;
   gap: var(--space-3);
 }
 
@@ -1076,14 +1172,9 @@
     padding: var(--space-4) var(--space-5);
   }
 
-  /* Hộp bình luận đệm 16px; trả lời lùi ít hơn. */
+  /* Hộp bình luận đệm 16px, giữ cột trả lời thẳng hàng với chữ. */
   .post-comments {
     padding: var(--space-4);
-  }
-
-  /* Trả lời chỉ lùi 24px để còn chỗ cho chữ. */
-  .post-comment__replies {
-    padding-left: var(--space-6);
   }
 
   /* Ô viết và nút Gửi xếp dọc, nút rộng hết khung để dễ chạm. */
@@ -1236,8 +1327,7 @@
   height: 28px;
 }
 
-/* Handle dùng chữ phụ dưới tên bình luận và trong thẻ tác giả, không làm hẹp nội dung chính. */
-.post-comment__handle,
+/* Handle dùng chữ phụ trong thẻ tác giả, không làm hẹp nội dung chính. */
 .post-side-author__handle {
   display: block;
   color: var(--color-muted);

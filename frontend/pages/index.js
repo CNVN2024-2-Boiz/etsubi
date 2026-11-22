@@ -6,10 +6,9 @@ import { createFeaturedCard, createFeaturedPlaceholder } from '/components/featu
 import { createFeedPostCard } from '/components/postcard/PostCard.js';
 import { listHomeFeed, getFeaturedPosts, getPostTags, getPostStats } from '/services/api/posts.js';
 import { backendSupports } from '/services/api/capabilities.js';
-import { getMyRecommendations } from '/services/api/recommendations.js';
 import { getReactionSummary } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, getBookmarkState } from '/services/api/bookmarks.js';
-import { followUser, unfollowUser } from '/services/api/follows.js';
+import { followUser, unfollowUser, listMyFollowing } from '/services/api/follows.js';
 import { getUser } from '/services/api/users.js';
 import { listTags } from '/services/api/tags.js';
 import { readStorage } from '/services/api/client.js';
@@ -32,7 +31,11 @@ mountFooter();
 const feedList = qs('[data-feed-list]');
 const feedStatus = qs('[data-feed-status]');
 const errorBox = qs('[data-home-error]');
-const compactFeatured = window.matchMedia('(max-width: 960px)');
+const tabletFeatured = window.matchMedia('(max-width: 960px)');
+const mobileFeatured = window.matchMedia('(max-width: 600px)');
+const featuredRow = qs('[data-featured-cards]');
+const featuredArrows = qsa('[data-featured-step]');
+let visibleFeaturedSize = featuredPageSize();
 const bookmarkStates = new Map();
 let user = getCachedUser();
 let tags = [];
@@ -45,6 +48,11 @@ let featuredVersion = 0;
 let selectedFeed = 'newest';
 let feedVersion = 0;
 let feedController = null;
+// Chỉ lấy ứng viên từ những bài Trang chủ đã tải và tái dùng danh sách đang theo dõi.
+const recommendationPosts = new Map();
+let followingForSuggestions = null;
+let suggestionVersion = 0;
+let suggestedMembers = [];
 
 /** Báo lỗi tiếng Việt trong vùng alert dùng chung, không dùng alert() của trình duyệt. */
 function showError(error) {
@@ -85,7 +93,7 @@ function mountPetals() {
 
 /** Tính số thẻ mỗi trang theo cùng breakpoint với CSS, không dùng cuộn hay animation. */
 function featuredPageSize() {
-  return compactFeatured.matches ? 1 : 3;
+  return mobileFeatured.matches ? 1 : tabletFeatured.matches ? 2 : 3;
 }
 
 /** Dựng thẻ nổi bật từ bài và phần thông tin phụ đã tải; mã bài giúp thay đúng thẻ khi có dữ liệu mới. */
@@ -160,11 +168,17 @@ function renderFeatured(restoreDotFocus = false) {
   const available = Array.isArray(featured) && featured.length > 0;
   const pageCount = Math.ceil((available ? featured.length : 3) / size);
   featuredPage = Math.min(featuredPage, pageCount - 1);
-  const row = qs('[data-featured-cards]');
-  row.replaceChildren();
+  const focusInCards = featuredRow.contains(document.activeElement);
+  const focusedArrow = featuredArrows.find(button => button === document.activeElement);
+  featuredRow.replaceChildren();
+  // Mỗi đầu danh sách vô hiệu hoá mũi tên tương ứng, kể cả khi chưa có bài.
+  featuredArrows[0].disabled = !available || featuredPage === 0;
+  featuredArrows[1].disabled = !available || featuredPage === pageCount - 1;
+  if (focusInCards || focusedArrow?.disabled) featuredRow.focus();
+
   // Chỉ gắn thẻ thuộc trang hiện tại nên liên kết của trang ẩn không nhận focus.
   for (let index = featuredPage * size; index < Math.min((featuredPage + 1) * size, available ? featured.length : 3); index += 1) {
-    row.append(available ? createFeaturedNode(featured[index], index + 1) : createFeaturedPlaceholder(index + 1));
+    featuredRow.append(available ? createFeaturedNode(featured[index], index + 1) : createFeaturedPlaceholder(index + 1));
   }
   const note = qs('[data-featured-note]');
   note.hidden = available;
@@ -173,7 +187,7 @@ function renderFeatured(restoreDotFocus = false) {
     : t('Bài viết nổi bật sẽ hiển thị khi máy chủ hỗ trợ xếp hạng.');
   const dots = qs('[data-featured-dots]');
   dots.replaceChildren();
-  const dotCount = available ? pageCount : compactFeatured.matches ? 3 : 4;
+  const dotCount = available ? pageCount : mobileFeatured.matches ? 3 : 4;
   // Khi chưa có dữ liệu, chấm chỉ giữ hình dáng Figma và không giả hành vi phân trang.
   for (let index = 0; index < dotCount; index += 1) {
     const dot = el('button', {
@@ -203,10 +217,25 @@ function chooseFeaturedPage(event) {
   renderFeatured(true);
 }
 
-/** Khi đổi cỡ màn hình, giữ bài đầu trang hiện tại rồi tính lại số trang. */
-function resizeFeatured(event) {
-  const previousSize = event.matches ? 3 : 1;
-  featuredPage = Math.floor(featuredPage * previousSize / featuredPageSize());
+/** Đổi trang qua nút cạnh thẻ hoặc phím mũi tên khi focus ở trong carousel. */
+function stepFeatured(event) {
+  const key = event.key;
+  if (event.type === 'keydown' && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+  const button = event.type === 'click' ? event.target.closest('[data-featured-step]')
+    : featuredArrows[key === 'ArrowLeft' ? 0 : 1];
+  if (!button) return;
+  event.preventDefault();
+  if (button.disabled) return;
+  featuredPage += Number(button.dataset.featuredStep);
+  renderFeatured();
+}
+
+/** Khi qua breakpoint, lấy trang chứa bài đầu tiên đang xem theo số thẻ mới. */
+function resizeFeatured() {
+  const size = featuredPageSize();
+  if (size === visibleFeaturedSize) return;
+  featuredPage = Math.floor(featuredPage * visibleFeaturedSize / size);
+  visibleFeaturedSize = size;
   renderFeatured();
 }
 
@@ -245,6 +274,9 @@ function createFollowButton(memberId) {
         await followUser(memberId);
       }
       following = !following;
+      // Các lượt chọn gợi ý sau dùng quan hệ mới, còn nút hiện tại vẫn có thể hoàn tác.
+      if (following) followingForSuggestions?.add(memberId);
+      else followingForSuggestions?.delete(memberId);
       button.textContent = following ? t('Đang theo dõi') : t('Theo dõi');
       button.setAttribute('aria-pressed', String(following));
     } catch (error) {
@@ -257,78 +289,65 @@ function createFollowButton(memberId) {
   return button;
 }
 
-/** Dựng bài gợi ý thật hoặc một hàng xám trung tính, kanji chỉ là phần trang trí theo tag. */
-function createSuggestedPost(post) {
-  const kanji = { general: '総', question: '問', discussion: '談', announcement: '告', showcase: '作' };
-  const thumb = el('span', {
-    className: 'home-suggestion__thumb' + (post ? '' : ' home-suggestion__thumb--placeholder'),
-    'aria-hidden': 'true', lang: 'ja',
-  }, kanji[post?.tag?.name] || '越');
-  const text = el('div', { className: 'home-suggestion__text' });
-  if (post) {
-    text.append(el('a', { className: 'home-suggestion__title', href: routes.post(post.id) }, wrapJapanese(post.title)),
-      el('p', { className: 'home-suggestion__meta' },
-        t('{count} bình luận', { count: Number.isFinite(post.comment_count) ? post.comment_count : '–' }),
-        post.tag?.name ? wrapJapanese(' · ' + post.tag.name) : null));
-  } else {
-    text.append(placeholder(false, true), placeholder(true),
-      el('p', { className: 'home-suggestion__meta' }, t('{count} bình luận', { count: '–' })));
-  }
-  return el('div', { className: 'home-suggestion' }, thumb, text);
-}
-
-/** Dựng thành viên được gợi ý hoặc hàng chờ với nút khoá khi chưa có thông tin thật. */
+/** Dựng một tác giả thật; tên và avatar dẫn tới cùng hồ sơ công khai. */
 function createSuggestedMember(member) {
-  const text = el('div', { className: 'home-member__text' });
-  if (member) {
-    text.append(el('span', { className: 'home-member__name' }, wrapJapanese(getAuthorLabel(member))),
-      el('p', { className: 'home-member__sub' }, wrapJapanese(getAuthorHandle(member)
-        + (member.address ? ' · ' + member.address : member.institute ? ' · ' + member.institute : ''))));
-  } else {
-    text.append(placeholder(false, true), placeholder(true));
-  }
-  return el('div', { className: 'home-member' }, member ? memberAvatar(member)
-    : el('span', { className: 'home-member__avatar home-member__avatar--placeholder', 'aria-hidden': 'true' }),
-  text, member ? createFollowButton(member.id) : el('button', {
-    type: 'button', className: 'btn btn--danger-outline btn--sm home-member__follow', disabled: true,
-  }, t('Theo dõi')));
+  const href = routes.userProfile(member.id);
+  const name = getAuthorLabel(member);
+  const text = el('div', { className: 'home-member__text' },
+    el('a', { className: 'home-member__name', href }, wrapJapanese(name)),
+    el('p', { className: 'home-member__sub' }, wrapJapanese(getAuthorHandle(member)
+      + (member.address ? ' · ' + member.address : member.institute ? ' · ' + member.institute : ''))));
+  return el('div', { className: 'home-member' },
+    el('a', { className: 'home-member__avatar-link', href, 'aria-label': name }, memberAvatar(member)),
+    text, createFollowButton(member.id));
 }
 
-/** Gợi ý vẫn giữ đủ ba khối khi chưa hỗ trợ; danh mục chủ đề là tag thật từ GET /tags. */
-function renderRecommendations(data = null) {
-  const personal = user ? data : null;
+/** Dựng chủ đề thật và chỉ hiện nhóm thành viên khi có người phù hợp. */
+function renderRecommendations() {
   const body = el('div', { className: 'home-recommendations__body' });
   if (!user) {
     body.append(el('div', { className: 'home-recommendations__signin' },
       el('p', {}, t('Đăng nhập để nhận gợi ý theo chủ đề bạn đã chọn.')), loginLink()));
   }
   const topics = el('div', { className: 'home-recommendations__topics' });
-  const selectedTopics = personal?.topics ?? tags;
-  // Không gán chủ đề giả: lúc danh mục chưa có, chỉ giữ hai thanh xám.
-  for (const tag of selectedTopics) {
+  // Lúc danh mục chưa có, giữ hai thanh xám thay vì gán chủ đề giả.
+  for (const tag of tags) {
     topics.append(el('a', {
       className: 'featured-card__chip', href: searchUrl({ tags: [tag.name] }),
     }, wrapJapanese('#' + tag.name)));
   }
-  if (!selectedTopics.length) {
-    topics.append(placeholder(), placeholder(true));
-  }
+  if (!tags.length) topics.append(placeholder(), placeholder(true));
   body.append(el('section', { className: 'home-recommendations__group', 'aria-label': t('Chủ đề phù hợp') },
     el('h3', { className: 'home-recommendations__eyebrow' }, t('CHỦ ĐỀ PHÙ HỢP')), topics));
-  const posts = el('section', { className: 'home-recommendations__group', 'aria-label': t('Bài viết gợi ý') },
-    el('h3', { className: 'home-recommendations__eyebrow' }, t('BÀI VIẾT GỢI Ý')));
-  const members = el('section', { className: 'home-recommendations__group', 'aria-label': t('Thành viên nên theo dõi') },
-    el('h3', { className: 'home-recommendations__eyebrow' }, t('THÀNH VIÊN NÊN THEO DÕI')));
-  // Giữ ba vị trí để bố cục giống Figma cả khi máy chủ trả ít gợi ý hoặc người xem chưa đăng nhập.
-  for (let index = 0; index < 3; index += 1) {
-    posts.append(createSuggestedPost(personal?.posts?.[index]));
-    members.append(createSuggestedMember(personal?.members?.[index]));
+  if (user && suggestedMembers.length) {
+    body.append(el('section', { className: 'home-recommendations__group', 'aria-label': t('Thành viên nên theo dõi') },
+      el('h3', { className: 'home-recommendations__eyebrow' }, t('THÀNH VIÊN NÊN THEO DÕI')),
+      ...suggestedMembers.map(createSuggestedMember)));
   }
-  body.append(posts, members);
   qs('[data-recommendations]').replaceChildren(
     el('div', { className: 'home-recommendations__band' },
       el('img', { src: '/assets/icons/torii-mini.svg', alt: '', width: 58, height: 48, 'aria-hidden': 'true' }),
       el('p', {}, wrapJapanese(user ? t('Dành riêng cho {name}', { name: getAuthorLabel(user) }) : t('Gợi ý cho bạn')))), body);
+}
+
+/** Tìm tối đa ba tác giả chưa theo dõi; dùng bộ nhớ hồ sơ chung và bỏ qua hồ sơ tải lỗi. */
+async function refreshSuggestedMembers() {
+  const version = ++suggestionVersion;
+  if (!user || !followingForSuggestions) return;
+  const posts = [...(featured || []), ...recommendationPosts.values()];
+  const ids = new Set(posts.map(post => post.author_id).filter(Boolean));
+  const members = [];
+  for (const id of ids) {
+    if (id === user.id || followingForSuggestions.has(id)) continue;
+    const member = await getUser(id).catch(() => null);
+    if (version !== suggestionVersion) return;
+    if (member && !followingForSuggestions.has(id)) members.push(member);
+    if (members.length === 3) break;
+  }
+  if (suggestedMembers.map(member => member.id).join() !== members.map(member => member.id).join()) {
+    suggestedMembers = members;
+    renderRecommendations();
+  }
 }
 
 /** Thẻ tải tĩnh giữ chiều cao bảng tin mà không có spinner hoặc shimmer. */
@@ -467,6 +486,11 @@ async function loadFeed() {
     if (version !== feedVersion) {
       return;
     }
+    // Gợi ý dùng bài mới và bài phổ biến đã tải cho bảng tin, không gọi thêm danh sách bài.
+    if (selectedFeed === 'newest' || selectedFeed === 'popular') {
+      for (const post of posts || []) recommendationPosts.set(post.id, post);
+      void refreshSuggestedMembers();
+    }
     // Service trả null nghĩa là máy chủ chưa hỗ trợ bảng tin này: báo trung tính, không hiện lỗi.
     if (posts === null) {
       showFeedInfo(t('Bảng tin theo dõi sẽ có khi máy chủ hỗ trợ.'));
@@ -578,18 +602,20 @@ async function initialize() {
   try {
     featured = await getFeaturedPosts();
     renderFeatured();
+    void refreshSuggestedMembers();
   } catch (error) {
     showError(error);
   }
+  // Bảng tin và quan hệ theo dõi tải độc lập để lỗi gợi ý không cản đọc bài.
+  void loadFeed();
   if (user) {
     try {
-      renderRecommendations(await getMyRecommendations());
+      followingForSuggestions = new Set((await listMyFollowing() || []).map(member => member.id));
+      void refreshSuggestedMembers();
     } catch (error) {
       showError(error);
     }
   }
-  // Người dùng có thể đã chọn tab khi các phần đầu đang tải; luôn đọc lựa chọn hiện tại.
-  void loadFeed();
 }
 
 /** Ngừng danh sách cũ khi rời trang; các lần bổ sung không có signal dừng ở ranh giới await. */
@@ -597,13 +623,18 @@ function leavePage(event) {
   if (!event.persisted) {
     feedVersion += 1;
     featuredVersion += 1;
+    suggestionVersion += 1;
     feedController?.abort();
   }
 }
 
 // Đăng ký thao tác một lần; không có listener input, scroll hoặc vòng lặp hoạt ảnh.
 qs('[data-featured-dots]').addEventListener('click', chooseFeaturedPage);
-compactFeatured.addEventListener('change', resizeFeatured);
+const featuredCarousel = qs('[data-featured-carousel]');
+featuredCarousel.addEventListener('click', stepFeatured);
+featuredCarousel.addEventListener('keydown', stepFeatured);
+tabletFeatured.addEventListener('change', resizeFeatured);
+mobileFeatured.addEventListener('change', resizeFeatured);
 qs('[data-feed-tabs]').addEventListener('click', handleTabClick);
 qs('[data-feed-tabs]').addEventListener('keydown', handleTabKey);
 qs('[data-write-post]').addEventListener('click', writePost);

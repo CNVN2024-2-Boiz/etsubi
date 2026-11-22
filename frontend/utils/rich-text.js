@@ -138,7 +138,7 @@ function readAttribute(attributes, wanted, decode = true) {
 }
 
 /** Chuẩn hoá thành token an toàn; giới hạn độ sâu và đóng thẻ để DOM không phải tự đoán cấu trúc. */
-function sanitizeTokens(html, { allowLinks = false } = {}) {
+export function sanitizeTokens(html, { allowLinks = false } = {}) {
   const tokens = [];
   const stack = [];
   const blocked = [];

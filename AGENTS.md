@@ -26,15 +26,15 @@ Etsubi (越日) is a Vietnam–Japan student forum, the IE104 (UIT) course proje
 
 ```
 frontend/
-├── index.html                    # redirects to /pages/index.html
-├── pages/                        # one HTML file per screen (+ its page module next to it)
-│   ├── index.html                # Home (placeholder, to be built)
-│   ├── search.html  search.js    # Search (empty + results states)
-│   ├── settings.html settings.js # Cài đặt: profile edit + appearance (profile/edit.html redirects here)
+├── index.html                    # Home at /
+├── forum/index.html, post/index.html, search/index.html
+├── support/index.html, about/index.html, settings/index.html, notifications/index.html
+├── profile/index.html, login/index.html, register/index.html, register-advanced/index.html
+├── pages/                        # Page modules and HTML redirect stubs for old URLs
+│   ├── index.js, forum.js, post.js, search.js, settings.js, …
 │   └── profile/
-│       ├── login.html            login.js
-│       ├── register.html         register.js
-│       └── register-advanced.html register-advanced.js
+│       ├── index.js, login.js, register.js, register-advanced.js
+│       └── edit.html             # Legacy redirect to Settings
 ├── components/                   # reusable UI rendered by JS (one folder per component)
 │   ├── header/header.js  language-menu.js  header.css
 │   ├── footer/footer.js  footer.css
@@ -72,10 +72,10 @@ frontend/
 ```
 
 - File names: `kebab-case` for pages, CSS, icons and utils. (`components/postcard/PostCard.*` keeps its legacy name.)
-- A page's module lives next to the HTML file and has the same base name (`login.html` → `login.js`).
-- New page checklist: HTML in `pages/…`, module next to it, page CSS in `styles/pages/`, route in `utils/routes.js`, Figma frame ID noted in `HANDOFF.md`.
+- Each page uses `<page>/index.html` (Home uses `/index.html`). Keep modules under `/pages/`, for example `/login/` loads `/pages/profile/login.js`.
+- New page checklist: `<page>/index.html`, module under `pages/`, CSS under `styles/pages/`, URL in `utils/routes.js` and Figma frame ID in `HANDOFF.md`.
 
-### Page skeleton (copy this)
+### Page skeleton for `<page>/index.html` (copy this)
 
 ```html
 <!doctype html>
@@ -92,7 +92,7 @@ frontend/
     <link rel="stylesheet" href="/components/header/header.css" />
     <link rel="stylesheet" href="/components/footer/footer.css" />
     <link rel="stylesheet" href="/styles/pages/<page>.css" />
-    <script type="module" src="/pages/<area>/<page>.js"></script>
+    <script type="module" src="/pages/<page>.js"></script>
   </head>
   <body class="page page--<page>">
     <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
@@ -172,7 +172,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - **Browser preferences** (interface language `etsubi_lang`, theme `etsubi_theme`) are read and written only through `utils/preferences.js`. It fires `etsubi:language-change` / `etsubi:theme-change`, and `onInterfaceLanguageChange()` also follows other tabs, so the header language dropdown and Cài đặt › Giao diện stay in sync. Only the light theme exists; Tối/Theo máy stay disabled until a dark palette is designed.
 - **Language dropdown** (`components/header/language-menu.js`, Figma `466:3644`, shared `239:4071`): a 72 × 36 button opens a 168px menu (Tiếng Việt, 日本語, English), right-aligned to the button and 8px below the header. Choosing a language saves `etsubi_lang` and reloads the page; it sends no request and never changes the account's `native` or `language`. Escape and outside click close it and return focus to the button, arrow keys move between options, and only one header menu is open at a time. It stays hidden at `≤ 600px`, where people change the language in Cài đặt.
 - **Leave guard** (`utils/leave-guard.js`): a page with unsaved edits registers `registerLeaveGuard(fn)` (async, resolves `true` to leave); the header calls `confirmLeave()` before Đăng xuất. Never import a page module from the header. Resolve dialog choices directly from the buttons; do not rely only on the `<dialog>` `close` event.
-- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
+- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/search/`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
 
@@ -362,7 +362,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 - `GET /posts/{id}/tags`, `GET /users/{id}`, `GET /posts/{id}/reactions/summary` for enrichment (mind the rate limit).
 - **Socket (deferred):** search was planned over a socket, but the back-end dev has not implemented it yet, so the team decided to skip it for now (confirmed 2026-11-12). The back end has **no WebSocket endpoint**. `services/api/posts.js` exposes `searchPosts()` over HTTP behind one function so a socket transport can replace it later without touching pages.
 - Search UX rules (agreed): **no live suggestions, no results while typing**. Results load only on Enter or the "Tìm kiếm" button. Submit is `opacity .4` + disabled while there is no query and no tag.
-- **Tag → search:** clicking a tag anywhere navigates to `/pages/search.html?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
+- **Tag → search:** clicking a tag anywhere navigates to `/search/?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
 
 ### Notifications (since 2026-11-15)
 

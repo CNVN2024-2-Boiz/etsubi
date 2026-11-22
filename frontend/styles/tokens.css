@@ -176,6 +176,9 @@
   --color-featured-rank: rgba(255,255,255,.35);
   --color-featured-badge: rgba(255,255,255,.16);
   --home-hero-height: 336px;
+  /* Kích thước thao tác cho nút chuyển trang ở hàng bài nổi bật. */
+  --home-featured-arrow-size: 44px;
+  --shadow-featured-arrow: 0 6px 8px rgba(0, 0, 0, .12);
   --home-hero-top: var(--space-8);
   --home-hero-copy-width: 1100px;
   --home-section-gap: 28px;
@@ -218,6 +221,9 @@
   --post-side-gap: 20px;
   --post-side-padding: 22px;
   --post-avatar-size: 56px;
+  /* Khoảng hở avatar quyết định cột chữ và vị trí trả lời. */
+  --post-comment-gap: 14px;
+  --post-reply-gap: 10px;
   --post-comment-avatar: 40px;
   --post-map-height: 182px;
   --post-map-radius: 8px;

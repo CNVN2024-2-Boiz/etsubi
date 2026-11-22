@@ -179,7 +179,7 @@
   }
 }
 
-/* Bảng tin Home có lớp riêng hoàn toàn để không đổi bố cục thẻ kết quả Search. */
+/* Thẻ bảng tin có lớp riêng để không đổi bố cục thẻ kết quả Search. */
 .postcard--feed {
   display: flex;
   flex-direction: column;
@@ -198,7 +198,7 @@
   box-shadow: var(--shadow-sidebar);
 }
 
-/* Hàng người viết căn giữa avatar và tên, menu được đẩy về mép phải. */
+/* Hàng người viết căn giữa avatar và tên để hai liên kết dễ nhận ra. */
 .postcard-feed__user {
   display: flex;
   align-items: center;
@@ -349,44 +349,6 @@
   fill: currentColor;
 }
 
-/* Menu đặt theo nút ba chấm trong từng thẻ, không chiếm chỗ của hàng tên. */
-.postcard-feed__more {
-  position: relative;
-  margin-left: auto;
-}
-
-/* Bảng menu hẹp tự bám mép phải để không tràn trang trên điện thoại. */
-.postcard-feed__menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 5;
-  width: 200px;
-  padding: var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-cream);
-  box-shadow: var(--shadow-sidebar);
-}
-
-/* Liên kết và nút trong menu có cùng kiểu và thứ tự Tab tự nhiên. */
-.postcard-feed__menu-action {
-  display: block;
-  width: 100%;
-  padding: var(--space-2);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--color-transparent);
-  color: var(--color-text);
-  font-size: 13px;
-  text-align: left;
-}
-
-/* Hover giữ thống nhất nền hồng của các menu dùng chung. */
-.postcard-feed__menu-action:hover {
-  background: var(--color-sakura);
-}
-
 /* Mobile thu đệm và đưa chi tiết thành hàng đủ rộng để dễ chạm. */
 @media (max-width: 600px) {
   /* Đệm 18 × 16 giữ phần nội dung dễ đọc ở 360px. */
@@ -411,9 +373,76 @@
     margin-left: auto;
   }
 }
-/* Ảnh nội dung xếp dọc như Figma, chỉ lấy node qua renderer an toàn dùng chung. */
-.postcard-feed__images { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
-.postcard-feed__images:empty { display: none; }
+/* Liên kết avatar giữ vùng focus tròn và đổi màu tên khi rê chuột hoặc dùng Tab. */
+.postcard-feed__avatar-link {
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+}
+
+.postcard-feed__name:is(:hover, :focus-visible),
+.postcard-feed__avatar-link:is(:hover, :focus-visible) + .postcard-feed__identity .postcard-feed__name {
+  color: var(--color-red-dark);
+  text-decoration: underline;
+}
+
+/* Tiêu đề dùng phông nội dung in đậm, giữ hai dòng cho cả tên bài dài. */
+.postcard-feed__title {
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 26px;
+  overflow-wrap: anywhere;
+}
+
+.postcard-feed__title a {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: inherit;
+}
+
+.postcard-feed__title a:is(:hover, :focus-visible) {
+  color: var(--color-red-dark);
+  text-decoration: underline;
+}
+
+/* Một ảnh dùng hết chiều rộng; nhóm ảnh xếp hai cột và cắt ảnh theo từng ô. */
+.postcard-feed__images {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.postcard-feed__images:empty {
+  display: none;
+}
+
+.postcard-feed__images--grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.postcard-feed__images a {
+  display: block;
+  min-width: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.postcard-feed__images img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+}
+
+.postcard-feed__images--grid img {
+  height: 100%;
+  max-height: 220px;
+}
+
 /* Thống kê Search nằm trên liên kết phủ toàn thẻ để hover/focus hiện được tooltip. */
 .postcard__stats .stat-tooltip { z-index: 2; }
 .postcard__stats .stat-tooltip:nth-child(3)::after { left: auto; right: 0; transform: none; }
