@@ -4,6 +4,7 @@ import { editorIcon } from '/components/rich-editor/rich-editor.js';
 import { createPlaceMap } from '/components/place-picker/place-map.js';
 import { reversePlace } from '/services/geo/nominatim.js';
 import { t } from '/utils/i18n.js';
+import { sovereignPlace } from '/services/geo/vn-sovereignty.js';
 
 /** Không dựng giao diện khi thiếu toạ độ thật; caller dọn map khi thay danh sách bình luận. */
 export function createCommentPlace(comment) {
@@ -13,8 +14,11 @@ export function createCommentPlace(comment) {
   let loaded = false;
   let disposed = false;
   const controller = new AbortController();
-  const nameText = comment.place_name || t('Vị trí đã chọn');
-  const addressText = comment.place?.address || comment.address || comment.place?.city || comment.city || '';
+  // Tên và địa chỉ đã lưu trong Hoàng Sa, Trường Sa luôn hiển thị theo Việt Nam.
+  const saved = sovereignPlace({ latitude, longitude, name: comment.place_name || t('Vị trí đã chọn'),
+    address: comment.place?.address || comment.address || comment.place?.city || comment.city || '' });
+  const nameText = saved.name;
+  const addressText = saved.address;
   const name = el('strong', {}, nameText);
   const city = el('span', { className: 'comment-place__city' }, addressText ? '· ' + addressText.split(',')[0] : '');
   const chip = el('button', { type: 'button', className: 'comment-place__chip', 'aria-expanded': 'false' }, editorIcon('pin', 14), name, city, editorIcon('chevron', 14));
@@ -31,12 +35,12 @@ export function createCommentPlace(comment) {
     const expanded = chip.getAttribute('aria-expanded') !== 'true';
     chip.setAttribute('aria-expanded', String(expanded)); card.hidden = !expanded;
     if (!expanded) return;
-    if (loaded) { view?.map.invalidateSize({ animate: false }); return; }
+    if (loaded) { view?.resize(); return; }
     loaded = true;
     // Hai tác vụ độc lập: lỗi tile hoặc reverse vẫn giữ tên và liên kết Maps đọc được.
     void createPlaceMap(map, { latitude, longitude, zoom: 16, interactive: false }).then(result => {
       if (disposed) { result.destroy(); return; }
-      view = result; view.map.invalidateSize({ animate: false });
+      view = result; view.resize();
     }).catch(() => { if (!disposed) map.textContent = t('Không tải được bản đồ.'); });
     try {
       const place = await reversePlace(latitude, longitude, { signal: controller.signal });

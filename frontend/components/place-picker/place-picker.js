@@ -3,6 +3,7 @@ import { el } from '/utils/dom.js';
 import { editorIcon } from '/components/rich-editor/rich-editor.js';
 import { createPlaceMap } from '/components/place-picker/place-map.js';
 import { searchPlaces, reversePlace } from '/services/geo/nominatim.js';
+import { sovereignPlace } from '/services/geo/vn-sovereignty.js';
 import { t } from '/utils/i18n.js';
 
 let previousPoint = null;
@@ -13,7 +14,8 @@ export function pickPlace(existing = null) {
     const controller = new AbortController();
     let searchController = null;
     let reverseController = null;
-    let point = existing ? { ...existing } : null;
+    // Địa điểm cũ trong Hoàng Sa, Trường Sa cũng được chuẩn hoá về tên và địa chỉ Việt Nam.
+    let point = existing ? sovereignPlace({ ...existing }) : null;
     let results = [];
     let selectedIndex = -1;
     let lastQuery = '';
@@ -57,9 +59,9 @@ export function pickPlace(existing = null) {
       dialog.remove();
       resolve(value);
     }
-    /** Sau thay đổi kích thước, Leaflet đo lại khung mà không di chuyển ghim hoặc chạy hiệu ứng. */
+    /** Sau thay đổi kích thước, bản đồ đo lại khung mà không di chuyển ghim hoặc chạy hiệu ứng. */
     function resizeMap() {
-      if (!finished) mapView?.map.invalidateSize({ animate: false });
+      if (!finished) mapView?.resize();
     }
     /** Toàn màn hình giữ nguyên input và toạ độ, chỉ thay bố cục bằng lớp CSS. */
     function toggleFullscreen() {
@@ -176,14 +178,14 @@ export function pickPlace(existing = null) {
     });
     cancel.addEventListener('click', () => finish(null));
     close.addEventListener('click', () => finish(null));
-    apply.addEventListener('click', () => { if (point) { previousPoint = { ...point }; finish({ ...point, name: point.name || t('Vị trí đã chọn') }); } });
+    apply.addEventListener('click', () => { if (point) { previousPoint = { ...point }; finish(sovereignPlace({ ...point, name: point.name || t('Vị trí đã chọn') })); } });
     expand.addEventListener('click', toggleFullscreen);
     window.addEventListener('resize', resizeMap);
     dialog.addEventListener('cancel', event => { event.preventDefault(); event.stopPropagation(); if (fullscreen) toggleFullscreen(); else finish(null); });
     dialog.addEventListener('close', () => finish(null));
     document.body.append(dialog);
     dialog.showModal();
-    if (existing) input.value = existing.name;
+    if (point) input.value = point.name;
     // Focus vào ô tìm thay vì nút đóng, để gõ rồi Enter không vô tình đóng hộp thoại.
     input.focus();
     syncPoint();
@@ -192,7 +194,7 @@ export function pickPlace(existing = null) {
       onMove: (lat, lon) => void movePoint(lat, lon) }).then(view => {
       if (finished) { view.destroy(); return; }
       mapView = view;
-      mapView.map.invalidateSize({ animate: false });
+      mapView.resize();
       syncPoint(Boolean(point));
     }).catch(() => { if (!finished) error.textContent = t('Không tải được bản đồ. Bạn vẫn có thể tìm địa điểm hoặc dùng vị trí của mình.'); });
   });

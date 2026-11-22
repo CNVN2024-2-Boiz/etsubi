@@ -1428,7 +1428,7 @@ async function renderPlace() {
   const place = getPostPlace(post);
   const name = el('p', { className: 'post-place__name' }, place?.name ? wrapJapanese(place.name) : placeholder('u-placeholder-bar--title'));
   const address = el('p', { className: 'post-place__line' }, place?.address ? wrapJapanese(place.address) : placeholder());
-  const map = el('div', { className: 'place-map post-map__leaflet', 'aria-label': t('Bản đồ địa điểm văn hóa') });
+  const map = el('div', { className: 'place-map post-map__canvas', 'aria-label': t('Bản đồ địa điểm văn hóa') });
   qs('[data-side-place]').replaceChildren(
     el('div', { className: 'post-map' }, map,
       el('a', { className: 'post-map__open', href: mapsUrl, target: '_blank', rel: 'noopener noreferrer' }, t('Mở trong Maps ↗'))),
@@ -1438,7 +1438,7 @@ async function renderPlace() {
   void createPlaceMap(map, { latitude: post.latitude, longitude: post.longitude, zoom: 16, interactive: false }).then(view => {
     if (current !== placeVersion) { view.destroy(); return; }
     readingMap = view;
-    view.map.invalidateSize({ animate: false });
+    view.resize();
   }).catch(() => { map.textContent = t('Không tải được bản đồ.'); });
   try {
     const reverse = await reversePlace(post.latitude, post.longitude);

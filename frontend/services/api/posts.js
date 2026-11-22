@@ -5,6 +5,7 @@
 import { request } from '/services/api/client.js';
 import { formatHandle } from '/utils/username.js';
 import { backendSupports } from '/services/api/capabilities.js';
+import { sovereignPlace } from '/services/geo/vn-sovereignty.js';
 import { getNotificationPost, notifyAfter, notifyMentions, notifyPostFollowers } from '/services/api/notify-actions.js';
 
 /**
@@ -242,8 +243,10 @@ export async function getRelatedPosts(post, postTags = []) {
  * @returns {object|null} Thông tin địa điểm hoặc null khi backend chưa hỗ trợ.
  */
 export function getPostPlace(post) {
-  return post?.place_name ? { name: post.place_name, address: post.place?.address || '' }
+  const place = post?.place_name ? { name: post.place_name, address: post.place?.address || '' }
     : backendSupports.postPlace && post?.place ? post.place : null;
+  // Tên đã lưu trong Hoàng Sa, Trường Sa luôn hiển thị theo tên và địa chỉ Việt Nam.
+  return place && sovereignPlace({ ...place, latitude: post.latitude, longitude: post.longitude });
 }
 
 /**

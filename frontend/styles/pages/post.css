@@ -797,8 +797,8 @@
 .post-comment-editor__spoiler { display: inline-flex; flex: 1; align-items: center; gap: var(--space-2); min-width: 0; color: var(--color-text-body); font-size: var(--rich-chip-size); cursor: pointer; }
 .post-comment-editor__footer .btn { padding: var(--space-3) var(--space-4); }
 
-/* Map Leaflet nằm dưới nút mở Maps và có chiều cao đồng bộ khung đã có. */
-.post-map__leaflet { height: 100%; }
+/* Bản đồ nằm dưới nút mở Maps và có chiều cao đồng bộ khung đã có. */
+.post-map__canvas { height: 100%; }
 .post-map__open { z-index: 1000; }
 
 /* Mobile cho footer thở đủ chỗ và các nút gửi/huỷ rộng cả hàng để dễ chạm. */

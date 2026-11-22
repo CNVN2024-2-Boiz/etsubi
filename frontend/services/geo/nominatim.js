@@ -1,6 +1,7 @@
 /** Nominatim công khai: hàng đợi toàn module cách ít nhất một giây, cache để tránh gọi lặp. */
 import { requestExternal, readStorage, writeStorage } from '/services/api/client.js';
 import { t } from '/utils/i18n.js';
+import { sovereignPlace } from '/services/geo/vn-sovereignty.js';
 
 const cache = new Map();
 let tail = Promise.resolve();
@@ -22,14 +23,14 @@ function queued(url, signal) {
   return job;
 }
 
-/** Chuyển phản hồi Nominatim về hợp đồng địa điểm nhỏ mà hai editor dùng chung. */
+/** Chuyển phản hồi Nominatim về hợp đồng địa điểm nhỏ mà hai editor dùng chung; Hoàng Sa, Trường Sa luôn ghi là Việt Nam. */
 function normalize(item) {
-  const latitude = Number(item.lat);
-  const longitude = Number(item.lon);
+  const latitude = Number(item?.lat);
+  const longitude = Number(item?.lon);
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
-  return { name: item.name || item.display_name?.split(',')[0] || t('Vị trí đã chọn'),
+  return sovereignPlace({ name: item.name || item.display_name?.split(',')[0] || t('Vị trí đã chọn'),
     address: String(item.display_name || '').split(',').slice(0, 4).join(',').trim(),
-    latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)) };
+    latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)) });
 }
 
 /** Tìm theo một query đã chốt; caller chịu debounce và không gửi từng phím gõ. */
@@ -51,7 +52,7 @@ export async function reversePlace(latitude, longitude, { signal } = {}) {
   try {
     const parsed = saved && JSON.parse(saved);
     if (parsed && typeof parsed.name === 'string' && typeof parsed.address === 'string'
-      && parsed.latitude === Number(lat) && parsed.longitude === Number(lon)) return parsed;
+      && parsed.latitude === Number(lat) && parsed.longitude === Number(lon)) return sovereignPlace(parsed);
   } catch {
     // Bộ nhớ lỗi thì tra lại dịch vụ, không làm trang đọc bị hỏng.
   }
@@ -59,7 +60,8 @@ export async function reversePlace(latitude, longitude, { signal } = {}) {
   url.search = new URLSearchParams({ format: 'jsonv2', lat, lon, zoom: '18', 'accept-language': 'vi' });
   const found = normalize(await queued(url.href, signal));
   // Reverse trả tâm đối tượng OSM; cache phải giữ toạ độ ghim gốc để lần đọc sau khớp đúng khoá.
-  const result = found ? { ...found, latitude: Number(lat), longitude: Number(lon) } : null;
+  // Xét chủ quyền theo toạ độ ghim, vì tâm đối tượng OSM có thể nằm ngoài vùng quần đảo.
+  const result = found ? sovereignPlace({ ...found, latitude: Number(lat), longitude: Number(lon) }) : null;
   if (result) writeStorage(key, JSON.stringify(result), true);
   return result;
 }
