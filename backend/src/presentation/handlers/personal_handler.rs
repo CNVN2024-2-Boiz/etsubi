@@ -7,7 +7,9 @@ use crate::presentation::dto::{
     auth_dto::AuthUser,
     bookmark_dto::BookmarkStatusResponse,
     comment_dto::CommentResponse,
-    follow_dto::{FollowStatusResponse, FollowUserResponse, FollowerStatusResponse},
+    follow_dto::{
+        FollowStatusResponse, FollowUserResponse, FollowerStatusResponse, SuggestedUserResponse,
+    },
     post_dto::PostResponse,
     user_dto::{
         ChangePasswordRequest, DeleteAccountRequest, GetUserResponse, UpdateProfileRequest,
@@ -352,6 +354,34 @@ pub async fn check_my_following(
         .map_err(ErrorInternalServerError)??;
 
     Ok(HttpResponse::Ok().json(FollowStatusResponse { following }))
+}
+
+#[utoipa::path(
+    get, path = "/api/v1/my/suggested-follows", tag = "personal",
+    responses(
+        (status = 200, description = "Top users to follow (by follower count, excluding self and already-followed)", body = [SuggestedUserResponse]),
+        (status = 401, description = "Not authenticated"),
+    ),
+    security(("bearer_auth" = [])),
+)]
+#[get("/my/suggested-follows")]
+pub async fn list_suggested_follows(
+    state: web::Data<AppState>,
+    user: AuthUser,
+) -> Result<HttpResponse, Error> {
+    let service = state.follow_service.clone();
+    let user_id = user.id;
+
+    let suggestions = web::block(move || service.suggest_follows(user_id, Some(3)))
+        .await
+        .map_err(ErrorInternalServerError)??;
+
+    let resp: Vec<SuggestedUserResponse> = suggestions
+        .into_iter()
+        .map(|(u, c)| SuggestedUserResponse::from_pair(u, c))
+        .collect();
+
+    Ok(HttpResponse::Ok().json(resp))
 }
 
 #[utoipa::path(

@@ -1,5 +1,7 @@
 use anyhow::Result;
 use diesel::prelude::*;
+use diesel::sql_query;
+use diesel::sql_types::{BigInt, Uuid as SqlUuid};
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -23,6 +25,14 @@ impl PostgresFollowRepo {
     pub fn new(pool: DbPool) -> Self {
         Self { pool }
     }
+}
+
+#[derive(QueryableByName)]
+struct SuggestRow {
+    #[diesel(sql_type = SqlUuid)]
+    id: Uuid,
+    #[diesel(sql_type = BigInt)]
+    follower_count: i64,
 }
 
 impl FollowRepository for PostgresFollowRepo {
@@ -117,5 +127,34 @@ impl FollowRepository for PostgresFollowRepo {
             .filter(users_follows::follower_id.eq(user_id))
             .count()
             .get_result(&mut conn)?)
+    }
+
+    fn suggest_users(&self, requester_id: Uuid, limit: i64) -> Result<Vec<(User, i64)>> {
+        let mut conn = self.pool.get()?;
+
+        let rows: Vec<SuggestRow> = sql_query(
+            "SELECT u.id, \
+                    COUNT(f.follower_id)::bigint AS follower_count \
+             FROM users u \
+             LEFT JOIN users_follows f ON f.following_id = u.id \
+             WHERE u.id <> $1 \
+               AND u.status = 'active' \
+               AND u.id NOT IN ( \
+                   SELECT following_id FROM users_follows WHERE follower_id = $1 \
+               ) \
+             GROUP BY u.id \
+             ORDER BY follower_count DESC, u.created_at DESC \
+             LIMIT $2",
+        )
+        .bind::<SqlUuid, _>(requester_id)
+        .bind::<BigInt, _>(limit)
+        .load::<SuggestRow>(&mut conn)?;
+
+        let mut result = Vec::with_capacity(rows.len());
+        for row in rows {
+            let user = users::table.find(row.id).first::<User>(&mut conn)?;
+            result.push((user, row.follower_count));
+        }
+        Ok(result)
     }
 }
