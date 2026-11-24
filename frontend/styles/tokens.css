@@ -754,3 +754,38 @@
   --stat-tooltip-size: 13px;
   --stat-tooltip-mobile-width: 160px;
 }
+
+/* Trang pháp lý: kích thước của hai khung Figma và màu nền dành cho mobile. */
+:root {
+  --gradient-legal-hero: linear-gradient(190.62deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
+  --color-legal-mobile-hero: #FDE8EE;
+  --shadow-legal-toc: 0 4px 16px rgba(194, 69, 79, .08);
+  --legal-art-width: 1920px;
+  --legal-layout-width: 1440px;
+  --legal-main-bottom: 96px;
+  --legal-hero-height: 360px;
+  --legal-hero-gap: 18px;
+  --legal-title-size: 48px;
+  --legal-kicker-size: 14px;
+  --legal-meta-size: 18px;
+  --legal-small-size: 15px;
+  --legal-tab-padding-y: 10px;
+  --legal-toc-width: 340px;
+  --legal-toc-row-gap: 2px;
+  --legal-toc-bottom: 38px;
+  --legal-toc-row-padding: 9px;
+  --legal-toc-size: 13px;
+  --legal-toc-line: 22px;
+  --legal-summary-padding: 28px;
+  --legal-summary-size: 20px;
+  --legal-section-padding-y: 44px;
+  --legal-section-mobile-padding: 18px;
+  --legal-section-gap: 36px;
+  --legal-section-title-size: 22px;
+  --legal-body-line: 28px;
+  --legal-mobile-title-size: 26px;
+  --legal-mobile-title-line: 34px;
+  --legal-mobile-kicker-size: 12px;
+  --legal-mobile-meta-size: 13px;
+  --legal-mobile-body-line: 24px;
+}
