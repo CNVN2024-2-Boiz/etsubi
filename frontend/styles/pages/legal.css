@@ -1,3 +1,8 @@
+/* Liên kết bỏ qua điều hướng đặt phần đầu nội dung ngay bên dưới header. */
+.page--legal main {
+  scroll-margin-top: var(--header-height);
+}
+
 /* Hero pháp lý: giữ tranh trang trí phía sau phần tiêu đề và liên kết hai văn bản. */
 .legal-hero {
   position: relative;
@@ -59,17 +64,19 @@
   font-size: var(--legal-kicker-size);
   font-weight: 600;
   letter-spacing: .1em;
+  line-height: var(--legal-meta-size);
 }
 
 .legal-hero__title {
   color: var(--color-red);
   font-size: var(--legal-title-size);
-  line-height: 1.2;
+  line-height: var(--legal-title-line);
 }
 
 .legal-hero__meta {
   color: var(--color-text-secondary);
   font-size: var(--legal-meta-size);
+  line-height: var(--legal-meta-line);
 }
 
 /* Cặp liên kết giữ trạng thái trang đang xem và cho phép chuyển văn bản. */
@@ -91,6 +98,7 @@
   color: var(--color-red-dark);
   font-size: var(--legal-small-size);
   font-weight: 600;
+  line-height: calc(var(--legal-meta-line) - var(--space-1));
   text-decoration: none;
 }
 
@@ -138,6 +146,7 @@
   padding: var(--space-3) var(--legal-section-mobile-padding);
   background: var(--color-red);
   color: var(--color-white);
+  font-size: var(--legal-kicker-size);
   font-weight: 600;
 }
 
@@ -148,7 +157,7 @@
 .legal-toc__list {
   display: grid;
   gap: var(--legal-toc-row-gap);
-  padding: var(--space-7) var(--space-3) var(--legal-toc-bottom);
+  padding: var(--legal-summary-padding) var(--space-3) var(--legal-toc-bottom);
   margin: 0;
   list-style: none;
 }
@@ -165,9 +174,21 @@
   padding: var(--legal-toc-row-padding) var(--space-3);
   border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
-  font-size: var(--legal-toc-size);
+  font-size: var(--legal-kicker-size);
   line-height: var(--legal-toc-line);
   text-decoration: none;
+}
+
+/* Hai chữ số nhỏ hơn tiêu đề để người đọc quét mục lục dễ hơn. */
+.legal-toc__number {
+  color: var(--color-muted);
+  font-size: var(--legal-toc-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legal-toc__link[aria-current="true"] .legal-toc__number {
+  color: inherit;
 }
 
 .legal-toc__link:hover,
@@ -209,6 +230,7 @@
   color: var(--color-red-dark);
   font-size: var(--legal-small-size);
   font-weight: 500;
+  line-height: var(--space-6);
 }
 
 .legal-summary {
@@ -227,6 +249,7 @@
 
 .legal-summary h2 {
   font-size: var(--legal-summary-size);
+  line-height: calc(var(--space-7) - var(--legal-toc-row-gap));
 }
 
 /* Danh sách trong văn bản dùng dấu đầu dòng và thụt lề nhất quán. */
@@ -236,6 +259,10 @@
   gap: var(--space-1);
   padding-inline-start: var(--space-5);
   list-style: disc;
+}
+
+.legal-summary ul {
+  gap: var(--space-3);
 }
 
 .legal-article {
@@ -318,6 +345,10 @@
 
 /* Điện thoại dùng hero gọn, mục lục đóng mặc định và liên kết rộng toàn hàng. */
 @media (max-width: 600px) {
+  .page--legal {
+    background: var(--color-legal-mobile-page);
+  }
+
   .legal-hero {
     gap: var(--legal-tab-padding-y);
     min-height: 0;
@@ -346,6 +377,7 @@
 
   .legal-hero__meta {
     font-size: var(--legal-mobile-meta-size);
+    line-height: var(--space-5);
   }
 
   .legal-switch {
@@ -363,6 +395,7 @@
     padding: var(--space-2) var(--space-1);
     border: 0;
     font-size: var(--legal-kicker-size);
+    line-height: var(--space-5);
     overflow-wrap: anywhere;
   }
 
@@ -391,9 +424,11 @@
     justify-content: space-between;
     width: 100%;
     border: 0;
-    padding: var(--space-4);
+    padding: var(--legal-kicker-size) var(--space-4);
     background: var(--color-cream);
     color: var(--color-red-dark);
+    font-size: var(--legal-small-size);
+    line-height: var(--legal-toc-line);
     text-align: start;
   }
 
@@ -401,35 +436,54 @@
     rotate: 180deg;
   }
 
+  /* Vòng focus nằm trong nút vì viền cuộn của mục lục cắt phần nằm ngoài. */
+  .legal-toc__toggle:focus-visible {
+    outline-offset: -3px;
+  }
+
   .legal-toc__list {
     padding: 0 var(--space-2) var(--space-2);
   }
 
   /* Thẻ nội dung hẹp hơn nhưng giữ tất cả các mục và liên kết. */
-  .legal-note,
+  .legal-note {
+    padding: var(--legal-kicker-size);
+    font-size: var(--legal-mobile-meta-size);
+    line-height: var(--space-5);
+  }
+
+  /* Bản mobile vào nội dung ngay và giữ nút sang văn bản còn lại ở cuối. */
   .legal-summary,
+  .legal-contact__details {
+    display: none;
+  }
+
   .legal-contact {
-    padding: var(--space-4);
-    font-size: var(--legal-kicker-size);
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
   }
 
   .legal-article {
-    padding: var(--space-6) var(--legal-section-mobile-padding);
+    padding: var(--legal-toc-line) var(--legal-section-mobile-padding);
   }
 
   .legal-section {
     gap: var(--space-2);
+    font-size: var(--legal-small-size);
     line-height: var(--legal-mobile-body-line);
   }
 
   .legal-section + .legal-section {
-    margin-block-start: var(--space-6);
-    padding-block-start: var(--space-6);
+    margin-block-start: var(--legal-toc-line);
+    padding-block-start: var(--legal-toc-line);
   }
 
   .legal-section h2 {
-    font-size: var(--legal-summary-size);
-    line-height: var(--legal-mobile-body-line);
+    font-family: var(--font-body);
+    font-size: var(--legal-meta-size);
+    line-height: var(--legal-mobile-section-title-line);
   }
 
   .legal-contact__next {
@@ -471,6 +525,11 @@
   }
 
   .legal-layout {
+    display: block;
+  }
+
+  .legal-summary,
+  .legal-contact__details {
     display: block;
   }
 

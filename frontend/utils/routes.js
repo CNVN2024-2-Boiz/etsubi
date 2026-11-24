@@ -5,6 +5,9 @@ export const routes = Object.freeze({
   home: '/',
   forum: '/forum/',
   support: '/support/',
+  // Hai văn bản pháp lý dùng URL thư mục.
+  terms: '/terms/',
+  privacy: '/privacy/',
   about: '/about/',
   login: '/login/',
   register: '/register/',

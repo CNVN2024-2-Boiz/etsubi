@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <!-- Phông và tài nguyên dùng chung để trang pháp lý đồng nhất với Etsubi. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Điều khoản sử dụng · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@350;400;500;700&amp;display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/legal.css" />
+    <script type="module" src="/pages/legal.js"></script>
+  </head>
+  <body class="page page--legal">
+    <!-- Điều hướng dùng chung và lối tắt tới nội dung cho người dùng bàn phím. -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header"></header>
+
+    <main id="main" tabindex="-1">
+      <!-- Đầu trang có tên, thông tin phiên bản và hai liên kết chuyển văn bản. -->
+      <section class="legal-hero" aria-labelledby="legal-title">
+        <div class="legal-art" aria-hidden="true">
+          <img class="legal-art__sun" src="/assets/illustrations/legal/sun.svg" alt="" />
+          <img class="legal-art__cloud-inner" src="/assets/illustrations/legal/cloud-right-inner.svg" alt="" />
+          <img class="legal-art__cloud-outer" src="/assets/illustrations/legal/cloud-right-outer.svg" alt="" />
+          <img class="legal-art__cloud-left" src="/assets/illustrations/legal/cloud-left.svg" alt="" />
+          <img class="legal-art__torii-right" src="/assets/illustrations/legal/torii-right.svg" alt="" />
+          <img class="legal-art__torii-left" src="/assets/illustrations/legal/torii-left.svg" alt="" />
+          <img class="legal-art__petal--1" src="/assets/illustrations/legal/petal-1.svg" alt="" />
+          <img class="legal-art__petal--2" src="/assets/illustrations/legal/petal-2.svg" alt="" />
+          <img class="legal-art__petal--3" src="/assets/illustrations/legal/petal-3.svg" alt="" />
+          <img class="legal-art__petal--4" src="/assets/illustrations/legal/petal-4.svg" alt="" />
+          <img class="legal-art__petal--5" src="/assets/illustrations/legal/petal-5.svg" alt="" />
+          <img class="legal-art__petal--6" src="/assets/illustrations/legal/petal-6.svg" alt="" />
+          <img class="legal-art__petal--7" src="/assets/illustrations/legal/petal-1.svg" alt="" />
+          <img class="legal-art__petal--8" src="/assets/illustrations/legal/petal-7.svg" alt="" />
+        </div>
+        <p class="legal-hero__eyebrow"><span data-i18n>VĂN BẢN PHÁP LÝ</span> · <span lang="ja">利用規約</span></p>
+        <h1 id="legal-title" class="t-display legal-hero__title" data-i18n>Điều khoản sử dụng</h1>
+        <p class="legal-hero__meta">
+          <span data-i18n>Có hiệu lực từ [dd/mm/yyyy] · Phiên bản [1.0]</span>
+          <span class="legal-hero__updated"> · <span data-i18n>Cập nhật lần cuối [dd/mm/yyyy]</span></span>
+        </p>
+        <nav class="legal-switch" aria-label="Văn bản pháp lý" data-i18n-attr="aria-label">
+          <a href="/terms/" aria-current="page">
+            <span class="legal-switch__full" data-i18n>Điều khoản sử dụng</span>
+            <span class="legal-switch__short" data-i18n>Điều khoản</span>
+          </a>
+          <a href="/privacy/">
+            <span class="legal-switch__full" data-i18n>Chính sách quyền riêng tư</span>
+            <span class="legal-switch__short" data-i18n>Quyền riêng tư</span>
+          </a>
+        </nav>
+      </section>
+
+      <div class="legal-main">
+        <!-- Cánh hoa tĩnh nằm ngoài cột đọc trên màn hình rộng. -->
+        <div class="legal-art legal-art--main" aria-hidden="true">
+          <img class="legal-art__petal--9" src="/assets/illustrations/legal/petal-8.svg" alt="" />
+          <img class="legal-art__petal--10" src="/assets/illustrations/legal/petal-9.svg" alt="" />
+          <img class="legal-art__petal--11" src="/assets/illustrations/legal/petal-10.svg" alt="" />
+          <img class="legal-art__petal--12" src="/assets/illustrations/legal/petal-11.svg" alt="" />
+          <img class="legal-art__petal--13" src="/assets/illustrations/legal/petal-12.svg" alt="" />
+          <img class="legal-art__petal--14" src="/assets/illustrations/legal/petal-13.svg" alt="" />
+        </div>
+        <div class="legal-layout">
+          <!-- Mục lục đọc từ các tiêu đề bên dưới; điện thoại thu gọn bằng một nút. -->
+          <nav class="legal-toc" aria-label="Mục lục" data-i18n-attr="aria-label">
+            <p class="legal-toc__band">
+              <img src="/assets/illustrations/legal/torii-contents.svg" alt="" />
+              <span data-i18n>Mục lục</span>
+            </p>
+            <button type="button" class="legal-toc__toggle" data-legal-toc-toggle aria-expanded="false" aria-controls="legal-toc-list">
+              <span data-legal-toc-label data-i18n>Mục lục</span>
+              <img src="/assets/icons/chevron-down.svg" width="14" height="14" alt="" />
+            </button>
+            <ol id="legal-toc-list" class="legal-toc__list" data-legal-toc></ol>
+          </nav>
+
+          <div class="legal-content">
+            <!-- Bản tiếng Việt là văn bản chính; phần tóm tắt giúp đọc nhanh trước khi xem đủ các điều. -->
+            <p class="legal-note" data-i18n-html>Bản tiếng Việt là văn bản có giá trị pháp lý. Bản <span lang="ja">日本語</span> và <span lang="en">English</span> chỉ để tham khảo; nếu có khác biệt, bản tiếng Việt được ưu tiên.</p>
+            <section class="legal-summary" aria-labelledby="legal-summary-title">
+              <h2 id="legal-summary-title" data-i18n>Tóm tắt nhanh</h2>
+              <ul>
+                <li data-i18n>Bạn có thể tự đăng ký từ đủ 16 tuổi và cần đồng ý với Điều khoản sử dụng khi tạo tài khoản.</li>
+                <li data-i18n>Hãy tuân thủ quy định về nội dung, kể cả khi đăng ảnh hoặc chia sẻ liên kết.</li>
+                <li data-i18n>Etsubi có thể kiểm duyệt nội dung vi phạm. Bạn có thể gửi khiếu nại qua kênh Hỗ trợ.</li>
+                <li><a href="/privacy/" data-i18n>Tìm hiểu cách Etsubi xử lý thông tin cá nhân trong Chính sách quyền riêng tư.</a></li>
+              </ul>
+            </section>
+
+            <!-- Văn bản HTML tĩnh để có thể đọc, in và sao chép trực tiếp. -->
+            <article class="legal-article" aria-labelledby="legal-title">
+              <!-- Giới thiệu và phạm vi áp dụng: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="gioi-thieu" aria-labelledby="gioi-thieu-title" data-legal-section tabindex="-1">
+                <h2 id="gioi-thieu-title"><span data-legal-number>1. </span><span data-legal-heading data-i18n>Giới thiệu và phạm vi áp dụng</span></h2>
+                <p data-i18n>Etsubi (越日) là diễn đàn giao lưu Việt – Nhật dành cho sinh viên, do [tên nhóm vận hành] thực hiện trong khuôn khổ đồ án môn IE104 tại Trường Đại học Công nghệ Thông tin, ĐHQG-HCM (UIT). Điều khoản này áp dụng cho mọi người truy cập hoặc sử dụng Etsubi.</p>
+              </section>
+
+              <!-- Chấp nhận điều khoản và độ tuổi: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="chap-nhan" aria-labelledby="chap-nhan-title" data-legal-section tabindex="-1">
+                <h2 id="chap-nhan-title"><span data-legal-number>2. </span><span data-legal-heading data-i18n>Chấp nhận điều khoản và độ tuổi</span></h2>
+                <p data-i18n>Khi đăng ký, bạn tự đánh dấu ô đồng ý với Điều khoản sử dụng. Ô này để trống theo mặc định. Bạn phải từ đủ 16 tuổi để tự đăng ký.</p>
+                <p data-i18n>Nếu người dùng dưới 16 tuổi, cha, mẹ hoặc người giám hộ hợp pháp phải đăng ký bằng thông tin của mình và giám sát nội dung trẻ truy cập, đăng và chia sẻ. Cách thực hiện trên Etsubi: [quy trình đăng ký qua cha, mẹ hoặc người giám hộ chờ xác nhận].</p>
+              </section>
+
+              <!-- Tài khoản và bảo mật: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="tai-khoan" aria-labelledby="tai-khoan-title" data-legal-section tabindex="-1">
+                <h2 id="tai-khoan-title"><span data-legal-number>3. </span><span data-legal-heading data-i18n>Tài khoản và bảo mật</span></h2>
+                <p data-i18n>Hãy cung cấp thông tin chính xác và cập nhật khi có thay đổi. Tên người dùng (@handle) là duy nhất. Hãy giữ kín mật khẩu và báo ngay cho Etsubi qua kênh Hỗ trợ nếu nghi ngờ tài khoản hoặc mật khẩu bị lộ.</p>
+                <p><a href="/support/#contact-title" data-i18n>Trung tâm trợ giúp</a></p>
+              </section>
+
+              <!-- Nội dung bị cấm: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="noi-dung-bi-cam" aria-labelledby="noi-dung-bi-cam-title" data-legal-section tabindex="-1">
+                <h2 id="noi-dung-bi-cam-title"><span data-legal-number>4. </span><span data-legal-heading data-i18n>Nội dung bị cấm</span></h2>
+                <p data-i18n>Bạn không được đăng, trao đổi hoặc chia sẻ nội dung bị cấm theo Điều 7 Luật An ninh mạng số 116/2025/QH15, có hiệu lực từ ngày 01/07/2026. Các nhóm dưới đây là ví dụ.</p>
+                <ul>
+                  <li data-i18n>Tuyên truyền chống Nhà nước Việt Nam, kích động chiến tranh hoặc bạo lực, gieo thù hận, xuyên tạc lịch sử hoặc cổ súy phân biệt đối xử.</li>
+                  <li data-i18n>Vu khống, bịa đặt hoặc đưa thông tin sai sự thật gây hoang mang, gây thiệt hại hoặc xâm phạm danh dự, nhân phẩm, uy tín hay quyền và lợi ích hợp pháp của người khác.</li>
+                  <li data-i18n>Tiết lộ trái phép bí mật hoặc dữ liệu cá nhân, dùng AI để giả mạo trái pháp luật hình ảnh, video hoặc giọng nói của người khác.</li>
+                  <li data-i18n>Nội dung khiêu dâm, mua bán người, lừa đảo, đánh bạc trực tuyến, quảng bá hoặc mua bán hàng hóa và dịch vụ bị cấm, xâm phạm quyền sở hữu trí tuệ hoặc xúi giục vi phạm pháp luật.</li>
+                  <li data-i18n>Phát tán mã độc, tấn công mạng hoặc truy cập trái phép vào hệ thống và dữ liệu.</li>
+                </ul>
+                <p data-i18n>Etsubi cũng cấm spam, quảng cáo và giả mạo người khác.</p>
+                <p><a href="/support/#rules-title" data-i18n>Quy tắc cộng đồng Etsubi</a></p>
+              </section>
+
+              <!-- Quyền và trách nhiệm của người dùng: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="trach-nhiem-nguoi-dung" aria-labelledby="trach-nhiem-nguoi-dung-title" data-legal-section tabindex="-1">
+                <h2 id="trach-nhiem-nguoi-dung-title"><span data-legal-number>5. </span><span data-legal-heading data-i18n>Quyền và trách nhiệm của người dùng</span></h2>
+                <p data-i18n>Bạn có quyền sử dụng Etsubi và được bảo vệ thông tin theo pháp luật. Bạn chịu trách nhiệm về nội dung và liên kết mình lưu trữ, đăng hoặc chia sẻ, đồng thời phải tuân thủ Điều khoản sử dụng.</p>
+                <p data-i18n>Không dùng tên tài khoản trùng với tên cơ quan báo chí hoặc dễ gây nhầm là cơ quan báo chí. Không lợi dụng Etsubi để hoạt động báo chí khi không có giấy phép hoặc đăng nội dung dưới hình thức phóng sự, điều tra, phỏng vấn báo chí.</p>
+              </section>
+
+              <!-- Quyền và trách nhiệm của Etsubi: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="trach-nhiem-etsubi" aria-labelledby="trach-nhiem-etsubi-title" data-legal-section tabindex="-1">
+                <h2 id="trach-nhiem-etsubi-title"><span data-legal-number>6. </span><span data-legal-heading data-i18n>Quyền và trách nhiệm của Etsubi</span></h2>
+                <p data-i18n>Etsubi vận hành và kiểm duyệt diễn đàn theo Điều khoản này và pháp luật áp dụng. Etsubi gỡ thông tin vi phạm quy định cấm của Luật An ninh mạng chậm nhất 24 giờ kể từ khi phát hiện vi phạm.</p>
+                <p data-i18n>Etsubi cung cấp thông tin người dùng cho cơ quan có thẩm quyền khi nhận yêu cầu bằng văn bản để phục vụ điều tra, xử lý vi phạm theo pháp luật.</p>
+              </section>
+
+              <!-- Cách Etsubi sắp xếp và hiển thị nội dung: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="phan-phoi-noi-dung" aria-labelledby="phan-phoi-noi-dung-title" data-legal-section tabindex="-1">
+                <h2 id="phan-phoi-noi-dung-title"><span data-legal-number>7. </span><span data-legal-heading data-i18n>Cách Etsubi sắp xếp và hiển thị nội dung</span></h2>
+                <p data-i18n>Mới nhất hiển thị bài mới trước. Đang theo dõi hiển thị bài của những người bạn theo dõi khi đăng nhập. Hỏi đáp hiển thị bài thuộc chủ đề hỏi đáp.</p>
+                <p data-i18n>Phổ biến xếp bài theo số lượt thích, ưu tiên bài mới hơn khi bằng nhau. Bài viết nổi bật trên Trang chủ lấy tối đa 12 bài đầu bảng. Tab Phổ biến trên Diễn đàn hiển thị tối đa 15 bài của cùng bảng xếp hạng, còn tab Phổ biến trên Trang chủ hiển thị tối đa 3 bài cuối trong danh sách đó. Etsubi không dùng thuật toán quảng cáo để xếp bài.</p>
+              </section>
+
+              <!-- Xử lý vi phạm: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="xu-ly-vi-pham" aria-labelledby="xu-ly-vi-pham-title" data-legal-section tabindex="-1">
+                <h2 id="xu-ly-vi-pham-title"><span data-legal-number>8. </span><span data-legal-heading data-i18n>Xử lý vi phạm</span></h2>
+                <p data-i18n>Tùy mức độ và số lần vi phạm, Điều hành viên hoặc Quản trị viên có thể ẩn hoặc xóa bài viết, bình luận, khóa bình luận, giới hạn quyền tương tác có thời hạn hoặc cấm tài khoản. Với biện pháp áp dụng lên tài khoản, người xử lý phải có vai trò cao hơn chủ tài khoản. Tác giả cũng có thể tự khóa bình luận trên bài của mình.</p>
+                <p data-i18n>Bạn có thể đề nghị xem xét lại quyết định qua kênh khiếu nại ở mục 12.</p>
+                <p><a href="#khieu-nai" data-i18n>Khiếu nại và giải quyết tranh chấp</a></p>
+              </section>
+
+              <!-- Cảnh báo rủi ro khi chia sẻ thông tin: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="canh-bao-rui-ro" aria-labelledby="canh-bao-rui-ro-title" data-legal-section tabindex="-1">
+                <h2 id="canh-bao-rui-ro-title"><span data-legal-number>9. </span><span data-legal-heading data-i18n>Cảnh báo rủi ro khi chia sẻ thông tin</span></h2>
+                <p data-i18n>Ai cũng có thể đọc, sao chép hoặc chia sẻ lại nội dung công khai, kể cả sau khi bạn đã gỡ nội dung trên Etsubi. Hãy cân nhắc trước khi đăng địa chỉ, vị trí, hình ảnh hoặc thông tin của người khác. Hình ảnh và liên kết từ trang bên ngoài nằm ngoài quyền kiểm soát của Etsubi.</p>
+              </section>
+
+              <!-- Quyền sở hữu nội dung: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="so-huu-noi-dung" aria-labelledby="so-huu-noi-dung-title" data-legal-section tabindex="-1">
+                <h2 id="so-huu-noi-dung-title"><span data-legal-number>10. </span><span data-legal-heading data-i18n>Quyền sở hữu nội dung</span></h2>
+                <p data-i18n>Bạn giữ quyền đối với nội dung của mình. Khi đăng, bạn cho Etsubi quyền không độc quyền để lưu trữ, hiển thị và dịch nội dung trong phạm vi cần thiết để vận hành diễn đàn. Chỉ đăng nội dung mà bạn có quyền sử dụng và chia sẻ.</p>
+              </section>
+
+              <!-- Dịch tự động bằng AI: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="dich-tu-dong" aria-labelledby="dich-tu-dong-title" data-legal-section tabindex="-1">
+                <h2 id="dich-tu-dong-title"><span data-legal-number>11. </span><span data-legal-heading data-i18n>Dịch tự động bằng AI</span></h2>
+                <p data-i18n>Bản dịch do AI tạo ra có thể sai hoặc bỏ sót ngữ cảnh và chỉ dùng để tham khảo. Khi có khác biệt, hãy dùng nội dung gốc. Khi có người bấm Dịch, nội dung bài viết hoặc bình luận có thể được gửi đến DeepSeek để dịch.</p>
+                <p><a href="/privacy/#ben-thu-ba" data-i18n>Xem các dịch vụ bên thứ ba</a></p>
+              </section>
+
+              <!-- Khiếu nại và giải quyết tranh chấp: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="khieu-nai" aria-labelledby="khieu-nai-title" data-legal-section tabindex="-1">
+                <h2 id="khieu-nai-title"><span data-legal-number>12. </span><span data-legal-heading data-i18n>Khiếu nại và giải quyết tranh chấp</span></h2>
+                <p data-i18n>Bạn có thể gửi email hoặc soạn yêu cầu từ trang Hỗ trợ. Hãy nêu rõ vấn đề, gửi liên kết đến bài hoặc bình luận, mô tả quyền hoặc lợi ích bị ảnh hưởng nếu có và kèm bằng chứng liên quan. Tránh gửi mật khẩu hoặc dữ liệu không cần thiết.</p>
+                <p data-i18n>Etsubi ngăn chặn và gỡ nội dung vi phạm quy định cấm của Luật An ninh mạng chậm nhất 48 giờ kể từ khi nhận khiếu nại về nội dung đó từ người dùng tại Việt Nam. Khiếu nại về quyền và lợi ích hợp pháp được xử lý theo quy định pháp luật có liên quan, kể cả pháp luật về sở hữu trí tuệ và bảo vệ quyền lợi người tiêu dùng.</p>
+                <p data-i18n>Các bên ưu tiên thương lượng. Nếu không đạt thỏa thuận, tranh chấp được giải quyết theo pháp luật Việt Nam.</p>
+                <p><a href="/support/#contact-title" data-i18n>Trung tâm trợ giúp</a></p>
+              </section>
+
+              <!-- Thu thập và xử lý dữ liệu cá nhân: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="du-lieu-ca-nhan" aria-labelledby="du-lieu-ca-nhan-title" data-legal-section tabindex="-1">
+                <h2 id="du-lieu-ca-nhan-title"><span data-legal-number>13. </span><span data-legal-heading data-i18n>Thu thập và xử lý dữ liệu cá nhân</span></h2>
+                <p data-i18n>Etsubi có thu thập và xử lý dữ liệu cá nhân để vận hành diễn đàn. Chính sách quyền riêng tư giải thích dữ liệu được thu thập, cách xử lý và bảo vệ, bên nhận dữ liệu và cách thực hiện quyền của bạn.</p>
+                <p data-i18n>Bạn tự quyết định có điền thông tin hồ sơ tùy chọn hay gắn vị trí vào nội dung hay không. Bạn có quyền quyết định có cho phép sử dụng thông tin của mình để quảng bá, truyền thông hoặc cung cấp cho bên khác, trừ trường hợp pháp luật có quy định khác.</p>
+                <p><a href="/privacy/" data-i18n>Chính sách quyền riêng tư</a></p>
+              </section>
+
+              <!-- Thay đổi điều khoản và chấm dứt: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="thay-doi" aria-labelledby="thay-doi-title" data-legal-section tabindex="-1">
+                <h2 id="thay-doi-title"><span data-legal-number>14. </span><span data-legal-heading data-i18n>Thay đổi điều khoản và chấm dứt</span></h2>
+                <p data-i18n>Etsubi sẽ báo trước khi Điều khoản mới có hiệu lực bằng thông báo trên trang này và qua thông báo của Etsubi. Bạn có thể ngừng sử dụng bất cứ lúc nào và xóa tài khoản trong Cài đặt, tại mục Xóa tài khoản.</p>
+              </section>
+
+              <!-- Luật áp dụng và liên hệ: mã cố định cho mục lục và liên kết trực tiếp. -->
+              <section class="legal-section" id="lien-he" aria-labelledby="lien-he-title" data-legal-section tabindex="-1">
+                <h2 id="lien-he-title"><span data-legal-number>15. </span><span data-legal-heading data-i18n>Luật áp dụng và liên hệ</span></h2>
+                <p data-i18n>Điều khoản này áp dụng theo pháp luật Việt Nam. Liên hệ Etsubi qua email [email tiếp nhận khiếu nại pháp lý] hoặc tại [địa chỉ liên hệ của nhóm vận hành].</p>
+              </section>
+            </article>
+
+            <!-- Kênh hỗ trợ và văn bản còn lại nằm ở cuối trang. -->
+            <section class="legal-contact" aria-labelledby="legal-contact-title">
+              <div class="legal-contact__details">
+                <h2 id="legal-contact-title" data-i18n>Có câu hỏi về điều khoản?</h2>
+                <p data-i18n>Gửi câu hỏi qua kênh Hỗ trợ hoặc xem cách chúng mình xử lý dữ liệu cá nhân.</p>
+                <p><a href="/support/#contact-title" data-i18n>Trung tâm trợ giúp</a></p>
+              </div>
+              <a class="btn btn--primary legal-contact__next" href="/privacy/">
+                <span data-i18n>Đọc Chính sách quyền riêng tư</span><span aria-hidden="true"> →</span>
+              </a>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Chân trang dùng lại cột Tài nguyên và các kênh liên hệ chung. -->
+    <footer class="site-footer" data-component="footer" data-variant="full"></footer>
+  </body>
+</html>

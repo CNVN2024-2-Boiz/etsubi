@@ -759,6 +759,7 @@
 :root {
   --gradient-legal-hero: linear-gradient(190.62deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --color-legal-mobile-hero: #FDE8EE;
+  --color-legal-mobile-page: #FBF8F3;
   --shadow-legal-toc: 0 4px 16px rgba(194, 69, 79, .08);
   --legal-art-width: 1920px;
   --legal-layout-width: 1440px;
@@ -766,8 +767,10 @@
   --legal-hero-height: 360px;
   --legal-hero-gap: 18px;
   --legal-title-size: 48px;
+  --legal-title-line: 69px;
   --legal-kicker-size: 14px;
   --legal-meta-size: 18px;
+  --legal-meta-line: 23px;
   --legal-small-size: 15px;
   --legal-tab-padding-y: 10px;
   --legal-toc-width: 340px;
@@ -788,4 +791,5 @@
   --legal-mobile-kicker-size: 12px;
   --legal-mobile-meta-size: 13px;
   --legal-mobile-body-line: 24px;
+  --legal-mobile-section-title-line: 26px;
 }

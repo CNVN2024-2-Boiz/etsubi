@@ -606,6 +606,8 @@
 
 /* Dải đỏ đầu thẻ: torii nhỏ và tiêu đề 14px đậm vừa màu kem. */
 .support-side-card__band {
+  /* Liên kết từ trang Điều khoản cuộn tới tiêu đề bên dưới header cố định. */
+  scroll-margin-top: calc(var(--header-height) + var(--space-4));
   display: flex;
   align-items: center;
   gap: 10px;

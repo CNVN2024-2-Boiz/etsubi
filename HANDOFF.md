@@ -2,7 +2,15 @@
 
 > **Read [`AGENTS.md`](AGENTS.md) first and follow it.** It holds the binding rules: pure HTML/CSS/JS, tokens, header/footer reuse, minimal animation, Vietnamese comments on every block, no em dash, back-end contract.
 
-Last update: 2026-11-22 · branch `feat/fe-batch14`.
+Last update: 2026-11-24 · branch `feat/fe-terms`.
+
+## Đợt 15 · Điều khoản sử dụng và khung pháp lý
+
+- `/terms/` có 15 mục, giao diện và nội dung VI/JA/EN, mục lục bám dưới header trên desktop, nút mở mục lục trên mobile và bố cục in. Hai liên kết ở cột Tài nguyên của footer dùng `routes.terms` và `routes.privacy`.
+- Phú có thể tách từ commit khung chung `5c37e5b` và xem cấu trúc trong `frontend/terms/index.html` để dùng lại CSS, module mục lục và từ điển pháp lý. `/privacy/`, bảng dữ liệu, nội dung quyền riêng tư và hai ô đồng ý khi đăng ký thuộc phần của Phú. Các liên kết Quyền riêng tư mở được sau khi phần đó có trên nhánh tích hợp.
+- Đối chiếu frame Điều khoản desktop `274:5589` và mobile `274:6315` trong bản Figma `wZygwGTGuvsyB0h99RRm6e`. Giữ header/footer chung, ghi chú ngôn ngữ đầy đủ và nội dung thật nên chiều dài trang khác khung mẫu. Mobile vào thẳng nội dung sau ghi chú và giữ nút chuyển văn bản ở cuối, theo frame mobile.
+- Đã kiểm tra trên Edge ở 1920×1080, 1280×800 và 375×812, gồm menu mục lục, liên kết trực tiếp, mục cuối trang, thao tác bàn phím, ba ngôn ngữ, bản in và các đích liên kết Hỗ trợ. Trạng thái đăng nhập của header dùng phản hồi API mô phỏng. Chín bộ kiểm thử frontend đạt. Nội dung pháp lý là HTML tĩnh.
+- Các chỗ trong ngoặc vuông giữ nguyên để nhóm chốt, gồm ngày hiệu lực, phiên bản, ngày cập nhật, tên nhóm, đầu mối pháp lý, địa chỉ và quy trình giám hộ. Nhóm cần xác nhận quy trình tiếp nhận khiếu nại và khả năng đáp ứng thời hạn trước khi công bố. Việc cần backend đã được ghi trong mục 7 của tài liệu bàn giao pháp lý.
 
 ## Đợt 14 · Góp ý sau triển khai
 
