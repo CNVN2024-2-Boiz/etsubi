@@ -128,7 +128,7 @@ export default {
   'Vui lòng chọn ngôn ngữ mẹ đẻ.': { ja: '母語を選択してください。', en: 'Please choose your native language.' },
 
   // Điều khoản, nút thao tác và thông báo lưu hồ sơ.
-  'Tôi đồng ý với <a href="/terms/" target="_blank" rel="noopener">Điều khoản sử dụng</a> và <a href="/support/?topic=rules#faq" target="_blank" rel="noopener">Quy tắc cộng đồng Etsubi</a>': { ja: '<a href="/terms/" target="_blank" rel="noopener">利用規約</a>と<a href="/support/?topic=rules#faq" target="_blank" rel="noopener">Etsubiコミュニティルール</a>に同意します', en: 'I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms of use</a> and the <a href="/support/?topic=rules#faq" target="_blank" rel="noopener">Etsubi community guidelines</a>' },
+  'Tôi đồng ý với <a href="/terms/" target="_blank" rel="noopener">Điều khoản sử dụng</a> và <a href="/support/#rules-title" target="_blank" rel="noopener">Quy tắc cộng đồng Etsubi</a>': { ja: '<a href="/terms/" target="_blank" rel="noopener">利用規約</a>と<a href="/support/#rules-title" target="_blank" rel="noopener">Etsubiコミュニティルール</a>に同意します', en: 'I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms of use</a> and the <a href="/support/#rules-title" target="_blank" rel="noopener">Etsubi community guidelines</a>' },
   'Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.': { ja: '利用規約とコミュニティルールに同意してください。', en: 'Please agree to the terms and community guidelines.' },
   '‹ Quay lại': { ja: '‹ 戻る', en: '‹ Back' },
   'Lưu nháp': { ja: '下書きを保存', en: 'Save draft' },

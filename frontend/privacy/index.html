@@ -42,8 +42,8 @@
         <p class="legal-hero__eyebrow"><span data-i18n>VĂN BẢN PHÁP LÝ</span> · <span lang="ja">プライバシーポリシー</span></p>
         <h1 id="legal-title" class="t-display legal-hero__title" data-i18n>Chính sách quyền riêng tư</h1>
         <p class="legal-hero__meta">
-          <span data-i18n>Có hiệu lực từ [dd/mm/yyyy] · Phiên bản [1.0]</span>
-          <span class="legal-hero__updated"> · <span data-i18n>Cập nhật lần cuối [dd/mm/yyyy]</span></span>
+          <span data-i18n>Có hiệu lực từ 25/11/2026 · Phiên bản 1.0</span>
+          <span class="legal-hero__updated"> · <span data-i18n>Cập nhật lần cuối 25/11/2026</span></span>
         </p>
         <nav class="legal-switch" aria-label="Văn bản pháp lý" data-i18n-attr="aria-label">
           <a href="/terms/">
@@ -90,7 +90,7 @@
                 <li data-i18n>Etsubi chỉ thu thập dữ liệu cần để bạn dùng diễn đàn: tài khoản, hồ sơ bạn tự điền, nội dung bạn đăng và dữ liệu kỹ thuật tối thiểu.</li>
                 <li data-i18n>Vị trí là dữ liệu nhạy cảm; chỉ được lưu khi bạn tự gắn địa điểm và gỡ được bất cứ lúc nào.</li>
                 <li data-i18n>Nội dung chỉ được gửi ra nước ngoài khi cần dịch bằng AI hoặc tải bản đồ, phông chữ. Etsubi không bán dữ liệu và không chạy quảng cáo.</li>
-                <li data-i18n-html>Bạn có quyền xem, sửa, xoá dữ liệu và xoá hẳn tài khoản trong <strong>Cài đặt</strong>, hoặc gửi yêu cầu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>.</li>
+                <li data-i18n-html>Bạn có quyền xem, sửa, xoá dữ liệu và xoá hẳn tài khoản trong <strong>Cài đặt</strong>, hoặc gửi yêu cầu tới <a href="mailto:contact@etsubi.net">contact@etsubi.net</a>.</li>
               </ul>
             </section>
 
@@ -100,7 +100,7 @@
               <section class="legal-section" id="ben-kiem-soat" aria-labelledby="ben-kiem-soat-title" data-legal-section tabindex="-1">
                 <h2 id="ben-kiem-soat-title"><span data-legal-number>1. </span><span data-legal-heading data-i18n>Ai chịu trách nhiệm về dữ liệu của bạn</span></h2>
                 <p data-i18n>Etsubi là diễn đàn giao lưu văn hoá Việt – Nhật do nhóm sinh viên thực hiện đồ án môn IE104 tại Trường Đại học Công nghệ Thông tin – ĐHQG TP.HCM (UIT) xây dựng và vận hành. Nhóm vừa là bên kiểm soát vừa là bên xử lý dữ liệu cá nhân của bạn trên Etsubi.</p>
-                <p data-i18n-html>Đầu mối liên hệ về dữ liệu cá nhân: nhóm Etsubi, email <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>, TP. Hồ Chí Minh, Việt Nam.</p>
+                <p data-i18n-html>Đầu mối liên hệ về dữ liệu cá nhân: nhóm Etsubi, email <a href="mailto:contact@etsubi.net">contact@etsubi.net</a>, TP. Hồ Chí Minh, Việt Nam.</p>
                 <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Điều 2 và Điều 9.</p>
               </section>
 
@@ -224,10 +224,16 @@
                       <td data-cell="chip" data-i18n>Trung Quốc</td>
                     </tr>
                     <tr>
-                      <td data-cell="title" data-i18n>OpenStreetMap (Nominatim, máy chủ bản đồ)</td>
+                      <td data-cell="title">OpenStreetMap (Nominatim)</td>
                       <td data-cell="body" data-i18n>Toạ độ, địa chỉ IP</td>
-                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Tìm tên địa điểm, tải bản đồ</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Tìm tên địa điểm</td>
                       <td data-cell="chip" data-i18n>Vương quốc Anh, EU</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title">OpenFreeMap (tiles.openfreemap.org)</td>
+                      <td data-cell="body" data-i18n>Địa chỉ IP, khu vực bản đồ đang xem</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Tải bản đồ nền, phông chữ và biểu tượng trên bản đồ</td>
+                      <td data-cell="chip" data-i18n>EU</td>
                     </tr>
                     <tr>
                       <td data-cell="title">Google Fonts</td>
@@ -259,7 +265,7 @@
                 <p data-i18n>Dịch tự động, bản đồ và phông chữ được xử lý ở máy chủ ngoài Việt Nam. Dữ liệu được chuyển tới các quốc gia và khu vực sau:</p>
                 <ul>
                   <li data-i18n>Trung Quốc: nội dung cần dịch gửi tới DeepSeek, chỉ khi có người bấm Dịch.</li>
-                  <li data-i18n>Vương quốc Anh và EU: toạ độ và địa chỉ IP gửi tới OpenStreetMap khi tìm địa điểm hoặc xem bản đồ.</li>
+                  <li data-i18n>Vương quốc Anh và EU: toạ độ và địa chỉ IP gửi tới OpenStreetMap khi tìm địa điểm; địa chỉ IP và khu vực bản đồ đang xem gửi tới OpenFreeMap khi xem bản đồ.</li>
                   <li data-i18n>Hoa Kỳ và các nước có máy chủ Cloudflare, Google: địa chỉ IP và thông tin trình duyệt khi tải trang.</li>
                 </ul>
                 <p data-i18n>Biện pháp bảo vệ: chỉ gửi phần dữ liệu tối thiểu cần cho từng việc (khi dịch chỉ gửi nội dung, không gửi email hay tên tài khoản), luôn qua kết nối mã hoá HTTPS.</p>
@@ -306,7 +312,7 @@
               <section class="legal-section" id="tre-em" aria-labelledby="tre-em-title" data-legal-section tabindex="-1">
                 <h2 id="tre-em-title"><span data-legal-number>11. </span><span data-legal-heading data-i18n>Dữ liệu của trẻ em</span></h2>
                 <p data-i18n>Etsubi dành cho người từ đủ 16 tuổi. Người dưới 16 tuổi chỉ được dùng Etsubi khi cha, mẹ hoặc người giám hộ đăng ký bằng thông tin của họ và giám sát việc sử dụng. Cha, mẹ hoặc người giám hộ thực hiện các quyền về dữ liệu thay cho trẻ.</p>
-                <p data-i18n-html>Nếu bạn biết một tài khoản thuộc về trẻ em mà không có người giám hộ, hãy báo cho chúng tôi qua <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>.</p>
+                <p data-i18n-html>Nếu bạn biết một tài khoản thuộc về trẻ em mà không có người giám hộ, hãy báo cho chúng tôi qua <a href="mailto:contact@etsubi.net">contact@etsubi.net</a>.</p>
                 <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 24; Nghị định 147/2024/NĐ-CP, Điều 27 khoản 3 điểm a.</p>
               </section>
 
@@ -344,7 +350,7 @@
               <!-- Liên hệ. -->
               <section class="legal-section" id="lien-he" aria-labelledby="lien-he-title" data-legal-section tabindex="-1">
                 <h2 id="lien-he-title"><span data-legal-number>15. </span><span data-legal-heading data-i18n>Liên hệ</span></h2>
-                <p data-i18n-html>Gửi yêu cầu thực hiện quyền hoặc câu hỏi về dữ liệu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>. Hãy gửi từ email đã đăng ký và ghi rõ tên người dùng (@handle) để chúng tôi xác minh và xử lý nhanh.</p>
+                <p data-i18n-html>Gửi yêu cầu thực hiện quyền hoặc câu hỏi về dữ liệu tới <a href="mailto:contact@etsubi.net">contact@etsubi.net</a>. Hãy gửi từ email đã đăng ký và ghi rõ tên người dùng (@handle) để chúng tôi xác minh và xử lý nhanh.</p>
               </section>
             </article>
 
@@ -352,7 +358,7 @@
             <section class="legal-contact" aria-labelledby="legal-contact-title">
               <div class="legal-contact__details">
                 <h2 id="legal-contact-title" data-i18n>Muốn xem, sửa hoặc xoá dữ liệu của bạn?</h2>
-                <p data-i18n-html>Gửi yêu cầu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a> kèm tên người dùng. Chúng mình phản hồi trong 02 ngày làm việc.</p>
+                <p data-i18n-html>Gửi yêu cầu tới <a href="mailto:contact@etsubi.net">contact@etsubi.net</a> kèm tên người dùng. Chúng mình phản hồi trong 02 ngày làm việc.</p>
               </div>
               <a class="btn btn--primary legal-contact__next" href="/terms/">
                 <span aria-hidden="true">← </span><span data-i18n>Đọc Điều khoản sử dụng</span>

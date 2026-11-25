@@ -28,7 +28,7 @@ export const faqs = [
   { topic: 'translate', popular: 6, q: t('Làm sao để đổi ngôn ngữ giao diện sang tiếng Nhật?'), a: t('Bấm nút ngôn ngữ trên thanh điều hướng rồi chọn 日本語, hoặc vào Cài đặt › Giao diện. Lựa chọn được lưu trên trình duyệt của bạn và không làm thay đổi ngôn ngữ mẹ đẻ trong hồ sơ.') },
   { topic: 'account', popular: null, q: t('Làm sao để tạo tài khoản Etsubi?'), a: t('Bấm "Đăng nhập" ở góc phải thanh điều hướng rồi chọn "Đăng ký". Nhập họ tên, email và mật khẩu từ 8 ký tự, sau đó hoàn tất hồ sơ: ảnh đại diện, trường học và ngôn ngữ mẹ đẻ.') },
   { topic: 'account', popular: null, q: t('Mình có thể đăng nhập bằng tên người dùng không?'), a: t('Hiện tại Etsubi chỉ hỗ trợ đăng nhập bằng email và mật khẩu đã đăng ký.') },
-  { topic: 'account', popular: null, q: t('Quên mật khẩu thì làm sao?'), a: t('Chức năng khôi phục mật khẩu đang được phát triển. Trong lúc chờ, hãy gửi email tới contact@etsubi.vn từ địa chỉ email bạn đã dùng để đăng ký.') },
+  { topic: 'account', popular: null, q: t('Quên mật khẩu thì làm sao?'), a: t('Chức năng khôi phục mật khẩu đang được phát triển. Trong lúc chờ, hãy gửi email tới contact@etsubi.net từ địa chỉ email bạn đã dùng để đăng ký.') },
   { topic: 'posting', popular: null, q: t('Làm sao để đăng bài mới?'), a: t('Vào Diễn đàn và bấm vào ô "bạn đang nghĩ gì?". Nhập nội dung và tiêu đề, chọn chủ đề phù hợp rồi bấm "Đăng". Bài mới xuất hiện ở đầu tab "Mới nhất".') },
   { topic: 'posting', popular: null, q: t('Làm sao để xoá bình luận của mình?'), a: t('Ở bình luận của bạn, mở menu ⋮, chọn "Xoá bình luận…", rồi mở lại menu và bấm "Xác nhận xoá". Bình luận đã xoá không hiện với người khác nữa.') },
   { topic: 'translate', popular: null, q: t('Vì sao nút Dịch báo dịch vụ chưa sẵn sàng?'), a: t('Máy chủ dịch đang tạm ngưng hoặc chưa được cấu hình. Bạn hãy thử lại sau ít phút; bản gốc của bài vẫn đọc được bình thường.') },
@@ -36,7 +36,7 @@ export const faqs = [
   { topic: 'follow', popular: null, q: t('Bài viết đã lưu nằm ở đâu?'), a: t('Bấm biểu tượng dấu trang ở bài viết để lưu. Danh sách bài đã lưu sẽ nằm trong trang Hồ sơ của bạn.') },
   { topic: 'search', popular: null, q: t('Có phím tắt nào để tìm nhanh không?'), a: t('Nhấn phím "/" ở bất kỳ trang nào để đưa con trỏ vào ô tìm kiếm. Kết quả chỉ hiện khi bạn nhấn Enter hoặc bấm "Tìm kiếm".') },
   { topic: 'places', popular: null, q: t('Thẻ "Địa điểm văn hoá" ở bài viết là gì?'), a: t('Khi bài viết có gắn toạ độ, trang đọc bài hiện thẻ bản đồ ở cột bên phải. Bấm "Mở trong Maps" để xem vị trí và chỉ đường trên Google Maps.') },
-  { topic: 'rules', popular: null, q: t('Gặp nội dung vi phạm thì làm sao?'), a: t('Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.vn. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.') },
+  { topic: 'rules', popular: null, q: t('Gặp nội dung vi phạm thì làm sao?'), a: t('Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.net. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.') },
 ];
 
 /* Bốn quy tắc ngắn trong thẻ "Quy tắc cộng đồng" (theo Figma). */
@@ -44,7 +44,7 @@ export const rules = [
   t('Tôn trọng mọi thành viên, không phân biệt quốc tịch hay trình độ ngôn ngữ.'),
   t('Không spam, quảng cáo hoặc đăng nội dung trùng lặp.'),
   t('Ghi rõ nguồn khi chia sẻ tài liệu và hình ảnh.'),
-  t('Gặp nội dung vi phạm, gửi email kèm đường link tới contact@etsubi.vn.'),
+  t('Gặp nội dung vi phạm, gửi email kèm đường link tới contact@etsubi.net.'),
 ];
 
 /* Từ khoá phổ biến dưới ô tìm kiếm; bấm vào sẽ điền và tìm ngay. */

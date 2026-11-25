@@ -351,7 +351,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 
 ### Hỗ trợ và nội dung (batch 10)
 
-- Hỗ trợ chỉ mở email tới `contact@etsubi.vn` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
+- Hỗ trợ chỉ mở email tới `contact@etsubi.net` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
 - Không có đặt lại mật khẩu bằng email. FAQ nói khôi phục mật khẩu đang phát triển và hướng dẫn liên hệ từ email đã đăng ký; link Quên mật khẩu ở Login giữ nguyên.
 - Dịch bài/bình luận theo `language` của người đọc; `native` chỉ dùng hiển thị. Đăng và sửa bình luận gửi `{ content, latitude?, longitude? }`, `CommentResponse` trả lại toạ độ; `PATCH /comments/{id}` thiếu toạ độ là gỡ địa điểm của bình luận. `PATCH /posts/{id}` thiếu toạ độ là xoá địa điểm, nên luôn dựng dữ liệu bằng `buildPostEdit()`. `place_name` của bài viết đã được Phong đồng ý thêm.
 

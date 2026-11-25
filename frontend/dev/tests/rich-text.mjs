@@ -186,7 +186,7 @@ assert.equal(label(0, 'comments'), '0 bình luận');
 for (const value of [undefined, null, NaN, Infinity, '12']) assert.equal(label(value, 'comments'), 'Số bình luận · chưa có dữ liệu');
 const mailModule = await load('/utils/support-mailto.js'); await mailModule.evaluate();
 const mail = mailModule.namespace.buildSupportMailto('Quy tắc & Cộng đồng', 'a+b@example.com', 'Ảnh? & #\nDòng hai');
-assert.equal(mail, 'mailto:contact@etsubi.vn?subject=' + encodeURIComponent('[Etsubi] Quy tắc & Cộng đồng')
+assert.equal(mail, 'mailto:contact@etsubi.net?subject=' + encodeURIComponent('[Etsubi] Quy tắc & Cộng đồng')
   + '&body=' + encodeURIComponent('Ảnh? & #\nDòng hai\n\nEmail liên hệ: a+b@example.com'));
 assert.ok(!mail.includes('\n'));
 

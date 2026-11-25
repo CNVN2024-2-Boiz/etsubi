@@ -86,5 +86,14 @@ function observeSections() {
 
 window.addEventListener('resize', observeSections);
 // Kiểm tra cuối trang dù mục cuối không cắt đường đọc khi người dùng dừng cuộn.
-window.addEventListener('scrollend', markVisibleSection);
+if ('onscrollend' in window) {
+  window.addEventListener('scrollend', markVisibleSection);
+} else {
+  // Safari chưa có sự kiện scrollend: đợi cuộn ngừng 120ms rồi mới kiểm tra.
+  let scrollTimer;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(markVisibleSection, 120);
+  }, { passive: true });
+}
 observeSections();
