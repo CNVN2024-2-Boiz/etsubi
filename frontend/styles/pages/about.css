@@ -507,6 +507,12 @@
   font-weight: 700;
 }
 
+/* Ảnh chân dung 240px thu về 80px, cắt vừa vòng tròn; nền chuyển sắc vẫn hiện khi ảnh chưa tải. */
+.about-member__avatar--photo {
+  display: block;
+  object-fit: cover;
+}
+
 /* Tên thành viên 18px đậm vừa. */
 .about-member__name {
   color: var(--color-text);

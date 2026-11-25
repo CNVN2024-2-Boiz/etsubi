@@ -2,15 +2,14 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::domains::{
-    comment::repository::CommentRepository,
-    post::repository::PostRepository,
-    translation::{
-        client::{TranslateRequest, TranslationClient},
-        error::TranslationError,
-        repository::TranslationRepository,
+use crate::{
+    domains::{
+        comment::repository::CommentRepository,
+        post::repository::PostRepository,
+        translation::{error::TranslationError, repository::TranslationRepository},
+        user::repository::UserRepository,
     },
-    user::repository::UserRepository,
+    infrastructure::helper::translation::client::{TranslateRequest, TranslationClient},
 };
 
 pub const MAX_TRANSLATE_CONTENT_CHARS: usize = 15_000;

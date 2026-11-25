@@ -233,7 +233,7 @@ for (const file of files) {
 
 // Nạp từ điển bằng cách đổi đường dẫn gốc của trình duyệt sang đường dẫn file.
 const groups = {};
-for (const name of ['common', 'forum', 'settings', 'auth', 'discover', 'info']) {
+for (const name of ['common', 'forum', 'settings', 'auth', 'discover', 'info', 'legal']) {
   groups[name] = (await import('file:///' + join(root, 'i18n', name + '.js').split(sep).join('/'))).default;
 }
 const known = checkDictionary(groups);

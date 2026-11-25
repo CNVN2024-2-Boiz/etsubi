@@ -1,16 +1,14 @@
 <!doctype html>
-<!-- Giữ URL chỉnh sửa cũ hoạt động, chuyển tới trang Cài đặt đã gộp. -->
 <html lang="vi">
-  <!-- Meta dự phòng khi tắt JavaScript; module giữ thêm neo mục cài đặt. -->
   <head>
+    <!-- Mở đường dẫn mới khi người dùng truy cập liên kết đã lưu từ trước. -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="refresh" content="0; url=/pages/settings.html" />
-    <title data-i18n>Cài đặt · Etsubi</title>
-    <script type="module" src="/pages/profile/edit.js"></script>
+    <title>Etsubi</title>
+    <script type="module" src="/utils/legacy-redirect.js"></script>
   </head>
-  <!-- Liên kết dự phòng cho trình duyệt không tự chuyển trang. -->
   <body>
-    <a href="/pages/settings.html" data-i18n>Chuyển tới Cài đặt</a>
+    <!-- Liên kết dự phòng khi trình duyệt không chạy JavaScript. -->
+    <p><a href="/settings/" data-i18n>Bấm vào đây</a></p>
   </body>
 </html>

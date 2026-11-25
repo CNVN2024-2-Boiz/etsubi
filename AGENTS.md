@@ -12,7 +12,8 @@ Etsubi (越日) is a Vietnam–Japan student forum, the IE104 (UIT) course proje
   - Allowed: ES modules (`<script type="module">`), `fetch`, native `WebSocket`, `URLSearchParams`, `FormData`, `<template>`, CSS custom properties, CSS grid/flex, `@font-face`.
   - Forbidden: React/Vue/Svelte/Lit/Alpine/jQuery or any UI framework, Tailwind/Bootstrap or any CSS framework, TypeScript, Sass/Less, bundlers (Vite/Webpack/esbuild), transpilers, any build step, npm runtime dependencies.
   - `frontend/package.json` only holds the dev server (`live-server`). Do not add packages.
-  - **Approved exception (2026-11-17):** `frontend/vendor/leaflet/` contains unmodified Leaflet 1.9.4, vendored locally with its license (no CDN, no npm). Load the ES module lazily only for maps. Leaflet internally positions tiles/markers with runtime styles; application code keeps the no-inline-style rule. Disable map animations; keep OpenStreetMap attribution visible.
+  - **Approved exception (2026-11-23, replaces Leaflet from 2026-11-17):** `frontend/vendor/maplibre-gl/` contains MapLibre GL JS 6.17.0 with its license, vendored locally (no CDN, no npm). The file contents are unmodified; only the `.mjs` extension was renamed to `.js` so the static server sends a JavaScript MIME type, and `place-map.js` calls `setWorkerUrl()` for the renamed worker. Load the ES module lazily only for maps. MapLibre positions the canvas, markers and controls with runtime styles; application code keeps the no-inline-style rule. Map changes are instant (`jumpTo`, `panBy` with `animate: false`, no drag inertia, own zoom buttons); keep the OpenFreeMap / OpenMapTiles / OpenStreetMap attribution visible.
+  - **Vietnamese sovereignty on maps (never remove):** the base style (OpenFreeMap `liberty`, OpenStreetMap data) is rewritten in `components/place-picker/place-map.js` before drawing. Every label and boundary line inside the Hoàng Sa and Trường Sa areas is hidden, regional/provincial and disputed boundary layers are drawn under the water layer so no boundary crosses the sea, the Chinese administrative names (三沙市, 西沙区, 南沙区, 中沙区…) are hidden everywhere, open-sea labels without a Vietnamese name are hidden, and the map always shows "Quần đảo Hoàng Sa (Việt Nam)", "Quần đảo Trường Sa (Việt Nam)" and "Biển Đông". Place search and reverse lookup (`services/geo/nominatim.js`) and stored post/comment places pass through `sovereignPlace()` in `services/geo/vn-sovereignty.js`, so any point in either archipelago is named after the nearest island in the Vietnamese island table (within 4 km, also drawn on the map from zoom 9) or else the archipelago, with the address "Đặc khu Hoàng Sa, thành phố Đà Nẵng, Việt Nam" or "Đặc khu Trường Sa, tỉnh Khánh Hòa, Việt Nam". Never switch back to a raster tile layer (such as `tile.openstreetmap.org`) whose labels cannot be controlled.
 - Every page must work when the `frontend/` folder is served as static files from its root (`/` = `frontend/`). Use **root-absolute paths** (`/styles/…`, `/assets/…`, `/services/…`).
 - No inline `style="…"` attributes and no `<style>` blocks in pages. The only exceptions: a CSS custom property set from JS for a dynamic value (e.g. `el.style.setProperty('--progress', '67%')`).
 - No inline event handlers (`onclick="…"`). Attach listeners in the page module.
@@ -20,21 +21,21 @@ Etsubi (越日) is a Vietnam–Japan student forum, the IE104 (UIT) course proje
 - **Keep animation to a minimum.** No `@keyframes`, no JS-driven animation, no scroll effects, parallax, animated loaders/skeleton shimmer, or page transitions. Allowed: hover/focus highlight (colour, background, border, underline, shadow change on `:hover` / `:focus-visible`), optionally with one short simple `transition` on those properties. Loading states are static (text "Đang tải…", disabled button, grey placeholder bars). Reason: the team must be able to explain every line to the lecturer; animation code adds complexity for no grade.
 - **Comment every code block in Vietnamese.** Every HTML section, every CSS rule group and every JS function/block gets a comment explaining *what it does and why*, in plain language the team can present (e.g. `/* Thẻ đăng nhập: nền kem, viền đỏ 2px, căn giữa màn hình */`). Prefer simple, readable code over clever code.
 - **Figma generated code is a starting point only.** You may start from Figma's design-to-code / Figma-to-HTML output (e.g. MCP `get_design_context`), but rewrite it to these rules: plain HTML/CSS/JS, tokens, the shared header/footer, semantic markup, flex/grid layout instead of absolute-positioned soup, no inline styles, no Tailwind/React that the generator emits, no temporary Figma asset URLs.
-- **Never use the em dash (Unicode U+2014, the long dash)** anywhere: UI copy, HTML, CSS/JS comments, docs, commit messages. Use the en dash (U+2013, `–`) or a hyphen (`-`) instead. This overrides Figma text that contains an em dash (e.g. footer "IE104 – UIT"). Check before committing: `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md ":!frontend/vendor"` must return nothing (older team files such as README.md and docs/ are out of scope; unmodified Leaflet vendor sources contain U+2014 and are excluded).
+- **Never use the em dash (Unicode U+2014, the long dash)** anywhere: UI copy, HTML, CSS/JS comments, docs, commit messages. Use the en dash (U+2013, `–`) or a hyphen (`-`) instead. This overrides Figma text that contains an em dash (e.g. footer "IE104 – UIT"). Check before committing: `git grep -nP "\x{2014}" -- frontend AGENTS.md HANDOFF.md ":!frontend/vendor"` must return nothing (older team files such as README.md and docs/ are out of scope; unmodified vendor sources contain U+2014 and are excluded).
 
 ## 2. Folder layout and naming
 
 ```
 frontend/
-├── index.html                    # redirects to /pages/index.html
-├── pages/                        # one HTML file per screen (+ its page module next to it)
-│   ├── index.html                # Home (placeholder, to be built)
-│   ├── search.html  search.js    # Search (empty + results states)
-│   ├── settings.html settings.js # Cài đặt: profile edit + appearance (profile/edit.html redirects here)
+├── index.html                    # Home at /
+├── forum/index.html, post/index.html, search/index.html
+├── support/index.html, about/index.html, settings/index.html, notifications/index.html
+├── profile/index.html, login/index.html, register/index.html, register-advanced/index.html
+├── pages/                        # Page modules and HTML redirect stubs for old URLs
+│   ├── index.js, forum.js, post.js, search.js, settings.js, …
 │   └── profile/
-│       ├── login.html            login.js
-│       ├── register.html         register.js
-│       └── register-advanced.html register-advanced.js
+│       ├── index.js, login.js, register.js, register-advanced.js
+│       └── edit.html             # Legacy redirect to Settings
 ├── components/                   # reusable UI rendered by JS (one folder per component)
 │   ├── header/header.js  language-menu.js  header.css
 │   ├── footer/footer.js  footer.css
@@ -67,15 +68,15 @@ frontend/
 │   ├── icons/                    # single-colour UI icons exported from Figma (SVG)
 │   ├── illustrations/            # sun, clouds, waves, sakura petals (SVG)
 │   └── avatars/                  # preset avatars
-├── vendor/leaflet/               # approved unmodified Leaflet 1.9.4 and license
+├── vendor/maplibre-gl/           # approved MapLibre GL JS 6.17.0 and license (see the map exception above)
 └── public/                       # favicon etc.
 ```
 
 - File names: `kebab-case` for pages, CSS, icons and utils. (`components/postcard/PostCard.*` keeps its legacy name.)
-- A page's module lives next to the HTML file and has the same base name (`login.html` → `login.js`).
-- New page checklist: HTML in `pages/…`, module next to it, page CSS in `styles/pages/`, route in `utils/routes.js`, Figma frame ID noted in `HANDOFF.md`.
+- Each page uses `<page>/index.html` (Home uses `/index.html`). Keep modules under `/pages/`, for example `/login/` loads `/pages/profile/login.js`.
+- New page checklist: `<page>/index.html`, module under `pages/`, CSS under `styles/pages/`, URL in `utils/routes.js` and Figma frame ID in `HANDOFF.md`.
 
-### Page skeleton (copy this)
+### Page skeleton for `<page>/index.html` (copy this)
 
 ```html
 <!doctype html>
@@ -92,7 +93,7 @@ frontend/
     <link rel="stylesheet" href="/components/header/header.css" />
     <link rel="stylesheet" href="/components/footer/footer.css" />
     <link rel="stylesheet" href="/styles/pages/<page>.css" />
-    <script type="module" src="/pages/<area>/<page>.js"></script>
+    <script type="module" src="/pages/<page>.js"></script>
   </head>
   <body class="page page--<page>">
     <a class="skip-link" href="#main">Bỏ qua điều hướng</a>
@@ -172,7 +173,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - **Browser preferences** (interface language `etsubi_lang`, theme `etsubi_theme`) are read and written only through `utils/preferences.js`. It fires `etsubi:language-change` / `etsubi:theme-change`, and `onInterfaceLanguageChange()` also follows other tabs, so the header language dropdown and Cài đặt › Giao diện stay in sync. Only the light theme exists; Tối/Theo máy stay disabled until a dark palette is designed.
 - **Language dropdown** (`components/header/language-menu.js`, Figma `466:3644`, shared `239:4071`): a 72 × 36 button opens a 168px menu (Tiếng Việt, 日本語, English), right-aligned to the button and 8px below the header. Choosing a language saves `etsubi_lang` and reloads the page; it sends no request and never changes the account's `native` or `language`. Escape and outside click close it and return focus to the button, arrow keys move between options, and only one header menu is open at a time. It stays hidden at `≤ 600px`, where people change the language in Cài đặt.
 - **Leave guard** (`utils/leave-guard.js`): a page with unsaved edits registers `registerLeaveGuard(fn)` (async, resolves `true` to leave); the header calls `confirmLeave()` before Đăng xuất. Never import a page module from the header. Resolve dialog choices directly from the buttons; do not rely only on the `<dialog>` `close` event.
-- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/pages/search.html`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
+- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/search/`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
 
@@ -351,7 +352,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 
 ### Hỗ trợ và nội dung (batch 10)
 
-- Hỗ trợ chỉ mở email tới `contact@etsubi.vn` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
+- Hỗ trợ chỉ mở email tới `contact@etsubi.net` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
 - Không có đặt lại mật khẩu bằng email. FAQ nói khôi phục mật khẩu đang phát triển và hướng dẫn liên hệ từ email đã đăng ký; link Quên mật khẩu ở Login giữ nguyên.
 - Dịch bài/bình luận theo `language` của người đọc; `native` chỉ dùng hiển thị. Đăng và sửa bình luận gửi `{ content, latitude?, longitude? }`, `CommentResponse` trả lại toạ độ; `PATCH /comments/{id}` thiếu toạ độ là gỡ địa điểm của bình luận. `PATCH /posts/{id}` thiếu toạ độ là xoá địa điểm, nên luôn dựng dữ liệu bằng `buildPostEdit()`. `place_name` của bài viết đã được Phong đồng ý thêm.
 
@@ -362,7 +363,7 @@ Flow used by the front end: Register → (auto) Login with the same email/passwo
 - `GET /posts/{id}/tags`, `GET /users/{id}`, `GET /posts/{id}/reactions/summary` for enrichment (mind the rate limit).
 - **Socket (deferred):** search was planned over a socket, but the back-end dev has not implemented it yet, so the team decided to skip it for now (confirmed 2026-11-12). The back end has **no WebSocket endpoint**. `services/api/posts.js` exposes `searchPosts()` over HTTP behind one function so a socket transport can replace it later without touching pages.
 - Search UX rules (agreed): **no live suggestions, no results while typing**. Results load only on Enter or the "Tìm kiếm" button. Submit is `opacity .4` + disabled while there is no query and no tag.
-- **Tag → search:** clicking a tag anywhere navigates to `/pages/search.html?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
+- **Tag → search:** clicking a tag anywhere navigates to `/search/?tag=<name>` (repeat `tag` for several). The search page treats `q`/`tag` in the URL as a submitted search. There is **no separate tag page**.
 
 ### Notifications (since 2026-11-15)
 

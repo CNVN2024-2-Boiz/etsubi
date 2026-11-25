@@ -12,4 +12,5 @@ pub trait FollowRepository: Send + Sync {
     fn list_follower_ids(&self, user_id: Uuid) -> Result<Vec<Uuid>>;
     fn follower_count(&self, user_id: Uuid) -> Result<i64>;
     fn following_count(&self, user_id: Uuid) -> Result<i64>;
+    fn suggest_users(&self, requester_id: Uuid, limit: i64) -> Result<Vec<(User, i64)>>;
 }

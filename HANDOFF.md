@@ -2,7 +2,27 @@
 
 > **Read [`AGENTS.md`](AGENTS.md) first and follow it.** It holds the binding rules: pure HTML/CSS/JS, tokens, header/footer reuse, minimal animation, Vietnamese comments on every block, no em dash, back-end contract.
 
-Last update: 2026-11-18 · branch `feat/fe-backend-integration` (stacked, last two: `feat/fe-profile` → `feat/fe-admin`; full chain: `feat/fe-auth-search` → `feat/fe-reading` → `feat/fe-forum` → `feat/fe-support` → `feat/fe-about` → `feat/fe-profile`; fork `ShiroTrang/IE104`).
+Last update: 2026-11-24 · branch `feat/fe-terms`.
+
+## Đợt 15 · Điều khoản sử dụng và khung pháp lý
+
+- `/terms/` có 15 mục, giao diện và nội dung VI/JA/EN, mục lục bám dưới header trên desktop, nút mở mục lục trên mobile và bố cục in. Hai liên kết ở cột Tài nguyên của footer dùng `routes.terms` và `routes.privacy`.
+- Phú có thể tách từ commit khung chung `5c37e5b` và xem cấu trúc trong `frontend/terms/index.html` để dùng lại CSS, module mục lục và từ điển pháp lý. `/privacy/`, bảng dữ liệu, nội dung quyền riêng tư và hai ô đồng ý khi đăng ký thuộc phần của Phú. Các liên kết Quyền riêng tư mở được sau khi phần đó có trên nhánh tích hợp.
+- Đối chiếu frame Điều khoản desktop `274:5589` và mobile `274:6315` trong bản Figma `wZygwGTGuvsyB0h99RRm6e`. Giữ header/footer chung, ghi chú ngôn ngữ đầy đủ và nội dung thật nên chiều dài trang khác khung mẫu. Mobile vào thẳng nội dung sau ghi chú và giữ nút chuyển văn bản ở cuối, theo frame mobile.
+- Đã kiểm tra trên Edge ở 1920×1080, 1280×800 và 375×812, gồm menu mục lục, liên kết trực tiếp, mục cuối trang, thao tác bàn phím, ba ngôn ngữ, bản in và các đích liên kết Hỗ trợ. Trạng thái đăng nhập của header dùng phản hồi API mô phỏng. Chín bộ kiểm thử frontend đạt. Nội dung pháp lý là HTML tĩnh.
+- Các chỗ trong ngoặc vuông giữ nguyên để nhóm chốt, gồm ngày hiệu lực, phiên bản, ngày cập nhật, tên nhóm, đầu mối pháp lý, địa chỉ và quy trình giám hộ. Nhóm cần xác nhận quy trình tiếp nhận khiếu nại và khả năng đáp ứng thời hạn trước khi công bố. Việc cần backend đã được ghi trong mục 7 của tài liệu bàn giao pháp lý.
+
+## Đợt 14 · Góp ý sau triển khai
+
+Figma canva `489:3791`, bảng general `259:3043`.
+
+- Các trang dùng URL thư mục như `/forum/`. HTML chuyển sang `index.html` ở thư mục tương ứng, module vẫn ở `frontend/pages/`. Liên kết cũ chuyển hướng giữ query và hash. Bảng ánh xạ nginx ở `frontend/dev/nginx-clean-urls.md`.
+- Thẻ bảng tin có tiêu đề và liên kết hồ sơ tác giả. Bản xem trước giữ chữ trước cụm ảnh đầu, tối đa 260 ký tự và 4 ảnh; chung cho Trang chủ, Diễn đàn và Hồ sơ.
+- Trang chủ có nút và phím mũi tên chuyển bài nổi bật theo bố cục 3/2/1. Bỏ nhóm Bài viết gợi ý; gợi ý theo dõi dùng tác giả từ bài có sẵn và danh sách đang theo dõi.
+- Bình luận hiện đủ năm, liên kết tới hồ sơ và có khung trả lời tại chỗ. Trả lời nhiều cấp cùng hiển thị trong một cột, vẫn gửi đúng `parent_id`.
+- Hồ sơ có thẻ Bài viết bên dưới Kết nối, mỗi lần hiện thêm 10 bài. Chỉ chủ hồ sơ thấy tab Đã lưu; bỏ lưu cập nhật danh sách và số đếm. Hỗ trợ bỏ nhóm Quyền riêng tư & Bảo mật cùng hai FAQ và liên kết chân trang tương ứng.
+
+Đã đối chiếu hai bảng Figma và kiểm tra trên Edge với máy chủ tĩnh Python cùng phản hồi API mô phỏng. API Rust trên máy chưa chạy trong lượt kiểm tra.
 
 ## 1. What is done (batch 1)
 
@@ -118,7 +138,7 @@ node --experimental-vm-modules frontend/dev/tests/backend-integration.mjs
 - Fixed after review (2026-11-13): on mobile the search heading now takes its own row above the sort/"Viết bài" buttons. The password eye icon was squashed by the Figma export, so it was replaced with the Lucide original, and Edge's own reveal button is hidden (`::-ms-reveal`).
 - Search result cards now always show the comment, like and view slots as in Figma `1:2927`, with "–" until `GET /posts` returns the counts (see §5). The result total still shows "10+" when there may be more pages, until the API returns a total.
 
-- **Home and `services/api/capabilities.js`:** every Home feature the API lacks (featured posts, recommendations, post stats, popular sort, following feed, bookmark state, feed translation, display name, unread notifications) is behind a flag in `backendSupports`. A `false` flag means no request is sent and the UI shows neutral placeholders ("–", grey bars). When the back end ships an endpoint from §5, flip its flag to `true` and test.
+- **Home and `services/api/capabilities.js`:** every Home feature the API lacks (featured posts, post stats, popular sort, following feed, bookmark state, feed translation, display name, unread notifications) is behind a flag in `backendSupports`. A `false` flag means no request is sent and the UI shows neutral placeholders ("–", grey bars). When the back end ships an endpoint from §5, flip its flag to `true` and test.
 - **Home decisions:** the Figma "Bài viết mới" header has a "Xem thêm →" link; it is left out because the team agreed on "no Xem thêm bài viết". The hero photo from Figma (2400px, 1.35 MB) was resized to 1920px JPEG (`assets/images/home-hero.jpg`, ~0.6 MB).
 
 - **Figma review, 2026-11-13** (shared file `HFYjrrtGqo86EpOX1Bdg88`, following AGENTS.md §7 "Final review procedure"):
@@ -364,8 +384,8 @@ The back end will be adjusted to the front end. Every agent adds a row here when
 | Search results | `GET /posts?q=&tags=` | total match count, e.g. `{ items: [...], total }` or header `X-Total-Count` | cần làm |
 | Search results | `GET /posts?sort=` | `sort=relevance`, `newest`, `oldest`, `popular` ("Liên quan nhất" in Figma); Home `listPosts({ sort: 'popular' })` gated by `popularSort` | cần làm (Home tab Phổ biến now uses the separate `GET /posts/popular`, đã có) |
 | Search "Tag phổ biến" | `GET /tags` | `post_count` per tag | cần làm |
-| Home "Bài viết nổi bật" | `GET /posts/highlight` | Đã nối đợt 11: top 12, 3 thẻ/trang (compact 1). Tác giả, tag và số bình luận chỉ tải cho thẻ đang hiện. Chờ BE nhúng `author`, `tags`, số đếm để bớt request từng thẻ | đã có (nhúng dữ liệu: chờ BE) |
-| Home "Có thể bạn quan tâm" | `GET /my/recommendations` (JWT); users: chủ đề quan tâm | `getMyRecommendations()` returns `{topics:[{id,name}], posts:[{id,title,comment_count,tag:{id,name}}], members:[{id,username,avatar_url,institute,address}]}` based on registration topics. Add a stored interested-topics field on users and support saving it at registration/profile update; flag `recommendations` | cần làm |
+| Home "Bài viết nổi bật" | `GET /posts/highlight` | Đã nối đợt 11: top 12, đợt 14 hiện 3/2/1 thẻ mỗi trang theo chiều rộng. Tác giả, tag và số bình luận chỉ tải cho thẻ đang hiện. Chờ BE nhúng `author`, `tags`, số đếm để bớt request từng thẻ | đã có (nhúng dữ liệu: chờ BE) |
+| Trang chủ "Có thể bạn quan tâm" | `GET /tags`, `GET /my/following`, dữ liệu bài đã tải | Chủ đề từ danh mục tag; thành viên từ tác giả bài mới và bài nổi bật/phổ biến, bỏ chính mình và người đã theo dõi. Đề xuất bài viết theo sở thích hoãn đến sau môn học | đã có, đề xuất bài viết hoãn |
 | Home / Diễn đàn tab Đang theo dõi | `GET /my/following/posts` (JWT) | Shipped, but **always returns 404 "UUID parsing failed: found `p`"**: `GET /my/following/{user_id}` is registered first and captures "posts". Register `/my/following/posts` before the parameterised route (or rename it). Also add `limit`/`offset`. Fixed in upstream 8fee464 (route moved before `/my/following/{user_id}`), merged here; flag `followingFeed: true` since batch 4. Paging still missing (see the feeds row) | đã có |
 | Home bookmark icon | `GET /posts` for signed-in viewer | `is_bookmarked: boolean` per post, read by `getBookmarkState(post)` behind `bookmarkState`; do not add a request per post. Existing POST/DELETE /posts/{id}/bookmark are already used for real saves | cần làm |
 | Home feed translation | `GET /posts?lang=vi` | translated `title`/`content`, `original_language`, `is_translated`; `listPosts({lang})` behind `autoTranslateFeed`. Until supported, show source language and link to post detail with `&translate=1` | cần làm |
@@ -411,6 +431,9 @@ The back end will be adjusted to the front end. Every agent adds a row here when
 | Batch 9: địa điểm bình luận | POST/PATCH/GET comments | Đã có từ PR 69: `CommentResponse` trả `latitude`, `longitude`; PATCH đổi được toạ độ, không gửi toạ độ là gỡ địa điểm. Còn `place_name` nếu muốn lưu tên địa điểm | đã có (`place_name`: để sau) |
 | Mention cuối câu | `POST /notifications/mention` | PR 72: dấu chấm sau tên được coi là dấu câu, nội dung `Chào @bobby.` đã tạo được thông báo | đã có |
 | Giao diện gõ @username | FE, `POST /notifications/mention` | Đã làm đợt 12 theo Figma canva `452:3617`, general `231:3604`. Phong chốt: không có danh sách gợi ý người dùng; khi soạn là chữ thường, đăng xong mới tô. Tên chưa bấm được vì chưa có API tìm hồ sơ theo username | đã có |
+| Nhận diện ngôn ngữ bài viết và bình luận | Phát hiện ngôn ngữ gốc từ `content` | Phong thống nhất 2026-11-22: chỉ dùng nội dung, loại tiêu đề, thẻ HTML, URL ảnh và tên được nhắc dạng @username trước khi nhận diện. Tiêu đề vẫn được dịch cùng bài | đã thống nhất với BE |
+| Tên được nhắc trong bài và bình luận | `GET /users/by-username/{username}` | Trả mã người dùng để nối nhãn @username tới hồ sơ. Giao diện tiếp tục tô tên được nhắc | hoãn đến sau môn học |
+| Hồ sơ · Bài viết / Đã lưu | `GET /users/{id}/posts`, `GET /my/bookmarks` | Hai endpoint trả danh sách PostResponse; tab Đã lưu dùng JWT và chỉ hiện trên hồ sơ của người xem | đã có |
 | Toạ độ bình luận sai phạm vi | POST/PATCH comments | Vĩ độ ngoài -90..90 trả `500` vì lỗi ràng buộc DB; nên trả `400`. FE không gửi giá trị này vì toạ độ lấy từ bản đồ | nên sửa |
 | Batch 9: spoiler bình luận | POST/GET comments | `is_spoiler: boolean`; khi backend có dữ liệu, FE che/blur nội dung mặc định và cung cấp nút "Hiện spoiler" truy cập được bằng bàn phím. Hiện checkbox chỉ ở nháp, không gửi | cần làm |
 | Batch 9: nội dung HTML an toàn | content posts/comments và API dịch | FE lọc b,strong,i,em,u,s,p,br,img (HTTPS, alt, width/height); comment thêm a http/https. Giữ UTF-8 limits 100000/10000 và title 255. Server-side sanitizing không bắt buộc theo Phong | không bắt buộc |

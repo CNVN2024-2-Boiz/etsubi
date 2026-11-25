@@ -1,0 +1,670 @@
+/* Liên kết bỏ qua điều hướng đặt phần đầu nội dung ngay bên dưới header. */
+.page--legal main {
+  scroll-margin-top: var(--header-height);
+}
+
+/* Hero pháp lý: giữ tranh trang trí phía sau phần tiêu đề và liên kết hai văn bản. */
+.legal-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: var(--legal-hero-gap);
+  min-height: var(--legal-hero-height);
+  padding: var(--space-10) var(--page-gutter) var(--space-8);
+  overflow: clip;
+  background: var(--gradient-legal-hero);
+  text-align: center;
+}
+
+/* Các lớp tranh dùng đúng kích thước gốc; chỉ đặt vị trí trên khung 1920. */
+.legal-art {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: var(--legal-art-width);
+  height: 100%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.legal-art img {
+  position: absolute;
+  max-width: none;
+}
+
+.legal-art__sun { top: -120px; left: 680px; }
+.legal-art__cloud-inner { top: 20px; left: 1250px; }
+.legal-art__cloud-outer { top: 40px; left: 1480px; }
+.legal-art__cloud-left { top: 60px; left: 180px; }
+.legal-art__torii-right { top: 258.56px; left: 1540.76px; }
+.legal-art__torii-left { top: 319.04px; left: 150px; }
+
+/* Cánh hoa nằm ở các vị trí cố định trong ảnh thiết kế. */
+.legal-art__petal--1 { top: 60px; left: 1480px; }
+.legal-art__petal--2 { top: 159.3px; left: 1567.9px; rotate: -40deg; }
+.legal-art__petal--3 { top: 74px; left: 1644.7px; rotate: -80deg; }
+.legal-art__petal--4 { top: 220.1px; left: 1718.1px; rotate: -120deg; }
+.legal-art__petal--5 { top: 110.5px; left: 1791.4px; rotate: -160deg; }
+.legal-art__petal--6 { top: 49.2px; left: 270.6px; rotate: 160deg; }
+.legal-art__petal--7 { top: 220px; left: 180px; }
+.legal-art__petal--8 { top: 297.4px; left: 383.2px; rotate: -10deg; }
+.legal-art__petal--9 { top: 168px; left: 125px; rotate: -74deg; }
+.legal-art__petal--10 { top: 640px; left: 174px; rotate: -148deg; }
+.legal-art__petal--11 { top: 263px; left: 1776px; rotate: 64deg; }
+.legal-art__petal--12 { top: 1047px; left: 159px; rotate: -57deg; }
+.legal-art__petal--13 { top: 780px; left: 1730px; rotate: 155deg; }
+.legal-art__petal--14 { top: 1208px; left: 1798px; rotate: 81deg; }
+
+/* Tiêu đề và dòng phiên bản cho biết người đọc đang xem văn bản nào. */
+.legal-hero__eyebrow {
+  color: var(--color-red-accent);
+  font-size: var(--legal-kicker-size);
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: var(--legal-meta-size);
+}
+
+.legal-hero__title {
+  color: var(--color-red);
+  font-size: var(--legal-title-size);
+  line-height: var(--legal-title-line);
+}
+
+.legal-hero__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--legal-meta-size);
+  line-height: var(--legal-meta-line);
+}
+
+/* Cặp liên kết giữ trạng thái trang đang xem và cho phép chuyển văn bản. */
+.legal-switch {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.legal-switch__short {
+  display: none;
+}
+
+.legal-switch a {
+  padding: var(--legal-tab-padding-y) var(--space-5);
+  border: 1px solid var(--color-pink-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-cream);
+  color: var(--color-red-dark);
+  font-size: var(--legal-small-size);
+  font-weight: 600;
+  line-height: calc(var(--legal-meta-line) - var(--space-1));
+  text-decoration: none;
+}
+
+.legal-switch a:hover,
+.legal-switch a[aria-current="page"] {
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--color-white);
+}
+
+/* Hai cột desktop cùng nằm trong thước rộng nhất của trang, với cánh hoa ngoài lề. */
+.legal-main {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  padding: var(--space-10) var(--page-gutter) var(--legal-main-bottom);
+}
+
+.legal-layout {
+  display: grid;
+  grid-template-columns: var(--legal-toc-width) minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+  max-width: var(--legal-layout-width);
+  margin-inline: auto;
+}
+
+/* Mục lục desktop bám dưới header và cuộn riêng khi cửa sổ thấp. */
+.legal-toc {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-4));
+  max-height: calc(100dvh - var(--header-height) - var(--space-7));
+  overflow: auto;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  background: var(--color-cream);
+  box-shadow: var(--shadow-legal-toc);
+}
+
+.legal-toc__band,
+.legal-toc__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--legal-tab-padding-y);
+  padding: var(--space-3) var(--legal-section-mobile-padding);
+  background: var(--color-red);
+  color: var(--color-white);
+  font-size: var(--legal-kicker-size);
+  font-weight: 600;
+}
+
+.legal-toc__toggle {
+  display: none;
+}
+
+.legal-toc__list {
+  display: grid;
+  gap: var(--legal-toc-row-gap);
+  padding: var(--legal-summary-padding) var(--space-3) var(--legal-toc-bottom);
+  margin: 0;
+  list-style: none;
+}
+
+.legal-toc__list[hidden] {
+  display: none;
+}
+
+.legal-toc__link {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--legal-tab-padding-y);
+  align-items: baseline;
+  padding: var(--legal-toc-row-padding) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--legal-kicker-size);
+  line-height: var(--legal-toc-line);
+  text-decoration: none;
+}
+
+/* Hai chữ số nhỏ hơn tiêu đề để người đọc quét mục lục dễ hơn. */
+.legal-toc__number {
+  color: var(--color-muted);
+  font-size: var(--legal-toc-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legal-toc__link[aria-current="true"] .legal-toc__number {
+  color: inherit;
+}
+
+.legal-toc__link:hover,
+.legal-toc__link[aria-current="true"] {
+  background: var(--color-support-faq-open);
+  color: var(--color-red-dark);
+}
+
+.legal-toc__link[aria-current="true"] {
+  font-weight: 600;
+}
+
+/* Ghi chú, tóm tắt, nội dung và liên hệ dùng chung nhịp dọc và viền thẻ. */
+.legal-content {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.legal-note,
+.legal-summary,
+.legal-article,
+.legal-contact {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-cream);
+  color: var(--color-text-secondary);
+}
+
+.legal-note,
+.legal-contact {
+  border-color: var(--color-pink-border);
+  background: var(--color-support-faq-open);
+}
+
+.legal-note {
+  padding: var(--space-5);
+  color: var(--color-red-dark);
+  font-size: var(--legal-small-size);
+  font-weight: 500;
+  line-height: var(--space-6);
+}
+
+.legal-summary {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--legal-summary-padding);
+  font-size: var(--legal-small-size);
+  line-height: 1.6;
+}
+
+.legal-summary h2,
+.legal-section h2 {
+  color: var(--color-text);
+  font-family: var(--font-display);
+}
+
+.legal-summary h2 {
+  font-size: var(--legal-summary-size);
+  line-height: calc(var(--space-7) - var(--legal-toc-row-gap));
+}
+
+/* Danh sách trong văn bản dùng dấu đầu dòng và thụt lề nhất quán. */
+.legal-summary ul,
+.legal-section ul {
+  display: grid;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-5);
+  list-style: disc;
+}
+
+.legal-summary ul {
+  gap: var(--space-3);
+}
+
+.legal-article {
+  padding: var(--legal-section-padding-y) var(--space-9);
+}
+
+.legal-section {
+  display: grid;
+  gap: var(--space-3);
+  scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  line-height: var(--legal-body-line);
+}
+
+.legal-section + .legal-section {
+  margin-block-start: var(--legal-section-gap);
+  padding-block-start: var(--legal-section-gap);
+  border-top: 1px solid var(--color-border);
+}
+
+.legal-section h2 {
+  font-size: var(--legal-section-title-size);
+  line-height: var(--space-7);
+}
+
+.legal-section a,
+.legal-summary a,
+.legal-contact p a {
+  color: var(--color-red-dark);
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+
+/* Liên hệ gom câu hỏi và đường dẫn đến văn bản kia trong một thẻ. */
+.legal-contact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--legal-summary-padding);
+  font-size: var(--legal-small-size);
+}
+
+.legal-contact h2 {
+  margin-block-end: var(--space-1);
+  color: var(--color-text);
+  font-size: var(--legal-meta-size);
+}
+
+.legal-contact__next {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+/* Thu hẹp mục lục trước khi xếp hai cột thành một ở màn hình nhỏ. */
+@media (max-width: 1280px) {
+  .legal-layout {
+    grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  .legal-contact {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 959px) {
+  .legal-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .legal-toc {
+    position: static;
+    max-height: none;
+  }
+
+  .legal-art--main {
+    display: none;
+  }
+}
+
+/* Điện thoại dùng hero gọn, mục lục đóng mặc định và liên kết rộng toàn hàng. */
+@media (max-width: 600px) {
+  .page--legal {
+    background: var(--color-legal-mobile-page);
+  }
+
+  .legal-hero {
+    gap: var(--legal-tab-padding-y);
+    min-height: 0;
+    padding: var(--legal-summary-padding) var(--space-4);
+    background: var(--color-legal-mobile-hero);
+  }
+
+  .legal-art,
+  .legal-hero__updated,
+  .legal-switch__full {
+    display: none;
+  }
+
+  .legal-switch__short {
+    display: inline;
+  }
+
+  .legal-hero__eyebrow {
+    font-size: var(--legal-mobile-kicker-size);
+  }
+
+  .legal-hero__title {
+    font-size: var(--legal-mobile-title-size);
+    line-height: var(--legal-mobile-title-line);
+  }
+
+  .legal-hero__meta {
+    font-size: var(--legal-mobile-meta-size);
+    line-height: var(--space-5);
+  }
+
+  .legal-switch {
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-1);
+    border: 1px solid var(--color-pink-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-cream);
+  }
+
+  .legal-switch a {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: var(--space-2) var(--space-1);
+    border: 0;
+    font-size: var(--legal-kicker-size);
+    line-height: var(--space-5);
+    overflow-wrap: anywhere;
+  }
+
+  /* Nút mục lục điều khiển chính danh sách dùng cho bản desktop. */
+  .legal-main {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .legal-layout,
+  .legal-content {
+    gap: var(--space-4);
+  }
+
+  .legal-toc {
+    border-width: 1px;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+  }
+
+  .legal-toc__band {
+    display: none;
+  }
+
+  .legal-toc__toggle {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border: 0;
+    padding: var(--legal-kicker-size) var(--space-4);
+    background: var(--color-cream);
+    color: var(--color-red-dark);
+    font-size: var(--legal-small-size);
+    line-height: var(--legal-toc-line);
+    text-align: start;
+  }
+
+  .legal-toc__toggle[aria-expanded="true"] img {
+    rotate: 180deg;
+  }
+
+  /* Vòng focus nằm trong nút vì viền cuộn của mục lục cắt phần nằm ngoài. */
+  .legal-toc__toggle:focus-visible {
+    outline-offset: -3px;
+  }
+
+  .legal-toc__list {
+    padding: 0 var(--space-2) var(--space-2);
+  }
+
+  /* Thẻ nội dung hẹp hơn nhưng giữ tất cả các mục và liên kết. */
+  .legal-note {
+    padding: var(--legal-kicker-size);
+    font-size: var(--legal-mobile-meta-size);
+    line-height: var(--space-5);
+  }
+
+  /* Bản mobile vào nội dung ngay và giữ nút sang văn bản còn lại ở cuối. */
+  .legal-summary,
+  .legal-contact__details {
+    display: none;
+  }
+
+  .legal-contact {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .legal-article {
+    padding: var(--legal-toc-line) var(--legal-section-mobile-padding);
+  }
+
+  .legal-section {
+    gap: var(--space-2);
+    font-size: var(--legal-small-size);
+    line-height: var(--legal-mobile-body-line);
+  }
+
+  .legal-section + .legal-section {
+    margin-block-start: var(--legal-toc-line);
+    padding-block-start: var(--legal-toc-line);
+  }
+
+  .legal-section h2 {
+    font-family: var(--font-body);
+    font-size: var(--legal-meta-size);
+    line-height: var(--legal-mobile-section-title-line);
+  }
+
+  .legal-contact__next {
+    width: 100%;
+  }
+}
+
+/* Bản in giữ tiêu đề và nội dung, tránh cắt chữ và bỏ các vùng điều hướng. */
+@media print {
+  .page--legal,
+  .legal-hero,
+  .legal-note,
+  .legal-summary,
+  .legal-article,
+  .legal-contact {
+    background: var(--color-white);
+    color: var(--color-text);
+  }
+
+  .page--legal .site-header,
+  .page--legal .site-footer,
+  .legal-art,
+  .legal-switch,
+  .legal-toc,
+  .legal-contact__next {
+    display: none;
+  }
+
+  .legal-hero,
+  .legal-main,
+  .legal-article {
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .legal-hero__updated {
+    display: inline;
+  }
+
+  .legal-layout {
+    display: block;
+  }
+
+  .legal-summary,
+  .legal-contact__details {
+    display: block;
+  }
+
+  .legal-article {
+    border: 0;
+  }
+
+  .legal-section h2 {
+    break-after: avoid;
+  }
+}
+
+/* ===== Bảng dữ liệu (trang Quyền riêng tư) ===== */
+
+/* Dòng "Căn cứ" cuối mỗi mục: chữ nhỏ, màu dịu, để người đọc biết điều luật nào áp dụng. */
+.legal-basis {
+  color: var(--color-muted);
+  font-size: var(--legal-small-size);
+}
+
+/* Khung bảng: viền nhạt bo 6px; bảng rộng hết cột, kẻ dòng mảnh. */
+.legal-table {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--color-cream);
+}
+
+/* Hàng tiêu đề: nền hồng, chữ đỏ sẫm 13px đậm vừa, căn trái. */
+.legal-table th {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* Ô dữ liệu: 14px, căn trên, kẻ ngang giữa các hàng. */
+.legal-table td {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-body);
+  font-size: 14px;
+  line-height: 1.55;
+  vertical-align: top;
+}
+
+/* Cột đầu (tên nhóm, bên nhận) đậm, màu chữ chính. */
+.legal-table [data-cell="title"] {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Điện thoại: cùng HTML <table> nhưng mỗi hàng thành một thẻ xếp dọc, không cuộn ngang. */
+@media (max-width: 600px) {
+  .legal-table,
+  .legal-table tbody {
+    display: block;
+    border: 0;
+    background: transparent;
+  }
+
+  /* Ẩn hàng tiêu đề khỏi mắt nhưng vẫn để trình đọc màn hình đọc được. */
+  .legal-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Mỗi hàng là một thẻ: tên + chip ở dòng đầu, nội dung và "Dùng để" bên dưới. */
+  .legal-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-cream);
+  }
+
+  /* Các thẻ cách nhau 12px. */
+  .legal-table tr + tr {
+    margin-top: var(--space-3);
+  }
+
+  /* Ô trong thẻ không còn đệm và đường kẻ của bảng. */
+  .legal-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  /* Tên nhóm / bên nhận ở dòng đầu bên trái, 15px. */
+  .legal-table [data-cell="title"] {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 15px;
+  }
+
+  /* Chip Bắt buộc / Tuỳ chọn (hoặc nơi xử lý) ở góc phải dòng đầu: nền hồng, chữ đỏ, 12px. */
+  .legal-table [data-cell="chip"] {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    padding: 2px var(--space-2);
+    white-space: nowrap;
+    border-radius: var(--radius-pill);
+    background: var(--color-sakura);
+    color: var(--color-red-dark);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* Nội dung chính chiếm hết chiều ngang. */
+  .legal-table [data-cell="body"] {
+    grid-column: 1 / -1;
+  }
+
+  /* Dòng "Dùng để: …" màu dịu, 13px. */
+  .legal-table [data-cell="meta"] {
+    grid-column: 1 / -1;
+    color: var(--color-muted);
+    font-size: 13px;
+  }
+
+  /* Nhãn cột lấy từ data-label (đã dịch), ví dụ "Dùng để: ". */
+  .legal-table [data-cell="meta"]::before {
+    content: attr(data-label) ": ";
+  }
+}

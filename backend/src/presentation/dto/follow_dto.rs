@@ -32,3 +32,24 @@ pub struct FollowStatusResponse {
 pub struct FollowerStatusResponse {
     pub followed_by: bool,
 }
+
+#[derive(Debug, Serialize, ToSchema)]
+pub struct SuggestedUserResponse {
+    pub id: Uuid,
+    pub username: String,
+    pub displayname: String,
+    pub avatar_url: Option<String>,
+    pub follower_count: i64,
+}
+
+impl SuggestedUserResponse {
+    pub fn from_pair(user: User, follower_count: i64) -> Self {
+        Self {
+            id: user.id,
+            username: user.username,
+            displayname: user.displayname,
+            avatar_url: user.avatar_url,
+            follower_count,
+        }
+    }
+}

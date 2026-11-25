@@ -54,6 +54,7 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::personal_handler::list_my_following_posts);
     cfg.service(presentation::handlers::personal_handler::check_my_following);
     cfg.service(presentation::handlers::personal_handler::check_my_follower);
+    cfg.service(presentation::handlers::personal_handler::list_suggested_follows);
 
     cfg.service(presentation::handlers::post_handler::list_following_user_posts);
 

@@ -176,6 +176,9 @@
   --color-featured-rank: rgba(255,255,255,.35);
   --color-featured-badge: rgba(255,255,255,.16);
   --home-hero-height: 336px;
+  /* Kích thước thao tác cho nút chuyển trang ở hàng bài nổi bật. */
+  --home-featured-arrow-size: 44px;
+  --shadow-featured-arrow: 0 6px 8px rgba(0, 0, 0, .12);
   --home-hero-top: var(--space-8);
   --home-hero-copy-width: 1100px;
   --home-section-gap: 28px;
@@ -218,6 +221,9 @@
   --post-side-gap: 20px;
   --post-side-padding: 22px;
   --post-avatar-size: 56px;
+  /* Khoảng hở avatar quyết định cột chữ và vị trí trả lời. */
+  --post-comment-gap: 14px;
+  --post-reply-gap: 10px;
   --post-comment-avatar: 40px;
   --post-map-height: 182px;
   --post-map-radius: 8px;
@@ -747,4 +753,43 @@
   --comment-menu-size: 28px;
   --stat-tooltip-size: 13px;
   --stat-tooltip-mobile-width: 160px;
+}
+
+/* Trang pháp lý: kích thước của hai khung Figma và màu nền dành cho mobile. */
+:root {
+  --gradient-legal-hero: linear-gradient(190.62deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
+  --color-legal-mobile-hero: #FDE8EE;
+  --color-legal-mobile-page: #FBF8F3;
+  --shadow-legal-toc: 0 4px 16px rgba(194, 69, 79, .08);
+  --legal-art-width: 1920px;
+  --legal-layout-width: 1440px;
+  --legal-main-bottom: 96px;
+  --legal-hero-height: 360px;
+  --legal-hero-gap: 18px;
+  --legal-title-size: 48px;
+  --legal-title-line: 69px;
+  --legal-kicker-size: 14px;
+  --legal-meta-size: 18px;
+  --legal-meta-line: 23px;
+  --legal-small-size: 15px;
+  --legal-tab-padding-y: 10px;
+  --legal-toc-width: 340px;
+  --legal-toc-row-gap: 2px;
+  --legal-toc-bottom: 38px;
+  --legal-toc-row-padding: 9px;
+  --legal-toc-size: 13px;
+  --legal-toc-line: 22px;
+  --legal-summary-padding: 28px;
+  --legal-summary-size: 20px;
+  --legal-section-padding-y: 44px;
+  --legal-section-mobile-padding: 18px;
+  --legal-section-gap: 36px;
+  --legal-section-title-size: 22px;
+  --legal-body-line: 28px;
+  --legal-mobile-title-size: 26px;
+  --legal-mobile-title-line: 34px;
+  --legal-mobile-kicker-size: 12px;
+  --legal-mobile-meta-size: 13px;
+  --legal-mobile-body-line: 24px;
+  --legal-mobile-section-title-line: 26px;
 }

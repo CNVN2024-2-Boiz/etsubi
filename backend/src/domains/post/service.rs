@@ -44,9 +44,7 @@ impl PostService {
             return Err(PostError::ContentTooLong);
         }
 
-        let text_to_detect = format!("{} {}", title, content);
-
-        let detected_language = match detect_language(&text_to_detect) {
+        let detected_language = match detect_language(content) {
             Lang::Vie => "vi",
             Lang::Jpn => "ja",
             Lang::Eng => "en",
@@ -144,9 +142,7 @@ impl PostService {
         post.latitude = latitude;
         post.longitude = longitude;
 
-        let text_to_detect = format!("{} {}", title, content);
-
-        let detected_language = match detect_language(&text_to_detect) {
+        let detected_language = match detect_language(content) {
             Lang::Vie => "vi",
             Lang::Jpn => "ja",
             Lang::Eng => "en",

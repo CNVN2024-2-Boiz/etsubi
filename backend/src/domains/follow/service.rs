@@ -74,4 +74,17 @@ impl FollowService {
     pub fn is_followed_by(&self, user_id: Uuid, follower_id: Uuid) -> Result<bool, FollowError> {
         Ok(self.follow_repo.is_following(follower_id, user_id)?)
     }
+
+    pub fn suggest_follows(
+        &self,
+        user_id: Uuid,
+        limit: Option<i64>,
+    ) -> Result<Vec<(User, i64)>, FollowError> {
+        self.user_repo
+            .find_by_id(user_id)?
+            .ok_or(FollowError::UserNotFound)?;
+
+        let limit = limit.unwrap_or(3).clamp(1, 10);
+        Ok(self.follow_repo.suggest_users(user_id, limit)?)
+    }
 }

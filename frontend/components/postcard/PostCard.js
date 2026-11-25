@@ -1,6 +1,7 @@
 /** Thẻ kết quả có liên kết phủ thẻ, còn liên kết tag vẫn thao tác độc lập được. */
 import { statLabel } from '/utils/stat-label.js';
-import { renderRichContent } from '/utils/rich-text.js';
+import { richToPlainText } from '/utils/rich-text.js';
+import { buildFeedPreview } from '/utils/feed-preview.js';
 import { markMentions } from '/utils/mention.js';
 import { el } from '/utils/dom.js';
 import { routes, searchUrl } from '/utils/routes.js';
@@ -94,35 +95,6 @@ export function createPostCard(post, { query = '', author, tags = [], onTagHref 
   return article;
 }
 
-// Chỉ một menu bảng tin mở cùng lúc; dùng một bộ lắng nghe chung thay vì một bộ cho mỗi thẻ.
-let openFeedMenu = null;
-let openFeedButton = null;
-let feedMenuCount = 0;
-let feedMenuEventsMounted = false;
-
-/** Đóng menu đang mở và tuỳ chọn trả focus, kể cả khi thẻ cũ vừa bị thay khi đổi tab. */
-function closeFeedMenu(restoreFocus = false) {
-  if (openFeedMenu) {
-    openFeedMenu.hidden = true;
-    openFeedButton.setAttribute('aria-expanded', 'false');
-    if (restoreFocus && openFeedButton.isConnected) {
-      openFeedButton.focus();
-    }
-    openFeedMenu = null;
-    openFeedButton = null;
-  }
-}
-
-/** Đóng menu khi nhấn ngoài vùng điều khiển hoặc Escape để bàn phím không bị mắc trong menu. */
-function handleFeedDocumentEvent(event) {
-  if (event.type === 'keydown' && event.key === 'Escape') {
-    closeFeedMenu(true);
-  } else if (event.type === 'click' && openFeedMenu
-    && !openFeedMenu.contains(event.target) && !openFeedButton.contains(event.target)) {
-    closeFeedMenu();
-  }
-}
-
 /** Tạo icon hình vuông đúng cỡ 18px, dùng alt rỗng vì bên cạnh có nhãn hoặc số. */
 function feedIcon(name, size = 18) {
   return el('img', { src: '/assets/icons/' + name + '.svg', alt: '', width: size, height: size });
@@ -197,52 +169,6 @@ function createFeedShare(post) {
   return el('span', { className: 'postcard-feed__share-box' }, button, feedback);
 }
 
-/** Dựng menu nhỏ gồm sao chép liên kết và chi tiết; không chèn dữ liệu API bằng innerHTML. */
-function createFeedMore(postId) {
-  const menuId = 'feed-options-' + (++feedMenuCount);
-  const button = el('button', {
-    type: 'button', className: 'postcard-feed__icon-button', 'aria-label': t('Tuỳ chọn bài viết'),
-    'aria-expanded': 'false', 'aria-controls': menuId,
-  }, '···');
-  const copy = el('button', { type: 'button', className: 'postcard-feed__menu-action' }, t('Sao chép liên kết'));
-  const feedback = el('span', { className: 'u-visually-hidden', role: 'status' });
-  const menu = el('div', { id: menuId, className: 'postcard-feed__menu', hidden: true }, copy,
-    el('a', { className: 'postcard-feed__menu-action', href: routes.post(postId) }, t('Xem chi tiết')));
-  /** Đóng menu cũ rồi đưa focus vào lựa chọn đầu để sử dụng được bằng bàn phím. */
-  function toggleMenu() {
-    const shouldOpen = menu.hidden;
-    closeFeedMenu();
-    if (shouldOpen) {
-      menu.hidden = false;
-      button.setAttribute('aria-expanded', 'true');
-      openFeedMenu = menu;
-      openFeedButton = button;
-      copy.focus();
-    }
-  }
-  /** Sao chép URL tuyệt đối, báo kết quả trong 1,5 giây; timer chỉ đổi chữ, không tạo hoạt ảnh. */
-  async function copyLink() {
-    copy.disabled = true;
-    try {
-      await navigator.clipboard.writeText(new URL(routes.post(postId), location.origin).href);
-      copy.textContent = t('Đã sao chép');
-      feedback.textContent = t('Đã sao chép liên kết');
-    } catch {
-      copy.textContent = t('Không thể sao chép');
-      feedback.textContent = t('Không thể sao chép. Bạn có thể mở chi tiết để lấy liên kết.');
-    }
-    /** Trả nhãn nút về trạng thái sẵn sàng sau thông báo ngắn. */
-    function resetCopy() {
-      copy.textContent = t('Sao chép liên kết');
-      copy.disabled = false;
-    }
-    setTimeout(resetCopy, 1500);
-  }
-  button.addEventListener('click', toggleMenu);
-  copy.addEventListener('click', copyLink);
-  return el('div', { className: 'postcard-feed__more' }, button, menu, feedback);
-}
-
 /** Tạo ghi chú ngôn ngữ; chỉ nhận đã dịch khi cả cờ năng lực và dữ liệu xác nhận. */
 function createTranslationNote(post, viewerLanguage) {
   const source = post.original_language || post.language;
@@ -293,25 +219,17 @@ function createBookmarkButton(postId, initialState, onBookmark) {
   return button;
 }
 
-/**
- * Dựng biến thể bảng tin riêng của Home; giữ nguyên createPostCard và mọi lớp của Search.
- * @param {object} post Bài có nội dung thật từ API.
- * @param {object} options Tác giả, tag, thống kê, ngôn ngữ người xem và thao tác lưu.
- * @returns {HTMLElement} Article có menu, dịch, tương tác và chi tiết truy cập được.
- */
+/** Dựng thẻ dùng chung cho Trang chủ, Diễn đàn và Hồ sơ từ dữ liệu bài viết thật. */
 export function createFeedPostCard(post, {
   author, tags = [], stats = {}, viewerLanguage = 'vi', bookmarked = null, onBookmark,
 } = {}) {
-  // Chỉ gắn bộ lắng nghe khi có thẻ feed, để trang Search không nhận thêm xử lý menu Home.
-  if (!feedMenuEventsMounted) {
-    document.addEventListener('click', handleFeedDocumentEvent);
-    document.addEventListener('keydown', handleFeedDocumentEvent);
-    feedMenuEventsMounted = true;
-  }
+  const authorId = author?.id ?? post.author_id;
+  const authorHref = authorId ? routes.userProfile(authorId) : null;
+  const postHref = routes.post(post.id);
   const identity = el('div', { className: 'postcard-feed__identity' });
   const name = getAuthorLabel(author);
   if (name) {
-    identity.append(el('span', { className: 'postcard-feed__name' }, wrapJapanese(name)));
+    identity.append(el(authorHref ? 'a' : 'span', { className: 'postcard-feed__name', href: authorHref }, wrapJapanese(name)));
   } else {
     identity.append(el('span', { className: 'u-placeholder-bar', 'aria-label': t('Chưa có tên tác giả') }));
   }
@@ -321,11 +239,20 @@ export function createFeedPostCard(post, {
   }
   sub.append(el('time', { datetime: post.created_at }, relativeTime(post.created_at)));
   identity.append(sub);
-  const userRow = el('div', { className: 'postcard-feed__user' }, createFeedAvatar(author), identity, createFeedMore(post.id));
-  const content = markMentions(el('p', { className: 'postcard-feed__content' }, wrapJapanese(makeExcerpt(post.content, '', 260))));
-  // Hashtag dùng liên kết an toàn và tên thật; chữ Nhật được gắn lang cho phông chính xác.
-  for (const tag of tags) {
-    content.append(' ', el('a', { href: searchUrl({ tags: [tag.name] }) }, wrapJapanese('#' + tag.name)));
+  // Mã tác giả của bài vẫn tạo được liên kết khi thông tin tên và ảnh đang tải.
+  const avatar = createFeedAvatar(author);
+  const userRow = el('div', { className: 'postcard-feed__user' }, authorHref
+    ? el('a', { className: 'postcard-feed__avatar-link', href: authorHref, 'aria-label': name || t('Hồ sơ') }, avatar)
+    : avatar, identity);
+  const title = el('h3', { className: 'postcard-feed__title' },
+    el('a', { href: postHref }, wrapJapanese(richToPlainText(post.title))));
+  const preview = buildFeedPreview(post.content);
+  const content = markMentions(el('p', { className: 'postcard-feed__content' }, wrapJapanese(preview.text)));
+  // Hashtag đi cùng đoạn chữ; bài mở đầu bằng ảnh chỉ cần tiêu đề và ảnh xem trước.
+  if (preview.text) {
+    for (const tag of tags) {
+      content.append(' ', el('a', { href: searchUrl({ tags: [tag.name] }) }, wrapJapanese('#' + tag.name)));
+    }
   }
   const engagement = el('div', { className: 'postcard-feed__engagement' },
     createFeedStat('comment', stats?.comment_count, 'comments'),
@@ -334,10 +261,13 @@ export function createFeedPostCard(post, {
     el('a', { href: routes.post(post.id), className: 'btn btn--primary featured-card__detail postcard-feed__detail' },
       t('Xem chi tiết'), feedIcon('arrow-right')),
     createBookmarkButton(post.id, bookmarked, onBookmark));
-  // Ảnh HTTPS lấy từ nội dung đã lọc, giữ thứ tự dọc; không tạo dải thumbnail hoặc dữ liệu ảnh riêng.
-  const richBody = el('div');
-  renderRichContent(richBody, post.content);
-  const images = el('div', { className: 'postcard-feed__images' }, [...richBody.querySelectorAll('img')]);
+  // Chỉ gắn ảnh đã lọc được chọn cho bản xem trước; mỗi ảnh dẫn tới toàn bộ bài.
+  const images = el('div', { className: 'postcard-feed__images' + (preview.images.length > 1 ? ' postcard-feed__images--grid' : '') });
+  for (const image of preview.images) {
+    const img = el('img', { alt: image.alt, width: image.width, height: image.height,
+      loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer', src: image.src });
+    images.append(el('a', { href: postHref, 'aria-label': image.alt || t('Xem chi tiết') }, img));
+  }
   return el('article', { className: 'postcard postcard--feed', 'data-post-id': post.id },
-    userRow, createTranslationNote(post, viewerLanguage), content, images, engagement);
+    userRow, title, createTranslationNote(post, viewerLanguage), preview.text ? content : null, images, engagement);
 }

@@ -40,7 +40,7 @@ function environment(search = '', globalBase) {
     sessionStorage: storage(),
     location: {
       search,
-      pathname: '/pages/profile/login.html',
+      pathname: '/login/',
       hash: '',
       origin: 'http://localhost:12321',
       // Ghi nhận điều hướng thay vì mở trang thật trong kiểm tra không có trình duyệt.
@@ -184,11 +184,17 @@ assert.equal(api.getToken(), 'fixture-header');
 
 // Kiểm tra URL chia sẻ, tham số quay lại và chặn chuyển hướng ra ngoài ứng dụng.
 const routes = await env.use('/utils/routes.js');
-assert.equal(routes.searchUrl({ q: ' onsen ', tags: ['question','general'] }), '/pages/search.html?q=onsen&tag=question&tag=general');
-assert.equal(routes.withRedirect(routes.routes.register, '/pages/post.html?id=1'), '/pages/profile/register.html?redirect=%2Fpages%2Fpost.html%3Fid%3D1');
+assert.equal(routes.searchUrl({ q: ' onsen ', tags: ['question','general'] }), '/search/?q=onsen&tag=question&tag=general');
+assert.equal(routes.withRedirect(routes.routes.register, '/post/?id=1'), '/register/?redirect=%2Fpost%2F%3Fid%3D1');
 const auth = await env.use('/utils/auth.js');
 for (const unsafe of ['//evil.test', '/\\evil.test', 'https://evil.test', 'javascript:alert(1)', '/\nevil.test', '/\tevil.test']) assert.equal(auth.safeRedirect(unsafe), routes.routes.home);
-assert.equal(auth.safeRedirect('/pages/post.html?id=1#comments'), '/pages/post.html?id=1#comments');
+assert.equal(auth.safeRedirect('/post/?id=1#comments'), '/post/?id=1#comments');
+// Các liên kết đăng nhập được lưu từ bản trước giữ nguyên tham số và điều hướng tới URL mới.
+assert.equal(auth.safeRedirect('/pages/post.html?id=1#comments'), '/post/?id=1#comments');
+assert.equal(auth.safeRedirect('/pages/profile/edit.html?section=profile#avatar'), '/settings/?section=profile#avatar');
+assert.equal(auth.safeRedirect('/pages/profile/?id=1#posts'), '/profile/?id=1#posts');
+assert.equal(auth.safeRedirect('/folder/..//evil.test'), routes.routes.home);
+
 // Mô phỏng đăng ký, đăng nhập và tải hồ sơ để kiểm tra đúng thứ tự API.
 const calls = [];
 env.context.fetch = async (url, options) => {
@@ -232,11 +238,11 @@ await users.updateMe({ native: 'en' });
 await users.updateMe({ bio: 'Giới thiệu' });
 assert.deepEqual(profilePatches, [{ native: 'en', language: 'en' }, { bio: 'Giới thiệu' }]);
 // Hết phiên phải xoá hồ sơ và giữ URL hiện tại để quay lại sau đăng nhập.
-env.context.location.pathname = '/pages/forum.html';
+env.context.location.pathname = '/forum/';
 env.context.location.search = '?page=2';
 env.context.fetch = async () => new Response('{"error":"expired"}', { status: 401 });
 await api.request('/my').catch(() => {});
-assert.equal(env.redirects.at(-1), '/pages/profile/login.html?redirect=%2Fpages%2Fforum.html%3Fpage%3D2');
+assert.equal(env.redirects.at(-1), '/login/?redirect=%2Fforum%2F%3Fpage%3D2');
 assert.equal(auth.getCachedUser(), null);
 // Tên tự do nhận chữ Nhật; handle chỉ nhận chữ Latin thường, số và gạch dưới.
 const validation = await env.use('/utils/validation.js');
@@ -257,6 +263,10 @@ assert.ok(hint('confirm', { value: '12345678', password: '12345679' }));
 assert.equal(hint('confirm', { value: '12345678', password: '12345678' }), '');
 assert.ok(hint('terms', { checked: false }));
 assert.equal(hint('terms', { checked: true }), '');
+// Ô đồng ý xử lý dữ liệu cá nhân (đợt 15) báo lỗi riêng, không dùng chung câu với ô Điều khoản.
+assert.ok(hint('privacy', { checked: false }));
+assert.notEqual(hint('privacy', { checked: false }), hint('terms', { checked: false }));
+assert.equal(hint('privacy', { checked: true }), '');
 const errors = await env.use('/utils/errors.js');
 assert.equal(errors.toVietnameseMessage({ message: 'Email already taken' }), 'Email này đã được sử dụng.');
 assert.equal(errors.fieldForError({ message: 'Invalid credentials' }), null);
@@ -289,7 +299,7 @@ for (const file of cssFiles) {
   assert.equal(/:(?:hover|active)[^{]*\{[^}]*\btransform\s*:/i.test(declarations), false);
 }
 for (const mode of ['login','register']) {
-  const text = await fs.readFile(path.join(root, '/pages/profile/' + mode + '.html'), 'utf8');
+  const text = await fs.readFile(path.join(root, mode + '/index.html'), 'utf8');
   assert.equal(/<style\b|\sstyle=|\son\w+=|<script(?![^>]*\bsrc=)/i.test(text), false);
   const ids = [...text.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
   assert.equal(new Set(ids).size, ids.length);

@@ -255,6 +255,32 @@
   align-items: flex-start;
 }
 
+/* Hai ô đồng ý (Điều khoản, Quyền riêng tư) xếp dọc cách nhau 10px, cả nhóm cách ô mật khẩu 16px như Figma 274:3560. */
+.auth-card__consents {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: var(--space-4);
+}
+
+/* Trong nhóm, từng ô không cần khoảng cách riêng phía trên. */
+.auth-card__consents .auth-card__terms {
+  margin-top: 0;
+}
+
+/* Nhãn đồng ý dài nên dùng chữ 13px, dòng 1.5 để vừa thẻ. */
+.auth-card__consents .checkbox {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Liên kết tới văn bản pháp lý: đỏ thương hiệu, gạch chân; viền focus chung. */
+.auth-card__consents a {
+  color: var(--color-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* Nút gửi cao và cỡ chữ riêng theo Figma, không dùng bóng; cách nhóm tuỳ chọn bằng token. */
 .auth-card__submit {
   height: var(--auth-button-height);

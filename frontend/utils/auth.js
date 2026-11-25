@@ -2,7 +2,7 @@
 import * as api from '/services/api/auth.js';
 import { getMe } from '/services/api/users.js';
 import { getToken, setToken, clearToken, onUnauthorized, ApiError } from '/services/api/client.js';
-import { routes, withRedirect } from '/utils/routes.js';
+import { cleanUrlPath, routes, withRedirect } from '/utils/routes.js';
 import { t } from '/utils/i18n.js';
 
 // Giữ các tên cũ để những trang đang dùng tiện ích auth không bị đứt liên kết.
@@ -49,7 +49,8 @@ export function safeRedirect(target, fallback = routes.home) {
   }
   try {
     const url = new URL(target, location.origin);
-    return url.origin === location.origin ? url.pathname + url.search + url.hash : fallback;
+    // Đường dẫn sau khi chuẩn hoá vẫn phải là đường dẫn nội bộ khi gán cho location.
+    return url.origin === location.origin && !url.pathname.startsWith('//') ? cleanUrlPath(url) : fallback;
   } catch {
     return fallback;
   }

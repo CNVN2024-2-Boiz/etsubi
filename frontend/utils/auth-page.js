@@ -127,9 +127,6 @@ export function initAuthPage({ mode, onSubmit, copyLines, title }) {
     event.preventDefault();
     showInfo(t('Tính năng khôi phục mật khẩu sẽ sớm có.'));
   });
-  qs('[data-terms-link]')?.addEventListener('click', () => {
-    showInfo(t('Điều khoản sử dụng sẽ được cập nhật tại trung tâm trợ giúp.'));
-  });
 
   // Nếu đã đăng nhập, cho phép đăng xuất ngay mà vẫn giữ biểu mẫu hiện tại.
   void fetchCurrentUser().then(user => {

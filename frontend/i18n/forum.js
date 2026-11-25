@@ -188,6 +188,12 @@ export default {
   'Địa điểm đã chọn': { ja: '選択した場所', en: 'Selected place' },
   'Địa điểm văn hóa': { ja: '文化スポット', en: 'Cultural place' },
   'Bản đồ chọn địa điểm': { ja: '場所を選ぶ地図', en: 'Place picker map' },
+  // Nhãn chủ quyền biển đảo Việt Nam và nút zoom trên bản đồ.
+  'Quần đảo Hoàng Sa (Việt Nam)': { ja: 'ホアンサ諸島（ベトナム）', en: 'Hoang Sa Archipelago (Viet Nam)' },
+  'Quần đảo Trường Sa (Việt Nam)': { ja: 'チュオンサ諸島（ベトナム）', en: 'Truong Sa Archipelago (Viet Nam)' },
+  'Biển Đông': { ja: 'ビエンドン（東海）', en: 'East Sea' },
+  'Phóng to': { ja: '拡大', en: 'Zoom in' },
+  'Thu nhỏ bản đồ': { ja: '縮小', en: 'Zoom out' },
   'Bản đồ địa điểm bình luận': { ja: 'コメントの場所の地図', en: 'Comment place map' },
   'Bản đồ địa điểm văn hóa': { ja: '文化スポットの地図', en: 'Cultural place map' },
   'Tìm địa điểm': { ja: '場所を検索', en: 'Search for a place' },
@@ -306,4 +312,11 @@ export default {
   'Đọc, đăng bài, bình luận và theo dõi.': { ja: '閲覧、投稿、コメント、フォローができます。', en: 'Can read, post, comment and follow.' },
   'Ẩn / xoá / khôi phục nội dung, tắt tiếng và cấm thành viên.': { ja: 'コンテンツの非表示・削除・復元、メンバーのミュートと停止ができます。', en: 'Can hide, delete and restore content, and mute or ban members.' },
   'Tiếng Anh': { ja: '英語', en: 'English' },
+
+  // Trả lời bình luận và giữ nháp khi người viết đổi ý.
+  'Trả lời': { ja: '返信', en: 'Reply' },
+  'Trả lời {name}': { ja: '{name}さんに返信', en: 'Reply to {name}' },
+  'Gửi trả lời': { ja: '返信を送信', en: 'Send reply' },
+  'Bỏ nội dung trả lời?': { ja: '返信の下書きを破棄しますか？', en: 'Discard this reply?' },
+  'Bỏ bản nháp': { ja: '下書きを破棄', en: 'Discard draft' },
 };

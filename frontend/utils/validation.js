@@ -21,6 +21,10 @@ export function authFieldMessage(name, { value = '', password = '', checked = fa
   if (name === 'terms') {
     return checked ? '' : t('Bạn cần đồng ý với điều khoản sử dụng.');
   }
+  // Ô đồng ý xử lý dữ liệu cá nhân là bắt buộc riêng, báo lỗi riêng cho ô này.
+  if (name === 'privacy') {
+    return checked ? '' : t('Bạn cần đồng ý với Chính sách quyền riêng tư để tạo tài khoản.');
+  }
   if (!text) {
     const instructions = {
       email: t('Vui lòng nhập email.'),

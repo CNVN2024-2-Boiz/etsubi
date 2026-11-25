@@ -28,7 +28,7 @@
 /* Nút mở rộng và zoom dùng góc phải; vùng hint bên trái không chồng điều khiển. */
 .place-picker__fullscreen { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 1000; display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-text); font: inherit; font-size: var(--rich-chip-size); cursor: pointer; }
 .place-picker__fullscreen:focus-visible { outline: none; box-shadow: var(--focus-ring); }
-.place-picker__map .leaflet-top.leaflet-right { top: var(--space-10); }
+.place-picker__map .maplibregl-ctrl-top-right { top: var(--space-10); }
 /* Toàn màn hình phủ viewport, các điều khiển nổi trên map; không có chuyển cảnh. */
 .place-picker.is-fullscreen { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100vh; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; }
 .place-picker.is-fullscreen .place-picker__map-wrap { position: absolute; inset: 0; margin: 0; }
@@ -42,14 +42,13 @@
 .place-picker.is-fullscreen .place-picker__actions { position: absolute; right: var(--space-4); bottom: var(--space-4); z-index: 1001; margin: 0; }
 .place-picker.is-fullscreen .place-picker__status { position: absolute; top: calc(var(--space-10) + var(--space-9)); left: var(--space-4); right: var(--space-4); z-index: 1003; background: var(--color-cream); }
 .place-picker.is-fullscreen .place-picker__map-hint, .place-picker.is-fullscreen .place-picker__fullscreen { top: var(--space-10); }
-.place-picker.is-fullscreen .place-picker__map .leaflet-top.leaflet-right { top: calc(var(--space-10) + var(--space-9)); }
+.place-picker.is-fullscreen .place-picker__map .maplibregl-ctrl-top-right { top: calc(var(--space-10) + var(--space-9)); }
 /* Pin Lucide màu thương hiệu và lòng kem, giữ nguyên tỷ lệ ở cả hai bản đồ. */
 .place-map__pin { width: var(--place-pin-width); height: var(--place-pin-height); color: var(--color-red); }
 .place-map__pin svg { height: var(--place-pin-height); fill: var(--color-cream); }
-/* Tắt CSS transition của Leaflet theo quy tắc không hoạt ảnh, vẫn giữ attribution. */
-.place-map .leaflet-tile, .place-map .leaflet-zoom-animated { transition: none; }
-.place-map .leaflet-control-attribution { background: var(--color-cream); color: var(--color-text-body); }
-.place-map .leaflet-control-attribution a { color: var(--color-red-dark); }
+/* Attribution OpenStreetMap luôn hiện, dùng màu thương hiệu thay cho màu mặc định của MapLibre. */
+.place-map .maplibregl-ctrl-attrib { background: var(--color-cream); color: var(--color-text-body); }
+.place-map .maplibregl-ctrl-attrib a { color: var(--color-red-dark); }
 /* Toạ độ và nút định vị chia hai phía, tự xuống hàng trên màn hình nhỏ. */
 .place-picker__coordinates { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-4); color: var(--color-muted); font-size: 14px; }
 .place-picker__coordinates strong { color: var(--color-text); }

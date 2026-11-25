@@ -39,7 +39,6 @@ export default {
   'Tài nguyên': { ja: 'リソース', en: 'Resources' },
   'Trung tâm trợ giúp': { ja: 'ヘルプセンター', en: 'Help center' },
   'Điều khoản sử dụng': { ja: '利用規約', en: 'Terms of use' },
-  'Chính sách bảo mật': { ja: 'プライバシーポリシー', en: 'Privacy policy' },
   'Phản hồi': { ja: 'フィードバック', en: 'Feedback' },
   'Liên hệ': { ja: 'お問い合わせ', en: 'Contact' },
   'TP. Hồ Chí Minh, Việt Nam': { ja: 'ベトナム、ホーチミン市', en: 'Ho Chi Minh City, Vietnam' },
@@ -111,4 +110,7 @@ export default {
   '{actor} đã khoá tài khoản của bạn': { ja: '{actor}があなたのアカウントを停止しました', en: '{actor} banned your account' },
   '{actor} đã khoá bình luận bài viết của bạn': { ja: '{actor}があなたの投稿のコメントをロックしました', en: '{actor} locked comments on your post' },
   '{actor} đã gỡ bài viết “{title}” của bạn': { ja: '{actor}があなたの投稿「{title}」を削除しました', en: '{actor} removed your post “{title}”' },
+
+  // Nhãn của liên kết công khai khi tên người dùng chưa tải.
+  'Hồ sơ': { ja: 'プロフィール', en: 'Profile' },
 };
