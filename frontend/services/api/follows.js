@@ -59,4 +59,12 @@ export function listMyFollowing() {
   return request('/my/following');
 }
 
+/**
+ * Gợi ý người nên theo dõi (cần JWT): backend chọn người có nhiều người theo dõi nhất, bỏ chính mình và người đã theo dõi.
+ * @returns {Promise<Array>} Tối đa 3 phần tử { id, username, displayname, avatar_url, follower_count }.
+ */
+export function listSuggestedFollows() {
+  return request('/my/suggested-follows');
+}
+
 // CẦN BACKEND: danh sách followers/following đã có displayname; còn thiếu phân trang limit/offset và tổng số.
