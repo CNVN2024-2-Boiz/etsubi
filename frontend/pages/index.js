@@ -8,7 +8,7 @@ import { listHomeFeed, getFeaturedPosts, getPostTags, getPostStats } from '/serv
 import { backendSupports } from '/services/api/capabilities.js';
 import { getReactionSummary } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, getBookmarkState } from '/services/api/bookmarks.js';
-import { followUser, unfollowUser, listMyFollowing } from '/services/api/follows.js';
+import { followUser, unfollowUser, listMyFollowing, listSuggestedFollows } from '/services/api/follows.js';
 import { getUser } from '/services/api/users.js';
 import { listTags } from '/services/api/tags.js';
 import { readStorage } from '/services/api/client.js';
@@ -53,6 +53,8 @@ const recommendationPosts = new Map();
 let followingForSuggestions = null;
 let suggestionVersion = 0;
 let suggestedMembers = [];
+// Gợi ý từ backend chỉ gọi một lần mỗi lần mở trang; null nghĩa là backend chưa hỗ trợ hoặc lỗi.
+let suggestedFollowsRequest = null;
 
 /** Báo lỗi tiếng Việt trong vùng alert dùng chung, không dùng alert() của trình duyệt. */
 function showError(error) {
@@ -330,20 +332,33 @@ function renderRecommendations() {
       el('p', {}, wrapJapanese(user ? t('Dành riêng cho {name}', { name: getAuthorLabel(user) }) : t('Gợi ý cho bạn')))), body);
 }
 
-/** Tìm tối đa ba tác giả chưa theo dõi; dùng bộ nhớ hồ sơ chung và bỏ qua hồ sơ tải lỗi. */
-async function refreshSuggestedMembers() {
-  const version = ++suggestionVersion;
-  if (!user || !followingForSuggestions) return;
+/** Cách cũ: lấy tối đa ba tác giả chưa theo dõi từ bài nổi bật và bảng tin; trả null nếu đã có lần làm mới khác. */
+async function suggestFromPosts(version) {
   const posts = [...(featured || []), ...recommendationPosts.values()];
   const ids = new Set(posts.map(post => post.author_id).filter(Boolean));
   const members = [];
   for (const id of ids) {
     if (id === user.id || followingForSuggestions.has(id)) continue;
     const member = await getUser(id).catch(() => null);
-    if (version !== suggestionVersion) return;
+    if (version !== suggestionVersion) return null;
     if (member && !followingForSuggestions.has(id)) members.push(member);
     if (members.length === 3) break;
   }
+  return members;
+}
+
+/** Lấy tối đa ba người nên theo dõi từ backend; backend chưa có endpoint hoặc lỗi thì dùng lại cách cũ. */
+async function refreshSuggestedMembers() {
+  const version = ++suggestionVersion;
+  if (!user || !followingForSuggestions) return;
+  suggestedFollowsRequest ??= listSuggestedFollows().catch(() => null);
+  const suggested = await suggestedFollowsRequest;
+  if (version !== suggestionVersion) return;
+  // Lọc lại theo danh sách đang theo dõi trên trang để nút vừa bấm Theo dõi không hiện lại người đó.
+  const members = Array.isArray(suggested)
+    ? suggested.filter(member => member?.id && member.id !== user.id && !followingForSuggestions.has(member.id)).slice(0, 3)
+    : await suggestFromPosts(version);
+  if (!members) return;
   if (suggestedMembers.map(member => member.id).join() !== members.map(member => member.id).join()) {
     suggestedMembers = members;
     renderRecommendations();
