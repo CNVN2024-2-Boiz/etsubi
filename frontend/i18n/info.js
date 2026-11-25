@@ -32,7 +32,7 @@ export default {
   'Mình có thể đăng nhập bằng tên người dùng không?': { ja: 'ユーザー名でログインできますか?', en: 'Can I sign in with my username?' },
   'Hiện tại Etsubi chỉ hỗ trợ đăng nhập bằng email và mật khẩu đã đăng ký.': { ja: '現在、Etsubiでは登録したメールアドレスとパスワードでのログインのみ対応しています。', en: 'Etsubi currently supports signing in only with the email and password you registered with.' },
   'Quên mật khẩu thì làm sao?': { ja: 'パスワードを忘れた場合はどうすればいいですか?', en: 'What if I forget my password?' },
-  'Chức năng khôi phục mật khẩu đang được phát triển. Trong lúc chờ, hãy gửi email tới contact@etsubi.vn từ địa chỉ email bạn đã dùng để đăng ký.': { ja: 'パスワードの再設定機能は現在開発中です。それまでは、登録時に使用したメールアドレスから contact@etsubi.vn までメールをお送りください。', en: 'Password recovery is still in development. In the meantime, email contact@etsubi.vn from the address you used to register.' },
+  'Chức năng khôi phục mật khẩu đang được phát triển. Trong lúc chờ, hãy gửi email tới contact@etsubi.net từ địa chỉ email bạn đã dùng để đăng ký.': { ja: 'パスワードの再設定機能は現在開発中です。それまでは、登録時に使用したメールアドレスから contact@etsubi.net までメールをお送りください。', en: 'Password recovery is still in development. In the meantime, email contact@etsubi.net from the address you used to register.' },
   'Làm sao để đăng bài mới?': { ja: '新しい投稿をするにはどうすればいいですか?', en: 'How do I create a new post?' },
   'Vào Diễn đàn và bấm vào ô "bạn đang nghĩ gì?". Nhập nội dung và tiêu đề, chọn chủ đề phù hợp rồi bấm "Đăng". Bài mới xuất hiện ở đầu tab "Mới nhất".': { ja: 'フォーラムを開いて「いま何を考えていますか?」の欄を押します。内容とタイトルを入力し、適切なトピックを選んで「投稿する」を押してください。新しい投稿は「新着」タブの先頭に表示されます。', en: 'Go to the Forum and select the "What\'s on your mind?" box. Enter the content and a title, choose a suitable topic, then select "Post". The new post appears at the top of the "Latest" tab.' },
   'Làm sao để xoá bình luận của mình?': { ja: 'コメントを削除するにはどうすればいいですか?', en: 'How do I delete my comment?' },
@@ -48,11 +48,11 @@ export default {
   'Thẻ "Địa điểm văn hoá" ở bài viết là gì?': { ja: '投稿の「文化の場所」カードとは何ですか?', en: 'What is the "Cultural places" card on a post?' },
   'Khi bài viết có gắn toạ độ, trang đọc bài hiện thẻ bản đồ ở cột bên phải. Bấm "Mở trong Maps" để xem vị trí và chỉ đường trên Google Maps.': { ja: '投稿に座標が付いている場合、投稿ページの右側の列に地図カードが表示されます。「Mapsで開く」を押すと、Google Mapsで場所の確認と道案内ができます。', en: 'When a post has coordinates, the reading page shows a map card in the right-hand column. Select "Open in Maps" to see the location and get directions in Google Maps.' },
   'Gặp nội dung vi phạm thì làm sao?': { ja: 'ルール違反のコンテンツを見つけたらどうすればいいですか?', en: 'What should I do if I see content that breaks the rules?' },
-  'Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.vn. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.': { ja: '投稿またはコメントのリンクと問題の内容を、contact@etsubi.vn までメールでお送りください。モデレーターがコミュニティルールに沿って確認します。', en: 'Email contact@etsubi.vn with the link to the post or comment and a description of the problem. The moderation team will review it under the community rules.' },
+  'Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.net. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.': { ja: '投稿またはコメントのリンクと問題の内容を、contact@etsubi.net までメールでお送りください。モデレーターがコミュニティルールに沿って確認します。', en: 'Email contact@etsubi.net with the link to the post or comment and a description of the problem. The moderation team will review it under the community rules.' },
   'Tôn trọng mọi thành viên, không phân biệt quốc tịch hay trình độ ngôn ngữ.': { ja: 'すべてのメンバーを尊重してください。国籍や言語レベルによる区別はありません。', en: 'Respect every member, regardless of nationality or language level.' },
   'Không spam, quảng cáo hoặc đăng nội dung trùng lặp.': { ja: 'スパム、宣伝、重複した投稿はしないでください。', en: 'No spam, advertising or duplicate posts.' },
   'Ghi rõ nguồn khi chia sẻ tài liệu và hình ảnh.': { ja: '資料や画像を共有するときは、出典を明記してください。', en: 'Credit the source when sharing documents and images.' },
-  'Gặp nội dung vi phạm, gửi email kèm đường link tới contact@etsubi.vn.': { ja: 'ルール違反の内容を見つけたら、リンクを添えて contact@etsubi.vn までメールでお送りください。', en: 'If you see content that breaks the rules, email the link to contact@etsubi.vn.' },
+  'Gặp nội dung vi phạm, gửi email kèm đường link tới contact@etsubi.net.': { ja: 'ルール違反の内容を見つけたら、リンクを添えて contact@etsubi.net までメールでお送りください。', en: 'If you see content that breaks the rules, email the link to contact@etsubi.net.' },
   'Đăng ký tài khoản': { ja: 'アカウント登録', en: 'Create account' },
 
   // Chữ do support.js dựng: số câu hỏi, trạng thái lọc, thông báo trong hộp thoại.
@@ -69,7 +69,7 @@ export default {
   '{count} câu hỏi phù hợp.': { ja: '{count}件の質問が見つかりました。', en: { one: '{count} matching question.', other: '{count} matching questions.' } },
   'Vui lòng nhập email hợp lệ.': { ja: '有効なメールアドレスを入力してください。', en: 'Please enter a valid email address.' },
   'Vui lòng nhập nội dung cần hỗ trợ.': { ja: 'サポートが必要な内容を入力してください。', en: 'Please enter what you need help with.' },
-  'Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.vn.': { ja: 'メールアプリを開きました。表示されない場合は、contact@etsubi.vn 宛にお送りください。', en: 'Your email app has been opened. If you do not see it, please send your message to contact@etsubi.vn.' },
+  'Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.net.': { ja: 'メールアプリを開きました。表示されない場合は、contact@etsubi.net 宛にお送りください。', en: 'Your email app has been opened. If you do not see it, please send your message to contact@etsubi.net.' },
 
   // Chữ viết sẵn trong support.html: hero, thẻ liên hệ, hộp thoại gửi yêu cầu.
   'Hỗ trợ · Etsubi': { ja: 'サポート · Etsubi', en: 'Support · Etsubi' },

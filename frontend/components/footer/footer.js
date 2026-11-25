@@ -81,11 +81,12 @@ export function mountFooter(target = qs('[data-component="footer"]'), { variant 
     ]),
     column(t('Tài nguyên'), [
       [t('Trung tâm trợ giúp'), routes.support],
-      [t('Điều khoản sử dụng'), routes.support + '#terms'],
+      [t('Điều khoản sử dụng'), routes.terms],
+      [t('Chính sách quyền riêng tư'), routes.privacy],
       [t('Phản hồi'), routes.support + '#feedback'],
     ]),
     column(t('Liên hệ'), [
-      ['contact@etsubi.vn', 'mailto:contact@etsubi.vn'],
+      ['contact@etsubi.net', 'mailto:contact@etsubi.net'],
       ['+84 28 1234 5678', 'tel:+842812345678'],
       [t('TP. Hồ Chí Minh, Việt Nam'), null],
     ])

@@ -263,6 +263,10 @@ assert.ok(hint('confirm', { value: '12345678', password: '12345679' }));
 assert.equal(hint('confirm', { value: '12345678', password: '12345678' }), '');
 assert.ok(hint('terms', { checked: false }));
 assert.equal(hint('terms', { checked: true }), '');
+// Ô đồng ý xử lý dữ liệu cá nhân (đợt 15) báo lỗi riêng, không dùng chung câu với ô Điều khoản.
+assert.ok(hint('privacy', { checked: false }));
+assert.notEqual(hint('privacy', { checked: false }), hint('terms', { checked: false }));
+assert.equal(hint('privacy', { checked: true }), '');
 const errors = await env.use('/utils/errors.js');
 assert.equal(errors.toVietnameseMessage({ message: 'Email already taken' }), 'Email này đã được sử dụng.');
 assert.equal(errors.fieldForError({ message: 'Invalid credentials' }), null);

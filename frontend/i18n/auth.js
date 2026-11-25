@@ -37,7 +37,9 @@ export default {
   'Tên người dùng': { ja: 'ユーザー名', en: 'Username' },
   'Duy nhất · chữ thường, số và _': { ja: '重複不可 · 小文字、数字、_', en: 'Unique · lowercase letters, numbers and _' },
   'Xác nhận mật khẩu': { ja: 'パスワード(確認)', en: 'Confirm password' },
-  'Tôi đồng ý với <a href="#terms" data-terms-link="">Điều khoản sử dụng</a>': { ja: '<a href="#terms" data-terms-link="">利用規約</a>に同意します', en: 'I agree to the <a href="#terms" data-terms-link="">Terms of use</a>' },
+  'Tôi đồng ý với <a href="/terms/" target="_blank" rel="noopener">Điều khoản sử dụng</a> và xác nhận mình từ đủ 16 tuổi': { ja: '<a href="/terms/" target="_blank" rel="noopener">利用規約</a>に同意し、16歳以上であることを確認します', en: 'I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms of use</a> and confirm that I am at least 16 years old' },
+  'Tôi đồng ý để Etsubi xử lý dữ liệu cá nhân theo <a href="/privacy/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a> (bắt buộc để tạo tài khoản)': { ja: '<a href="/privacy/" target="_blank" rel="noopener">プライバシーポリシー</a>に従ってEtsubiが個人データを処理することに同意します(アカウント作成に必須)', en: 'I agree that Etsubi may process my personal data under the <a href="/privacy/" target="_blank" rel="noopener">Privacy policy</a> (required to create an account)' },
+  'Bạn cần đồng ý với Chính sách quyền riêng tư để tạo tài khoản.': { ja: 'アカウントを作成するにはプライバシーポリシーへの同意が必要です。', en: 'You need to agree to the Privacy policy to create an account.' },
   'Đăng ký với Google': { ja: 'Googleで新規登録', en: 'Sign up with Google' },
   'Đăng ký bằng Google sắp có.': { ja: 'Googleでの新規登録はまもなく利用できます。', en: 'Google sign-up is coming soon.' },
   'Đã có tài khoản?': { ja: 'すでにアカウントをお持ちですか?', en: 'Already have an account?' },
@@ -54,7 +56,6 @@ export default {
   'Bạn đang đăng nhập với tên {name}. Tiếp tục hoặc {action}.': { ja: '{name}としてログイン中です。このまま続けるか、{action}してください。', en: 'You are signed in as {name}. Continue or {action}.' },
   'đăng xuất': { ja: 'ログアウト', en: 'sign out' },
   'Tính năng khôi phục mật khẩu sẽ sớm có.': { ja: 'パスワード再設定機能はまもなく利用できます。', en: 'Password recovery is coming soon.' },
-  'Điều khoản sử dụng sẽ được cập nhật tại trung tâm trợ giúp.': { ja: '利用規約はヘルプセンターで公開される予定です。', en: 'The terms of use will be published in the help center.' },
 
   // Trang đăng ký nâng cao: tiêu đề, tiến trình và mẹo.
   'Tài khoản': { ja: 'アカウント', en: 'Account' },
@@ -127,7 +128,7 @@ export default {
   'Vui lòng chọn ngôn ngữ mẹ đẻ.': { ja: '母語を選択してください。', en: 'Please choose your native language.' },
 
   // Điều khoản, nút thao tác và thông báo lưu hồ sơ.
-  'Tôi đồng ý với <a href="#" data-terms-link="">Điều khoản sử dụng</a> và <a href="#" data-terms-link="">Quy tắc cộng đồng Etsubi</a>': { ja: '<a href="#" data-terms-link="">利用規約</a>と<a href="#" data-terms-link="">Etsubiコミュニティルール</a>に同意します', en: 'I agree to the <a href="#" data-terms-link="">Terms of use</a> and the <a href="#" data-terms-link="">Etsubi community guidelines</a>' },
+  'Tôi đồng ý với <a href="/terms/" target="_blank" rel="noopener">Điều khoản sử dụng</a> và <a href="/support/#rules-title" target="_blank" rel="noopener">Quy tắc cộng đồng Etsubi</a>': { ja: '<a href="/terms/" target="_blank" rel="noopener">利用規約</a>と<a href="/support/#rules-title" target="_blank" rel="noopener">Etsubiコミュニティルール</a>に同意します', en: 'I agree to the <a href="/terms/" target="_blank" rel="noopener">Terms of use</a> and the <a href="/support/#rules-title" target="_blank" rel="noopener">Etsubi community guidelines</a>' },
   'Vui lòng đồng ý với điều khoản và quy tắc cộng đồng.': { ja: '利用規約とコミュニティルールに同意してください。', en: 'Please agree to the terms and community guidelines.' },
   '‹ Quay lại': { ja: '‹ 戻る', en: '‹ Back' },
   'Lưu nháp': { ja: '下書きを保存', en: 'Save draft' },

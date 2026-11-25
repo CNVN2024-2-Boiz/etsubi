@@ -270,7 +270,7 @@ function submitDialog(event) {
   }
   const topic = topics.find(entry => entry.id === qs('[data-dialog-topic]').value);
   location.href = buildSupportMailto(topic?.title || t('Hỗ trợ'), email, message);
-  setDialogStatus(t('Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.vn.'));
+  setDialogStatus(t('Ứng dụng email của bạn đã được mở. Nếu không thấy, hãy gửi tới contact@etsubi.net.'));
 }
 
 /** Đóng hộp thoại và trả focus về nút đã mở nó (trình duyệt tự làm khi dùng dialog). */
