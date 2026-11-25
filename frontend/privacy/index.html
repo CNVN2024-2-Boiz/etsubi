@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <!-- Phông và tài nguyên dùng chung để trang pháp lý đồng nhất với Etsubi; trang chỉ có văn bản tĩnh, không gọi API. -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Chính sách quyền riêng tư · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@350;400;500;700&amp;display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/legal.css" />
+    <script type="module" src="/pages/legal.js"></script>
+  </head>
+  <body class="page page--legal">
+    <!-- Điều hướng dùng chung và lối tắt tới nội dung cho người dùng bàn phím. -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <header class="site-header" data-component="header"></header>
+
+    <main id="main" tabindex="-1">
+      <!-- Đầu trang có tên, thông tin phiên bản và hai liên kết chuyển văn bản (khung chung của Quân). -->
+      <section class="legal-hero" aria-labelledby="legal-title">
+        <div class="legal-art" aria-hidden="true">
+          <img class="legal-art__sun" src="/assets/illustrations/legal/sun.svg" alt="" />
+          <img class="legal-art__cloud-inner" src="/assets/illustrations/legal/cloud-right-inner.svg" alt="" />
+          <img class="legal-art__cloud-outer" src="/assets/illustrations/legal/cloud-right-outer.svg" alt="" />
+          <img class="legal-art__cloud-left" src="/assets/illustrations/legal/cloud-left.svg" alt="" />
+          <img class="legal-art__torii-right" src="/assets/illustrations/legal/torii-right.svg" alt="" />
+          <img class="legal-art__torii-left" src="/assets/illustrations/legal/torii-left.svg" alt="" />
+          <img class="legal-art__petal--1" src="/assets/illustrations/legal/petal-1.svg" alt="" />
+          <img class="legal-art__petal--2" src="/assets/illustrations/legal/petal-2.svg" alt="" />
+          <img class="legal-art__petal--3" src="/assets/illustrations/legal/petal-3.svg" alt="" />
+          <img class="legal-art__petal--4" src="/assets/illustrations/legal/petal-4.svg" alt="" />
+          <img class="legal-art__petal--5" src="/assets/illustrations/legal/petal-5.svg" alt="" />
+          <img class="legal-art__petal--6" src="/assets/illustrations/legal/petal-6.svg" alt="" />
+          <img class="legal-art__petal--7" src="/assets/illustrations/legal/petal-1.svg" alt="" />
+          <img class="legal-art__petal--8" src="/assets/illustrations/legal/petal-7.svg" alt="" />
+        </div>
+        <p class="legal-hero__eyebrow"><span data-i18n>VĂN BẢN PHÁP LÝ</span> · <span lang="ja">プライバシーポリシー</span></p>
+        <h1 id="legal-title" class="t-display legal-hero__title" data-i18n>Chính sách quyền riêng tư</h1>
+        <p class="legal-hero__meta">
+          <span data-i18n>Có hiệu lực từ [dd/mm/yyyy] · Phiên bản [1.0]</span>
+          <span class="legal-hero__updated"> · <span data-i18n>Cập nhật lần cuối [dd/mm/yyyy]</span></span>
+        </p>
+        <nav class="legal-switch" aria-label="Văn bản pháp lý" data-i18n-attr="aria-label">
+          <a href="/terms/">
+            <span class="legal-switch__full" data-i18n>Điều khoản sử dụng</span>
+            <span class="legal-switch__short" data-i18n>Điều khoản</span>
+          </a>
+          <a href="/privacy/" aria-current="page">
+            <span class="legal-switch__full" data-i18n>Chính sách quyền riêng tư</span>
+            <span class="legal-switch__short" data-i18n>Quyền riêng tư</span>
+          </a>
+        </nav>
+      </section>
+
+      <div class="legal-main">
+        <!-- Cánh hoa tĩnh nằm ngoài cột đọc trên màn hình rộng. -->
+        <div class="legal-art legal-art--main" aria-hidden="true">
+          <img class="legal-art__petal--9" src="/assets/illustrations/legal/petal-8.svg" alt="" />
+          <img class="legal-art__petal--10" src="/assets/illustrations/legal/petal-9.svg" alt="" />
+          <img class="legal-art__petal--11" src="/assets/illustrations/legal/petal-10.svg" alt="" />
+          <img class="legal-art__petal--12" src="/assets/illustrations/legal/petal-11.svg" alt="" />
+          <img class="legal-art__petal--13" src="/assets/illustrations/legal/petal-12.svg" alt="" />
+          <img class="legal-art__petal--14" src="/assets/illustrations/legal/petal-13.svg" alt="" />
+        </div>
+        <div class="legal-layout">
+          <!-- Mục lục đọc từ các tiêu đề bên dưới; điện thoại thu gọn bằng một nút. -->
+          <nav class="legal-toc" aria-label="Mục lục" data-i18n-attr="aria-label">
+            <p class="legal-toc__band">
+              <img src="/assets/illustrations/legal/torii-contents.svg" alt="" />
+              <span data-i18n>Mục lục</span>
+            </p>
+            <button type="button" class="legal-toc__toggle" data-legal-toc-toggle aria-expanded="false" aria-controls="legal-toc-list">
+              <span data-legal-toc-label data-i18n>Mục lục</span>
+              <img src="/assets/icons/chevron-down.svg" width="14" height="14" alt="" />
+            </button>
+            <ol id="legal-toc-list" class="legal-toc__list" data-legal-toc></ol>
+          </nav>
+
+          <div class="legal-content">
+            <!-- Bản tiếng Việt là văn bản chính; phần tóm tắt giúp đọc nhanh trước khi xem đủ các mục. -->
+            <p class="legal-note" data-i18n-html>Bản tiếng Việt là văn bản có giá trị pháp lý. Bản <span lang="ja">日本語</span> và <span lang="en">English</span> chỉ để tham khảo; nếu có khác biệt, bản tiếng Việt được ưu tiên.</p>
+            <section class="legal-summary" aria-labelledby="legal-summary-title">
+              <h2 id="legal-summary-title" data-i18n>Tóm tắt nhanh</h2>
+              <ul>
+                <li data-i18n>Etsubi chỉ thu thập dữ liệu cần để bạn dùng diễn đàn: tài khoản, hồ sơ bạn tự điền, nội dung bạn đăng và dữ liệu kỹ thuật tối thiểu.</li>
+                <li data-i18n>Vị trí là dữ liệu nhạy cảm; chỉ được lưu khi bạn tự gắn địa điểm và gỡ được bất cứ lúc nào.</li>
+                <li data-i18n>Nội dung chỉ được gửi ra nước ngoài khi cần dịch bằng AI hoặc tải bản đồ, phông chữ. Etsubi không bán dữ liệu và không chạy quảng cáo.</li>
+                <li data-i18n-html>Bạn có quyền xem, sửa, xoá dữ liệu và xoá hẳn tài khoản trong <strong>Cài đặt</strong>, hoặc gửi yêu cầu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>.</li>
+              </ul>
+            </section>
+
+            <!-- Văn bản HTML tĩnh để có thể đọc, in và sao chép trực tiếp; mỗi mục có mã cố định để dẫn link. -->
+            <article class="legal-article" aria-labelledby="legal-title">
+              <!-- Bên kiểm soát dữ liệu. -->
+              <section class="legal-section" id="ben-kiem-soat" aria-labelledby="ben-kiem-soat-title" data-legal-section tabindex="-1">
+                <h2 id="ben-kiem-soat-title"><span data-legal-number>1. </span><span data-legal-heading data-i18n>Ai chịu trách nhiệm về dữ liệu của bạn</span></h2>
+                <p data-i18n>Etsubi là diễn đàn giao lưu văn hoá Việt – Nhật do nhóm sinh viên thực hiện đồ án môn IE104 tại Trường Đại học Công nghệ Thông tin – ĐHQG TP.HCM (UIT) xây dựng và vận hành. Nhóm vừa là bên kiểm soát vừa là bên xử lý dữ liệu cá nhân của bạn trên Etsubi.</p>
+                <p data-i18n-html>Đầu mối liên hệ về dữ liệu cá nhân: nhóm Etsubi, email <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>, TP. Hồ Chí Minh, Việt Nam.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Điều 2 và Điều 9.</p>
+              </section>
+
+              <!-- Bảng dữ liệu thu thập: cùng một <table> cho desktop và mobile; trên mobile mỗi hàng thành một thẻ nhờ data-cell. -->
+              <section class="legal-section" id="du-lieu-thu-thap" aria-labelledby="du-lieu-thu-thap-title" data-legal-section tabindex="-1">
+                <h2 id="du-lieu-thu-thap-title"><span data-legal-number>2. </span><span data-legal-heading data-i18n>Dữ liệu chúng tôi thu thập</span></h2>
+                <p data-i18n>Bảng dưới liệt kê từng nhóm dữ liệu, dùng để làm gì và có bắt buộc hay không. Etsubi không thu thập số điện thoại, ảnh giấy tờ tuỳ thân hay dữ liệu thanh toán.</p>
+                <table class="legal-table">
+                  <caption class="u-visually-hidden" data-i18n>Các nhóm dữ liệu Etsubi thu thập</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col" data-i18n>Nhóm dữ liệu</th>
+                      <th scope="col" data-i18n>Gồm những gì</th>
+                      <th scope="col" data-i18n>Dùng để</th>
+                      <th scope="col" data-i18n>Bắt buộc?</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-cell="title" data-i18n>Tài khoản</td>
+                      <td data-cell="body" data-i18n>Email, mật khẩu (đã băm), tên hiển thị, tên người dùng (@handle)</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Tạo tài khoản, đăng nhập, hiện tên trên bài viết</td>
+                      <td data-cell="chip" data-i18n>Bắt buộc</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Hồ sơ</td>
+                      <td data-cell="body" data-i18n>Ảnh đại diện, trường, nơi ở, giới thiệu, ngôn ngữ mẹ đẻ</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Hiện hồ sơ công khai, chọn ngôn ngữ dịch</td>
+                      <td data-cell="chip" data-i18n>Tuỳ chọn, trừ ngôn ngữ mẹ đẻ</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Nội dung</td>
+                      <td data-cell="body" data-i18n>Bài viết, bình luận, ảnh chèn qua liên kết, chủ đề</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Hiển thị trên diễn đàn, tìm kiếm</td>
+                      <td data-cell="chip" data-i18n>Khi bạn đăng</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Vị trí (nhạy cảm)</td>
+                      <td data-cell="body" data-i18n>Toạ độ (vĩ độ, kinh độ) bạn gắn vào bài viết, bình luận</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Hiện thẻ địa điểm và bản đồ</td>
+                      <td data-cell="chip" data-i18n>Tuỳ chọn</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Hoạt động</td>
+                      <td data-cell="body" data-i18n>Người theo dõi, lượt thích, bài đã lưu, thông báo</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Tính năng cộng đồng</td>
+                      <td data-cell="chip" data-i18n>Khi bạn dùng</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Quản trị</td>
+                      <td data-cell="body" data-i18n>Vai trò, trạng thái cấm, thời hạn tắt tiếng</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Kiểm duyệt, xử lý vi phạm</td>
+                      <td data-cell="chip" data-i18n>Tự động</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Kỹ thuật</td>
+                      <td data-cell="body" data-i18n>Địa chỉ IP, thời gian truy cập (nhật ký máy chủ)</td>
+                      <td data-cell="meta" data-label="Dùng để" data-i18n-attr="data-label" data-i18n>Bảo mật, chống spam</td>
+                      <td data-cell="chip" data-i18n>Tự động</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 29 khoản 1.</p>
+              </section>
+
+              <!-- Mục đích xử lý. -->
+              <section class="legal-section" id="muc-dich" aria-labelledby="muc-dich-title" data-legal-section tabindex="-1">
+                <h2 id="muc-dich-title"><span data-legal-number>3. </span><span data-legal-heading data-i18n>Mục đích xử lý</span></h2>
+                <p data-i18n>Mỗi nhóm dữ liệu chỉ được dùng cho đúng mục đích ghi trong bảng ở mục 2. Bạn đồng ý theo từng mục đích: đồng ý tạo tài khoản không có nghĩa là đồng ý chia sẻ vị trí hay điền hồ sơ.</p>
+                <ul>
+                  <li data-i18n>Etsubi không bán, không cho thuê dữ liệu cá nhân.</li>
+                  <li data-i18n>Etsubi không chạy quảng cáo và không dùng dữ liệu của bạn để nhắm quảng cáo.</li>
+                  <li data-i18n>Etsubi không theo dõi bạn trên các trang web khác.</li>
+                  <li data-i18n>Khi cần dùng dữ liệu cho mục đích mới, Etsubi sẽ xin bạn đồng ý lại.</li>
+                </ul>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 9 khoản 4.</p>
+              </section>
+
+              <!-- Dữ liệu vị trí là dữ liệu nhạy cảm. -->
+              <section class="legal-section" id="vi-tri" aria-labelledby="vi-tri-title" data-legal-section tabindex="-1">
+                <h2 id="vi-tri-title"><span data-legal-number>4. </span><span data-legal-heading data-i18n>Dữ liệu vị trí là dữ liệu nhạy cảm</span></h2>
+                <p data-i18n>Theo pháp luật Việt Nam, vị trí của một người được xác định qua dịch vụ định vị là dữ liệu cá nhân nhạy cảm. Etsubi lưu toạ độ khi bạn gắn địa điểm vào bài viết hoặc bình luận, nên chúng tôi nói rõ điều này trước khi bạn đồng ý.</p>
+                <ul>
+                  <li data-i18n>Toạ độ chỉ được lưu khi bạn tự chọn gắn địa điểm; Etsubi không tự lấy vị trí của thiết bị.</li>
+                  <li data-i18n>Địa điểm đã gắn hiện công khai trên bài viết hoặc bình luận, ai xem bài cũng thấy.</li>
+                  <li data-i18n>Bạn gỡ địa điểm bất cứ lúc nào bằng cách sửa bài viết hoặc bình luận.</li>
+                  <li data-i18n>Hãy cân nhắc trước khi gắn địa điểm có thể lộ nơi ở, nơi học hoặc nơi làm việc của bạn hay của người khác.</li>
+                </ul>
+                <p class="legal-basis" data-i18n>Căn cứ: Nghị định 356/2025/NĐ-CP, Điều 4 khoản 1 điểm h và Điều 6 khoản 4.</p>
+              </section>
+
+              <!-- Cách thu thập dữ liệu. -->
+              <section class="legal-section" id="cach-thu-thap" aria-labelledby="cach-thu-thap-title" data-legal-section tabindex="-1">
+                <h2 id="cach-thu-thap-title"><span data-legal-number>5. </span><span data-legal-heading data-i18n>Cách chúng tôi thu thập dữ liệu</span></h2>
+                <ul>
+                  <li data-i18n>Bạn tự cung cấp: khi đăng ký, điền hồ sơ, đăng bài, bình luận, gắn địa điểm, theo dõi hoặc thả cảm xúc.</li>
+                  <li data-i18n>Hệ thống tự ghi: địa chỉ IP và thời gian truy cập trong nhật ký máy chủ, phục vụ bảo mật và chống spam.</li>
+                </ul>
+                <p data-i18n>Etsubi không mua dữ liệu của bạn từ bên khác và không thu thập dữ liệu từ mạng xã hội khác.</p>
+              </section>
+
+              <!-- Bảng bên thứ ba: cùng cách đổi bố cục thẻ trên mobile như bảng dữ liệu. -->
+              <section class="legal-section" id="ben-thu-ba" aria-labelledby="ben-thu-ba-title" data-legal-section tabindex="-1">
+                <h2 id="ben-thu-ba-title"><span data-legal-number>6. </span><span data-legal-heading data-i18n>Bên thứ ba và dịch vụ bên ngoài</span></h2>
+                <p data-i18n>Một số dữ liệu được gửi tới dịch vụ bên ngoài để Etsubi hoạt động. Bảng dưới nói rõ bên nhận, dữ liệu gửi đi, mục đích và nơi xử lý.</p>
+                <table class="legal-table">
+                  <caption class="u-visually-hidden" data-i18n>Bên thứ ba nhận dữ liệu</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col" data-i18n>Bên nhận</th>
+                      <th scope="col" data-i18n>Dữ liệu gửi đi</th>
+                      <th scope="col" data-i18n>Mục đích</th>
+                      <th scope="col" data-i18n>Nơi xử lý</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-cell="title">DeepSeek (api.deepseek.com)</td>
+                      <td data-cell="body" data-i18n>Nội dung bài viết, bình luận khi có người bấm Dịch</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Dịch tự động bằng AI</td>
+                      <td data-cell="chip" data-i18n>Trung Quốc</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>OpenStreetMap (Nominatim, máy chủ bản đồ)</td>
+                      <td data-cell="body" data-i18n>Toạ độ, địa chỉ IP</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Tìm tên địa điểm, tải bản đồ</td>
+                      <td data-cell="chip" data-i18n>Vương quốc Anh, EU</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title">Google Fonts</td>
+                      <td data-cell="body" data-i18n>Địa chỉ IP, thông tin trình duyệt</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Tải phông chữ</td>
+                      <td data-cell="chip" data-i18n>Hoa Kỳ</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title">Cloudflare</td>
+                      <td data-cell="body" data-i18n>Địa chỉ IP, dữ liệu truy cập</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Bảo vệ và chuyển tiếp truy cập tới máy chủ</td>
+                      <td data-cell="chip" data-i18n>Toàn cầu</td>
+                    </tr>
+                    <tr>
+                      <td data-cell="title" data-i18n>Cơ quan nhà nước có thẩm quyền</td>
+                      <td data-cell="body" data-i18n>Theo yêu cầu bằng văn bản</td>
+                      <td data-cell="meta" data-label="Mục đích" data-i18n-attr="data-label" data-i18n>Theo quy định pháp luật</td>
+                      <td data-cell="chip" data-i18n>Việt Nam</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p data-i18n>Máy chủ và cơ sở dữ liệu của Etsubi đặt tại Việt Nam. Nút "Xem trên Google Maps" chỉ mở trang Google Maps khi bạn bấm; Etsubi không tự gửi dữ liệu cho Google.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 17.</p>
+              </section>
+
+              <!-- Chuyển dữ liệu ra nước ngoài. -->
+              <section class="legal-section" id="ra-nuoc-ngoai" aria-labelledby="ra-nuoc-ngoai-title" data-legal-section tabindex="-1">
+                <h2 id="ra-nuoc-ngoai-title"><span data-legal-number>7. </span><span data-legal-heading data-i18n>Chuyển dữ liệu ra nước ngoài</span></h2>
+                <p data-i18n>Dịch tự động, bản đồ và phông chữ được xử lý ở máy chủ ngoài Việt Nam. Dữ liệu được chuyển tới các quốc gia và khu vực sau:</p>
+                <ul>
+                  <li data-i18n>Trung Quốc: nội dung cần dịch gửi tới DeepSeek, chỉ khi có người bấm Dịch.</li>
+                  <li data-i18n>Vương quốc Anh và EU: toạ độ và địa chỉ IP gửi tới OpenStreetMap khi tìm địa điểm hoặc xem bản đồ.</li>
+                  <li data-i18n>Hoa Kỳ và các nước có máy chủ Cloudflare, Google: địa chỉ IP và thông tin trình duyệt khi tải trang.</li>
+                </ul>
+                <p data-i18n>Biện pháp bảo vệ: chỉ gửi phần dữ liệu tối thiểu cần cho từng việc (khi dịch chỉ gửi nội dung, không gửi email hay tên tài khoản), luôn qua kết nối mã hoá HTTPS.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 20.</p>
+              </section>
+
+              <!-- Thời gian lưu trữ. -->
+              <section class="legal-section" id="luu-tru" aria-labelledby="luu-tru-title" data-legal-section tabindex="-1">
+                <h2 id="luu-tru-title"><span data-legal-number>8. </span><span data-legal-heading data-i18n>Thời gian lưu trữ</span></h2>
+                <ul>
+                  <li data-i18n>Dữ liệu tài khoản, hồ sơ và nội dung: lưu đến khi bạn xoá hoặc xoá tài khoản.</li>
+                  <li data-i18n>Bản dịch lưu đệm: xoá cùng bài viết hoặc bình luận gốc.</li>
+                  <li data-i18n>Nhật ký truy cập (địa chỉ IP, thời gian): giữ trong thời hạn pháp luật quy định rồi xoá.</li>
+                  <li data-i18n>Bản sao lưu cơ sở dữ liệu: được ghi đè theo chu kỳ; dữ liệu đã xoá sẽ hết hẳn khi bản sao lưu cũ bị thay thế.</li>
+                </ul>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 3 khoản 3 và Điều 14.</p>
+              </section>
+
+              <!-- Quyền của chủ thể dữ liệu và thời hạn phản hồi. -->
+              <section class="legal-section" id="quyen-cua-ban" aria-labelledby="quyen-cua-ban-title" data-legal-section tabindex="-1">
+                <h2 id="quyen-cua-ban-title"><span data-legal-number>9. </span><span data-legal-heading data-i18n>Quyền của bạn</span></h2>
+                <p data-i18n>Là chủ thể dữ liệu, bạn có các quyền sau:</p>
+                <ul>
+                  <li data-i18n>Được biết về việc xử lý dữ liệu của mình; đồng ý, không đồng ý hoặc rút lại đồng ý.</li>
+                  <li data-i18n>Xem, chỉnh sửa hoặc yêu cầu chỉnh sửa dữ liệu của mình.</li>
+                  <li data-i18n>Yêu cầu cung cấp, xoá hoặc hạn chế xử lý dữ liệu của mình.</li>
+                  <li data-i18n>Phản đối việc xử lý dữ liệu của mình.</li>
+                  <li data-i18n>Khiếu nại, tố cáo, khởi kiện và yêu cầu bồi thường thiệt hại theo quy định pháp luật.</li>
+                  <li data-i18n>Tự bảo vệ hoặc yêu cầu cơ quan có thẩm quyền bảo vệ quyền của mình.</li>
+                </ul>
+                <p data-i18n-html>Phần lớn việc xem và sửa bạn tự làm được trong <strong>Cài đặt</strong>. Với yêu cầu gửi qua email, Etsubi phản hồi trong <strong>02 ngày làm việc</strong>, rồi thực hiện trong <strong>10 ngày</strong> với yêu cầu xem, sửa, cung cấp dữ liệu; <strong>15 ngày</strong> với yêu cầu rút lại đồng ý, hạn chế hoặc phản đối xử lý; <strong>20 ngày</strong> với yêu cầu xoá dữ liệu. Thời hạn có thể gia hạn một lần và Etsubi sẽ báo lý do cho bạn.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 4; Nghị định 356/2025/NĐ-CP, Điều 5.</p>
+              </section>
+
+              <!-- Rút lại đồng ý và xoá tài khoản. -->
+              <section class="legal-section" id="rut-lai-xoa" aria-labelledby="rut-lai-xoa-title" data-legal-section tabindex="-1">
+                <h2 id="rut-lai-xoa-title"><span data-legal-number>10. </span><span data-legal-heading data-i18n>Rút lại đồng ý và xoá tài khoản</span></h2>
+                <p data-i18n-html>Bạn có thể xoá tài khoản bất cứ lúc nào ở <strong>Cài đặt › Xoá tài khoản</strong> (cần nhập mật khẩu). Xoá tài khoản là <strong>xoá hẳn</strong> cùng toàn bộ bài viết, bình luận, lượt thích, bài đã lưu, lượt theo dõi và thông báo của bạn; không khôi phục được.</p>
+                <p data-i18n>Bạn cũng có thể rút lại từng đồng ý riêng: gỡ địa điểm khỏi bài viết, xoá thông tin hồ sơ tuỳ chọn. Việc rút lại đồng ý không ảnh hưởng tới việc xử lý đã thực hiện hợp pháp trước đó.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 10 và Điều 14.</p>
+              </section>
+
+              <!-- Dữ liệu của trẻ em. -->
+              <section class="legal-section" id="tre-em" aria-labelledby="tre-em-title" data-legal-section tabindex="-1">
+                <h2 id="tre-em-title"><span data-legal-number>11. </span><span data-legal-heading data-i18n>Dữ liệu của trẻ em</span></h2>
+                <p data-i18n>Etsubi dành cho người từ đủ 16 tuổi. Người dưới 16 tuổi chỉ được dùng Etsubi khi cha, mẹ hoặc người giám hộ đăng ký bằng thông tin của họ và giám sát việc sử dụng. Cha, mẹ hoặc người giám hộ thực hiện các quyền về dữ liệu thay cho trẻ.</p>
+                <p data-i18n-html>Nếu bạn biết một tài khoản thuộc về trẻ em mà không có người giám hộ, hãy báo cho chúng tôi qua <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 24; Nghị định 147/2024/NĐ-CP, Điều 27 khoản 3 điểm a.</p>
+              </section>
+
+              <!-- Bảo mật và thông báo sự cố. -->
+              <section class="legal-section" id="bao-mat" aria-labelledby="bao-mat-title" data-legal-section tabindex="-1">
+                <h2 id="bao-mat-title"><span data-legal-number>12. </span><span data-legal-heading data-i18n>Bảo mật và thông báo sự cố</span></h2>
+                <ul>
+                  <li data-i18n>Mật khẩu được băm một chiều bằng thuật toán argon2; không ai trong nhóm xem được mật khẩu của bạn.</li>
+                  <li data-i18n>Kết nối tới Etsubi được mã hoá bằng HTTPS.</li>
+                  <li data-i18n>Quyền truy cập được phân theo vai trò (thành viên, điều hành viên, quản trị viên); chỉ người cần mới thấy dữ liệu quản trị.</li>
+                </ul>
+                <p data-i18n>Nếu xảy ra sự cố lộ dữ liệu, Etsubi báo cho cơ quan chuyên trách bảo vệ dữ liệu cá nhân chậm nhất 72 giờ và thông báo cho người bị ảnh hưởng, kèm cách tự bảo vệ.</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 23; Nghị định 356/2025/NĐ-CP, Điều 28 và Điều 29.</p>
+              </section>
+
+              <!-- Cookie và bộ nhớ trình duyệt. -->
+              <section class="legal-section" id="cookie" aria-labelledby="cookie-title" data-legal-section tabindex="-1">
+                <h2 id="cookie-title"><span data-legal-number>13. </span><span data-legal-heading data-i18n>Cookie và bộ nhớ trình duyệt</span></h2>
+                <p data-i18n-html>Etsubi <strong>không dùng cookie</strong> quảng cáo hay theo dõi. Bộ nhớ trình duyệt (localStorage, sessionStorage) chỉ lưu những thứ cần cho trang chạy:</p>
+                <ul>
+                  <li data-i18n>Phiên đăng nhập: lưu lâu dài khi bạn chọn "Ghi nhớ đăng nhập", hoặc chỉ đến khi đóng trình duyệt nếu không chọn.</li>
+                  <li data-i18n>Ngôn ngữ giao diện và giao diện sáng/tối.</li>
+                  <li data-i18n>Bản nháp hồ sơ và tên địa điểm đã tra cứu.</li>
+                </ul>
+                <p data-i18n>Bạn xoá những dữ liệu này bằng cách đăng xuất hoặc xoá dữ liệu trang web trong cài đặt trình duyệt. Vì Etsubi không theo dõi bạn, không cần bật hay tắt lựa chọn "không theo dõi".</p>
+                <p class="legal-basis" data-i18n>Căn cứ: Luật Bảo vệ dữ liệu cá nhân, Điều 29 khoản 3 và khoản 4.</p>
+              </section>
+
+              <!-- Thay đổi chính sách. -->
+              <section class="legal-section" id="thay-doi" aria-labelledby="thay-doi-title" data-legal-section tabindex="-1">
+                <h2 id="thay-doi-title"><span data-legal-number>14. </span><span data-legal-heading data-i18n>Thay đổi chính sách</span></h2>
+                <p data-i18n>Khi thay đổi chính sách này, Etsubi đăng bản mới trên trang này, ghi rõ phiên bản và ngày hiệu lực, đồng thời báo cho bạn qua thông báo trong ứng dụng. Nếu thay đổi thêm mục đích xử lý mới, Etsubi sẽ xin bạn đồng ý lại trước khi áp dụng.</p>
+              </section>
+
+              <!-- Liên hệ. -->
+              <section class="legal-section" id="lien-he" aria-labelledby="lien-he-title" data-legal-section tabindex="-1">
+                <h2 id="lien-he-title"><span data-legal-number>15. </span><span data-legal-heading data-i18n>Liên hệ</span></h2>
+                <p data-i18n-html>Gửi yêu cầu thực hiện quyền hoặc câu hỏi về dữ liệu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a>. Hãy gửi từ email đã đăng ký và ghi rõ tên người dùng (@handle) để chúng tôi xác minh và xử lý nhanh.</p>
+              </section>
+            </article>
+
+            <!-- Kênh gửi yêu cầu và văn bản còn lại nằm ở cuối trang. -->
+            <section class="legal-contact" aria-labelledby="legal-contact-title">
+              <div class="legal-contact__details">
+                <h2 id="legal-contact-title" data-i18n>Muốn xem, sửa hoặc xoá dữ liệu của bạn?</h2>
+                <p data-i18n-html>Gửi yêu cầu tới <a href="mailto:contact@etsubi.vn">contact@etsubi.vn</a> kèm tên người dùng. Chúng mình phản hồi trong 02 ngày làm việc.</p>
+              </div>
+              <a class="btn btn--primary legal-contact__next" href="/terms/">
+                <span aria-hidden="true">← </span><span data-i18n>Đọc Điều khoản sử dụng</span>
+              </a>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Chân trang dùng lại cột Tài nguyên và các kênh liên hệ chung. -->
+    <footer class="site-footer" data-component="footer" data-variant="full"></footer>
+  </body>
+</html>

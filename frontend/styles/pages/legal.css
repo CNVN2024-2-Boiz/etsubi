@@ -541,3 +541,130 @@
     break-after: avoid;
   }
 }
+
+/* ===== Bảng dữ liệu (trang Quyền riêng tư) ===== */
+
+/* Dòng "Căn cứ" cuối mỗi mục: chữ nhỏ, màu dịu, để người đọc biết điều luật nào áp dụng. */
+.legal-basis {
+  color: var(--color-muted);
+  font-size: var(--legal-small-size);
+}
+
+/* Khung bảng: viền nhạt bo 6px; bảng rộng hết cột, kẻ dòng mảnh. */
+.legal-table {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--color-cream);
+}
+
+/* Hàng tiêu đề: nền hồng, chữ đỏ sẫm 13px đậm vừa, căn trái. */
+.legal-table th {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-sakura);
+  color: var(--color-red-dark);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* Ô dữ liệu: 14px, căn trên, kẻ ngang giữa các hàng. */
+.legal-table td {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-body);
+  font-size: 14px;
+  line-height: 1.55;
+  vertical-align: top;
+}
+
+/* Cột đầu (tên nhóm, bên nhận) đậm, màu chữ chính. */
+.legal-table [data-cell="title"] {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Điện thoại: cùng HTML <table> nhưng mỗi hàng thành một thẻ xếp dọc, không cuộn ngang. */
+@media (max-width: 600px) {
+  .legal-table,
+  .legal-table tbody {
+    display: block;
+    border: 0;
+    background: transparent;
+  }
+
+  /* Ẩn hàng tiêu đề khỏi mắt nhưng vẫn để trình đọc màn hình đọc được. */
+  .legal-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Mỗi hàng là một thẻ: tên + chip ở dòng đầu, nội dung và "Dùng để" bên dưới. */
+  .legal-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-cream);
+  }
+
+  /* Các thẻ cách nhau 12px. */
+  .legal-table tr + tr {
+    margin-top: var(--space-3);
+  }
+
+  /* Ô trong thẻ không còn đệm và đường kẻ của bảng. */
+  .legal-table td {
+    padding: 0;
+    border: 0;
+  }
+
+  /* Tên nhóm / bên nhận ở dòng đầu bên trái, 15px. */
+  .legal-table [data-cell="title"] {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 15px;
+  }
+
+  /* Chip Bắt buộc / Tuỳ chọn (hoặc nơi xử lý) ở góc phải dòng đầu: nền hồng, chữ đỏ, 12px. */
+  .legal-table [data-cell="chip"] {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+    padding: 2px var(--space-2);
+    white-space: nowrap;
+    border-radius: var(--radius-pill);
+    background: var(--color-sakura);
+    color: var(--color-red-dark);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* Nội dung chính chiếm hết chiều ngang. */
+  .legal-table [data-cell="body"] {
+    grid-column: 1 / -1;
+  }
+
+  /* Dòng "Dùng để: …" màu dịu, 13px. */
+  .legal-table [data-cell="meta"] {
+    grid-column: 1 / -1;
+    color: var(--color-muted);
+    font-size: 13px;
+  }
+
+  /* Nhãn cột lấy từ data-label (đã dịch), ví dụ "Dùng để: ". */
+  .legal-table [data-cell="meta"]::before {
+    content: attr(data-label) ": ";
+  }
+}
