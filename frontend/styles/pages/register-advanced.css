@@ -257,8 +257,9 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-3) 0;
-  background: var(--color-red);
-  color: var(--color-band-text);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 17px;
   font-weight: 700;
 }
@@ -586,8 +587,9 @@
   display: grid;
   gap: var(--space-2);
   padding: var(--profile-summary-padding);
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
 }
 
 /* Nhãn trên nền đỏ dùng màu sáng riêng từ frame để đủ tách biệt với tiêu đề. */

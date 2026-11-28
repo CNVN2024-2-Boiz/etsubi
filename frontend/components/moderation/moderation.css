@@ -517,9 +517,9 @@
 
 /* Chip đang chọn. */
 .mod-dialog__chip.is-selected {
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-white);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
   font-weight: 600;
 }
 

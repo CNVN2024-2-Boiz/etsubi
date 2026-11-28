@@ -13,7 +13,7 @@ function icon(name) {
   return el('img', { src: '/assets/icons/' + name + '.svg', alt: '', width: 18, height: 18 });
 }
 
-/** Giữ dải đỏ và thứ hạng giống nhau ở cả thẻ thật lẫn thẻ chờ. */
+/** Giữ dải tiêu đề và thứ hạng giống nhau ở cả thẻ thật lẫn thẻ chờ. */
 function createBand(rank) {
   return el('div', { className: 'featured-card__band' },
     el('span', { className: 'featured-card__badge' }, t('★ Nổi bật')),
@@ -28,7 +28,7 @@ function createDetail(postId) {
     type: postId ? null : 'button',
     disabled: !postId,
     'aria-disabled': postId ? null : 'true',
-  }, t('Xem chi tiết'), icon('arrow-right'));
+  }, t('Xem chi tiết'), icon('arrow-right-brand'));
 }
 
 /** Hiển thị avatar thật, dự phòng chữ đầu khi ảnh hỏng để không có ô ảnh lỗi. */

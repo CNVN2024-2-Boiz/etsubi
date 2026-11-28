@@ -14,7 +14,7 @@
   position: relative;
   min-height: var(--about-hero-height);
   overflow: hidden;
-  background: var(--color-red-dark);
+  background: var(--color-ink);
 }
 
 /* Ảnh nền phủ kín banner, giữ tỉ lệ bằng object-fit để không méo. */
@@ -213,7 +213,7 @@
   flex: 0 0 180px;
   flex-direction: column;
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -222,8 +222,9 @@
 /* Dải đỏ trên thẻ: "Etsu" / "bi" 16px trắng đậm vừa. */
 .about-glyph__band {
   padding: 10px 0;
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 16px;
   font-weight: 600;
   line-height: 20px;
@@ -349,7 +350,7 @@
 /* Thẻ rộng toàn khung: nền kem, viền đỏ 2px, bo 4px, bóng hồng nhẹ. */
 .about-tech {
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -361,8 +362,9 @@
   align-items: center;
   gap: 10px;
   padding: var(--space-3) 18px;
-  background: var(--color-red);
-  color: var(--color-cream);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.5;
@@ -445,7 +447,7 @@
   min-width: 0;
   padding: 122px var(--space-4) var(--space-6);
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -460,7 +462,7 @@
   right: 0;
   height: 64px;
   overflow: hidden;
-  background: var(--color-red);
+  background: var(--color-band-bg);
 }
 
 /* Cánh hoa trong dải đỏ: vị trí tính từ góc trái dải (theo Figma), góc xoay tĩnh. */
@@ -550,7 +552,7 @@
   padding: 44px 56px;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: var(--color-red);
+  background: var(--color-ink);
 }
 
 /* Cổng torii hồng rất mờ phía sau hai nút (vị trí x 1210, y 10 trong khối). */

@@ -104,9 +104,9 @@
 
 .legal-switch a:hover,
 .legal-switch a[aria-current="page"] {
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-white);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
 }
 
 /* Hai cột desktop cùng nằm trong thước rộng nhất của trang, với cánh hoa ngoài lề. */
@@ -132,7 +132,7 @@
   top: calc(var(--header-height) + var(--space-4));
   max-height: calc(100dvh - var(--header-height) - var(--space-7));
   overflow: auto;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-legal-toc);
@@ -144,8 +144,9 @@
   align-items: center;
   gap: var(--legal-tab-padding-y);
   padding: var(--space-3) var(--legal-section-mobile-padding);
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: var(--legal-kicker-size);
   font-weight: 600;
 }

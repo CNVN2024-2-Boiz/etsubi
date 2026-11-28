@@ -326,7 +326,7 @@ select.input, .input--select {
 /* Thẻ dùng nền kem, viền đỏ 2px, bo góc nhỏ và bóng chung để tách khỏi nền trang. */
 .card {
   background: var(--color-cream);
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-card);
 }
@@ -335,9 +335,10 @@ select.input, .input--select {
 .card__band {
   position: relative;
   height: var(--auth-band-height);
-  background: var(--color-red);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
   text-align: center;
-  color: var(--color-band-text);
+  color: var(--color-text);
 }
 
 /* Cổng nhỏ được căn giữa ngang bằng dịch tĩnh và đặt cao theo token để khớp dải đỏ Figma. */

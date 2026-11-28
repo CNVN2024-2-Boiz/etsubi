@@ -311,7 +311,7 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-6) var(--space-5);
-  border: 1.2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-md);
   background: var(--color-cream);
 }
@@ -345,7 +345,7 @@
 .search-sidebar-card {
   min-width: 0;
   padding-bottom: var(--radio-padding);
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-sidebar);
@@ -358,8 +358,9 @@
   gap: var(--button-small-y);
   margin-bottom: calc(var(--space-4) - 2px);
   padding: var(--space-3) var(--radio-padding);
-  background: var(--color-red);
-  color: var(--color-cream);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
 }

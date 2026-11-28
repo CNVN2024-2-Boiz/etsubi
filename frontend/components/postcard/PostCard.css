@@ -6,7 +6,7 @@
   gap: var(--button-small-y);
   min-width: 0;
   padding: var(--space-5) var(--space-5) var(--radio-padding);
-  border: 1.2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-md);
   background: var(--color-cream);
   box-shadow: var(--shadow-result);
@@ -14,7 +14,7 @@
 
 /* Phản hồi hover chỉ đổi bóng và màu viền, giữ nguyên vị trí của cả danh sách. */
 .postcard--result:hover {
-  border-color: var(--color-red-dark);
+  border-color: var(--color-input-border);
   box-shadow: var(--shadow-sidebar);
 }
 
@@ -194,7 +194,7 @@
 
 /* Phản hồi hover chỉ đổi viền và bóng, không dịch chuyển thẻ. */
 .postcard--feed:hover {
-  border-color: var(--color-red);
+  border-color: var(--color-input-border);
   box-shadow: var(--shadow-sidebar);
 }
 

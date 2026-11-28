@@ -1,5 +1,5 @@
 /* Dialog địa điểm 720px theo Figma, nằm trên dialog soạn bài nhờ native top layer. */
-.place-picker { width: calc(100% - var(--space-4) * 2); max-width: var(--place-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 2px solid var(--color-red); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
+.place-picker { width: calc(100% - var(--space-4) * 2); max-width: var(--place-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 1px solid var(--color-card-border); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
 /* Lớp phủ tĩnh giống hộp thoại soạn bài, không có hiệu ứng. */
 .place-picker::backdrop { background: var(--edit-dialog-backdrop); }
 /* Heading và nút đóng cùng hàng, tiêu đề đỏ phông display. */

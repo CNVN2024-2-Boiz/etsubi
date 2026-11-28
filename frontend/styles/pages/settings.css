@@ -103,8 +103,8 @@
 
 /* Lựa chọn bật được phân biệt bằng nền đỏ và chữ trắng, không thay kích thước. */
 .settings-segments__option input:checked + span {
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
   font-weight: 600;
 }
 
@@ -257,7 +257,7 @@
   padding: var(--space-6);
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-md);
   background: var(--color-cream);
   color: var(--color-text-secondary);

@@ -28,7 +28,7 @@
    Không dùng overflow: hidden để menu Quản trị được phép thò ra dưới mép thẻ. */
 .profile-card {
   position: relative;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -41,7 +41,7 @@
   height: var(--profile-cover-height);
   overflow: hidden;
   border-radius: calc(var(--radius-sm) - 2px) calc(var(--radius-sm) - 2px) 0 0;
-  background: var(--color-red);
+  background: var(--color-band-bg);
 }
 
 /* Cổng torii hồng mờ 25% ở góc phải dải đỏ (x 859, y 18, 73 × 60). */
@@ -351,7 +351,7 @@
   gap: var(--space-4);
   padding-bottom: 20px;
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -363,8 +363,9 @@
   align-items: center;
   gap: 10px;
   padding: var(--space-3) 18px;
-  background: var(--color-red);
-  color: var(--color-cream);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.5;
@@ -430,9 +431,9 @@
 
 /* Tab đang chọn: nền đỏ chữ trắng, huy hiệu nền kem chữ đỏ. */
 .profile-tab.is-active {
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-white);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
 }
 
 /* Huy hiệu của tab đang chọn. */

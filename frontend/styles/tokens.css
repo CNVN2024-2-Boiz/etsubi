@@ -166,15 +166,16 @@
   --color-hero-kicker: #FFCCB8;
   --color-hero-title: #FFF2E5;
   --color-home-hero-text: rgba(255,255,255,.88);
-  --gradient-home-hero: linear-gradient(90deg, rgba(70,8,16,.88) 0%, rgba(168,52,63,.55) 45%, rgba(0,0,0,0) 85%);
+  --gradient-home-hero: linear-gradient(90deg, rgba(20,16,14,.82) 0%, rgba(20,16,14,.5) 45%, rgba(0,0,0,0) 85%);
   --gradient-suggest-thumb: linear-gradient(135deg, #FCE8EE 0%, #F5C0D0 71.429%);
   --chip-soft-bg: rgba(255,255,255,.6);
-  --chip-soft-border: rgba(194,69,79,.35);
-  --postcard-feed-border: rgba(194,69,79,.3);
+  --chip-soft-border: var(--color-red-soft-border);
+  --postcard-feed-border: var(--color-card-border);
   --shadow-featured: 0 10px 32px rgba(0,0,0,.12);
   --color-placeholder-bar: #ECE6DC;
-  --color-featured-rank: rgba(255,255,255,.35);
-  --color-featured-badge: rgba(255,255,255,.16);
+  /* Số thứ hạng 01–03 của bài nổi bật giữ đúng đỏ header cũ, là điểm nhấn đậm duy nhất trên dải be. */
+  --color-featured-rank: #C2454F;
+  --color-featured-badge: var(--color-red-soft);
   --home-hero-height: 336px;
   /* Kích thước thao tác cho nút chuyển trang ở hàng bài nổi bật. */
   --home-featured-arrow-size: 44px;
@@ -195,9 +196,9 @@
   --home-search-height: 42px;
   --home-search-padding-left: 16px;
   /* Ô tìm kiếm Home trong suốt trên nền đỏ (Figma Home 4, node SearchBar 1:1169). */
-  --home-search-bg: rgba(255,255,255,.12);
-  --home-search-border: rgba(255,255,255,.22);
-  --home-search-placeholder: rgba(255,255,255,.6);
+  --home-search-bg: var(--color-neutral-100);
+  --home-search-border: var(--color-border);
+  --home-search-placeholder: var(--color-placeholder);
 }
 
 /* Trang đọc bài (Figma Reading Page 1:1337): màu, kích thước và vị trí cánh hoa riêng. */
@@ -207,7 +208,7 @@
   --color-post-quote-bg: #FDEEF0;
   --color-post-quote-text: #5A282D;
   --color-post-map-label: #FFFCF7;
-  --shadow-post-side: 0 4px 16px rgba(194,69,79,.08);
+  --shadow-post-side: 0 4px 16px rgba(31,26,23,.05);
   --shadow-map-button: 0 2px 6px rgba(0,0,0,.12);
   /* Lưới hai cột 997 + 40 + 403 = 1440px và đệm khung bài viết đo trong Figma. */
   --post-sidebar-width: 403px;
@@ -253,7 +254,7 @@
   --forum-gap: 20px;
   /* Ô viết bài: avatar 48px có bóng hồng nhẹ, ô nhập bo 24px. */
   --forum-avatar-size: 48px;
-  --shadow-forum-avatar: 0 3px 4px rgba(194,69,79,.18);
+  --shadow-forum-avatar: 0 3px 4px rgba(31,26,23,.11);
   --forum-pill-radius: 24px;
   /* Mười cánh hoa: vị trí so với tâm trang (ngang) và đỉnh vùng nội dung (dọc), cùng góc xoay với trang đọc bài. */
   --forum-petal-1-x: -700px;   --forum-petal-1-y: 163px;
@@ -273,7 +274,7 @@
   /* Nền chuyển sắc hồng của hero và bóng của ô tìm kiếm, thẻ chủ đề. */
   --gradient-support-hero: linear-gradient(193.19deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --shadow-support-search: 0 8px 24px rgba(196,59,87,.18);
-  --shadow-support-card: 0 3px 6px rgba(194,69,79,.06);
+  --shadow-support-card: 0 3px 6px rgba(31,26,23,.04);
   --color-support-chip-bg: rgba(255,255,255,.65);
   --color-support-faq-open: #FDF4F6;
   --color-dialog-backdrop: rgba(31,26,23,.45);
@@ -311,8 +312,8 @@
   --about-main-top: 80px;
   --about-main-bottom: 96px;
   /* Bóng của vòng tròn kết quả "Etsubi" và vòng avatar thành viên. */
-  --shadow-about-result: 0 8px 24px rgba(194,69,79,.25);
-  --shadow-about-avatar-ring: 0 5px 7px rgba(194,69,79,.22);
+  --shadow-about-result: 0 8px 24px rgba(31,26,23,.15);
+  --shadow-about-avatar-ring: 0 5px 7px rgba(31,26,23,.13);
   --color-about-hero-text: rgba(255,255,255,.9);
   --color-about-cta-text: rgba(255,255,255,.85);
   /* Sáu cánh hoa trong banner (so với tâm trang và đỉnh banner) và bảy cánh bên lề (so với đỉnh phần nội dung). */
@@ -342,9 +343,9 @@
   --profile-cover-mobile: 64px;
   --profile-avatar-size: 104px;
   --profile-ring-size: 112px;
-  --shadow-profile-ring: 0 6px 8px rgba(194,69,79,.25);
-  --shadow-profile-avatar-sm: 0 3px 3.5px rgba(194,69,79,.18);
-  --shadow-profile-search: 0 0 0 3px rgba(194,69,79,.12);
+  --shadow-profile-ring: 0 6px 8px rgba(31,26,23,.15);
+  --shadow-profile-avatar-sm: 0 3px 3.5px rgba(31,26,23,.11);
+  --shadow-profile-search: 0 0 0 3px rgba(178,60,70,.12);
 }
 
 /* Góc nhìn Mod/Admin (Figma 1:2435): nhãn trạng thái, khối chỉ staff thấy, menu và hộp thoại xác nhận. */
@@ -373,17 +374,26 @@
 /* Khai báo các giá trị dùng chung để mọi trang có cùng thiết kế. */
 :root {
   /* Màu thương hiệu, nền, chữ, viền và trạng thái dùng cho nút, trường nhập và thông báo. */
-  --color-red: #C2454F;
-  --color-red-hover: #B23C46;
-  --color-red-dark: #A8343F;
-  --color-red-accent: #C43A56;
+  /* Đỏ trầm hơn bản cũ (#C2454F) và chỉ dùng làm điểm nhấn: nút chính, mục đang chọn, link, chấm báo. */
+  --color-red: #B23C46;
+  --color-red-hover: #A1343E;
+  --color-red-dark: #8E2F38;
+  --color-red-accent: #B23C46;
+  /* Nền hồng rất nhạt cho tag, tab đang chọn và nhãn, thay cho kiểu đỏ đặc chữ trắng. */
+  --color-red-soft: #F7EBEA;
+  --color-red-soft-border: rgba(178,60,70,.28);
+  /* Mảng lớn dùng màu trung tính: nền thanh tiêu đề thẻ, viền thẻ và nền tối của footer. */
+  --color-band-bg: #F4EEE8;
+  --color-card-border: #E0D9CC;
+  --color-ink: #1F1A17;
+  --color-ink-text: #CFC6BF;
   --color-cream: #FFFCF7;
   --color-page: #FAF7F5;
   --color-sakura: #FCECF0;
   --color-sakura-100: #FAD6E1;
   --color-pink-border: #F5C0D0;
-  /* Chấm báo thông báo mới trên chuông: hồng sakura nhạt để nổi trên nền header đỏ (đỏ sẽ bị chìm). */
-  --color-bell-dot: var(--color-sakura-100);
+  /* Chấm báo thông báo mới trên chuông: đỏ thương hiệu, nổi rõ trên header trắng. */
+  --color-bell-dot: var(--color-red);
   --color-text: #1F1A17;
   --color-text-secondary: #4A403B;
   --color-text-body: #59544D;
@@ -400,7 +410,7 @@
   --color-label: #1F1F1F;
   --color-link-muted: #736B61;
   --color-hero-text: rgba(90,40,45,.85);
-  --color-band-text: #FCE3E3;
+  --color-band-text: var(--color-text);
   --color-neutral-100: #F7F3EE;
 
   /* Màu trắng và các mức trong suốt dùng ở header, footer và viền tài khoản. */
@@ -413,12 +423,12 @@
   --color-white-24: rgba(255,255,255,.24);
   --color-white-20: rgba(255,255,255,.2);
   --color-white-15: rgba(255,255,255,.15);
-  --color-red-40: rgba(194,69,79,.4);
+  --color-red-40: rgba(178,60,70,.4);
   --color-transparent: transparent;
 
   /* Nền chuyển sắc cố định của trang xác thực và ảnh đại diện. */
   --gradient-auth: linear-gradient(209.36deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
-  --gradient-avatar: linear-gradient(135deg, #C2454F 0%, #E1648C 71.429%);
+  --gradient-avatar: linear-gradient(135deg, #B23C46 0%, #D9708F 71.429%);
 
   /* Màu riêng của từng phần cổng torii trên trang đăng nhập và đăng ký. */
   --torii-pillar: #9E0D17;
@@ -459,9 +469,9 @@
   --shadow-card-strong: 0 12px 40px rgba(0,0,0,.2);
   --shadow-sidebar: 0 10px 28px rgba(0,0,0,.1);
   --shadow-result: 0 6px 12px rgba(0,0,0,.08);
-  --shadow-search-empty: 0 3px 12px rgba(194,69,79,.06);
-  --shadow-button: 0 6px 8px rgba(194,69,79,.25);
-  --shadow-navbar: 0 2px 8px rgba(0,0,0,.1);
+  --shadow-search-empty: 0 3px 12px rgba(31,26,23,.04);
+  --shadow-button: 0 2px 4px rgba(142,47,56,.18);
+  --shadow-navbar: 0 1px 0 var(--color-border);
   --focus-ring: 0 0 0 4px rgba(220,58,72,.18);
 
   /* Kích thước bố cục chung cho khung nội dung, header, footer và cột bên. */
@@ -679,9 +689,9 @@
   --color-tip-text: #784828;
   --color-tip-quick: #5A282D;
   --profile-draft-bg: rgba(255, 255, 255, .8);
-  --profile-draft-border: rgba(194, 69, 79, .15);
-  --profile-tip-border: rgba(194, 69, 79, .25);
-  --profile-summary-label: rgba(252, 227, 227, .8);
+  --profile-draft-border: rgba(178,60,70,.15);
+  --profile-tip-border: rgba(178,60,70,.25);
+  --profile-summary-label: var(--color-muted);
   --profile-meter-bg: rgba(255, 255, 255, .22);
   --profile-gradient-auth: linear-gradient(223deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --profile-container: 1680px;
@@ -706,8 +716,8 @@
   --header-language-menu-padding: 5px;
   --header-language-menu-gap: 2px;
   --header-language-option-height: 40px;
-  --focus-ring-header: 0 0 0 3px var(--color-white-60);
-  --shadow-header-avatar-open: 0 0 0 5px var(--color-white-20);
+  --focus-ring-header: var(--focus-ring);
+  --shadow-header-avatar-open: 0 0 0 5px var(--color-red-soft);
 
   /* Nút Google ở Login/Register: lùi 10px mỗi bên so với form, rộng 398.4px như Figma. */
   --auth-google-inset: 10px;
@@ -760,7 +770,7 @@
   --gradient-legal-hero: linear-gradient(190.62deg, #FDE8EE 14.645%, #FAD6E1 50%, #F5C0D0 85.355%);
   --color-legal-mobile-hero: #FDE8EE;
   --color-legal-mobile-page: #FBF8F3;
-  --shadow-legal-toc: 0 4px 16px rgba(194, 69, 79, .08);
+  --shadow-legal-toc: 0 4px 16px rgba(31,26,23,.05);
   --legal-art-width: 1920px;
   --legal-layout-width: 1440px;
   --legal-main-bottom: 96px;

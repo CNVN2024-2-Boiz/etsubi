@@ -5,7 +5,7 @@
 /* Chân trang không bị co bởi flex, dùng nền đỏ sẫm và chữ trắng trong theo thiết kế chung. */
 .site-footer {
   flex-shrink: 0;
-  background: var(--color-red-dark);
+  background: var(--color-ink);
   color: var(--color-white-70);
 }
 
