@@ -34,7 +34,7 @@
   font-weight: 400;
 }
 
-/* Chip đã chọn có dấu kiểm và nền đỏ để thể hiện bộ lọc đang có hiệu lực. */
+/* Chip đã chọn có dấu kiểm đỏ (chip-check.svg) trên nền đỏ nhạt để thể hiện bộ lọc đang có hiệu lực. */
 .tag-chip--selected {
   padding-left: var(--space-2);
   border-color: var(--color-red-soft-border);
@@ -42,14 +42,14 @@
   color: var(--color-red-dark);
 }
 
-/* Dấu thăng và số dùng màu sáng từ token để đọc rõ trên nền đỏ của chip đã chọn. */
+/* Dấu thăng giữ màu đỏ thương hiệu như chip thường, đọc rõ trên nền đỏ nhạt. */
 .tag-chip--selected .tag-chip__hash {
-  color: var(--color-pink-border);
+  color: var(--color-red-accent);
 }
 
-/* Giữ độ tương phản của số lượng trên nền đỏ mà không làm tên thẻ mất nổi bật. */
+/* Số lượng dùng màu phụ như chip thường để tên thẻ vẫn nổi bật hơn. */
 .tag-chip--selected .tag-chip__count {
-  color: var(--color-sakura-100);
+  color: var(--color-muted);
 }
 
 /* Chip trong ô nhập dùng góc vừa và đệm gọn để chừa chỗ cho nút xoá riêng. */
