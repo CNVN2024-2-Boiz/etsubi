@@ -1,0 +1,259 @@
+/* Hộp thoại Báo cáo vi phạm: dùng khung .mod-dialog (moderation.css), file này chỉ thêm phần riêng. */
+
+/* Hộp thoại rộng hơn hộp xác nhận (520px) vì có danh sách lý do và ô mô tả; cao quá màn hình thì cuộn bên trong. */
+.report-dialog {
+  width: min(520px, calc(100% - 2 * var(--space-4)));
+  max-height: calc(100vh - 2 * var(--space-6));
+  overflow-y: auto;
+}
+
+/* Thân hộp thoại: các khối cách nhau 16px. */
+.report-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Dòng tóm tắt nội dung bị báo cáo: tối đa 2 dòng, cắt bằng dấu … để tiêu đề dài không đẩy hộp thoại. */
+.report-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+/* ===== Khối Người báo cáo ===== */
+
+/* Khối chỉ đọc: nền be nhạt, bo 6px, avatar bên trái và chữ bên phải; ghi chú xuống hàng dưới. */
+.report-reporter {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+}
+
+/* Avatar tròn 40px nền gradient đỏ hồng, chữ cái đầu màu trắng. */
+.report-reporter__avatar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-avatar);
+  color: var(--color-white);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Cột chữ: nhãn, tên, email xếp dọc khe 2px; không tràn khi email dài. */
+.report-reporter__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Nhãn nhỏ "Người báo cáo" in hoa nhẹ, màu muted. */
+.report-reporter__label {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+/* Tên hiển thị 15px đậm. */
+.report-reporter__name {
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* @username cạnh tên, chữ thường màu muted. */
+.report-reporter__handle {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+/* Email 13px màu chữ phụ, cắt chữ dài thay vì tràn. */
+.report-reporter__email {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+/* Ghi chú "Lấy từ tài khoản…" trải hết hai cột, icon khoá 14px. */
+.report-reporter__note {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* ===== Danh sách lý do ===== */
+
+/* Bỏ khung mặc định của fieldset; các lý do xếp dọc khe 10px. */
+.report-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Tiêu đề nhóm 14px đậm, cách danh sách 10px. */
+.report-reasons__legend {
+  margin-bottom: 10px;
+  padding: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Gợi ý "(chọn một hoặc nhiều)" chữ thường muted. */
+.report-reasons__hint {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+/* Một dòng lý do: chữ 14px màu chữ chính, ô chọn căn với dòng đầu khi chữ xuống dòng. */
+.report-reasons__item {
+  align-items: flex-start;
+  color: var(--color-text);
+}
+
+/* Ô chọn không bị co khi chữ dài, lùi 1px để thẳng hàng với dòng chữ đầu. */
+.report-reasons__item .checkbox__box {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ===== Mô tả thêm ===== */
+
+/* Nhãn, ô nhập và dòng phụ xếp dọc khe 6px. */
+.report-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Nhãn ô mô tả 14px đậm vừa. */
+.report-details__label {
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Dấu * bắt buộc màu đỏ cảnh báo. */
+.report-details__required {
+  color: var(--color-danger);
+}
+
+/* "(không bắt buộc)" chữ thường muted. */
+.report-details__optional {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+/* Ô mô tả thấp hơn mặc định (96px) để hộp thoại gọn; người dùng kéo cao được. */
+.report-details__input {
+  min-height: 96px;
+}
+
+/* Dòng dưới ô: gợi ý bên trái, bộ đếm ký tự bên phải. */
+.report-details__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Gợi ý chuyển đỏ khi chọn "Lý do khác" mà để trống mô tả. */
+.report-details__hint.is-error {
+  color: var(--color-danger);
+}
+
+/* Bộ đếm dùng số cùng độ rộng để không nhảy khi gõ. */
+.report-details__counter {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Ghi chú quyền riêng tư ===== */
+
+/* Nền hồng nhạt, icon khiên đỏ, chữ 13px. */
+.report-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-sakura);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Icon khiên màu đỏ thương hiệu, không co. */
+.report-privacy svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--color-red);
+}
+
+/* ===== Trạng thái đã gửi ===== */
+
+/* Khối căn giữa: dấu tích, tiêu đề và lời cảm ơn. */
+.report-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) 0 var(--space-2);
+  text-align: center;
+}
+
+/* Ô tròn 56px nền xanh nhạt, dấu tích xanh. */
+.report-success__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+/* Tiêu đề "Đã gửi báo cáo" 17px đậm. */
+.report-success__title {
+  color: var(--color-text);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+/* Lời cảm ơn 14px màu chữ phụ, email dài được xuống dòng. */
+.report-success__text {
+  max-width: 380px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}

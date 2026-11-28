@@ -9,6 +9,7 @@ import {
   isStaff, canModerateUser, isMutedNow, formatUntil, formatUntilFull, createStaffTag, createStatusBadge, createStaffBox,
   createStaffButton, createMenu, createMoreButton, modIcon, openConfirmDialog, openMuteDialog,
 } from '/components/moderation/moderation.js';
+import { openReportDialog } from '/components/report-dialog/report-dialog.js';
 import { getReactionSummary, getMyReaction, reactToPost, removeReaction, LIKE_EMOJI } from '/services/api/reactions.js';
 import { bookmarkPost, unbookmarkPost, isPostBookmarked } from '/services/api/bookmarks.js';
 import { followUser, unfollowUser, isFollowing, listFollowers } from '/services/api/follows.js';
@@ -269,7 +270,8 @@ function createPostMenu() {
   const { post, viewer } = state;
   const staff = isStaff(viewer);
   const isAuthor = Boolean(viewer && viewer.id === post.author_id);
-  if ((!staff && !isAuthor) || state.deletedAt) {
+  // Khách chưa đăng nhập không có menu; bài đã xoá chỉ còn khối khôi phục cho staff.
+  if (!viewer || state.deletedAt) {
     return null;
   }
   const items = [];
@@ -281,14 +283,32 @@ function createPostMenu() {
       ? { icon: 'eye', label: t('Hiện lại bài viết'), onSelect: () => changePostStatus('published') }
       : { icon: 'eyeOff', label: t('Ẩn bài viết'), onSelect: () => changePostStatus('hidden') });
   }
-  items.push(post.comments_locked
-    ? { icon: 'unlock', label: t('Mở khoá bình luận'), onSelect: () => toggleCommentsLock(false) }
-    : { icon: 'lock', label: t('Khoá bình luận'), onSelect: () => toggleCommentsLock(true) });
-  items.push('divider', { icon: 'trash', label: t('Xoá bài viết…'), danger: true, onSelect: confirmDeletePost });
-  const header = staff ? { icon: 'shield', text: t('Kiểm duyệt bài viết') } : { text: t('Bài viết của bạn') };
+  if (staff || isAuthor) {
+    items.push(post.comments_locked
+      ? { icon: 'unlock', label: t('Mở khoá bình luận'), onSelect: () => toggleCommentsLock(false) }
+      : { icon: 'lock', label: t('Khoá bình luận'), onSelect: () => toggleCommentsLock(true) });
+  }
+  // Mọi người đã đăng nhập (kể cả staff) báo cáo được bài của người khác; email gửi về hộp thư kiểm duyệt.
+  if (!isAuthor) {
+    items.push({ icon: 'flag', label: t('Báo cáo bài viết…'), onSelect: reportPost });
+  }
+  if (staff || isAuthor) {
+    items.push('divider', { icon: 'trash', label: t('Xoá bài viết…'), danger: true, onSelect: confirmDeletePost });
+  }
+  const header = staff ? { icon: 'shield', text: t('Kiểm duyệt bài viết') } : isAuthor ? { text: t('Bài viết của bạn') } : null;
   const menu = createMenu(createMoreButton(t('Tuỳ chọn bài viết')), { header, items });
   menu.classList.add('post-author__menu');
   return menu;
+}
+
+/** Mở hộp thoại báo cáo bài viết, kèm tiêu đề và tác giả để người dùng chắc đúng bài. */
+function reportPost() {
+  const author = getAuthorLabel(state.author);
+  openReportDialog({
+    targetType: 'post',
+    targetId: state.post.id,
+    summary: '“' + state.post.title + '”' + (author ? ' · ' + author : ''),
+  });
 }
 
 /** Khối chỉ staff thấy ở đầu bài khi bài đang bị ẩn hoặc đã xoá; nội dung bài được làm mờ. */
@@ -519,9 +539,23 @@ function createCommentMenu(comment, author, text, note) {
         ? { icon: 'mute', label: t('Tắt tiếng người viết…'), onSelect: () => muteAuthor(author) }
         : { icon: 'mute', label: t('Tắt tiếng người viết…'), sub: t('Không thể với người cùng cấp hoặc cao hơn'), disabled: true });
   }
+  // Người đã đăng nhập báo cáo được bình luận của người khác (chưa bị xoá).
+  if (state.viewer && !own && !comment.is_deleted) {
+    items.push('divider', { icon: 'flag', label: t('Báo cáo bình luận…'), onSelect: () => reportComment(comment, author) });
+  }
   if (!items.length) return null;
   return createMenu(el('button', { type: 'button', className: 'post-comment__more', 'aria-label': t('Tuỳ chọn bình luận'),
     disabled: activeCommentEdit?.id === comment.id && activeCommentEdit.sending }, modIcon('moreVertical', 18)), { items });
+}
+
+/** Mở hộp thoại báo cáo bình luận, kèm tên người viết và 60 ký tự đầu của bình luận. */
+function reportComment(comment, author) {
+  const text = richToPlainText(comment.content);
+  openReportDialog({
+    targetType: 'comment',
+    targetId: comment.id,
+    summary: (author ? getAuthorLabel(author) + ' · ' : '') + '“' + text.slice(0, 60) + (text.length > 60 ? '…' : '') + '”',
+  });
 }
 
 /** Ẩn, hiện lại, xoá hoặc khôi phục một bình luận (staff), luôn qua hộp thoại xác nhận. */
