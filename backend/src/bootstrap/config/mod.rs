@@ -21,7 +21,13 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn from_env() -> Self {
-        dotenvy::dotenv().ok();
+        // Không có .env thì dùng biến môi trường sẵn có (Docker). Có .env mà đọc lỗi thì cảnh báo:
+        // dotenvy dừng ở dòng lỗi, các dòng sau đó không được nạp.
+        if let Err(e) = dotenvy::dotenv()
+            && !e.not_found()
+        {
+            tracing::warn!(error = %e, ".env could not be read fully; lines after the error are ignored (quote values with spaces)");
+        }
 
         Self {
             translation: TranslationConfig::from_env(),

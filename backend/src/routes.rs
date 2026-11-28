@@ -1,4 +1,4 @@
-use crate::infrastructure::middleware::auth;
+use crate::infrastructure::middleware::{auth, log_server_errors};
 use crate::presentation;
 use actix_web::{middleware, web};
 
@@ -114,7 +114,11 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
 
 pub fn configure(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/api/v1").configure(public).service(
+        // Mọi lỗi 5xx trong API được ghi log kèm nguyên nhân (xem log_server_errors).
+        web::scope("/api/v1")
+            .wrap(middleware::from_fn(log_server_errors))
+            .configure(public)
+            .service(
             web::scope("")
                 .wrap(middleware::from_fn(auth))
                 .configure(protected),
