@@ -10,7 +10,7 @@ src/domains/
 ├── users/         # Mô hình hồ sơ người dùng, phân quyền (user, moderator, admin) và trạng thái hạn chế tài khoản
 ├── posts/         # Thực thể bài viết, quy tắc phân loại, gắn tọa độ, khóa bình luận, xóa mềm và khôi phục
 ├── comments/      # Thực thể bình luận phân cấp (parent_id), kiểm tra điều kiện phản hồi và vòng đời nội dung
-├── interactions/  # Nghiệp vụ thả biểu cảm (reactions), lưu bài viết (bookmarks) và theo dõi người dùng (follows)
+├── reactions/  # Nghiệp vụ thả biểu cảm (reactions), lưu bài viết (bookmarks) và theo dõi người dùng (follows)
 ├── tags/          # Quản lý danh mục thẻ phân loại bài viết và quy tắc liên kết bài viết với thẻ
 ├── notifications/ # Mô hình thông báo sự kiện, quy tắc phát sinh thông báo và gửi thông báo hàng loạt
 └── translation/   # Quy tắc nhận diện ngôn ngữ, yêu cầu dịch nội dung và quản lý vòng đời bản dịch lưu trữ
@@ -26,7 +26,7 @@ src/domains/
 * Áp dụng cơ chế xóa mềm (`deleted_at`) để bảo toàn dữ liệu phục vụ khôi phục bởi quản trị viên, đồng thời chặn tạo bình luận mới trên các bài viết đã bị khóa bình luận.
 
 
-* **Tương tác xã hội và phân loại (`interactions/`, `tags/`)**:
+* **Tương tác xã hội và phân loại (`reactions/`, `tags/`)**:
 * Đảm bảo tính duy nhất của mỗi lượt lưu bài viết, lượt theo dõi giữa hai người dùng và trạng thái biểu cảm trên từng bài viết hoặc bình luận.
 * Quản lý danh sách thẻ gắn kèm bài viết và các tiêu chí lọc, tìm kiếm, gợi ý người dùng nổi bật.
 
