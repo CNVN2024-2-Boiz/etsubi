@@ -36,7 +36,7 @@ export const faqs = [
   { topic: 'follow', popular: null, q: t('Bài viết đã lưu nằm ở đâu?'), a: t('Bấm biểu tượng dấu trang ở bài viết để lưu. Danh sách bài đã lưu sẽ nằm trong trang Hồ sơ của bạn.') },
   { topic: 'search', popular: null, q: t('Có phím tắt nào để tìm nhanh không?'), a: t('Nhấn phím "/" ở bất kỳ trang nào để đưa con trỏ vào ô tìm kiếm. Kết quả chỉ hiện khi bạn nhấn Enter hoặc bấm "Tìm kiếm".') },
   { topic: 'places', popular: null, q: t('Thẻ "Địa điểm văn hoá" ở bài viết là gì?'), a: t('Khi bài viết có gắn toạ độ, trang đọc bài hiện thẻ bản đồ ở cột bên phải. Bấm "Mở trong Maps" để xem vị trí và chỉ đường trên Google Maps.') },
-  { topic: 'rules', popular: null, q: t('Gặp nội dung vi phạm thì làm sao?'), a: t('Gửi email kèm đường link bài viết hoặc bình luận và mô tả vấn đề tới contact@etsubi.net. Đội kiểm duyệt sẽ xem xét theo quy tắc cộng đồng.') },
+  { topic: 'rules', popular: null, q: t('Gặp nội dung vi phạm thì làm sao?'), a: t('Đăng nhập rồi mở menu ⋯ của bài viết hoặc bình luận, hoặc nút ⋯ cạnh "Theo dõi" trên trang cá nhân, và chọn mục Báo cáo. Chọn lý do, viết thêm mô tả nếu cần rồi bấm "Gửi báo cáo". Báo cáo được gửi riêng tới đội kiểm duyệt; người bị báo cáo không biết ai đã gửi.') },
 ];
 
 /* Bốn quy tắc ngắn trong thẻ "Quy tắc cộng đồng" (theo Figma). */
@@ -44,7 +44,7 @@ export const rules = [
   t('Tôn trọng mọi thành viên, không phân biệt quốc tịch hay trình độ ngôn ngữ.'),
   t('Không spam, quảng cáo hoặc đăng nội dung trùng lặp.'),
   t('Ghi rõ nguồn khi chia sẻ tài liệu và hình ảnh.'),
-  t('Gặp nội dung vi phạm, gửi email kèm đường link tới contact@etsubi.net.'),
+  t('Gặp nội dung vi phạm, bấm ⋯ rồi chọn mục Báo cáo để gửi cho đội kiểm duyệt.'),
 ];
 
 /* Từ khoá phổ biến dưới ô tìm kiếm; bấm vào sẽ điền và tìm ngay. */
