@@ -6,6 +6,7 @@ pub mod notification;
 pub mod oauth;
 pub mod post;
 pub mod reaction;
+pub mod report;
 pub mod tag;
 pub mod translation;
 pub mod user;

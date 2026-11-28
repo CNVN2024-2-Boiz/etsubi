@@ -405,6 +405,7 @@
   --color-input-border: #D1C7B8;
   --color-input-bg: #FAF7F0;
   --color-success: #2E965A;
+  --color-success-soft: #E6F4EC; /* nền ô dấu tích "Đã gửi báo cáo" */
   --color-danger: #D63C3C;
   --color-staff: #0F1729;
 

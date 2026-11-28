@@ -32,8 +32,11 @@ function show(title, lines, ...body) {
  */
 function field({ name, type, label, autocomplete, value = '' }) {
   const hint = el('p', { className: 'field__hint field__hint--error', id: name + '-hint', hidden: true });
-  const input = el('input', { className: 'input', id: name, name, type, autocomplete, value, 'aria-describedby': name + '-hint', required: true });
-  const wrap = el('div', { className: 'field' }, el('label', { className: 'field__label', for: name }, label), input, hint);
+  const input = el('input', { className: 'input', id: name, name, type, autocomplete, value, 'aria-describedby': name + '-hint', required: true,
+    placeholder: type === 'password' ? '••••••••' : null });
+  // Ô mật khẩu dùng nút mắt riêng như trang Đăng ký; .input-group cũng tắt nút hiện mật khẩu có sẵn của Edge.
+  const control = type === 'password' ? passwordGroup(input) : input;
+  const wrap = el('div', { className: 'field' }, el('label', { className: 'field__label', for: name }, label), control, hint);
   /** Bật hoặc tắt lỗi của trường, đồng bộ aria-invalid cho trình đọc màn hình. */
   function setError(message) {
     input.classList.toggle('is-invalid', Boolean(message));
@@ -43,6 +46,24 @@ function field({ name, type, label, autocomplete, value = '' }) {
     hint.hidden = !message;
   }
   return { wrap, input, setError };
+}
+
+/**
+ * Bọc ô mật khẩu cùng nút mắt ẩn/hiện, cùng markup với trang Đăng ký (register/index.html).
+ * @param {HTMLInputElement} input Ô mật khẩu.
+ * @returns {HTMLElement} Khối .input-group chứa ô và nút.
+ */
+function passwordGroup(input) {
+  const button = el('button', { type: 'button', className: 'input-group__button', 'aria-label': t('Hiện mật khẩu'),
+    'aria-pressed': 'false', 'aria-controls': input.id }, el('img', { src: '/assets/icons/eye.svg', alt: '', width: 24, height: 24 }));
+  // Đổi kiểu ô giữa password và text, đồng bộ nhãn cho trình đọc màn hình.
+  button.addEventListener('click', () => {
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    button.setAttribute('aria-pressed', String(visible));
+    button.setAttribute('aria-label', visible ? t('Ẩn mật khẩu') : t('Hiện mật khẩu'));
+  });
+  return el('div', { className: 'input-group' }, input, button);
 }
 
 /** Khoá nút trong lúc gửi bằng chữ tĩnh, trả về hàm mở khoá. */

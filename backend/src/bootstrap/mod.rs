@@ -11,7 +11,8 @@ use crate::{
         auth::service::AuthService, bookmark::service::BookmarkService,
         comment::service::CommentService, follow::service::FollowService,
         notification::service::NotificationService, post::service::PostService,
-        reaction::service::ReactionService, tag::service::TagService,
+        reaction::service::ReactionService, report::service::ReportService,
+        tag::service::TagService,
         translation::service::TranslationService, user::service::UserService,
     },
     infrastructure::{
@@ -43,13 +44,16 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let follow_repo = Arc::new(PostgresFollowRepo::new(pool.clone()));
     let notification_repo = Arc::new(PostgresNotificationRepo::new(pool.clone()));
 
+    // Một mailer dùng chung cho mail tài khoản và mail báo cáo vi phạm.
+    let mailer = build_mailer(&config.mail);
+
     let user_service = Arc::new(UserService::new(user_repo.clone()));
     let auth_service = Arc::new(AuthService::new(
         auth_repo,
         user_repo.clone(),
         server.jwt_key.clone(),
         server.jwt_expiry_hours,
-        build_mailer(&config.mail),
+        mailer.clone(),
         config.mail.app_base_url.clone(),
     ));
     let post_service = Arc::new(PostService::new(post_repo.clone(), user_repo.clone()));
@@ -78,6 +82,14 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
     let bookmark_service = Arc::new(BookmarkService::new(bookmark_repo, post_repo.clone()));
     let reaction_service = Arc::new(ReactionService::new(reaction_repo, post_repo.clone()));
     let follow_service = Arc::new(FollowService::new(follow_repo, user_repo.clone()));
+    let report_service = Arc::new(ReportService::new(
+        user_repo.clone(),
+        post_repo.clone(),
+        comment_repo.clone(),
+        mailer,
+        config.mail.app_base_url.clone(),
+        config.mail.report_to.clone(),
+    ));
 
     Ok(web::Data::new(AppState {
         config,
@@ -92,5 +104,6 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
         reaction_service,
         notification_service,
         translation_service,
+        report_service,
     }))
 }

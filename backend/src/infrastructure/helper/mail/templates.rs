@@ -62,6 +62,9 @@ pub fn escape(s: &str) -> String {
         .replace('>', "&gt;")
         .replace('"', "&quot;")
         .replace('\'', "&#39;")
+        // Ngoặc nhọn cũng thoát để chữ người dùng (tiêu đề bài trong subject) không thành chỗ `{{...}}` của khung mail.
+        .replace('{', "&#123;")
+        .replace('}', "&#125;")
 }
 
 /// Giờ Việt Nam (UTC+7), định dạng theo từng ngôn ngữ.
@@ -146,6 +149,7 @@ fn render(page: Page, to: &str, text: String) -> OutgoingMail {
         subject: page.subject,
         html,
         text,
+        reply_to: None,
     }
 }
 
@@ -467,6 +471,227 @@ pub fn password_changed(
     )
 }
 
+/// Một người xuất hiện trong mail báo cáo: người báo cáo (có email) hoặc tác giả nội dung (không kèm email).
+pub struct ReportPerson {
+    pub id: String,
+    pub displayname: String,
+    pub username: String,
+    pub email: Option<String>,
+    pub role: String,
+}
+
+/// Dữ liệu dựng mail báo cáo vi phạm gửi về hộp thư đội kiểm duyệt.
+pub struct ReportMail {
+    /// "post", "comment" hoặc "user".
+    pub target_type: &'static str,
+    /// Nhãn tiếng Việt của các lý do đã chọn.
+    pub reasons: Vec<&'static str>,
+    pub details: Option<String>,
+    pub reporter: ReportPerson,
+    pub target_id: String,
+    /// Tiêu đề bài viết, trích đoạn bình luận hoặc tên hiển thị của người bị báo cáo.
+    pub target_title: String,
+    pub target_excerpt: Option<String>,
+    pub target_author: Option<ReportPerson>,
+    /// Với bình luận: tiêu đề bài viết chứa nó.
+    pub target_context: Option<String>,
+    pub target_url: String,
+    pub at: DateTime<Utc>,
+}
+
+/// Tên vai trò tiếng Việt cho mail nội bộ.
+fn role_label(role: &str) -> &'static str {
+    match role {
+        "admin" => "Quản trị viên",
+        "moderator" => "Kiểm duyệt viên",
+        _ => "Thành viên",
+    }
+}
+
+/// Bảng hai cột nhãn / giá trị; giá trị phải được thoát HTML trước khi truyền vào.
+fn info_rows(rows: &[(&str, String)]) -> String {
+    let body: String = rows
+        .iter()
+        .map(|(k, v)| {
+            format!(
+                r#"<tr><td style="padding:4px 14px 4px 0;color:#1F1A17;font-weight:600;vertical-align:top;white-space:nowrap;">{k}</td><td style="padding:4px 0;color:#4A403B;vertical-align:top;word-break:break-word;">{v}</td></tr>"#
+            )
+        })
+        .collect();
+    format!(
+        r#"<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;line-height:1.5;">{body}</table>"#
+    )
+}
+
+/// Nhãn nhỏ in hoa màu đỏ đậm đặt trên mỗi khối của mail.
+fn section_title(label: &str) -> String {
+    format!(
+        r#"<p style="margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8E2F38;">{label}</p>"#
+    )
+}
+
+/// Cắt chuỗi theo số ký tự (không cắt giữa chữ có dấu), thêm "…" khi bị cắt.
+pub fn clip(s: &str, max: usize) -> String {
+    let s = s.trim();
+    if s.chars().count() <= max {
+        return s.to_string();
+    }
+    let cut: String = s.chars().take(max).collect();
+    format!("{}…", cut.trim_end())
+}
+
+/// Mail báo cáo vi phạm (tiếng Việt, vì chỉ đội kiểm duyệt đọc). Bấm Trả lời sẽ gửi thẳng cho người báo cáo.
+pub fn report_received(base_url: &str, to: &str, report: &ReportMail) -> OutgoingMail {
+    let lang = Lang::Vi;
+    let reporter = &report.reporter;
+    let (kind, open_label) = match report.target_type {
+        "post" => ("bài viết", "Mở bài viết trên Etsubi"),
+        "comment" => ("bình luận", "Mở bình luận trên Etsubi"),
+        _ => ("người dùng", "Mở trang cá nhân trên Etsubi"),
+    };
+    let time = format_time(lang, report.at);
+
+    // Tiêu đề mail cho biết ngay loại nội dung và đối tượng, dễ lọc trong hộp thư.
+    let subject = match report.target_type {
+        "user" => format!("[Báo cáo] Người dùng: {}", clip(&report.target_title, 60)),
+        "comment" => format!("[Báo cáo] Bình luận: {}", clip(&report.target_title, 60)),
+        _ => format!("[Báo cáo] Bài viết: {}", clip(&report.target_title, 60)),
+    };
+    let reason_text = report.reasons.join(", ");
+
+    // Khối lý do: danh sách lý do và phần mô tả thêm (giữ xuống dòng của người viết).
+    let reasons_html: String = report
+        .reasons
+        .iter()
+        .map(|r| format!(r#"<li style="margin:0 0 4px;">{}</li>"#, escape(r)))
+        .collect();
+    let details_html = match report.details.as_deref() {
+        Some(d) if !d.trim().is_empty() => format!(
+            r#"<p style="margin:12px 0 4px;font-weight:600;color:#1F1A17;">Mô tả thêm của người báo cáo</p><p style="margin:0;white-space:pre-wrap;">{}</p>"#,
+            escape(d.trim()).replace('\n', "<br>")
+        ),
+        _ => String::new(),
+    };
+    let reasons_box = boxed(
+        &format!(
+            r#"<ul style="margin:0;padding:0 0 0 18px;color:#1F1A17;font-weight:600;">{reasons_html}</ul>{details_html}"#
+        ),
+        true,
+    );
+
+    // Khối nội dung bị báo cáo: khác nhau theo loại.
+    let mut target_rows: Vec<(&str, String)> = Vec::new();
+    match report.target_type {
+        "post" => {
+            target_rows.push(("Tiêu đề", escape(&report.target_title)));
+        }
+        "comment" => {
+            if let Some(ctx) = &report.target_context {
+                target_rows.push(("Trong bài", escape(ctx)));
+            }
+        }
+        _ => {
+            target_rows.push(("Tên hiển thị", escape(&report.target_title)));
+        }
+    }
+    if let Some(ex) = &report.target_excerpt {
+        target_rows.push(("Trích đoạn", format!("“{}”", escape(ex))));
+    }
+    if let Some(author) = &report.target_author {
+        let label = if report.target_type == "user" { "Tài khoản" } else { "Tác giả" };
+        target_rows.push((
+            label,
+            format!(
+                "{} (@{}) · {}",
+                escape(&author.displayname),
+                escape(&author.username),
+                role_label(&author.role)
+            ),
+        ));
+    }
+    target_rows.push(("ID", escape(&report.target_id)));
+    let target_box = boxed(&info_rows(&target_rows), false);
+
+    // Khối người báo cáo: lấy từ tài khoản đang đăng nhập (JWT), không phải do người dùng tự gõ.
+    let reporter_rows = [
+        ("Tên hiển thị", escape(&reporter.displayname)),
+        ("Tên người dùng", format!("@{}", escape(&reporter.username))),
+        (
+            "Email",
+            match &reporter.email {
+                Some(e) => format!(
+                    r#"<a href="mailto:{e}" style="color:#B23C46;">{e}</a>"#,
+                    e = escape(e)
+                ),
+                None => "–".into(),
+            },
+        ),
+        ("Vai trò", role_label(&reporter.role).to_string()),
+        ("ID", escape(&reporter.id)),
+    ];
+    let reporter_box = boxed(&info_rows(&reporter_rows), false);
+
+    let content = format!(
+        r#"{label}
+<h1 style="{H1}font-family:{FONT};">@{user} báo cáo một {kind}</h1>
+<p style="{P}">Gửi lúc <strong style="{STRONG}">{time}</strong>. Bấm <strong style="{STRONG}">Trả lời</strong> để liên hệ thẳng người báo cáo.</p>
+{reasons_title}
+{reasons_box}
+{target_title}
+{target_box}
+{button}
+{reporter_title}
+{reporter_box}
+{fallback}"#,
+        label = section_title("Báo cáo vi phạm"),
+        user = escape(&reporter.username),
+        time = escape(&time),
+        reasons_title = section_title("Lý do"),
+        target_title = section_title(match report.target_type {
+            "post" => "Bài viết bị báo cáo",
+            "comment" => "Bình luận bị báo cáo",
+            _ => "Người dùng bị báo cáo",
+        }),
+        button = button(open_label, &report.target_url, true),
+        reporter_title = section_title("Người báo cáo (từ tài khoản đăng nhập)"),
+        fallback = fallback(lang, &report.target_url),
+    );
+
+    // Bản chữ thuần cho trình đọc mail không hiện HTML.
+    let mut text = format!(
+        "@{} báo cáo một {kind} lúc {time}.\n\nLý do: {reason_text}\n",
+        reporter.username
+    );
+    if let Some(d) = report.details.as_deref().filter(|d| !d.trim().is_empty()) {
+        text.push_str(&format!("Mô tả thêm: {}\n", d.trim()));
+    }
+    text.push_str(&format!(
+        "\nĐối tượng: {} ({})\nLink: {}\n\nNgười báo cáo: {} (@{}), {}, ID {}\n",
+        report.target_title,
+        report.target_id,
+        report.target_url,
+        reporter.displayname,
+        reporter.username,
+        reporter.email.as_deref().unwrap_or("–"),
+        reporter.id,
+    ));
+
+    let mut mail = render(
+        Page {
+            lang,
+            base_url,
+            subject,
+            preheader: format!("Lý do: {reason_text}"),
+            content,
+            footer_note: "Mail tự động gửi tới hộp thư kiểm duyệt khi một thành viên đã đăng nhập bấm Báo cáo trên etsubi.net. Người bị báo cáo không nhận được mail này và không biết ai đã báo cáo.",
+        },
+        to,
+        text,
+    );
+    mail.reply_to = reporter.email.clone();
+    mail
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -513,5 +738,49 @@ mod tests {
                 assert!(!m.text.is_empty());
             }
         }
+    }
+
+    #[test]
+    fn report_mail_escapes_input_and_replies_to_reporter() {
+        let m = report_received(
+            "https://etsubi.net",
+            "mods@etsubi.net",
+            &ReportMail {
+                target_type: "comment",
+                reasons: vec!["Spam hoặc quảng cáo", "Lý do khác"],
+                details: Some("<b>xem</b>\ndòng 2".into()),
+                reporter: ReportPerson {
+                    id: "r-1".into(),
+                    displayname: "Minh Anh".into(),
+                    username: "minhanh".into(),
+                    email: Some("minhanh@example.com".into()),
+                    role: "user".into(),
+                },
+                target_id: "c-1".into(),
+                target_title: "Mua ngay {{content}}".into(),
+                target_excerpt: Some("Mua ngay {{content}}".into()),
+                target_author: None,
+                target_context: Some("Học tiếng Nhật".into()),
+                target_url: "https://etsubi.net/post/?id=p-1#comment-c-1".into(),
+                at: DateTime::parse_from_rfc3339("2026-11-28T07:05:00Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
+            },
+        );
+        assert_eq!(m.to, "mods@etsubi.net");
+        assert_eq!(m.reply_to.as_deref(), Some("minhanh@example.com"));
+        assert!(m.subject.starts_with("[Báo cáo] Bình luận:"));
+        assert!(m.html.contains("&lt;b&gt;xem&lt;/b&gt;<br>dòng 2"));
+        assert!(m.html.contains("Mua ngay &#123;&#123;content&#125;&#125;"));
+        assert!(!m.html.contains("{{"), "user text must not become a layout placeholder");
+        assert!(m.html.contains("14:05, 28/11/2026"));
+        assert!(m.html.contains("#comment-c-1"));
+        assert!(m.text.contains("Lý do: Spam hoặc quảng cáo, Lý do khác"));
+    }
+
+    #[test]
+    fn clip_cuts_by_characters() {
+        assert_eq!(clip("Tiếng Việt có dấu", 5), "Tiếng…");
+        assert_eq!(clip("  ngắn  ", 10), "ngắn");
     }
 }

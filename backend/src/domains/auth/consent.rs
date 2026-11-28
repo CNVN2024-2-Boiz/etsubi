@@ -2,7 +2,7 @@
 //! tăng phiên bản ở đây để bản ghi đồng ý mới ghi đúng văn bản người dùng đã đọc.
 
 pub const TERMS_VERSION: &str = "1.0";
-pub const PRIVACY_VERSION: &str = "1.1";
+pub const PRIVACY_VERSION: &str = "1.2";
 
 pub const PURPOSE_TERMS: &str = "terms_of_use";
 pub const PURPOSE_PERSONAL_DATA: &str = "personal_data";

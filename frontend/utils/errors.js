@@ -32,6 +32,20 @@ export function toVietnameseMessage(error) {
   if (error?.data?.code === 'invalid_link') {
     return t('Liên kết không hợp lệ hoặc đã hết hạn.');
   }
+  // Lỗi của Báo cáo vi phạm (POST /reports): máy chủ trả mã ổn định trong data.code.
+  const reportMessages = {
+    invalid_target: t('Không báo cáo được loại nội dung này.'),
+    invalid_reason: t('Lý do báo cáo không hợp lệ, hãy chọn lại.'),
+    details_required: t('Hãy mô tả thêm khi chọn "Lý do khác".'),
+    details_too_long: t('Mô tả tối đa 1000 ký tự.'),
+    target_not_found: t('Nội dung này không còn tồn tại.'),
+    cannot_report_self: t('Bạn không thể báo cáo chính mình.'),
+    report_cooldown: t('Bạn vừa báo cáo nội dung này, vui lòng chờ 10 phút.'),
+    report_limit: t('Bạn đã gửi quá nhiều báo cáo trong một giờ, vui lòng thử lại sau.'),
+  };
+  if (reportMessages[error?.data?.code]) {
+    return reportMessages[error.data.code];
+  }
   // Máy chủ nói cả email và username thì không suy đoán trường trùng.
   if (error?.status === 409 && /email/i.test(message) && /username/i.test(message)) {
     return t('Email hoặc @tên người dùng đã được dùng.');

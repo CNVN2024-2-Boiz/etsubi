@@ -19,9 +19,10 @@ import { routes } from '/utils/routes.js';
 import { setUserMute, setUserStatus, setUserRole } from '/services/api/manage.js';
 import {
   isStaff, canModerateUser, isMutedNow, formatUntil, formatUntilFull, formatRemaining, ROLE_LABELS as MOD_ROLE_LABELS,
-  createStaffTag, createStatusBadge, createStaffBox, createStaffButton, createMenu, modIcon,
+  createStaffTag, createStatusBadge, createStaffBox, createStaffButton, createMenu, createMoreButton, modIcon,
   openConfirmDialog, openMuteDialog, openBanDialog, openRoleDialog,
 } from '/components/moderation/moderation.js';
+import { openReportDialog } from '/components/report-dialog/report-dialog.js';
 import { t, currentLocale } from '/utils/i18n.js';
 
 // Header theo frame Figma (tab Trang chủ đang chọn, ô tìm kiếm trong suốt); footer đầy đủ.
@@ -267,7 +268,28 @@ function renderModeration() {
   if (staff && !isOwn) {
     actions.push(canAct ? createAdminMenu(muted || banned) : createLockedAdminButton());
   }
+  // Người đã đăng nhập xem hồ sơ người khác có nút ⋯ với mục Báo cáo người dùng.
+  if (viewer && !isOwn) {
+    actions.push(createReportMenu());
+  }
   qs('[data-profile-action]').replaceChildren(...actions);
+}
+
+/** Nút ⋯ cạnh Theo dõi: menu một mục "Báo cáo người dùng…" mở hộp thoại báo cáo. */
+function createReportMenu() {
+  const { profile } = state;
+  return createMenu(createMoreButton(t('Tuỳ chọn hồ sơ')), {
+    header: null,
+    items: [{
+      icon: 'flag',
+      label: t('Báo cáo người dùng…'),
+      onSelect: () => openReportDialog({
+        targetType: 'user',
+        targetId: profile.id,
+        summary: getAuthorLabel(profile) + ' · ' + getAuthorHandle(profile),
+      }),
+    }],
+  });
 }
 
 /** Nút "Quản trị" bị khoá với người cùng cấp hoặc cao hơn; rê chuột hoặc focus để xem lý do. */

@@ -42,6 +42,7 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       MAIL_FROM: ${MAIL_FROM:-Etsubi <no-reply@etsubi.net>}
       MAIL_REPLY_TO: ${MAIL_REPLY_TO:-contact@etsubi.net}
+      REPORT_EMAIL: ${REPORT_EMAIL:-contact@etsubi.net}
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:22321}
     ports:
       - "21432:11432"
