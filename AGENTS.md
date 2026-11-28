@@ -127,9 +127,14 @@ The page module calls `mountHeader()` / `mountFooter()` from the components. Nev
 
 | Token | Value | Use |
 |---|---|---|
-| `--color-red` | `#C2454F` | brand red: navbar, primary buttons, card borders, links |
-| `--color-red-dark` | `#A8343F` | footer, tag text, pressed states |
-| `--color-red-accent` | `#C43A56` | accent bar, `#` in tag chips |
+| `--color-red` | `#B23C46` | brand red, accents only: primary buttons, active tab, links, dots (calmer palette since 2026-11-28, PR #90) |
+| `--color-red-dark` | `#8E2F38` | text on soft red, pressed states |
+| `--color-red-accent` | `#B23C46` | accent bar, `#` in tag chips |
+| `--color-red-soft` | `#F7EBEA` | selected tabs/chips, "Xem chi tiết" buttons, badges |
+| `--color-band-bg` | `#F4EEE8` | card title bands (with red torii) |
+| `--color-card-border` | `#E0D9CC` | 1px card and dialog borders |
+| `--color-ink` | `#1F1A17` | footer and hero overlay |
+| `--color-red-legacy` | `#C2454F` | old red, ONLY for card frames on Login, Register, Register Advanced, Settings (and `/verify-email/`, `/reset-password/`); featured rank numbers 01–03 |
 | `--color-cream` | `#FFFCF7` | cards, inputs on cards |
 | `--color-page` | `#FAF7F5` | page background |
 | `--color-sakura` | `#FCECF0` | soft highlight, selected option, tag chip bg |
@@ -146,7 +151,7 @@ The page module calls `mountHeader()` / `mountFooter()` from the components. Nev
 | `--color-danger` | `#D63C3C` | required `*`, error text |
 | `--color-staff` | `#0F1729` | staff/mod/admin badges (slate) |
 
-The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on Login/Register keeps its own darker reds (`--torii-*` tokens).
+The old red `#8C1C1C` is **retired**. Do not use it. The full red look before 2026-11-28 is kept at tag `ui/red-header-before-calm` (fork) to restore after the course. The torii illustration on Login/Register keeps its own darker reds (`--torii-*` tokens).
 
 ### Fonts
 
@@ -165,7 +170,7 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 
 ### Shared header (`components/header`)
 
-- Red bar (`--color-red`), height 77px, 48px side padding, shadow `--shadow-navbar`.
+- White bar with a 1px `--color-border` bottom line (calmer palette, PR #90), height 77px, 48px side padding. Links are grey (`--color-text-secondary`); the active tab, the "Etsubi" word and "Đăng nhập" are red.
 - Left: circular Etsubi logo with white ring (`assets/icons/etsubi-logo.svg`) + "Etsubi" in Etsubi Logo, white. Links to Home.
 - Tabs, in this order: **Trang chủ · Diễn đàn · Hỗ trợ · Giới thiệu** (17px, Medium, white 85%). Every tab has the same box (label + 3px underline slot), so labels always line up vertically. The active tab gets white text + visible pink underline. On the search page **no tab is active**.
 - Right, in Figma order: when signed in **notification bell → language badge (VI/JA/EN) → gradient avatar** with initials (38px, 2px white 70% ring); when signed out on content pages: language badge → "Đăng nhập" link. Login/Register show only the language badge (no search icon). Figma also draws a sun "theme toggle" before the bell; there is no dark theme yet, so it is not built (team to decide).
@@ -173,13 +178,13 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 - **Browser preferences** (interface language `etsubi_lang`, theme `etsubi_theme`) are read and written only through `utils/preferences.js`. It fires `etsubi:language-change` / `etsubi:theme-change`, and `onInterfaceLanguageChange()` also follows other tabs, so the header language dropdown and Cài đặt › Giao diện stay in sync. Only the light theme exists; Tối/Theo máy stay disabled until a dark palette is designed.
 - **Language dropdown** (`components/header/language-menu.js`, Figma `466:3644`, shared `239:4071`): a 72 × 36 button opens a 168px menu (Tiếng Việt, 日本語, English), right-aligned to the button and 8px below the header. Choosing a language saves `etsubi_lang` and reloads the page; it sends no request and never changes the account's `native` or `language`. Escape and outside click close it and return focus to the button, arrow keys move between options, and only one header menu is open at a time. It stays hidden at `≤ 600px`, where people change the language in Cài đặt.
 - **Leave guard** (`utils/leave-guard.js`): a page with unsaved edits registers `registerLeaveGuard(fn)` (async, resolves `true` to leave); the header calls `confirmLeave()` before Đăng xuất. Never import a page module from the header. Resolve dialog choices directly from the buttons; do not rely only on the `<dialog>` `close` event.
-- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/search/`. Home uses `searchForm: true`: a **translucent** pill 520 × 42 on the red bar (white 12% fill, white 22% border, white 60% placeholder and icon, 15px text); on focus the pill brightens its border, the inner input never shows its own focus box.
+- Variant `search` puts the search bar (660 × 48) right after the logo. On other pages the search shows as an icon button that opens `/search/`. Home uses `searchForm: true`: a neutral pill 520 × 42 (`--color-neutral-100` fill, `--color-border` border, 15px text); on focus the pill turns white with a soft red border, the inner input never shows its own focus box.
 - `≤ 960px`: tabs move into a menu button (hamburger) panel; `≤ 600px` matches Figma "Mobile · Header" (logo + search icon + avatar).
 - Keyboard: `/` anywhere (outside inputs) focuses the search bar or opens the search page.
 
 ### Shared footer (`components/footer`)
 
-- `data-variant="slim"` (auth pages): 57.6px bar `--color-red-dark`, centred line "© 2026 Etsubi · 越日 | IE104 – UIT | Cầu nối văn hoá Việt – Nhật".
+- `data-variant="slim"` (auth pages): 57.6px bar `--color-ink`, centred line "© 2026 Etsubi · 越日 | IE104 – UIT | Cầu nối văn hoá Việt – Nhật".
 - `data-variant="full"` (content pages): 4 columns (brand + social icons, Liên kết, Tài nguyên, Liên hệ), divider, copyright "© 2026 Etsubi · 越日 – All rights reserved.".
 - Mobile: single centred line "© 2026 Etsubi".
 
@@ -192,8 +197,8 @@ The old red `#8C1C1C` is **retired**. Do not use it. The torii illustration on L
 | Password input | `.input-group` + eye button | hidden/visible (button has `aria-pressed`) |
 | Checkbox | `.checkbox` (real `<input type=checkbox>` visually styled) | unchecked (white, input border), checked (red box + white check), focus |
 | Radio card | `.radio-card` (real `<input type=radio>`) | unchecked (white, input border), checked (sakura bg, 1.5px red border, red radio dot), focus, hover |
-| Card | `.card` | cream bg, 2px red border, radius 4, `--shadow-card`; `.card__band` red top band with torii |
-| Tag chip | `components/tag-chip` | `default` (sakura bg, pink border, `#` red-accent + name red-dark, optional count muted), `selected` (red bg, check icon, cream text), `removable` (sakura-100 bg, radius 6, × button) |
+| Card | `.card` | cream bg, 1px `--color-card-border`, radius 4, `--shadow-card`; `.card__band` beige top band with red torii. Auth pages, Register Advanced and Settings override to the legacy 2px red border + red band + pink torii (`torii-mini-light.svg`) |
+| Tag chip | `components/tag-chip` | `default` (sakura bg, pink border, `#` red-accent + name red-dark, optional count muted), `selected` (soft red bg, red-dark text), `removable` (sakura-100 bg, radius 6, × button) |
 | Search bar | header variant `search` | empty-focused (placeholder, `Esc` kbd, Tag button neutral, **Submit opacity .4 + disabled**), has-query (clear ×, Tag button pink with count badge, Submit enabled) |
 | Result card / PostCard | `components/postcard` | default (cream, 1.2px red border, radius 6, `--shadow-result`), hover (border turns `--color-red-dark` + `--shadow-sidebar`; no movement), query highlight (red, title) / bold (excerpt) |
 | Kbd | `.kbd` | static |
@@ -300,7 +305,7 @@ The reviewer (the person or agent who did not write the code) runs every step an
    - Tab labels line up vertically and only the right tab is active (none on Search).
    - Right-side order follows Figma: bell, language badge, avatar.
    - Login/Register show only the language badge.
-   - The Home search pill is translucent on the red bar.
+   - The Home search pill is the neutral pill on the white header.
    - Clicking any input shows no square browser focus box inside a pill. The whole pill shows the focus state instead.
 5. **Check both session states.** Do this signed out and signed in. An info banner or avatar changes the layout, so the signed-out Login/Register card must sit exactly where Figma puts it.
 6. **Check the first screen.** At a common laptop browser height (1920×947 viewport), Home's featured cards must be fully visible without scrolling. This is a team requirement that overrides the 480px Figma hero.
@@ -326,7 +331,7 @@ The back-end dev has agreed to **adjust the back end to match the front-end code
 - **Until the back end has it,** the service returns what it can, and the UI shows a neutral placeholder in that slot ("–" for a number, a grey bar for text). Never show invented numbers or text as if they were real data.
 - **Record every request** in the "Yêu cầu cho backend" table in `HANDOFF.md` (endpoint, fields, which page needs it, status). That table is what the team sends to the back-end dev.
 - **Do not edit `backend/`** from a front-end branch. Back-end changes are the back-end dev's job.
-- Agreed exceptions that stay deferred (do not build UI for them): search over socket (HTTP is used, see Search) and email verification.
+- Agreed exception that stays deferred (do not build UI for it): search over socket (HTTP is used, see Search). Email verification was built on 2026-11-28 (see Auth).
 
 Base URL: `http://localhost:11432/api/v1` (local `cargo run`) or `http://localhost:21432/api/v1` (Docker `--profile full`). Swagger UI: `/swagger-ui/`. Errors are JSON `{ "error": "<English message>" }` (some framework errors are plain text).
 
@@ -334,26 +339,30 @@ Base URL: `http://localhost:11432/api/v1` (local `cargo run`) or `http://localho
 
 | Call | Body | Success | Errors |
 |---|---|---|---|
-| `POST /auth/register` | `{ displayname, username, email, password, native, language }` (displayname được lưu, tối đa 50 ký tự) | `201 { user_id }` (no token) | `400` username < 3 bytes / password < 8 / bad language; `409` email or username taken |
-| `POST /auth/login` | `{ email, password }` (**email only**, no username login) | `200 { user_id, token }` | `401` invalid credentials; `403` banned |
+| `POST /auth/register` | `{ displayname, username, email, password, native, language, accept_terms, accept_privacy }` | `201 { user_id, status: "pending" }` (no token; a confirmation email is sent and two consent records are stored) | `400` invalid input or `code: consent_required`; `409` email or username taken |
+| `POST /auth/login` | `{ email, password }` (**email only**, no username login) | `200 { user_id, token }` | `401` invalid credentials; `403` banned or `code: email_not_verified` |
+| `POST /auth/verify-email` | `{ token }` (from the email link) | `200 { user_id, token }`, account becomes `active` | `400 code: invalid_link`; `409 code: already_verified` |
+| `POST /auth/resend-verification` / `POST /auth/forgot-password` | `{ email }` | always `202` (no account probing; 60 s cooldown per address) | – |
+| `POST /auth/reset-password` | `{ token, password }` | `204`, all sessions signed out, "password changed" email sent | `400 code: invalid_link` / weak password |
+| `GET /my/consents` 🔒 | – | `[{ purpose, document_version, granted_at }]` | `401` |
 | `POST /auth/logout` 🔒 | – | `204`, bumps `token_version` (all tokens die) | `401` |
 | `GET /my` 🔒 | – | user profile | `401`, `403` banned |
 | `PATCH /my` 🔒 | any of `{ displayname, username, email, institute, address, bio, avatar_url, native, language }` (displayname được lưu, tối đa 50 ký tự) | `200` updated profile | `400`, `409` |
 
 🔒 = `Authorization: Bearer <token>`. Write calls from a muted user return `403 "Your account is muted until …"`.
 
-No email verification exists yet (team decision: skipped for now), so registration is active immediately.
+Email verification is required (since 2026-11-28, PR #91): mail is sent through Resend (`RESEND_API_KEY`), in the user's `language`. Auth errors carry a stable `code` next to `error`; `utils/errors.js` maps them.
 
-Flow used by the front end: Register → (auto) Login with the same email/password → store token → Register Advanced (`PATCH /my`) → Home.
+Flow used by the front end: Register (two consent boxes) → "Kiểm tra hộp thư" panel → email link `/verify-email/?token=` → `POST /auth/verify-email` stores the token → Register Advanced (`PATCH /my`) → Home. Forgot password: Login → `/reset-password/` → email link `/reset-password/?token=`.
 
 ### Users
 
-`users`: `id, username (unique @handle, e.g. `minhanh`; new names must match `^[a-z0-9_]{3,30}$` (no dot, older accounts keep theirs), the front end lower-cases and strips spaces while typing; 409 when taken), displayname (full name "Họ và tên", editable, shown everywhere a person appears; fall back to `@username` only when an API omits it), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (translation target, default vi; the front end always sends it equal to `native` on register and when the mother tongue changes, while the interface language stays in `etsubi_lang`), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {active, banned}, muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint planned**: `avatar_url` stays a preset path or small resized data URL. Post/comment images use HTTPS links inside sanitized `content`. The server rejects an invalid `username` with `400` and does not convert it, so the front end lower-cases and strips spaces before sending. New names cannot contain a dot on either side. Phong will remove `email`, `language`, `muted_until` from the public `GET /users/{id}` response; private `GET /my` keeps them.
+`users`: `id, username (unique @handle, e.g. `minhanh`; new names must match `^[a-z0-9_]{3,30}$` (no dot, older accounts keep theirs), the front end lower-cases and strips spaces while typing; 409 when taken), displayname (full name "Họ và tên", editable, shown everywhere a person appears; fall back to `@username` only when an API omits it), email (unique), institute?, address?, native ∈ {vi, en, ja} (default vi), language ∈ {vi, en, ja} (translation target, default vi; the front end always sends it equal to `native` on register and when the mother tongue changes, while the interface language stays in `etsubi_lang`), avatar_url?, bio?, role ∈ {user, moderator, admin}, status ∈ {pending, active, banned} (`pending` = email not confirmed yet), muted_until?`. `GET /users/{id}` is public. There is **no file upload endpoint planned**: `avatar_url` stays a preset path or small resized data URL. Post/comment images use HTTPS links inside sanitized `content`. The server rejects an invalid `username` with `400` and does not convert it, so the front end lower-cases and strips spaces before sending. New names cannot contain a dot on either side. Phong will remove `email`, `language`, `muted_until` from the public `GET /users/{id}` response; private `GET /my` keeps them.
 
 ### Hỗ trợ và nội dung (batch 10)
 
 - Hỗ trợ chỉ mở email tới `contact@etsubi.net` sau khi kiểm tra form; không có support tickets, reports hoặc nút Báo cáo vi phạm. Gặp nội dung vi phạm, gửi email kèm đường link.
-- Không có đặt lại mật khẩu bằng email. FAQ nói khôi phục mật khẩu đang phát triển và hướng dẫn liên hệ từ email đã đăng ký; link Quên mật khẩu ở Login giữ nguyên.
+- Đặt lại mật khẩu bằng email đã có (28/11/2026): link Quên mật khẩu ở Login mở `/reset-password/`, link trong mail dùng một lần trong 30 phút.
 - Dịch bài/bình luận theo `language` của người đọc; `native` chỉ dùng hiển thị. Đăng và sửa bình luận gửi `{ content, latitude?, longitude? }`, `CommentResponse` trả lại toạ độ; `PATCH /comments/{id}` thiếu toạ độ là gỡ địa điểm của bình luận. `PATCH /posts/{id}` thiếu toạ độ là xoá địa điểm, nên luôn dựng dữ liệu bằng `buildPostEdit()`. `place_name` của bài viết đã được Phong đồng ý thêm.
 
 ### Search
