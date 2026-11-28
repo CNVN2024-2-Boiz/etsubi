@@ -1,75 +1,34 @@
-# RBAC Tests
+# Kiểm thử phân quyền theo vai trò (`tests/rbac/`)
 
-## Files
+Thư mục `tests/rbac/` chứa bộ kịch bản kiểm thử tích hợp chuyên biệt cho cơ chế kiểm soát truy cập theo vai trò (RBAC) và trạng thái tài khoản trong hệ thống Etsubi, xác minh ranh giới quyền hạn giữa các cấp bậc `user`, `moderator` và `admin`.
 
-| File | Actor | Target |
-|---|---|---|
-| `user_admin.rs` | user | admin |
-| `user_moderator.rs` | user | moderator |
-| `moderator_moderator.rs` | moderator | moderator |
-| `moderator_admin.rs` | moderator | admin |
+## Cấu trúc các thành phần
 
-Không có `admin_admin.rs`. Hành vi admin tác động admin khác giống moderator tác động moderator: bị chặn. Nếu cần, có thể thêm sau.
-
-## Thứ tự role
+```text
+tests/rbac/
+├── mod.rs                  # Khai báo và xuất toàn bộ module kiểm thử phân quyền
+├── moderator_admin.rs      # Kiểm thử ranh giới quyền hạn giữa vai trò moderator và admin
+├── moderator_moderator.rs  # Kiểm thử quy tắc ngăn chặn moderator tác động lên tài khoản ngang cấp
+├── user_admin.rs           # Kiểm thử từ chối truy cập của vai trò user đối với các tác vụ của admin
+└── user_moderator.rs       # Kiểm thử từ chối truy cập của vai trò user đối với các tác vụ kiểm duyệt của moderator
 
 ```
-admin > moderator > user
-```
 
-## Quy tắc được test
+## Tính năng và phạm vi kiểm thử
 
-1. Actor không tác động được user có role bằng hoặc cao hơn mình (ban, mute, đổi role).
-2. Chỉ admin đổi role.
-3. Không ai tự ban, tự mute, tự đổi role chính mình.
-4. Không ai assign role admin, kể cả admin.
-5. Content moderation là ngoại lệ: moderator hide/restore được post của bất kỳ ai, kể cả admin.
+* **Bảo vệ các endpoint quản trị khỏi người dùng thông thường (`user_moderator.rs`, `user_admin.rs`)**: Xác nhận hệ thống trả về mã lỗi `403 Forbidden` khi tài khoản vai trò `user` thực hiện các thao tác kiểm duyệt bài viết, bình luận, khóa tài khoản, cấm tương tác hoặc thay đổi vai trò người dùng khác.
+* **Kiểm soát phân cấp ngang hàng (`moderator_moderator.rs`)**: Kiểm tra quy tắc ngăn chặn tài khoản `moderator` chỉnh sửa trạng thái hoặc cấm tương tác đối với một `moderator` khác hay `admin` (`CannotModifyHigherRole`), đồng thời ngăn chặn tự khóa hoặc tự cấm tương tác chính mình.
+* **Phân định đặc quyền giữa kiểm duyệt viên và quản trị viên (`moderator_admin.rs`)**: Xác minh chỉ tài khoản `admin` mới có quyền thay đổi vai trò giữa `user` và `moderator`, từ chối mọi yêu cầu nâng cấp lên `admin` qua API (`CannotAssignAdminRole`) và chặn thao tác tự thay đổi vai trò của chính mình.
+* **Kiểm tra trạng thái hạn chế tài khoản**: Xác nhận hiệu lực chặn toàn bộ truy cập đối với tài khoản bị khóa (`banned`) và chặn các phương thức ghi đối với tài khoản đang bị cấm tương tác có thời hạn (`muted_until`).
 
-## Nội dung từng file
 
-### `user_admin.rs`
 
-- User ban admin → 403
-- User mute admin → 403
-- User đổi role admin → 403
-- Admin tự ban self → 403
-- Admin ban user → 200
-- Admin promote user lên moderator → 200
-- Admin assign role admin → 403
-- Admin ban admin khác → 403
+## Tính chất kỹ thuật
 
-### `user_moderator.rs`
+* **Thiết lập vai trò trực tiếp trên cơ sở dữ liệu thử nghiệm**: Sử dụng các hàm tiện ích `set_role_in_db` và `set_status_in_db` từ `tests/common/mod.rs` để gán trực tiếp cột `role` và `status` trong PostgreSQL cho từng cặp tài khoản thử nghiệm trước khi gửi yêu cầu HTTP.
 
-- User ban moderator → 403
-- User mute moderator → 403
-- User đổi role moderator → 403
-- Moderator ban user → 200
-- Moderator đổi role user → 403
 
-### `moderator_moderator.rs`
+* **Tổ chức kịch bản theo ma trận tương tác**: Chia tách các tệp kiểm thử theo từng cặp chủ thể thực hiện và đối tượng chịu tác động, giúp kiểm chứng rõ ràng cả trường hợp được phép thực thi lẫn trường hợp bị từ chối quyền truy cập.
 
-- Moderator ban moderator khác → 403
-- Moderator mute moderator khác → 403
-- Moderator tự ban self → 403
-- Moderator hide post của moderator khác → 200 (content exception)
 
-### `moderator_admin.rs`
-
-- Moderator ban admin → 403
-- Moderator mute admin → 403
-- Moderator đổi role admin → 403
-- Moderator hide post của admin → 200 (content exception)
-- Admin ban moderator → 200
-
-## Cách setup role
-
-Test dùng `set_role_in_db` từ `common`:
-
-```rust
-let actor = register_and_login(&server.base);
-let target = register_and_login(&server.base);
-set_role_in_db(&actor.email, "moderator");
-set_role_in_db(&target.email, "admin");
-```
-
-Không có endpoint tự promote user, nên phải đổi role trực tiếp trong DB. Middleware đọc role từ DB mỗi request, nên token không cần refresh sau khi đổi role.
+* **Tự động cô lập và dọn dẹp dữ liệu**: Mỗi kịch bản khởi tạo các tài khoản độc lập qua `register_and_login()` và tự động xóa sạch dữ liệu khỏi PostgreSQL thông qua trait `Drop` của `TestUser` ngay khi kết thúc.
