@@ -195,23 +195,30 @@ assert.equal(auth.safeRedirect('/pages/profile/edit.html?section=profile#avatar'
 assert.equal(auth.safeRedirect('/pages/profile/?id=1#posts'), '/profile/?id=1#posts');
 assert.equal(auth.safeRedirect('/folder/..//evil.test'), routes.routes.home);
 
-// Mô phỏng đăng ký, đăng nhập và tải hồ sơ để kiểm tra đúng thứ tự API.
+// Mô phỏng đăng ký (tài khoản chờ xác nhận), bấm link trong mail rồi tải hồ sơ để kiểm tra đúng thứ tự API.
 const calls = [];
 env.context.fetch = async (url, options) => {
   calls.push({ pathname: url.pathname, body: options.body && JSON.parse(options.body) });
   if (url.pathname.endsWith('/auth/register')) {
-    return new Response('{"user_id":"fixture"}', { status: 201 });
+    return new Response('{"user_id":"fixture","status":"pending"}', { status: 201 });
   }
-  if (url.pathname.endsWith('/auth/login')) {
-    return new Response('{"token":"fixture-login"}', { status: 200 });
+  if (url.pathname.endsWith('/auth/verify-email')) {
+    return new Response('{"user_id":"fixture","token":"fixture-login"}', { status: 200 });
   }
   return new Response(JSON.stringify({ id: 'fixture', username: 'nguyenvanan', displayname: 'Nguyễn Văn An', role: 'moderator', status: 'active', native: 'vi', language: 'ja', avatar_url: '/assets/avatars/preset.svg', muted_until: '2030-01-01T00:00:00Z' }));
 };
-const user = await auth.registerAndLogin({ username: 'nguyenvanan', displayname: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'ja' });
-assert.deepEqual(calls.map(call => call.pathname.split('/').at(-1)), ['register','login','my']);
-// Đăng ký luôn gửi language bằng ngôn ngữ mẹ đẻ, không lấy theo nút ngôn ngữ trên header.
+const authApi = await env.use('/services/api/auth.js');
+const created = await authApi.register({ username: 'nguyenvanan', displayname: 'Nguyễn Văn An', email: 'fixture@example.invalid', password: 'fixture-password', native: 'ja', acceptTerms: true, acceptPrivacy: true });
+assert.equal(created.status, 'pending');
+// Đăng ký gửi language bằng ngôn ngữ mẹ đẻ khi không chỉ định riêng, kèm hai ô đồng ý làm bằng chứng.
 assert.equal(calls[0].body.native, 'ja');
 assert.equal(calls[0].body.language, 'ja');
+assert.equal(calls[0].body.accept_terms, true);
+assert.equal(calls[0].body.accept_privacy, true);
+const verified = await authApi.verifyEmail('fixture-mail-token');
+assert.equal(calls[1].body.token, 'fixture-mail-token');
+const user = await auth.startSession(verified.token, { remember: true });
+assert.deepEqual(calls.map(call => call.pathname.split('/').at(-1)), ['register', 'verify-email', 'my']);
 assert.equal(user.avatarUrl, '/assets/avatars/preset.svg');
 assert.equal(user.isStaff, true);
 assert.equal(user.isAdmin, false);

@@ -9,7 +9,7 @@ fn full_auth_flow() {
     let server = TestServer::start();
     let client = reqwest::blocking::Client::new();
     let uid = Uuid::new_v4();
-    let username = format!("test_{}", uid);
+    let username = format!("test_{}", &uid.simple().to_string()[..16]);
     let email = format!("test+{}@example.com", uid);
     let password = "password123";
 
@@ -21,10 +21,13 @@ fn full_auth_flow() {
             "password": password,
             "native": "vi",
             "language": "en",
+            "accept_terms": true,
+            "accept_privacy": true,
         }))
         .send()
         .unwrap();
     assert_eq!(r.status(), 201, "register: {:?}", r.text());
+    crate::common::set_status_in_db(&email, "active");
 
     let r = client
         .post(server.url("/api/v1/auth/login"))
@@ -70,7 +73,7 @@ fn register_language_defaults_to_native() {
     let server = TestServer::start();
     let client = reqwest::blocking::Client::new();
     let uid = Uuid::new_v4();
-    let username = format!("test_{}", uid);
+    let username = format!("test_{}", &uid.simple().to_string()[..16]);
     let email = format!("test+{}@example.com", uid);
     let password = "password123";
 
@@ -82,10 +85,13 @@ fn register_language_defaults_to_native() {
             "password": password,
             "native": "ja",
             "language": "en",
+            "accept_terms": true,
+            "accept_privacy": true,
         }))
         .send()
         .unwrap();
     assert_eq!(r.status(), 201, "register: {:?}", r.text());
+    crate::common::set_status_in_db(&email, "active");
 
     let r = client
         .post(server.url("/api/v1/auth/login"))
@@ -135,6 +141,8 @@ fn register_rejects_invalid_input(
             "password": password,
             "native": native,
             "language": native,
+            "accept_terms": true,
+            "accept_privacy": true,
         }))
         .send()
         .unwrap();

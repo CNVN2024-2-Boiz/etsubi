@@ -756,3 +756,73 @@
     font-size: 15px;
   }
 }
+
+/* ===== Màn chờ mở mail, xác nhận email và đặt lại mật khẩu ===== */
+
+/* Khối thay cho biểu mẫu sau khi đăng ký hoặc khi mở link trong mail: các phần tử xếp dọc, cách đều. */
+.auth-card__done {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Đoạn hướng dẫn trong khối chờ được phép xuống nhiều dòng, không bị cắt như phụ đề một dòng. */
+.auth-card__done .auth-card__subtitle {
+  margin: 0;
+  white-space: normal;
+  line-height: 1.55;
+}
+
+/* Nút gửi lại mail đặt trong câu thông báo: trông như liên kết, không có nền hay đệm. */
+.auth-card__inline-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-red);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Đang gửi thì mờ đi để không bấm lặp. */
+.auth-card__inline-action:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+/* Thẻ của hai trang mở từ mail chỉ cao theo nội dung; chừa đáy cho hoạ tiết sóng. */
+.auth-card--verify,
+.auth-card--reset {
+  min-height: 0;
+}
+
+/* Đệm đáy đủ cao để nút cuối không nằm đè lên hoạ tiết sóng. */
+.auth-card--verify .auth-card__body,
+.auth-card--reset .auth-card__body {
+  padding-bottom: calc(var(--auth-wave-height) + var(--space-6));
+}
+
+/* Sau khi đăng ký xong, thẻ chỉ còn khối hướng dẫn nên bỏ chiều cao tối thiểu của biểu mẫu. */
+.auth-card--register:has(.auth-card__done) {
+  min-height: 0;
+}
+
+/* Chừa đáy cho hoạ tiết sóng khi thẻ đăng ký co theo khối hướng dẫn. */
+.auth-card--register:has(.auth-card__done) .auth-card__body {
+  padding-bottom: calc(var(--auth-wave-height) + var(--space-6));
+}
+
+/* ===== Khung đỏ cũ cho các trang xác thực ===== */
+/* Bảng màu dịu dùng cho toàn site, riêng thẻ đăng nhập, đăng ký (và hai trang mở từ mail dùng cùng khung)
+   giữ viền 2px và dải tiêu đề đỏ như thiết kế gốc. File này chỉ được nạp ở các trang xác thực. */
+.auth .card {
+  border: 2px solid var(--color-red-legacy);
+}
+
+/* Dải đầu thẻ đỏ, chữ hồng nhạt, không cần vạch ngăn vì nền đã tách khỏi thân thẻ. */
+.auth .card__band {
+  border-bottom: 0;
+  background: var(--color-red-legacy);
+  color: var(--color-band-text-legacy);
+}

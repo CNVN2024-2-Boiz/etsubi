@@ -11,11 +11,11 @@ import { bindUsernameInput, normalizeUsername, normalizeUsernameInput, formatHan
 import { t } from '/utils/i18n.js';
 
 /**
- * Khởi tạo header, footer, cảnh và kiểm tra biểu mẫu trên trang login hoặc register.
- * @param {object} options mode chọn trang; onSubmit xử lý API; copyLines là lời giới thiệu; title là lời chào lớn.
- * @returns {HTMLFormElement} Biểu mẫu đã gắn các bộ lắng nghe.
+ * Dựng phần khung chung của các trang xác thực: header, footer và cảnh cổng torii co theo màn hình.
+ * Dùng cho login, register và hai trang mở từ mail (xác nhận email, đặt lại mật khẩu).
+ * @param {object} options copyLines là lời giới thiệu; title là lời chào lớn.
  */
-export function initAuthPage({ mode, onSubmit, copyLines, title }) {
+export function mountAuthShell({ copyLines, title } = {}) {
   mountHeader(undefined, { active: null, hideAuthLink: true });
   mountFooter();
   // Lời chào đã dịch được truyền vào; không có thì cảnh tự đọc data-title trong HTML.
@@ -29,6 +29,15 @@ export function initAuthPage({ mode, onSubmit, copyLines, title }) {
   }
   sizeScene();
   window.addEventListener('resize', sizeScene, { passive: true });
+}
+
+/**
+ * Khởi tạo header, footer, cảnh và kiểm tra biểu mẫu trên trang login hoặc register.
+ * @param {object} options mode chọn trang; onSubmit xử lý API; copyLines là lời giới thiệu; title là lời chào lớn.
+ * @returns {HTMLFormElement} Biểu mẫu đã gắn các bộ lắng nghe.
+ */
+export function initAuthPage({ mode, onSubmit, copyLines, title }) {
+  mountAuthShell({ copyLines, title });
 
   // Giữ trang quay lại khi người dùng đổi qua lại giữa hai biểu mẫu xác thực.
   const form = qs('[data-auth-form]');
@@ -122,10 +131,11 @@ export function initAuthPage({ mode, onSubmit, copyLines, title }) {
     });
   }
 
-  // Các chức năng chưa có API dùng thông báo tĩnh để người dùng biết tình trạng.
-  qs('[data-forgot]')?.addEventListener('click', event => {
-    event.preventDefault();
-    showInfo(t('Tính năng khôi phục mật khẩu sẽ sớm có.'));
+  // Link Quên mật khẩu mang theo email đã gõ để trang đặt lại điền sẵn.
+  const forgot = qs('[data-forgot]');
+  forgot?.addEventListener('click', () => {
+    const email = inputFor('email')?.value.trim();
+    forgot.href = routes.resetPassword + (email ? '?email=' + encodeURIComponent(email) : '');
   });
 
   // Nếu đã đăng nhập, cho phép đăng xuất ngay mà vẫn giữ biểu mẫu hiện tại.
@@ -177,7 +187,7 @@ export function initAuthPage({ mode, onSubmit, copyLines, title }) {
         values.username = normalizeUsername(values.username);
         values.displayname = values.displayname.trim();
       }
-      await onSubmit(values, { redirect, showInfo });
+      await onSubmit(values, { redirect, showInfo, info, form });
     } catch (error) {
       const field = fieldForError(error);
       // 409 không chỉ rõ trường phải nằm ở lỗi chung; lỗi rõ email/username vẫn vào đúng ô.

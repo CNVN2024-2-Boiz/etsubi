@@ -205,4 +205,16 @@ export default {
   "Gửi yêu cầu tới <a href=\"mailto:contact@etsubi.net\">contact@etsubi.net</a> kèm tên người dùng. Chúng mình phản hồi trong 02 ngày làm việc.": { ja: "ユーザー名を添えて <a href=\"mailto:contact@etsubi.net\">contact@etsubi.net</a> にご依頼ください。2営業日以内に返信します。", en: "Send a request with your username to <a href=\"mailto:contact@etsubi.net\">contact@etsubi.net</a>. We reply within 2 working days." },
   "Toạ độ (vĩ độ, kinh độ) bạn gắn vào bài viết, bình luận": { ja: "投稿やコメントに付けた座標（緯度・経度）", en: "Coordinates (latitude, longitude) you attach to posts and comments" },
   "Đọc Điều khoản sử dụng": { ja: "利用規約を読む", en: "Read the Terms of Use" },
+  // Chính sách quyền riêng tư 1.1: Resend và bằng chứng đồng ý.
+  "Có hiệu lực từ 28/11/2026 · Phiên bản 1.1": { ja: "発効日 2026年11月28日 · バージョン 1.1", en: "Effective 28 November 2026 · Version 1.1" },
+  "Cập nhật lần cuối 28/11/2026": { ja: "最終更新 2026年11月28日", en: "Last updated 28 November 2026" },
+  "Bằng chứng đồng ý": { ja: "同意の記録", en: "Consent records" },
+  "Văn bản và phiên bản bạn đồng ý, thời điểm, địa chỉ IP và thông tin trình duyệt lúc đăng ký": { ja: "同意した文書とバージョン、日時、登録時のIPアドレスとブラウザ情報", en: "The documents and versions you accepted, the time, and your IP address and browser information at sign-up" },
+  "Chứng minh bạn đã đồng ý theo quy định pháp luật": { ja: "法令に基づき同意を証明するため", en: "To prove your consent as required by law" },
+  "Khi đăng ký": { ja: "登録時", en: "At sign-up" },
+  "Email, tên hiển thị, @tên người dùng": { ja: "メールアドレス、表示名、@ユーザー名", en: "Email, display name, @username" },
+  "Gửi mail xác nhận email, đặt lại mật khẩu và thông báo bảo mật": { ja: "メールアドレス確認、パスワード再設定、セキュリティ通知のメール送信", en: "Sending email confirmation, password reset and security notices" },
+  "Dịch tự động, gửi email, bản đồ và phông chữ được xử lý ở máy chủ ngoài Việt Nam. Dữ liệu được chuyển tới các quốc gia và khu vực sau:": { ja: "自動翻訳、メール送信、地図、フォントはベトナム国外のサーバーで処理されます。データは次の国・地域に移転されます:", en: "Automatic translation, email delivery, maps and fonts are processed on servers outside Vietnam. Data is transferred to these countries and regions:" },
+  "Hoa Kỳ: email, tên hiển thị và @tên người dùng gửi tới Resend, chỉ khi Etsubi gửi mail về tài khoản của bạn.": { ja: "米国:Etsubiがアカウントに関するメールを送るときのみ、メールアドレス・表示名・@ユーザー名をResendに送信。", en: "United States: email, display name and @username are sent to Resend, only when Etsubi emails you about your account." },
+  "Bằng chứng đồng ý: lưu cùng tài khoản và xoá khi bạn xoá tài khoản.": { ja: "同意の記録:アカウントとともに保存し、アカウント削除時に削除します。", en: "Consent records: kept with your account and deleted when you delete your account." },
 };

@@ -1,9 +1,11 @@
 pub mod database;
+pub mod mail;
 pub mod oauth;
 pub mod server;
 pub mod translation;
 
 use database::DatabaseConfig;
+use mail::MailConfig;
 use oauth::OAuthConfig;
 use server::ServerConfig;
 use translation::TranslationConfig;
@@ -14,6 +16,7 @@ pub struct AppConfig {
     pub oauth: OAuthConfig,
     pub server: ServerConfig,
     pub database: DatabaseConfig,
+    pub mail: MailConfig,
 }
 
 impl AppConfig {
@@ -25,6 +28,7 @@ impl AppConfig {
             oauth: OAuthConfig::from_env(),
             server: ServerConfig::from_env(),
             database: DatabaseConfig::from_env(),
+            mail: MailConfig::from_env(),
         }
     }
 }

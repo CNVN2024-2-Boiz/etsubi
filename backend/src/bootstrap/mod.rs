@@ -22,7 +22,7 @@ use crate::{
             reaction_repo::PostgresReactionRepo, tag_repo::PostgresTagRepo,
             translation_repo::PostgresTranslationRepo, user_repo::PostgresUserRepo,
         },
-        helper::translation::build_client,
+        helper::{mail::build_mailer, translation::build_client},
     },
 };
 
@@ -49,6 +49,8 @@ pub fn run() -> Result<web::Data<AppState>, Box<dyn std::error::Error>> {
         user_repo.clone(),
         server.jwt_key.clone(),
         server.jwt_expiry_hours,
+        build_mailer(&config.mail),
+        config.mail.app_base_url.clone(),
     ));
     let post_service = Arc::new(PostService::new(post_repo.clone(), user_repo.clone()));
     let comment_service = Arc::new(CommentService::new(

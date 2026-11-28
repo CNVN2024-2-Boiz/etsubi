@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<title>{{subject}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @media (max-width: 600px) {
+    .card { border-radius: 0 !important; border-left: 0 !important; border-right: 0 !important; }
+    .pad { padding-left: 20px !important; padding-right: 20px !important; }
+    .btn a { display: block !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#FAF7F5;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#FAF7F5;">{{preheader}}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#FAF7F5;">
+  <tr>
+    <td align="center" style="padding:32px 12px;">
+      <table role="presentation" class="card" width="560" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:560px;background:#FFFFFF;border:1px solid #E0D9CC;border-radius:12px;">
+        <tr>
+          <td class="pad" style="padding:22px 32px;border-bottom:1px solid #E0D9CC;">
+            <a href="{{base_url}}/" style="text-decoration:none;"><img src="{{logo_url}}" width="126" height="40" alt="Etsubi" style="display:block;border:0;width:126px;height:40px;"></a>
+          </td>
+        </tr>
+        <tr>
+          <td class="pad" style="padding:32px 32px 8px;font-family:'Be Vietnam Pro',Arial,Helvetica,sans-serif;color:#59544D;font-size:15px;line-height:1.65;">
+            {{content}}
+          </td>
+        </tr>
+        <tr>
+          <td class="pad" style="padding:20px 32px 28px;font-family:'Be Vietnam Pro',Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#80736B;border-top:1px solid #E0D9CC;">
+            {{footer_note}}<br>
+            <a href="{{base_url}}/terms/" style="color:#80736B;">{{terms_label}}</a> &nbsp;·&nbsp; <a href="{{base_url}}/privacy/" style="color:#80736B;">{{privacy_label}}</a> &nbsp;·&nbsp; <a href="mailto:contact@etsubi.net" style="color:#80736B;">contact@etsubi.net</a><br>
+            Etsubi · 越日 – {{tagline}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

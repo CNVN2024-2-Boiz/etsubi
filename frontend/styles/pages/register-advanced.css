@@ -820,3 +820,33 @@
 .profile-setup [hidden] {
   display: none;
 }
+
+/* ===== Khung đỏ cũ cho Đăng ký nâng cao và Cài đặt ===== */
+/* File này chỉ nạp ở hai trang trên: thẻ giữ viền 2px đỏ và dải tiêu đề đỏ như thiết kế gốc. */
+.page--register-advanced .card,
+.page--settings .card {
+  border: 2px solid var(--color-red-legacy);
+}
+
+/* Dải tiêu đề có cổng torii: nền đỏ, chữ hồng nhạt. */
+.profile-card__band {
+  border-bottom: 0;
+  background: var(--color-red-legacy);
+  color: var(--color-band-text-legacy);
+}
+
+/* Đầu thẻ tóm tắt hồ sơ: nền đỏ, chữ trắng, nhãn nhỏ hồng nhạt trong suốt. */
+.profile-summary__top {
+  border-bottom: 0;
+  background: var(--color-red-legacy);
+  color: var(--color-white);
+}
+
+.profile-summary__top .profile-eyebrow {
+  color: rgba(252, 227, 227, .8);
+}
+
+/* Hộp thoại "Thay đổi chưa lưu" của trang Cài đặt cũng giữ viền đỏ như các thẻ trên trang. */
+.page--settings .settings-leave-dialog {
+  border: 2px solid var(--color-red-legacy);
+}

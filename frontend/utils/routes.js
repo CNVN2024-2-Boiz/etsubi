@@ -12,6 +12,9 @@ export const routes = Object.freeze({
   login: '/login/',
   register: '/register/',
   registerAdvanced: '/register-advanced/',
+  // Hai trang mở từ link trong mail: xác nhận email và quên/đặt lại mật khẩu.
+  verifyEmail: '/verify-email/',
+  resetPassword: '/reset-password/',
   profile: '/profile/',
   // Trang Cài đặt gộp Chỉnh sửa hồ sơ, Giao diện và Phiên đăng nhập.
   settings: '/settings/',
