@@ -23,6 +23,15 @@ export function toVietnameseMessage(error) {
   if (/account (?:is|has been) banned/i.test(message)) {
     return t('Tài khoản của bạn đã bị khoá.');
   }
+  if (error?.data?.code === 'email_not_verified') {
+    return t('Bạn chưa xác nhận email nên chưa đăng nhập được.');
+  }
+  if (error?.data?.code === 'consent_required') {
+    return t('Bạn cần đồng ý Điều khoản sử dụng và Chính sách quyền riêng tư để tạo tài khoản.');
+  }
+  if (error?.data?.code === 'invalid_link') {
+    return t('Liên kết không hợp lệ hoặc đã hết hạn.');
+  }
   // Máy chủ nói cả email và username thì không suy đoán trường trùng.
   if (error?.status === 409 && /email/i.test(message) && /username/i.test(message)) {
     return t('Email hoặc @tên người dùng đã được dùng.');
@@ -102,6 +111,11 @@ export function translationErrorMessage(error) {
  */
 export function fieldForError(error) {
   const message = error?.message || '';
+  // Lỗi có mã riêng (chưa xác nhận email, thiếu đồng ý, link hỏng) là lỗi chung của form,
+  // dù câu tiếng Anh có chữ "email" hay "password".
+  if (['email_not_verified', 'consent_required', 'invalid_link', 'already_verified'].includes(error?.data?.code)) {
+    return null;
+  }
   // Sai thông tin đăng nhập không tiết lộ riêng email hay mật khẩu bị sai.
   if (/invalid credentials/i.test(message)) {
     return null;

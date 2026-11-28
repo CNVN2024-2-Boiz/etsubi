@@ -78,7 +78,7 @@ impl Drop for TestUser {
 pub fn register_and_login(base: &str) -> TestUser {
     let client = Client::new();
     let uid = Uuid::new_v4();
-    let username = format!("test_{}", uid);
+    let username = format!("test_{}", &uid.simple().to_string()[..16]);
     let email = format!("test+{}@example.com", uid);
     let password = "password123";
 
@@ -90,10 +90,14 @@ pub fn register_and_login(base: &str) -> TestUser {
             "password": password,
             "native": "vi",
             "language": "en",
+            "accept_terms": true,
+            "accept_privacy": true,
         }))
         .send()
         .unwrap();
     assert_eq!(r.status(), 201, "register failed: {:?}", r.text());
+    // Tài khoản mới ở trạng thái 'pending'; test không cần mở mail nên kích hoạt thẳng trong DB.
+    set_status_in_db(&email, "active");
 
     let r = client
         .post(format!("{}/api/v1/auth/login", base))

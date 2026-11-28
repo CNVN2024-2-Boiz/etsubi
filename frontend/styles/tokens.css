@@ -387,6 +387,9 @@
   --color-card-border: #E0D9CC;
   --color-ink: #1F1A17;
   --color-ink-text: #CFC6BF;
+  /* Đỏ cũ chỉ còn dùng cho khung thẻ ở Đăng nhập, Đăng ký, Đăng ký nâng cao, Cài đặt (theo yêu cầu). */
+  --color-red-legacy: #C2454F;
+  --color-band-text-legacy: #FCE3E3;
   --color-cream: #FFFCF7;
   --color-page: #FAF7F5;
   --color-sakura: #FCECF0;

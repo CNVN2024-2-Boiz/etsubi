@@ -5,7 +5,11 @@ use utoipa::{
 
 use crate::presentation::{
     dto::{
-        auth_dto::{LoginRequest, LoginResponse, RegisterRequest, RegisterResponse},
+        auth_dto::{
+            ConsentResponse, EmailRequest, EmailTokenRequest, LoginRequest, LoginResponse,
+            RegisterRequest, RegisterResponse,
+            ResetPasswordRequest,
+        },
         bookmark_dto::{BookmarkResponse, BookmarkStatusResponse},
         comment_dto::{
             CommentResponse, CreateCommentRequest, LockCommentsRequest, UpdateCommentRequest,
@@ -50,6 +54,11 @@ use crate::presentation::{
         auth_handler::register,
         auth_handler::login,
         auth_handler::logout,
+        auth_handler::verify_email,
+        auth_handler::resend_verification,
+        auth_handler::forgot_password,
+        auth_handler::reset_password,
+        auth_handler::list_my_consents,
 
         personal_handler::get_my_profile,
         personal_handler::update_my_profile,
@@ -136,7 +145,7 @@ use crate::presentation::{
         notification_handler::delete_notification,
     ),
     components(schemas(
-        RegisterRequest, RegisterResponse,
+        RegisterRequest, RegisterResponse, EmailRequest, EmailTokenRequest, ResetPasswordRequest, ConsentResponse,
         LoginRequest, LoginResponse,
 
         GetUserResponse,

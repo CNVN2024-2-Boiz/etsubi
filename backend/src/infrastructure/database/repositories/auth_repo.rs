@@ -7,8 +7,8 @@ use crate::{
     bootstrap::pool::DbPool,
     domains::auth::repository::AuthRepository,
     infrastructure::database::{
-        models::entities::{NewUser, User},
-        schema::users,
+        models::entities::{ConsentRecord, NewConsent, NewConsentRow, NewUser, User},
+        schema::{consent_records, users},
     },
 };
 
@@ -23,7 +23,7 @@ impl PostgresAuthRepo {
 }
 
 impl AuthRepository for PostgresAuthRepo {
-    fn create(&self, user: &User) -> Result<User> {
+    fn create(&self, user: &User, consents: &[NewConsent]) -> Result<User> {
         let mut conn = self.pool.get()?;
 
         let new_user = NewUser {
@@ -40,10 +40,31 @@ impl AuthRepository for PostgresAuthRepo {
             profile_completed_at: user.profile_completed_at,
         };
 
-        Ok(diesel::insert_into(users::table)
-            .values(&new_user)
-            .returning(User::as_select())
-            .get_result::<User>(&mut conn)?)
+        // Tài khoản và bằng chứng đồng ý phải cùng thành công hoặc cùng thất bại.
+        conn.transaction::<User, anyhow::Error, _>(|conn| {
+            let created = diesel::insert_into(users::table)
+                .values(&new_user)
+                .returning(User::as_select())
+                .get_result::<User>(conn)?;
+
+            let rows: Vec<NewConsentRow> = consents
+                .iter()
+                .map(|c| NewConsentRow {
+                    user_id: created.id,
+                    purpose: &c.purpose,
+                    document_version: &c.document_version,
+                    ip_address: c.ip_address.as_deref(),
+                    user_agent: c.user_agent.as_deref(),
+                })
+                .collect();
+            if !rows.is_empty() {
+                diesel::insert_into(consent_records::table)
+                    .values(&rows)
+                    .execute(conn)?;
+            }
+
+            Ok(created)
+        })
     }
 
     fn update_password(&self, id: Uuid, hashed_password: &str) -> Result<User> {
@@ -74,5 +95,22 @@ impl AuthRepository for PostgresAuthRepo {
         let mut conn = self.pool.get()?;
         diesel::delete(users::table.find(id)).execute(&mut conn)?;
         Ok(())
+    }
+
+    fn activate(&self, id: Uuid) -> Result<bool> {
+        let mut conn = self.pool.get()?;
+        let n = diesel::update(users::table.find(id).filter(users::status.eq("pending")))
+            .set((users::status.eq("active"), users::updated_at.eq(Utc::now())))
+            .execute(&mut conn)?;
+        Ok(n == 1)
+    }
+
+    fn list_consents(&self, user_id: Uuid) -> Result<Vec<ConsentRecord>> {
+        let mut conn = self.pool.get()?;
+        Ok(consent_records::table
+            .filter(consent_records::user_id.eq(user_id))
+            .order(consent_records::granted_at.desc())
+            .select(ConsentRecord::as_select())
+            .load(&mut conn)?)
     }
 }

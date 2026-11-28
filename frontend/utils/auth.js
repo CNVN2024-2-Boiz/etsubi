@@ -58,7 +58,7 @@ export function safeRedirect(target, fallback = routes.home) {
 
 /** Nhận diện biểu mẫu xác thực để lỗi phiên cũ không làm tải lại chính biểu mẫu. */
 function isAuthPage() {
-  return [routes.login, routes.register].includes(location.pathname);
+  return [routes.login, routes.register, routes.verifyEmail, routes.resetPassword].includes(location.pathname);
 }
 
 // Khi yêu cầu bảo vệ nhận 401, xoá hồ sơ và giữ trang hiện tại trong liên kết đăng nhập.
@@ -148,18 +148,21 @@ export async function login(email, password, { remember = true } = {}) {
 }
 
 /**
- * Tạo tài khoản rồi đăng nhập cho trang register trước bước bổ sung hồ sơ.
- * @param {object} details Thông tin đăng ký gửi tới API.
- * @param {object} options remember chọn cách lưu phiên mới.
- * @returns {Promise<object>} Hồ sơ đăng nhập thành công.
+ * Lưu JWT nhận được ngoài trang login (link xác nhận email) rồi tải hồ sơ.
+ * @param {string} token JWT do máy chủ trả về.
+ * @param {object} options remember chọn cách lưu phiên.
+ * @returns {Promise<object>} Hồ sơ đã chuẩn hoá.
  */
-export async function registerAndLogin(details, { remember = true } = {}) {
-  await api.register(details);
+export async function startSession(token, { remember = true } = {}) {
+  setToken(token, { remember });
   try {
-    return await login(details.email, details.password, { remember });
+    cachedUser = normalize(await getMe());
+    cachedToken = token;
+    return cachedUser;
   } catch (error) {
-    // Tài khoản đã tạo: lần gửi lại chỉ cần đăng nhập, không đăng ký trùng email.
-    error.accountCreated = true;
+    clearToken();
+    cachedUser = null;
+    cachedToken = null;
     throw error;
   }
 }
@@ -207,10 +210,6 @@ export const auth = {
   fetchCurrentUser,
   requireAuth,
   getUser: getCachedUser,
-  /** Gửi đăng ký kiểu cũ, mặc định tiếng mẹ đẻ là tiếng Việt. */
-  register(username, email, password, native = 'vi') {
-    return api.register({ username, email, password, native });
-  },
   /** Kiểm tra thời hạn cấm viết để trang nội dung quyết định hiện thông báo. */
   isMuted() {
     const user = getCachedUser();

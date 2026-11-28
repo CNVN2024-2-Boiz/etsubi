@@ -6,6 +6,10 @@ pub fn public(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::health_handler::health);
     cfg.service(presentation::handlers::auth_handler::register);
     cfg.service(presentation::handlers::auth_handler::login);
+    cfg.service(presentation::handlers::auth_handler::verify_email);
+    cfg.service(presentation::handlers::auth_handler::resend_verification);
+    cfg.service(presentation::handlers::auth_handler::forgot_password);
+    cfg.service(presentation::handlers::auth_handler::reset_password);
 
     cfg.service(presentation::handlers::user_handler::get_user);
 
@@ -35,6 +39,7 @@ pub fn public(cfg: &mut web::ServiceConfig) {
 
 pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::auth_handler::logout);
+    cfg.service(presentation::handlers::auth_handler::list_my_consents);
 
     cfg.service(presentation::handlers::personal_handler::get_my_profile);
     cfg.service(presentation::handlers::personal_handler::update_my_profile);

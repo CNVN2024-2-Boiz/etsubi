@@ -1,3 +1,4 @@
+pub mod auth_mail;
 pub mod bookmark;
 pub mod comment;
 pub mod follow;

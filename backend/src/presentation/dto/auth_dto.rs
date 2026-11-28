@@ -15,11 +15,42 @@ pub struct RegisterRequest {
     pub password: String,
     pub native: String,
     pub language: String,
+    /// Ô "Tôi đồng ý Điều khoản sử dụng và xác nhận đủ 16 tuổi".
+    #[serde(default)]
+    pub accept_terms: bool,
+    /// Ô "Tôi đồng ý xử lý dữ liệu cá nhân theo Chính sách quyền riêng tư".
+    #[serde(default)]
+    pub accept_privacy: bool,
 }
 
 #[derive(Serialize, ToSchema)]
 pub struct RegisterResponse {
     pub user_id: Uuid,
+    /// Luôn là "pending": cần bấm link trong mail trước khi đăng nhập.
+    pub status: String,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct EmailRequest {
+    pub email: String,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct EmailTokenRequest {
+    pub token: String,
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct ResetPasswordRequest {
+    pub token: String,
+    pub password: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ConsentResponse {
+    pub purpose: String,
+    pub document_version: String,
+    pub granted_at: DateTime<Utc>,
 }
 
 #[derive(Deserialize, ToSchema)]

@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Trang mở từ link trong mail xác nhận: kích hoạt tài khoản rồi đăng nhập. -->
+<html lang="vi">
+  <!-- Khai báo ngôn ngữ hiển thị, tài nguyên dùng chung và module riêng của trang. -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title data-i18n>Xác nhận email · Etsubi</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/etsubi-logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+JP:wght@350;400;500;700&display=swap" />
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/components/header/header.css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+    <link rel="stylesheet" href="/styles/pages/auth.css" />
+    <script type="module" src="/pages/profile/verify-email.js"></script>
+  </head>
+  <body class="page page--verify">
+    <!-- Liên kết bàn phím đi thẳng tới nội dung, bỏ qua thanh điều hướng. -->
+    <a class="skip-link" href="#main" data-i18n>Bỏ qua điều hướng</a>
+    <!-- Vùng gắn header dùng chung; module trang gọi mountHeader để dựng điều hướng. -->
+    <header class="site-header" data-component="header" data-variant="default"></header>
+    <!-- Nội dung chính gồm cảnh trang trí và thẻ biểu mẫu HTML, vẫn đọc được khi tắt JavaScript. -->
+    <main id="main" class="auth" data-auth-scene>
+      <!-- Placeholder cảnh và lời chào: component dùng chung dựng phần trang trí khi có JavaScript. -->
+      <div class="auth-scene-mount" data-component="auth-scene" data-title="XIN CHÀO"></div>
+      <!-- Thẻ xác thực chứa tiêu đề và biểu mẫu thật để giữ cấu trúc ngữ nghĩa và khả năng truy cập. -->
+      <section class="card auth-card auth-card--verify" aria-labelledby="auth-title">
+        <!-- Dải đầu thẻ và biểu tượng cổng, giống thẻ đăng nhập. -->
+        <div class="card__band">
+          <img class="card__torii" src="/assets/icons/torii-mini-light.svg" alt="" aria-hidden="true" />
+          <p class="card__band-title" data-i18n>Xác nhận email</p>
+        </div>
+        <!-- Nội dung thẻ do module trang dựng theo trạng thái của link trong mail. -->
+        <div class="auth-card__body" data-mail-page>
+          <!-- Trạng thái ban đầu khi đang gửi token lên máy chủ; tắt JavaScript thì vẫn đọc được hướng dẫn. -->
+          <div class="auth-card__done" role="status" data-state>
+            <h1 class="t-display auth-card__title" id="auth-title" data-i18n>Đang xác nhận email…</h1>
+            <p class="auth-card__subtitle" data-i18n>Vui lòng đợi trong giây lát.</p>
+          </div>
+        </div>
+        <!-- Hoạ tiết cố định của thẻ, ẩn khỏi trình đọc màn hình vì chỉ có tác dụng trang trí. -->
+        <img class="auth-card__bottom-wave" src="/assets/illustrations/card-bottom-wave.svg" alt="" aria-hidden="true" />
+      </section>
+    </main>
+    <!-- Vùng gắn chân trang rút gọn dùng chung cho các trang xác thực. -->
+    <footer class="site-footer" data-component="footer" data-variant="slim"></footer>
+  </body>
+</html>

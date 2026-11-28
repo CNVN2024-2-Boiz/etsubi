@@ -9,6 +9,18 @@ diesel::table! {
 }
 
 diesel::table! {
+    consent_records (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        purpose -> Text,
+        document_version -> Text,
+        ip_address -> Nullable<Text>,
+        user_agent -> Nullable<Text>,
+        granted_at -> Timestamptz,
+    }
+}
+
+diesel::table! {
     comment_translation (original_comment_id, language) {
         original_comment_id -> Uuid,
         language -> Text,
@@ -142,6 +154,7 @@ diesel::joinable!(bookmarks -> users (user_id));
 diesel::joinable!(comment_translation -> comments (original_comment_id));
 diesel::joinable!(comments -> posts (post_id));
 diesel::joinable!(comments -> users (user_id));
+diesel::joinable!(consent_records -> users (user_id));
 diesel::joinable!(post_translation -> posts (original_post_id));
 diesel::joinable!(posts -> users (author_id));
 diesel::joinable!(posts_tags -> posts (post_id));
@@ -153,6 +166,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     bookmarks,
     comment_translation,
     comments,
+    consent_records,
     notifications,
     post_translation,
     posts,
