@@ -27,6 +27,7 @@ use crate::presentation::{
             UpdatePostStatusRequest,
         },
         reaction_dto::{ReactionResponse, ReactionSummaryItem, UpsertReactionRequest},
+        report_dto::CreateReportRequest,
         tag_dto::TagResponse,
         translation_dto::{CommentTranslationResponse, PostTranslationResponse},
         user_dto::{
@@ -37,6 +38,7 @@ use crate::presentation::{
     handlers::{
         auth_handler, bookmark_handler, comment_handler, follow_handler, health_handler,
         manage_handler, notification_handler, personal_handler, post_handler, reaction_handler,
+        report_handler,
         tag_handler, translation_handler, user_handler,
     },
 };
@@ -109,6 +111,7 @@ use crate::presentation::{
 
         follow_handler::follow_user,
         follow_handler::unfollow_user,
+        report_handler::create_report,
         follow_handler::list_user_followers,
         follow_handler::list_user_following,
 
@@ -168,6 +171,8 @@ use crate::presentation::{
 
         ReactionResponse, ReactionSummaryItem, UpsertReactionRequest,
 
+        CreateReportRequest,
+
         CreateNotificationRequest, NotificationContextDto,
         CreateMentionNotificationsRequest, CreateMentionNotificationsResponse,
         NotificationResponse, UnreadCountResponse, MarkAllReadResponse, ListNotificationsQuery,
@@ -185,6 +190,7 @@ use crate::presentation::{
         (name = "bookmark",    description = "Bookmarks"),
         (name = "follow",      description = "Follow relationships"),
         (name = "reaction",    description = "Post reactions (emoji)"),
+        (name = "report",      description = "Violation reports (emailed to the moderation inbox)"),
         (name = "manage",      description = "Moderation endpoints"),
         (name = "notification", description = "Notifications"),
         (name = "translation", description = "Automatic translation (DeepSeek)"),

@@ -9,6 +9,8 @@ pub struct MailConfig {
     /// Địa chỉ web dùng để dựng link trong mail, ví dụ https://etsubi.net.
     pub app_base_url: String,
     pub timeout_secs: u64,
+    /// Hộp thư của đội kiểm duyệt nhận báo cáo vi phạm (`REPORT_EMAIL`, mặc định contact@etsubi.net).
+    pub report_to: String,
 }
 
 impl MailConfig {
@@ -34,6 +36,10 @@ impl MailConfig {
                 .ok()
                 .and_then(|s| s.parse().ok())
                 .unwrap_or(15),
+            report_to: env::var("REPORT_EMAIL")
+                .ok()
+                .filter(|s| !s.trim().is_empty())
+                .unwrap_or_else(|| "contact@etsubi.net".into()),
         }
     }
 }

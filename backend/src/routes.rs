@@ -87,6 +87,8 @@ pub fn protected(cfg: &mut web::ServiceConfig) {
     cfg.service(presentation::handlers::follow_handler::follow_user);
     cfg.service(presentation::handlers::follow_handler::unfollow_user);
 
+    cfg.service(presentation::handlers::report_handler::create_report);
+
     cfg.service(presentation::handlers::manage_handler::update_user_status);
     cfg.service(presentation::handlers::manage_handler::update_user_role);
     cfg.service(presentation::handlers::manage_handler::mute_user);

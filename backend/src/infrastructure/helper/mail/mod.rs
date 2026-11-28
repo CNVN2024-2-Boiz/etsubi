@@ -21,6 +21,8 @@ pub struct OutgoingMail {
     pub subject: String,
     pub html: String,
     pub text: String,
+    /// Địa chỉ nhận khi bấm Trả lời, ghi đè `MAIL_REPLY_TO` (mail báo cáo trả lời thẳng người báo cáo).
+    pub reply_to: Option<String>,
 }
 
 pub trait Mailer: Send + Sync {
@@ -64,7 +66,7 @@ impl Mailer for ResendMailer {
             "html": mail.html,
             "text": mail.text,
         });
-        if let Some(reply_to) = &self.reply_to {
+        if let Some(reply_to) = mail.reply_to.as_ref().or(self.reply_to.as_ref()) {
             body["reply_to"] = json!(reply_to);
         }
 

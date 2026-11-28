@@ -51,7 +51,11 @@ pub async fn auth(
         Method::POST | Method::PATCH | Method::PUT | Method::DELETE
     );
 
+    // Người bị cấm nói vẫn được gửi báo cáo vi phạm: báo cáo chỉ tới hộp thư kiểm duyệt, không đăng gì lên diễn đàn.
+    let is_report = req.path() == "/api/v1/reports";
+
     if is_write
+        && !is_report
         && let Some(until) = user.muted_until
         && until > Utc::now()
     {
