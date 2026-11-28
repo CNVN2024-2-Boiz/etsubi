@@ -403,6 +403,7 @@ The back end will be adjusted to the front end. Every agent adds a row here when
 | Diễn đàn feed paging | `GET /posts` | total count (same request as Search) so "Tải thêm bài viết" can hide exactly at the end instead of guessing from a short page | cần làm |
 | Hỗ trợ "Gửi yêu cầu hỗ trợ" | Không có support tickets | Form mở mailto:contact@etsubi.vn, không gửi API | đã đóng |
 | Hỗ trợ "Báo cáo vi phạm" | Không có reports | Bỏ chip/contact row/report dialog; gặp vi phạm gửi email kèm đường link | đã đóng |
+| Đọc bài, bình luận, Hồ sơ: Báo cáo vi phạm | `POST /reports` (nhánh `feat/report-email`, đã viết sẵn phần backend để Phong xem) | Body `{ target_type, target_id, reasons, details? }`, người báo cáo lấy từ JWT, trả `204` sau khi gửi email tới `REPORT_EMAIL`; lỗi `code` như AGENTS.md §8; cooldown 10 phút/nội dung, 10 báo cáo/giờ, trả 409. Thiết kế: file Figma riêng `PxM4NiL156U27RE5oGo9De`, board `3:2` (menu, 4 trạng thái hộp thoại, email), chờ Vũ chép vào file chung | chờ Phong duyệt |
 | Hồ sơ (privacy) | `GET /users/{id}` | Phong sẽ bỏ email/language/muted_until khỏi response công khai, chỉ GET /my giữ dữ liệu riêng | BE đã đồng ý |
 | Hồ sơ lists | followers/following công khai và /my | Đã có displayname; chưa phân trang limit/offset và tổng số. FE còn đếm độ dài danh sách | cần phân trang |
 | Mod/Admin reading page | `GET /manage/posts/{id}` (staff) | return a post in any state (hidden, soft-deleted with `deleted_at`), so staff can reopen hidden or deleted posts; `getPostForStaff()` behind flag `manageGetPost` | cần làm |
