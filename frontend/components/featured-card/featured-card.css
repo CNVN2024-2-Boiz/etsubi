@@ -5,7 +5,7 @@
   min-width: 0;
   min-height: var(--home-featured-height);
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-featured);
@@ -17,7 +17,8 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-3) var(--space-5);
-  background: var(--color-red);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
 }
 
 /* Nhãn sáng nhẹ và bo tròn để phân biệt với nền đỏ mà không tạo hiệu ứng động. */
@@ -25,7 +26,7 @@
   padding: var(--space-1) var(--button-small-y);
   border-radius: var(--radius-pill);
   background: var(--color-featured-badge);
-  color: var(--color-band-text);
+  color: var(--color-red-dark);
   font-size: 12px;
   font-weight: 600;
 }
@@ -160,6 +161,20 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
+}
+
+/* Nút "Xem chi tiết" lặp lại trên mọi thẻ nên dùng nền hồng nhạt chữ đỏ đậm thay vì đỏ đặc,
+   để màu đỏ đặc chỉ còn ở thao tác chính của trang (Đăng bài, Đăng nhập). */
+.btn.featured-card__detail {
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
+  box-shadow: none;
+}
+
+/* Rê chuột hoặc nhấn chỉ đậm nền lên một bậc, nút giữ nguyên vị trí và kích thước. */
+.btn.featured-card__detail:hover,
+.btn.featured-card__detail:active {
+  background: var(--color-sakura-100);
 }
 
 /* Hai pill xám giữ chỗ cho tag mà không tạo tên chủ đề giả. */

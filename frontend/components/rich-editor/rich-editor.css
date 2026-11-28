@@ -1,5 +1,5 @@
 /* Khung editor theo Figma batch 9: nền trắng, viền đỏ, không có hoạt ảnh. */
-.rich-editor { position: relative; min-width: 0; border: 1.5px solid var(--color-red); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-text-secondary); }
+.rich-editor { position: relative; min-width: 0; border: 1px solid var(--color-card-border); border-radius: var(--radius-md); background: var(--color-white); color: var(--color-text-secondary); }
 /* Thanh công cụ gọn 43px, tự xuống dòng khi màn hình hẹp. */
 .rich-editor__tools { position: relative; }
 .rich-editor__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rich-tool-gap); min-height: var(--rich-toolbar-height); padding: var(--rich-toolbar-padding) var(--space-2); border-bottom: 1px solid var(--color-border); border-radius: var(--radius-md) var(--radius-md) 0 0; background: var(--color-page); }
@@ -64,7 +64,7 @@
 .rich-editor__image-bar button:hover { background: var(--color-sakura); }
 .rich-editor__image-bar button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 /* Dialog ảnh có viền đỏ và nền kem; viewport hẹp luôn chừa hai lề 16px. */
-.image-dialog { width: calc(100% - var(--space-4) * 2); max-width: var(--image-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 2px solid var(--color-red); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
+.image-dialog { width: calc(100% - var(--space-4) * 2); max-width: var(--image-dialog-width); max-height: calc(100% - var(--space-4) * 2); margin: auto; padding: var(--space-6); overflow-y: auto; border: 1px solid var(--color-card-border); border-radius: var(--radius-md); background: var(--color-cream); color: var(--color-text); box-shadow: var(--shadow-card-strong); }
 .image-dialog::backdrop { background: var(--edit-dialog-backdrop); }
 /* Nhịp trường đều, heading có nút đóng riêng và tiêu đề display đỏ. */
 .image-dialog__form { display: flex; flex-direction: column; gap: var(--space-4); }

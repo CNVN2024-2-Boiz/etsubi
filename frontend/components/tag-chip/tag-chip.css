@@ -37,9 +37,9 @@
 /* Chip đã chọn có dấu kiểm và nền đỏ để thể hiện bộ lọc đang có hiệu lực. */
 .tag-chip--selected {
   padding-left: var(--space-2);
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-cream);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
 }
 
 /* Dấu thăng và số dùng màu sáng từ token để đọc rõ trên nền đỏ của chip đã chọn. */

@@ -183,7 +183,7 @@
   position: relative;
   isolation: isolate;
   min-height: var(--home-hero-height);
-  background: var(--color-red-dark);
+  background: var(--color-ink);
 }
 
 /* Ảnh phủ toàn bộ hero (cao 336px, thấp hơn Figma 480px theo yêu cầu của nhóm
@@ -433,7 +433,7 @@
 .home-recommendations__card {
   margin-top: var(--home-section-gap);
   overflow: hidden;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-sm);
   background: var(--color-cream);
   box-shadow: var(--shadow-featured);
@@ -446,8 +446,9 @@
   align-items: center;
   gap: var(--home-band-gap);
   padding: var(--space-3);
-  background: var(--color-red);
-  color: var(--color-band-text);
+  background: var(--color-band-bg);
+  border-bottom: 1px solid var(--color-card-border);
+  color: var(--color-text);
   font-size: 16px;
   font-weight: 700;
   text-align: center;
@@ -607,9 +608,9 @@
 
 /* Tab đang chọn có nền đỏ và chữ trắng đậm vừa, giữ kích thước như tab chưa chọn. */
 .home-feed__tab.is-active {
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-white);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
   font-weight: 600;
 }
 

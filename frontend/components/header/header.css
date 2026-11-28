@@ -5,7 +5,7 @@
 
 /* ===== Khung header và thương hiệu ===== */
 
-/* Thanh đỏ cao theo token, căn giữa logo và công cụ bằng flex, có bóng và lớp nổi để menu không bị che. */
+/* Thanh trắng cao theo token, viền dưới mảnh thay cho nền đỏ cũ để màu thương hiệu chỉ còn ở điểm nhấn; căn giữa logo và công cụ bằng flex, có bóng và lớp nổi để menu không bị che. */
 .site-header {
   position: sticky;
   top: 0;
@@ -16,8 +16,8 @@
   height: var(--header-height);
   min-height: var(--header-height);
   padding: 0 var(--page-gutter);
-  background: var(--color-red);
-  color: var(--color-white);
+  background: var(--color-white);
+  color: var(--color-text);
   box-shadow: var(--shadow-navbar);
 }
 
@@ -27,7 +27,7 @@
   flex-shrink: 0;
   align-items: center;
   gap: var(--space-2);
-  color: var(--color-white);
+  color: var(--color-red);
   font-size: 22px;
 }
 
@@ -56,22 +56,22 @@
   gap: var(--nav-gap);
 }
 
-/* Mỗi tab có nhãn và chỗ cho vạch chân, chữ trắng dịu, không xuống dòng để không lệch hàng. */
+/* Mỗi tab có nhãn và chỗ cho vạch chân, chữ xám đậm, không xuống dòng để không lệch hàng. */
 .site-header__link {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
   padding-top: var(--space-3);
-  color: var(--color-white-85);
+  color: var(--color-text-secondary);
   font-size: 17px;
   font-weight: 500;
   white-space: nowrap;
 }
 
-/* Tab sáng trắng khi rê chuột, bỏ gạch chân mặc định vì đã có vùng vạch chân riêng. */
+/* Tab đậm màu hơn khi rê chuột, bỏ gạch chân mặc định vì đã có vùng vạch chân riêng. */
 .site-header__link:hover {
-  color: var(--color-white);
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -83,14 +83,14 @@
   border-radius: var(--radius-pill);
 }
 
-/* Tab hiện tại có chữ trắng đầy đủ để phân biệt với các tab còn lại. */
+/* Tab hiện tại có chữ đỏ thương hiệu để phân biệt với các tab còn lại. */
 .site-header__link.is-active {
-  color: var(--color-white);
+  color: var(--color-red);
 }
 
-/* Vạch hồng xuất hiện ở tab hiện tại để bổ sung dấu hiệu ngoài màu chữ. */
+/* Vạch đỏ xuất hiện ở tab hiện tại để bổ sung dấu hiệu ngoài màu chữ. */
 .site-header__link.is-active .site-header__underline {
-  background: var(--color-pink-border);
+  background: var(--color-red);
 }
 
 /* ===== Tiện ích và phiên ===== */
@@ -112,22 +112,22 @@
   display: none;
 }
 
-/* Nút icon có khung chạm 40px, căn giữa biểu tượng, nền trong suốt và màu trắng theo thanh điều hướng. */
+/* Nút icon có khung chạm 40px, căn giữa biểu tượng, nền trong suốt và màu xám đậm trên thanh trắng. */
 .site-header__icon {
   display: inline-grid;
   place-items: center;
   width: 40px;
   height: 40px;
   padding: var(--space-2);
-  color: var(--color-white);
+  color: var(--color-text-secondary);
   border: 0;
   border-radius: var(--radius-pill);
   background: var(--color-transparent);
 }
 
-/* Nền trắng trong nhẹ khi rê chuột cho thấy nút có thể thao tác mà không làm nó dịch chuyển. */
+/* Nền xám nhạt khi rê chuột cho thấy nút có thể thao tác mà không làm nó dịch chuyển. */
 .site-header__icon:hover {
-  background: var(--color-white-15);
+  background: var(--color-neutral-100);
 }
 
 /* Vùng bao làm mốc cho danh sách; lề trên 1px đưa nút về số điểm ảnh nguyên để chữ không lệch lên. */
@@ -148,8 +148,8 @@
   padding: 0 0 0 var(--header-language-icon-offset);
   border: 0;
   border-radius: var(--radius-language);
-  background: var(--color-white-15);
-  color: var(--color-white);
+  background: var(--color-neutral-100);
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 600;
   line-height: var(--header-language-line-height);
@@ -157,12 +157,13 @@
 
 /* Nền sáng hơn khi rê chuột cho thấy nút bấm được mà không làm nút dịch chuyển. */
 .site-header__language:hover {
-  background: var(--color-white-24);
+  background: var(--color-band-bg);
 }
 
 /* Trạng thái đang mở sáng nhất để nối nút với danh sách bên dưới. */
 .site-header__language[aria-expanded="true"] {
-  background: var(--color-white-28);
+  background: var(--color-red-soft);
+  color: var(--color-red);
 }
 
 /* Mũi tên quay lên khi danh sách đang mở, không dùng chuyển động. */
@@ -170,7 +171,7 @@
   transform: rotate(180deg);
 }
 
-/* Vòng focus màu trắng vì vòng đỏ chung không nhìn thấy trên nền header đỏ. */
+/* Vòng focus dùng token riêng của header (hiện trùng vòng đỏ nhạt chung vì header đã trắng). */
 .site-header__language:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring-header);
@@ -245,23 +246,23 @@
   visibility: hidden;
 }
 
-/* Liên kết đăng nhập dùng chữ trắng đậm vừa và không xuống dòng để nằm gọn trong nhóm công cụ. */
+/* Liên kết đăng nhập dùng chữ đỏ đậm vừa và không xuống dòng để nằm gọn trong nhóm công cụ. */
 .site-header__login {
-  color: var(--color-white);
+  color: var(--color-red);
   font-size: 15px;
   font-weight: 600;
   white-space: nowrap;
 }
 
-/* Viền trắng trong 2px tách avatar khỏi nền đỏ, bỏ đệm để ảnh lấp đúng khung. */
+/* Viền be 2px tách avatar khỏi nền trắng, bỏ đệm để ảnh lấp đúng khung. */
 .site-header__avatar {
   width: var(--header-avatar-size);
   height: var(--header-avatar-size);
-  border: 2px solid var(--color-white-70);
+  border: 2px solid var(--color-border);
   padding: 0;
 }
 
-/* Vòng trắng trong mở rộng tới 48px, cùng màu nền trạng thái mở của chuông thông báo. */
+/* Vòng hồng nhạt mở rộng tới 48px khi panel tài khoản đang mở. */
 .site-header__avatar.is-open {
   box-shadow: var(--shadow-header-avatar-open);
 }
@@ -518,9 +519,9 @@
     max-width: calc(100vw - var(--space-7) - var(--space-8) - var(--space-2));
   }
 
-  /* Nền trắng trong giúp nút tìm kiếm dễ nhận ra khi thanh điều hướng được thu gọn trên mobile. */
+  /* Nền xám nhạt giúp nút tìm kiếm dễ nhận ra khi thanh điều hướng được thu gọn trên mobile. */
   .site-header__search {
-    background: var(--color-white-20);
+    background: var(--color-neutral-100);
   }
 
   /* Ẩn nút ngôn ngữ trên mobile, người dùng đổi trong Cài đặt và vẫn giữ chuông để đọc thông báo. */
@@ -559,7 +560,7 @@
   gap: var(--space-7);
 }
 
-/* Pill trong suốt trên nền đỏ đúng Figma Home 4: nền trắng 12%, viền trắng 22%,
+/* Pill nền xám nhạt, viền be trên header trắng,
    tự co trên laptop; cỡ tối đa 520 × 42 trong thiết kế desktop. */
 .site-header__home-search {
   display: flex;
@@ -574,7 +575,7 @@
   background: var(--home-search-bg);
 }
 
-/* Mặt nạ lấy đường nét search.svg và tô trắng mờ như chữ gợi ý, không sửa icon trang Search. */
+/* Mặt nạ lấy đường nét search.svg và tô cùng màu chữ gợi ý, không sửa icon trang Search. */
 .site-header__home-search-icon {
   flex: 0 0 18px;
   width: 18px;
@@ -595,7 +596,7 @@
      cho cân với icon kính lúp và nút "Tìm kiếm". */
   padding: 4px 0 0;
   background: var(--color-transparent);
-  color: var(--color-white);
+  color: var(--color-text);
   font-size: 15px;
 }
 
@@ -608,14 +609,13 @@
   box-shadow: none;
 }
 
-/* Trên nền đỏ, vòng focus đỏ nhạt gần như không thấy, nên khi đang gõ
-   pill sáng viền trắng 70% và nền đậm hơn một chút để báo rõ ô đang được chọn. */
+/* Khi đang gõ, pill chuyển nền trắng và viền đỏ nhạt để báo rõ ô đang được chọn. */
 .site-header__home-search:focus-within {
-  border-color: var(--color-white-70);
-  background: var(--color-white-20);
+  border-color: var(--color-red-40);
+  background: var(--color-white);
 }
 
-/* Chữ gợi ý trắng 60% như Figma; vẫn đọc được trên nền đỏ của header. */
+/* Chữ gợi ý xám như các ô nhập khác của trang. */
 .site-header__home-search input::placeholder {
   color: var(--home-search-placeholder);
   opacity: 1;
@@ -641,8 +641,8 @@
   padding: var(--space-1);
 }
 
-/* Chuông đang mở panel có vòng trắng 20% 36px, không dịch chuyển biểu tượng. */
-.site-header__bell.is-open { background: var(--color-white-20); }
+/* Chuông đang mở panel có nền xám nhạt 36px, không dịch chuyển biểu tượng. */
+.site-header__bell.is-open { background: var(--color-neutral-100); }
 
 /* Liên kết chuông không cần gạch chân khi hover vì đã có nền trạng thái. */
 .site-header__bell:hover { text-decoration: none; }
@@ -657,16 +657,16 @@
 .site-header__notification-nav > .site-header__icon { margin-left: calc(-1 * var(--space-2)); }
 
 /* Tiêu đề trang dùng Display Bold 18, tự chiếm khoảng còn lại giữa hai thao tác. */
-.site-header__notification-title { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--color-white); }
+.site-header__notification-title { flex: 1; min-width: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--color-text); }
 
-/* Nút Đọc hết màu trắng, không dùng màu vô hiệu hoá của nút panel trên nền đỏ. */
-.site-header__read-all, .site-header__read-all:disabled, .site-header__read-all.is-loading:disabled { padding: var(--space-2) 0; color: var(--color-white); font-size: 13px; font-weight: 600; }
+/* Nút Đọc hết màu đỏ như link, là điểm nhấn duy nhất trên thanh tác vụ. */
+.site-header__read-all, .site-header__read-all:disabled, .site-header__read-all.is-loading:disabled { padding: var(--space-2) 0; color: var(--color-red); font-size: 13px; font-weight: 600; }
 
-/* Nút vô hiệu hoá giảm độ đậm để vẫn nhận ra vị trí thao tác trên thanh đỏ. */
+/* Nút vô hiệu hoá giảm độ đậm để vẫn nhận ra vị trí thao tác. */
 .site-header__read-all:disabled { opacity: .4; }
 
-/* Hover thanh tác vụ dùng trắng và underline, focus giữ vòng sáng chung của dự án. */
-.site-header__read-all:hover:not(:disabled) { color: var(--color-white); }
+/* Hover thanh tác vụ dùng đỏ đậm hơn và underline, focus giữ vòng sáng chung của dự án. */
+.site-header__read-all:hover:not(:disabled) { color: var(--color-red-hover); }
 
 /* Chấm 8px chỉ hiện khi API trả số thông báo chưa đọc lớn hơn không. */
 .site-header__bell-dot {
@@ -679,7 +679,7 @@
   background: var(--color-bell-dot);
 }
 
-/* Nút gửi nền kem co vừa nhãn, cao 32px và không bị flex ép méo biểu tượng. */
+/* Nút gửi nền hồng nhạt co vừa nhãn, cao 32px và không bị flex ép méo biểu tượng. */
 .site-header__home-search-submit {
   display: inline-flex;
   flex: 0 0 auto;
@@ -690,7 +690,7 @@
   padding: 0 var(--header-search-submit-right) 0 var(--space-3);
   border: 0;
   border-radius: var(--header-search-submit-radius);
-  background: var(--color-cream);
+  background: var(--color-red-soft);
   color: var(--color-red);
   font-family: var(--font-body);
   font-size: 14px;

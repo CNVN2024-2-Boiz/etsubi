@@ -135,9 +135,9 @@
 
 /* Tab đang chọn: nền đỏ, chữ trắng đậm, giữ nguyên kích thước. */
 .forum-tab.is-active {
-  border-color: var(--color-red);
-  background: var(--color-red);
-  color: var(--color-white);
+  border-color: var(--color-red-soft-border);
+  background: var(--color-red-soft);
+  color: var(--color-red-dark);
   font-weight: 600;
 }
 
@@ -149,7 +149,7 @@
   flex-direction: column;
   gap: 14px;
   padding: 20px var(--space-6) var(--space-4);
-  border: 1.2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-md);
   background: var(--color-cream);
   box-shadow: var(--shadow-post-side);
@@ -398,7 +398,7 @@
   padding: var(--space-6);
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 2px solid var(--color-red);
+  border: 1px solid var(--color-card-border);
   border-radius: var(--radius-md);
   background: var(--color-cream);
   color: var(--color-text);

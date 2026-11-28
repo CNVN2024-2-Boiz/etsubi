@@ -259,7 +259,7 @@ export function createFeedPostCard(post, {
     createFeedStat('upvote', stats?.like_count, 'likes'),
     createFeedShare(post),
     el('a', { href: routes.post(post.id), className: 'btn btn--primary featured-card__detail postcard-feed__detail' },
-      t('Xem chi tiết'), feedIcon('arrow-right')),
+      t('Xem chi tiết'), feedIcon('arrow-right-brand')),
     createBookmarkButton(post.id, bookmarked, onBookmark));
   // Chỉ gắn ảnh đã lọc được chọn cho bản xem trước; mỗi ảnh dẫn tới toàn bộ bài.
   const images = el('div', { className: 'postcard-feed__images' + (preview.images.length > 1 ? ' postcard-feed__images--grid' : '') });
