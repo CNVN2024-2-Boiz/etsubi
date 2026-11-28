@@ -1,130 +1,43 @@
-# CRUD Tests
+# Kiểm thử tích hợp luồng nghiệp vụ CRUD (`tests/crud/`)
 
-## Files
+Thư mục `tests/crud/` chứa các bộ kịch bản kiểm thử tích hợp xác minh toàn bộ vòng đời dữ liệu (tạo, đọc, cập nhật, xóa) và các quy tắc nghiệp vụ cốt lõi của từng phân hệ qua giao thức HTTP thực tế.
 
-| File | Domain | Nội dung chính |
-|---|---|---|
-| `user.rs` | Auth + profile | Register, login, logout, `/my`, đổi mật khẩu |
-| `post.rs` | Post | CRUD, ownership, staff moderation, comment lock |
-| `comment.rs` | Comment | CRUD, reply tree, ownership, staff moderation, restore |
-| `bookmark.rs` | Bookmark | Add/remove, conflict, post đã xoá bị ẩn |
-| `follow.rs` | Follow | Follow/unfollow, self-follow, conflict |
-| `reaction.rs` | Reaction | Upsert, đổi emoji, remove, summary, list |
-| `tag.rs` | Tag | Attach/detach, ownership, conflict, list posts theo tag |
-| `translation.rs` | Translation | Auth guard, missing post, missing provider |
+## Cấu trúc các thành phần
 
-## Nội dung test
+```text
+tests/crud/
+├── bookmark.rs             # Kiểm thử lưu bài viết, bỏ lưu, kiểm tra trạng thái và danh sách bài viết đã lưu
+├── comment.rs              # Kiểm thử tạo bình luận, phản hồi đa cấp, chỉnh sửa, xóa mềm và khóa bình luận
+├── follow.rs               # Kiểm thử theo dõi, hủy theo dõi, chặn tự theo dõi và liệt kê danh sách liên kết
+├── mod.rs                  # Khai báo và xuất toàn bộ module kiểm thử CRUD
+├── notification.rs         # Kiểm thử tạo thông báo, nhắc tên, đánh dấu đã đọc và xóa thông báo cá nhân
+├── notification_fanout.rs  # Kiểm thử phát thông báo hàng loạt tới người theo dõi khi đăng bài viết mới
+├── post.rs                 # Kiểm thử tạo, cập nhật, xóa mềm bài viết, tọa độ địa lý, tìm kiếm và bộ lọc danh sách
+├── reaction.rs             # Kiểm thử thả, thay đổi, gỡ bỏ biểu cảm và thống kê số lượng theo bài viết
+├── tag.rs                  # Kiểm thử truy xuất danh mục thẻ, gắn thẻ và gỡ thẻ khỏi bài viết
+├── translation.rs          # Kiểm thử luồng dịch bài viết, bình luận và tái sử dụng bản dịch lưu trong PostgreSQL
+└── user.rs                 # Kiểm thử cập nhật hồ sơ cá nhân, đổi mật khẩu, tự xóa tài khoản và kiểm tra trùng lặp[cite: 2]
 
-Mỗi file phủ các nhánh:
-
-- Happy path: full CRUD flow
-- Validation: input không hợp lệ → 4xx
-- Auth: 401 khi thiếu token
-- Ownership: 403 khi không phải owner
-- Moderation: 403 hoặc 200 tùy role
-- Edge case: missing resource, deleted resource, hành động lặp
-
-Không test serialization shape, không test wording của error message, không test OpenAPI.
-
-## Parametrize
-
-Validation dùng `#[rstest]`:
-
-```rust
-#[rstest]
-#[case::empty(      "".to_string(),      400)]
-#[case::whitespace( "   ".to_string(),   400)]
-#[case::too_long(   "a".repeat(10_001),  400)]
-fn create_comment_validation(#[case] content: String, #[case] expected: u16) { ... }
 ```
 
-Tên case (`::empty`, `::whitespace`) xuất hiện trong output `cargo test`. Khi fail, biết ngay case nào.
+## Tính năng và phạm vi kiểm thử
 
-Khi viết case mới, kiểm tra param có thực sự được truyền vào request body. Case `bad_language` từng fail vì test hardcode `"language": "en"` thay vì dùng param.
+* **Xác minh vòng đời tài nguyên**: Kiểm tra đầy đủ chuỗi thao tác `POST`, `GET`, `PATCH`, `DELETE` cho từng đối tượng nghiệp vụ (người dùng, bài viết, bình luận, thẻ, lưu bài, biểu cảm, theo dõi, thông báo), đối chiếu mã trạng thái HTTP và cấu trúc JSON phản hồi.
 
-## Helper trong file
 
-Mỗi file có helper riêng để giảm boilerplate:
+* **Kiểm tra điều kiện biên và ràng buộc dữ liệu**: Xác nhận hệ thống từ chối các dữ liệu đầu vào không hợp lệ (tiêu đề hoặc nội dung rỗng, vượt quá giới hạn độ dài, tọa độ địa lý sai miền giá trị, tự theo dõi chính mình, trùng lặp bản ghi) với các mã lỗi `400 Bad Request`, `404 Not Found` và `409 Conflict`.
 
-```rust
-fn create_post(user: &TestUser, server: &TestServer, title: &str) -> String { ... }
-fn create_comment(user: &TestUser, server: &TestServer, post_id: &str, content: &str, parent_id: Option<&str>) -> Value { ... }
-```
 
-Helper đặt private trong file, không export. Trả `String` (id) thay vì `Value` để test dễ đọc.
+* **Kiểm tra tác vụ liên miền**: Xác minh cơ chế phát sinh thông báo khi có nhắc tên hoặc đăng bài mới (`notification_fanout.rs`), cơ chế khóa bình luận trên bài viết và khả năng lưu trữ bản dịch.
 
-## Chi tiết từng file
 
-### `user.rs`
 
-- Full flow: register → login → `/my` → logout → token cũ bị từ chối (401)
-- Register validation: password ngắn, language sai, username ngắn
-- Login reject: sai password, email không tồn tại
-- Lấy user public
-- Cập nhật profile (bio, institute)
-- Đổi mật khẩu: token cũ invalidated, password mới đăng nhập được
+## Tính chất kỹ thuật
 
-### `post.rs`
+* **Tái sử dụng hạ tầng máy chủ thử nghiệm**: Mỗi tệp kiểm thử gọi `TestServer::start()` và `register_and_login()` từ `tests/common/mod.rs` để khởi chạy máy chủ HTTP cục bộ và cấp phát tài khoản thử nghiệm độc lập kèm mã JWT.
 
-- Full CRUD: create → get → list theo author → update → delete → 404
-- Validation: title rỗng, toàn whitespace, title > 255, content > 100k
-- Auth: 401 khi không có token
-- Ownership: user B không update/delete post của A → 403
-- Staff: hide/restore, post ẩn không xuất hiện trong list public
-- Comment lock: khoá thì comment mới bị từ chối (403), mở khoá thì comment được
 
-### `comment.rs`
+* **Tự động dọn dẹp dữ liệu sau kiểm thử**: Các tài khoản thử nghiệm được bọc trong cấu trúc `TestUser` triển khai trait `Drop`, tự động xóa người dùng và các bản ghi liên quan khỏi PostgreSQL ngay khi kết thúc mỗi hàm kiểm thử.
 
-- Full CRUD, sau delete thì GET trả 404
-- Reply: `parent_id` được set đúng, reply chéo post bị từ chối (404)
-- Validation: rỗng, whitespace, > 10k ký tự
-- Auth và ownership
-- Staff: đổi status visible/hidden, restore comment đã xoá
-- `/my/comments` list, comment đã xoá bị ẩn
 
-### `bookmark.rs`
-
-- Add → list → kiểm tra status → remove
-- Bookmark trùng → 409
-- Remove bookmark không tồn tại → 404
-- Bookmark post không tồn tại → 404
-- Auth guard
-- Post đã xoá bị ẩn khỏi `/my/bookmarks`
-
-### `follow.rs`
-
-- Follow → list followers/following → kiểm tra status (`is_following`, `is_followed_by`)
-- Unfollow xoá relationship
-- Self-follow → 400
-- Follow trùng → 409
-- User không tồn tại → 404
-- Auth guard
-
-### `reaction.rs`
-
-- Upsert → summary group theo emoji
-- Đổi emoji: upsert ghi đè
-- Remove → GET lại trả 404
-- Emoji validation: rỗng, whitespace, > 32 ký tự
-- Post không tồn tại → 404
-- Auth guard
-- List toàn bộ reaction trên 1 post
-
-### `tag.rs`
-
-- List toàn bộ tag (seed 5 tag)
-- Get theo id
-- Attach → get post tags → get tag posts → detach
-- Attach trùng → 409
-- Detach tag chưa attach → 409
-- Ownership: chỉ author của post attach/detach được
-- Tag không tồn tại → 404
-
-### `translation.rs`
-
-- Auth guard
-- Post không tồn tại → 404
-- Không cấu hình provider → 503 (skip nếu `TRANSLATION_API_KEY` được set)
-
-Không test translation thật vì: cần API key trả phí, response phụ thuộc LLM (không deterministic). Cache đã được test gián tiếp qua flow edit post (tạo translation → edit → cache bị invalidate).
-
+* **Xác thực đồng thời tầng HTTP và tầng lưu trữ**: Các ca kiểm thử gửi yêu cầu mạng thật qua `reqwest::blocking::Client` đi qua đầy đủ lớp trình bày, lớp nghiệp vụ và truy vấn trực tiếp trên PostgreSQL để đảm bảo tính nhất quán dữ liệu đầu cuối.
